@@ -10,7 +10,7 @@ static const unsigned int gappov    = 10;       /* vert outer gap between window
 static       int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "FantasqueSansM Nerd Font:size=10" };
+static const char *fonts[]          = { "FantasqueSansM Nerd Font:size=12" };
 static const char dmenufont[]       = "monospace:size=10";
 static unsigned int baralpha        = 0xd1;
 static unsigned int borderalpha     = OPAQUE;
@@ -68,7 +68,7 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -131,7 +131,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	{ MODKEY|Mod1Mask, 							XK_l, 		 spawn, 				 SHCMD("./scripts/lock.sh") },
+	{ MODKEY|Mod1Mask, 							XK_l, 		 spawn, 				 SHCMD("$HOME/.config/dwm/scripts/lock.sh") },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
