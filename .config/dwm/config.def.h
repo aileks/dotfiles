@@ -1,4 +1,4 @@
-/* See LICENSE file for copyright and license details. */
+#include <X11/XF86keysym.h>
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
@@ -89,6 +89,11 @@ static const char *dmenucmd[] = { "rofi", "-show", "combi", "-modes", "combi", "
 static const char *termcmd[]  = { "kitty", NULL };
 static const char *browsercmd[] = { "brave", NULL };
 static const char *filemgr[] = { "thunar", NULL };
+static const char *volupcmd[] = { "pamixer", "-i", "5", NULL } ;
+static const char *voldowncmd[] = { "pamixer", "-d", "5", NULL };
+static const char *playpausecmd[] = { "playerctl", "play-pause", NULL };
+static const char *nextcmd[] = { "playerctl", "next", NULL };
+static const char *previouscmd[] = { "playerctl", "previous", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -136,6 +141,11 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      spawn,          SHCMD("$HOME/.config/scripts/rofi-power.sh") },
+	{ 0, 							XF86XK_AudioRaiseVolume, spawn, 				 {.v = volupcmd } },
+	{ 0, 							XF86XK_AudioLowerVolume, spawn, 				 {.v = voldowncmd } },
+  { 0, 										 XF86XK_AudioPlay, spawn, 				 {.v = playpausecmd} },
+  { 0, 										 XF86XK_AudioNext, spawn, 				 {.v = nextcmd} },
+  { 0, 										 XF86XK_AudioPrev, spawn, 				 {.v = previouscmd} },
 };
 
 /* button definitions */
