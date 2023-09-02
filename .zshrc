@@ -1,6 +1,3 @@
-# Path
-export PATH="$PATH:/home/ly/.local/bin:/home/ly/.cargo/bin:/home/ly/.local/share/bob/nightly/nvim-linux64/bin"
-
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
