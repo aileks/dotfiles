@@ -26,12 +26,6 @@ static const char *colors[][3]      = {
 	[SchemeSel]  = { col_fg,    col_bg,    col_border },
 };
 
-static const char *const autostart[] = {
-	"sh", "-c", "$HOME/.config/scripts/autostart.sh", NULL,
-	"feh", "--bg-scale", "$HOME/Art/ボイラブ/912ae5dc93bc270d3851fb5f4b3cd2e7.png", NULL,
-	NULL /* terminate */
-};
-
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
@@ -125,7 +119,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{ MODKEY, 			  							XK_l, 		 spawn, 				 SHCMD("$HOME/.config/scripts/lock.sh") },
+	{ MODKEY, 			  							XK_l, 		 spawn, 				 SHCMD("$HOME/.config/dwm/scripts/lock.sh") },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
