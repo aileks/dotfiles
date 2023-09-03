@@ -1,11 +1,11 @@
 #!/bin/env sh
 
 update_cpu () { 
-	cpu="󰻠 $(grep -o "^[^ ]*" /proc/loadavg )" 
+	cpu="󰻠 $(top -bn 1 | grep '%Cpu' | tr -d 'usy,' | awk '{print $2} ' )" 
 }
 
 update_memory () { 
-	memory=" $(free --giga -h | sed -n "2s/\([^ ]* *\)\{2\}\([^ ]*\).*/\2/p")"
+	memory="  $(free --giga -h | sed -n "2s/\([^ ]* *\)\{2\}\([^ ]*\).*/\2/p")"
 }
 
 update_time () { 
@@ -33,7 +33,7 @@ do
 	sleep 1 & wait && { 
 		# to update item ever n seconds with a offset of m
 		## [ $((sec % n)) -eq m ] && udpate_item
-		[ $((sec % 5 )) -eq 0 ] && update_cpu
+		[ $((sec % 1 )) -eq 0 ] && update_cpu
 		[ $((sec % 5 )) -eq 0 ] && update_memory
 		[ $((sec % 30 )) -eq 0 ] && update_time
 		[ $((sec % 5 )) -eq 0 ] && update_vol
