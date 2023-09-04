@@ -1,3 +1,6 @@
+# Path
+export PATH="$PATH:$HOME/.cargo/bin"
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -13,8 +16,8 @@ source $ZSH/oh-my-zsh.sh
 # Aliases
 alias ls="exa --icons"
 alias la="exa --icons -al"
-
-
+alias gc="git commit -m"
+alias gp="git push origin main"
 
 ## General
 ### Diffs
