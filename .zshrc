@@ -16,8 +16,10 @@ source $ZSH/oh-my-zsh.sh
 # Aliases
 alias ls="exa --icons"
 alias la="exa --icons -al"
+alias ga="git add"
 alias gc="git commit -m"
 alias gp="git push origin main"
+alias yay="pikaur"
 
 ## General
 ### Diffs

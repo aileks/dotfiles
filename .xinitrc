@@ -11,6 +11,7 @@ exec /usr/bin/lxpolkit &
 exec /usr/bin/xss-lock --transfer-sleep-lock -- i3lock -i $HOME/Pictures/lockscreen.png --nofork &
 exec /usr/bin/dunst > /dev/null 2>&1 &
 exec /usr/bin/picom --config $HOME/.config/picom/picom.conf -b &
+exec setxkbmap -option numpad:mac
 
 # Start dwm with error logging
 while true; do
