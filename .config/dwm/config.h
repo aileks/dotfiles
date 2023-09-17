@@ -27,8 +27,6 @@ static const char *colors[][3]      = {
 };
 
 static const char *const autostart[] = {
-	"sh", "-c", "$HOME/.config/scripts/autostart.sh", NULL,
-	"feh", "--bg-scale", "$HOME/Art/ボイラブ/912ae5dc93bc270d3851fb5f4b3cd2e7.png", NULL,
 	NULL /* terminate */
 };
 
@@ -85,7 +83,7 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *dmenucmd[] = { "rofi", "-show", "combi", "-modes", "combi", "-combi-modes", "window,drun,run", NULL };
+static const char *dmenucmd[] = { "rofi", "-show", "combi", "-modes", "combi", "-combi-modes", "drun,run", NULL };
 static const char *termcmd[]  = { "kitty", NULL };
 static const char *browsercmd[] = { "brave", NULL };
 static const char *filemgr[] = { "thunar", NULL };
@@ -94,13 +92,15 @@ static const char *voldowncmd[] = { "pamixer", "-d", "5", NULL };
 static const char *playpausecmd[] = { "playerctl", "play-pause", NULL };
 static const char *nextcmd[] = { "playerctl", "next", NULL };
 static const char *previouscmd[] = { "playerctl", "previous", NULL };
+static const char *editorcmd[] = { "codium", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
+	{ MODKEY|ShiftMask,             XK_v,  	   spawn,          {.v = editorcmd } },
 	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
-	{ MODKEY,	                		  XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,												XK_b,	     spawn,	   			 {.v = browsercmd } },
-	{ MODKEY,												XK_e,	   	 spawn,	   			 {.v = filemgr } },
+	{ MODKEY,	                    XK_Return, spawn,          {.v = termcmd } },
+	{ MODKEY,						XK_b,	   spawn,	   	   {.v = browsercmd } },
+	{ MODKEY,						XK_e,	   spawn,	   	   {.v = filemgr } },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
@@ -121,7 +121,7 @@ static const Key keys[] = {
 	{ MODKEY|Mod1Mask,              XK_0,      togglegaps,     {0} },
 	{ MODKEY|Mod1Mask|ShiftMask,    XK_0,      defaultgaps,    {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY,				                XK_q,      killclient,     {0} },
+	{ MODKEY,				        XK_q,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
@@ -130,7 +130,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{ MODKEY, 			  							XK_l, 		 spawn, 				 SHCMD("$HOME/.config/scripts/lock.sh") },
+	{ MODKEY, 			  			XK_l,	   spawn,          SHCMD("$HOME/.config/scripts/lock.sh") },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)

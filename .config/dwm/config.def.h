@@ -27,8 +27,6 @@ static const char *colors[][3]      = {
 };
 
 static const char *const autostart[] = {
-	"sh", "-c", "$HOME/.config/scripts/autostart.sh", NULL,
-	"feh", "--bg-scale", "$HOME/Art/ボイラブ/912ae5dc93bc270d3851fb5f4b3cd2e7.png", NULL,
 	NULL /* terminate */
 };
 
@@ -98,7 +96,7 @@ static const char *editorcmd[] = { "codium", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY|Mod1Mask,             XK_v,  	   spawn,          {.v = editorcmd } },
+	{ MODKEY|ShiftMask,             XK_v,  	   spawn,          {.v = editorcmd } },
 	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
 	{ MODKEY,	                    XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,						XK_b,	   spawn,	   	   {.v = browsercmd } },
