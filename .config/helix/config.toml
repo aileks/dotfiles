@@ -2,6 +2,7 @@ theme = "dracula"
 
 [editor]
 line-number = "relative"
+mouse = false
 bufferline = "multiple"
 auto-save = true
 idle-timeout = 300

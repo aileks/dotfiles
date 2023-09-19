@@ -1,8 +1,11 @@
 # Path
-export PATH="$PATH:$HOME/.cargo/bin:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.cargo/bin"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
+
+# Sudoedit
+# export EDITOR=helix
 
 # Theme
 ZSH_THEME="bira"
@@ -20,6 +23,7 @@ alias ga="git add"
 alias gc="git commit -m"
 alias gp="git push origin main"
 alias hx="helix"
+alias sudo="doas"
 
 ## General
 ### Diffs
