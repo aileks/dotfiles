@@ -11,7 +11,7 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="bira"
 
 # Plugins
-plugins=(git zsh-syntax-highlighting)
+plugins=(git zsh-syntax-highlighting cp command-not-found colorize)
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh
@@ -19,11 +19,13 @@ source $ZSH/oh-my-zsh.sh
 # Aliases
 alias ls="exa --icons"
 alias la="exa --icons -al"
+alias gs="git status"
 alias ga="git add"
 alias gc="git commit -m"
 alias gp="git push origin main"
 alias hx="helix"
 alias sudo="doas"
+alias cp="cpv"
 
 ## General
 ### Diffs
