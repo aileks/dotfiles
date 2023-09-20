@@ -36,9 +36,9 @@ i3lock \
   --clock \
   --indicator \
   --time-str="%H:%M:%S" \
-  --date-str="%A %e %B %Y" \
+  --date-str="%A %B %e, %Y" \
   --verif-text="Checking..." \
-  --wrong-text="Wrong pswd" \
+  --wrong-text="Wrong password" \
   --noinput="No Input" \
   --lock-text="Locking..." \
   --lockfailed="Lock Failed" \

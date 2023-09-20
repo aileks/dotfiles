@@ -1,15 +1,15 @@
 #!/bin/env sh
 
 update_cpu () { 
-	cpu="󰻠 $(top -bn 1 | grep '%Cpu' | tr -d 'usy,' | awk '{print $2} ' )" 
+	cpu=" 󰻠  $(top -bn 1 | grep '%Cpu' | tr -d 'usy,' | awk '{print $2} ' )"
 }
 
 update_memory () { 
-	memory="  $(free --giga -h | sed -n "2s/\([^ ]* *\)\{2\}\([^ ]*\).*/\2/p")"
+	memory="   $(free --giga -h | sed -n "2s/\([^ ]* *\)\{2\}\([^ ]*\).*/\2/p")"
 }
 
 update_time () { 
-	time=" $(date "+%a %d %b %I:%M %P")" 
+	time="   $(date "+%a %b %d %I:%M %P")"
 }
 
 update_bat () { 
@@ -18,15 +18,15 @@ update_bat () {
 }
 
 update_vol () { 
-	vol=" $(pamixer --get-volume-human)"
+	vol="   $(pamixer --get-volume-human)"
 }
 
 display () { 
 	xsetroot -name " $bat $cpu $memory $vol $time "
 }
 
-trap	"update_vol;display"		"RTMIN"
-trap	"update_bat;display" 		"RTMIN+2"
+trap "update_vol;display" "RTMIN"
+trap "update_bat;display" "RTMIN+2"
 
 while true
 do
