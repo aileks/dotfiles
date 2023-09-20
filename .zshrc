@@ -11,7 +11,7 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="bira"
 
 # Plugins
-plugins=(git zsh-syntax-highlighting cp command-not-found colorize)
+plugins=(git zsh-syntax-highlighting cp command-not-found colorize rust)
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh
