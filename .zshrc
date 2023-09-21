@@ -17,8 +17,10 @@ plugins=(git zsh-syntax-highlighting cp command-not-found colorize rust)
 source $ZSH/oh-my-zsh.sh
 
 # Aliases
-alias ls="exa --icons"
-alias la="exa --icons -al"
+alias ls="exa --color=always --icons --group-directories-first"
+alias la="exa -al --color=always --icons --group-directories-first"
+alias lt="exa -aT --color=always --icons --group-directories-first"
+alias lh="exa -al --color=always --icons --group-directories-first | grep '^\.'"
 alias gs="git status"
 alias ga="git add"
 alias gc="git commit -m"
