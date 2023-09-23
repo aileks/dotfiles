@@ -1,1 +1,0 @@
-("~/CLI Project/grp/" "~/rustlings/")
