@@ -72,27 +72,6 @@
 
 (setq org-return-follows-link t)
 
-;; Disable arrow keys
-(global-set-key (kbd "<left>")
-  (lambda ()
-    (interactive)
-    (message "Stop using the arrow keys...")))
-
-(global-set-key (kbd "<right>")
-  (lambda ()
-    (interactive)
-    (message "Stop using the arrow keys...")))
-
-(global-set-key (kbd "<up>")
-  (lambda ()
-    (interactive)
-    (message "Stop using the arrow keys...")))
-
-(global-set-key (kbd "<down>")
-  (lambda ()
-    (interactive)
-    (message "Stop using the arrow keys...")))
-
 (use-package flycheck
   :ensure t
   :defer t
@@ -233,7 +212,18 @@
   :config
   (general-evil-setup t)
   (general-define-key
-    "C-x C-r" 'reload-init-file))
+    "C-x C-r" 'reload-init-file :wk "Reload init file")
+
+  (general-create-definer my-leader-def
+    :prefix "C-c") 
+
+  (my-leader-def
+    "t" '(:ignore t :wk "Toggles")
+    "t n" '(neotree-toggle :wk "Toggle neotree")
+    "t v" '(vterm-toggle :wk "Toggle vterm"))
+  (my-leader-def
+    "o" '(:ignore o :wk "Open")
+    "o r" '(recentf :wk "Open recent file")))
 
 (use-package hl-todo
   :hook ((org-mode . hl-todo-mode)
@@ -280,7 +270,7 @@
   :height 110
   :weight 'medium)
 (set-face-attribute 'variable-pitch nil
-  :font "Ubuntu"
+  :font "SF Pro Display"
   :height 120
   :weight 'medium)
 (set-face-attribute 'fixed-pitch nil
@@ -295,7 +285,6 @@
 (add-to-list 'default-frame-alist '(font . "FantasqueSansM Nerd Font Mono-12"))
 
 (delete-selection-mode 1)    ;; You can select text and delete it by typing.
-(electric-indent-mode -1)    ;; Turn off the weird indenting that Emacs does by default.
 (electric-pair-mode 1)       ;; Turns on automatic parens pairing
 ;; The following prevents <> from auto-pairing when electric-pair-mode is on.
 ;; Otherwise, org-tempo is broken when you try to <s TAB...
@@ -343,6 +332,7 @@
 
 (defun reload-init-file () 
   (interactive)
+  (shell-command "systemctl restart --user emacs.service")
   (load-file "~/.config/emacs/init.el"))
 
 (use-package vterm
@@ -414,3 +404,6 @@
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
 (load-theme 'dracula t)
+
+(use-package elcord)
+(elcord-mode)
