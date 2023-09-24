@@ -4,7 +4,7 @@
 #+OPTIONS: toc:2
 
 * TABLE OF CONTENTS :toc:
-- [[#elpaca][Elpaca]]
+- [[#elpaca][ELPACA]]
 - [[#important-packages][IMPORTANT PACKAGES]]
   - [[#evil-mode][Evil Mode]]
   - [[#flycheck][FlyCheck]]
@@ -26,6 +26,7 @@
   - [[#company][CompAny]]
   - [[#diminish][Diminish]]
   - [[#hydra][Hydra]]
+  - [[#ligatures][Ligatures]]
 - [[#fonts][FONTS]]
   - [[#setting-font-face][Setting Font Face]]
   - [[#fix-font-loading-in-emacsclient-mode][Fix Font Loading in Emacsclient Mode]]
@@ -42,16 +43,19 @@
 - [[#shells--terminals][SHELLS & TERMINALS]]
   - [[#vterm][Vterm]]
   - [[#vterm-toggle][Vterm Toggle]]
-- [[#rust--development][RUST & DEVELOPMENT]]
+- [[#development-tools][DEVELOPMENT TOOLS]]
+  - [[#dap-mode][Dap Mode]]
+  - [[#lsp-java][LSP Java]]
   - [[#rustic][Rustic]]
   - [[#rust-mode][Rust Mode]]
   - [[#lsp-mode--ui][LSP Mode & UI]]
   - [[#yasnippet][YASnippet]]
   - [[#evil-nerd-commenter][Evil Nerd Commenter]]
+  - [[#irony][Irony]]
 - [[#theme][THEME]]
-- [[#discord-rich-presence][Discord Rich Presence]]
+- [[#discord-rich-presence][DISCORD RICH PRESENCE]]
 
-* Elpaca
+* ELPACA
 #+begin_src emacs-lisp
 (defvar elpaca-installer-version 0.5)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -327,7 +331,8 @@
     "t v" '(vterm-toggle :wk "Toggle vterm"))
   (my-leader-def
     "o" '(:ignore o :wk "Open")
-    "o r" '(recentf :wk "Open recent file")))
+    "o r" '(recentf :wk "Open recent file"))
+    "o b" '(ibuffer :wk "Open ibuffer"))
 #+end_src
 
 ** Highlight TODO
@@ -382,6 +387,26 @@
 (use-package hydra)
 #+end_src
 
+** Ligatures
+#+begin_src emacs-lisp
+(use-package ligature
+  :config
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  (global-ligature-mode t))
+#+end_src
+
 
 * FONTS
 ** Setting Font Face
@@ -423,7 +448,7 @@
                   (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
 (column-number-mode)
 (global-auto-revert-mode t)  ;; Automatically show changes if the file has changed.
-(setq global-display-line-numbers-mode 'relative)
+(setq display-line-numbers-type 'relative) 
 (global-display-line-numbers-mode t) ;; Display line numbers.
 (global-visual-line-mode t)  ;; Enable truncated lines.
 (menu-bar-mode -1)           ;; Disable the menu bar.
@@ -501,8 +526,7 @@ Usage:
 #+begin_src emacs-lisp 
 (defun reload-init-file () 
   (interactive)
-  (shell-command "systemctl restart --user emacs.service")
-  (load-file "~/.config/emacs/init.el"))
+  (server-start))
 #+end_src
 
 
@@ -534,7 +558,28 @@ Usage:
 #+end_src
 
 
-* RUST & DEVELOPMENT
+* DEVELOPMENT TOOLS
+** Dap Mode
+#+begin_src emacs-lisp
+(use-package dap-mode
+  :ensure
+  :config
+  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
+  (require 'dap-lldb)
+  (require 'dap-cpptools)
+  (require 'dap-java)
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  (dap-tooltip-mode 1)
+  (tooltip-mode 1)
+  (dap-ui-controls-mode 1))
+#+end_src
+
+** LSP Java
+#+begin_src emacs-lisp
+(use-package lsp-java)
+#+end_src
+
 ** Rustic
 #+begin_src emacs-lisp
   (use-package rustic)
@@ -597,6 +642,29 @@ Usage:
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+end_src
 
+** Irony
+#+begin_src emacs-lisp
+(use-package irony
+  :config
+  (unless (irony--find-server-executable) (call-interactively #'irony-install-server))
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'c-mode-hook 'irony-mode)
+  (setq-default irony-cdb-compilation-databases '(irony-cdb-libclang
+						      irony-cdb-clang-complete))
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
+(use-package company-irony
+  :config
+  (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
+
+(use-package flycheck-irony
+  :config
+  (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
+
+(use-package irony-eldoc
+  :config
+  (add-hook 'irony-mode-hook #'irony-eldoc))
+#+end_src
 
 * THEME
 #+begin_src emacs-lisp
@@ -604,8 +672,7 @@ Usage:
 (load-theme 'dracula t)
 #+end_src
 
-* Discord Rich Presence
+* DISCORD RICH PRESENCE
 #+begin_src emacs-lisp
 (use-package elcord)
-(elcord-mode)
 #+end_src

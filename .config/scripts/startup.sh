@@ -10,5 +10,5 @@ setxkbmap -option numpad:mac &
 # Personal
 feh --no-fehbg --bg-scale ~/.bg.png &
 flameshot &                                                                                    
-xmodmap ~/.Xmodmap
-emacs --daemon
+/usr/bin/xmodmap ~/.Xmodmap
+thunderbird &

@@ -223,7 +223,8 @@
     "t v" '(vterm-toggle :wk "Toggle vterm"))
   (my-leader-def
     "o" '(:ignore o :wk "Open")
-    "o r" '(recentf :wk "Open recent file")))
+    "o r" '(recentf :wk "Open recent file"))
+    "o b" '(ibuffer :wk "Open ibuffer"))
 
 (use-package hl-todo
   :hook ((org-mode . hl-todo-mode)
@@ -265,6 +266,23 @@
 
 (use-package hydra)
 
+(use-package ligature
+  :config
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  (global-ligature-mode t))
+
 (set-face-attribute 'default nil
   :font "FantasqueSansM Nerd Font Mono"
   :height 110
@@ -294,7 +312,7 @@
                   (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
 (column-number-mode)
 (global-auto-revert-mode t)  ;; Automatically show changes if the file has changed.
-(setq global-display-line-numbers-mode 'relative)
+(setq display-line-numbers-type 'relative) 
 (global-display-line-numbers-mode t) ;; Display line numbers.
 (global-visual-line-mode t)  ;; Enable truncated lines.
 (menu-bar-mode -1)           ;; Disable the menu bar.
@@ -332,8 +350,7 @@
 
 (defun reload-init-file () 
   (interactive)
-  (shell-command "systemctl restart --user emacs.service")
-  (load-file "~/.config/emacs/init.el"))
+  (server-start))
 
 (use-package vterm
 :config
@@ -354,6 +371,21 @@
                   (display-buffer-reuse-window display-buffer-at-bottom)
                   (reusable-frames . visible)
                   (window-height . 0.3))))
+
+(use-package dap-mode
+  :ensure
+  :config
+  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
+  (require 'dap-lldb)
+  (require 'dap-cpptools)
+  (require 'dap-java)
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  (dap-tooltip-mode 1)
+  (tooltip-mode 1)
+  (dap-ui-controls-mode 1))
+
+(use-package lsp-java)
 
 (use-package rustic)
 
@@ -402,8 +434,28 @@
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
+(use-package irony
+  :config
+  (unless (irony--find-server-executable) (call-interactively #'irony-install-server))
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'c-mode-hook 'irony-mode)
+  (setq-default irony-cdb-compilation-databases '(irony-cdb-libclang
+						      irony-cdb-clang-complete))
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
+(use-package company-irony
+  :config
+  (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
+
+(use-package flycheck-irony
+  :config
+  (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
+
+(use-package irony-eldoc
+  :config
+  (add-hook 'irony-mode-hook #'irony-eldoc))
+
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
 (load-theme 'dracula t)
 
 (use-package elcord)
-(elcord-mode)
