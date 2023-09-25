@@ -25,7 +25,6 @@ alias gs="git status"
 alias ga="git add"
 alias gc="git commit -m"
 alias gp="git push origin main"
-alias hx="helix"
 alias sudo="doas"
 alias cp="cpv"
 
