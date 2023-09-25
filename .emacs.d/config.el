@@ -1,62 +1,3 @@
-#+TITLE: GNU Emacs Config
-#+AUTHOR: aileks
-#+DESCRIPTION: showeverything
-#+OPTIONS: toc:2
-
-* TABLE OF CONTENTS :toc:
-- [[#elpaca][ELPACA]]
-- [[#important-packages][IMPORTANT PACKAGES]]
-  - [[#evil-mode][Evil Mode]]
-  - [[#flycheck][FlyCheck]]
-  - [[#magit][Magit]]
-  - [[#which-key][Which Key]]
-  - [[#ivy--counsel][Ivy & Counsel]]
-  - [[#dired][Dired]]
-  - [[#projectile][Projectile]]
-  - [[#neotree][Neotree]]
-  - [[#dashboard][Dashboard]]
-- [[#extra-packages][EXTRA PACKAGES]]
-  - [[#rainbow-delimiters][Rainbow Delimiters]]
-  - [[#sudo-edit][Sudo Edit]]
-  - [[#all-the-icons][All The Icons]]
-  - [[#nerd-icons][Nerd Icons]]
-  - [[#rainbow-mode][Rainbow Mode]]
-  - [[#general-keybinds][General (Keybinds)]]
-  - [[#highlight-todo][Highlight TODO]]
-  - [[#company][CompAny]]
-  - [[#diminish][Diminish]]
-  - [[#hydra][Hydra]]
-  - [[#ligatures][Ligatures]]
-- [[#fonts][FONTS]]
-  - [[#setting-font-face][Setting Font Face]]
-  - [[#fix-font-loading-in-emacsclient-mode][Fix Font Loading in Emacsclient Mode]]
-- [[#tweaks][TWEAKS]]
-  - [[#ui][UI]]
-  - [[#backup][Backup]]
-- [[#org-mode][ORG MODE]]
-  - [[#table-of-contents][Table of Contents]]
-  - [[#org-bullets][Org Bullets]]
-  - [[#diminish-org-indent-mode][Diminish Org Indent Mode]]
-  - [[#org-level-headers][Org Level Headers]]
-  - [[#org-tempo][Org-Tempo]]
-- [[#reload-emacs][RELOAD EMACS]]
-- [[#shells--terminals][SHELLS & TERMINALS]]
-  - [[#vterm][Vterm]]
-  - [[#vterm-toggle][Vterm Toggle]]
-- [[#development-tools][DEVELOPMENT TOOLS]]
-  - [[#dap-mode][Dap Mode]]
-  - [[#lsp-java][LSP Java]]
-  - [[#rustic][Rustic]]
-  - [[#rust-mode][Rust Mode]]
-  - [[#lsp-mode--ui][LSP Mode & UI]]
-  - [[#yasnippet][YASnippet]]
-  - [[#evil-nerd-commenter][Evil Nerd Commenter]]
-  - [[#irony][Irony]]
-- [[#theme][THEME]]
-- [[#discord-rich-presence][DISCORD RICH PRESENCE]]
-
-* ELPACA
-#+begin_src emacs-lisp
 (defvar elpaca-installer-version 0.5)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
@@ -97,12 +38,7 @@
   (elpaca-use-package-mode)
   (setq elpaca-use-package-by-default t))
 (elpaca-wait)
-#+end_src
 
-
-* IMPORTANT PACKAGES
-** Evil Mode
-#+begin_src emacs-lisp
 (use-package evil
   :init
   (setq evil-want-integration t
@@ -116,7 +52,7 @@
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
 
-  ;; QoL keybinds
+  ;; Use visual line motions even outside of visual-line-mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
@@ -135,27 +71,39 @@
   (define-key evil-motion-state-map (kbd "TAB") nil))
 
 (setq org-return-follows-link t)
-#+end_src
 
-** FlyCheck
-#+begin_src emacs-lisp
 (use-package flycheck
   :ensure t
   :defer t
   :diminish
   :init (global-flycheck-mode))
-#+end_src
 
-** Magit
-#+begin_src emacs-lisp
 (use-package magit
   :commands (magit-status magit-get-current-branch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-#+end_src
 
-** Which Key 
-#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-evil-setup t)
+  (general-define-key
+    "C-x C-r" 'reload-init-file :wk "Reload init file")
+
+  (general-create-definer my-leader-def
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC") 
+
+  (my-leader-def
+    "t" '(:ignore t :wk "Toggles")
+    "t n" '(neotree-toggle :wk "Toggle neotree")
+    "t v" '(vterm-toggle :wk "Toggle vterm")
+    "t s" '(hydra-text-scale/body :wk "Scale text"))
+  (my-leader-def
+    "o" '(:ignore o :wk "Open")
+    "o r" '(recentf :wk "Open recent file")
+    "o b" '(ibuffer :wk "Open ibuffer")))
+
 (use-package which-key
   :init
   (which-key-mode 1)
@@ -168,48 +116,59 @@
      which-key-min-display-lines 8
      which-key-side-window-slot -10
      which-key-side-window-max-height 0.25
-     which-key-idle-delay 0.8
+     which-key-idle-delay 1  
      which-key-max-description-length 25
      which-key-allow-imprecise-window-fit t
      which-key-separator " → " ))
-#+end_src
 
-** Ivy & Counsel
-#+begin_src emacs-lisp
-  (use-package counsel
-    :after ivy
-    :config (counsel-mode))
+(use-package counsel
+  :after ivy
+  :bind
+  (("M-x" . counsel-M-x)
+      ("C-x b" . counsel-ibuffer)
+      ("C-x C-f" . counsel-find-file)
+      :map minibuffer-local-map
+      ("C-r" . 'counsel-minibuffer-history))
+  :config
+  (counsel-mode))
 
-  (use-package ivy
-    :bind
-    (("C-c C-r" . ivy-resume)
-     ("C-x B" . ivy-switch-buffer-other-window))
-    :custom
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-count-format "(%d/%d) ")
-    (setq enable-recursive-minibuffers t)
-    :config
-    (ivy-mode))
+(use-package ivy
+  :bind (("C-s" . swiper)
+  :map ivy-minibuffer-map
+  ("TAB" . ivy-alt-done)
+  ("C-l" . ivy-previous-line)
+  :map ivy-switch-buffer-map
+  ("C-k" . ivy-previous-line)
+  ("C-l" . ivy-done)
+  ("C-d" . ivy-switch-buffer-kill)
+  :map ivy-reverse-i-search-map
+  ("C-k" . ivy-previous-line)
+  ("C-d" . ivy-reverse-i-search-kill))
+  :custom
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq enable-recursive-minibuffers t)
+  :config
+  (ivy-mode))
 
-  (use-package all-the-icons-ivy-rich
-    :ensure t
-    :init (all-the-icons-ivy-rich-mode 1))
+(use-package ivy-rich
+  :after counsel
+  :ensure t
+  :init (ivy-rich-mode 1) 
+  :custom
+  (ivy-virtual-abbreviate 'full
+   ivy-rich-switch-buffer-align-virtual-buffer t
+   ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-set-display-transformer 'ivy-switch-buffer
+			       'ivy-rich-switch-buffer-transformer))
 
-  (use-package ivy-rich
-    :after ivy
-    :ensure t
-    :init (ivy-rich-mode 1) 
-    :custom
-    (ivy-virtual-abbreviate 'full
-     ivy-rich-switch-buffer-align-virtual-buffer t
-     ivy-rich-path-style 'abbrev)
-    :config
-    (ivy-set-display-transformer 'ivy-switch-buffer
-                                 'ivy-rich-switch-buffer-transformer))
-#+end_src
+(use-package all-the-icons-ivy-rich
+  :ensure t
+  :init (all-the-icons-ivy-rich-mode 1))
 
-** Dired
-#+begin_src emacs-lisp
+(use-package dired-single)
+
 (use-package dired-open
   :config
   (setq dired-open-extensions '(("gif" . "viewnior")
@@ -218,25 +177,35 @@
                                 ("mkv" . "mpv")
                                 ("mp4" . "mpv"))))
 
-(use-package peep-dired
-  :after dired)
-#+end_src
+(use-package dired-hide-dotfiles
+  :hook (dired-mode . dired-hide-dotfiles-mode)
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "H" 'dired-hide-dotfiles-mode))
 
-** Projectile
-#+begin_src emacs-lisp
+(use-package peep-dired
+  :after dired
+  :hook (evil-normalize-keymaps . peep-dired-hook)
+  :config
+    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file) 
+    (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
+    (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file))
+
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
-  (when (file-directory-p "~/Projects/Code")
-    (setq projectile-project-search-path '("~/Projects/Code")))
+  (when (file-directory-p "~/Projects")
+    (setq projectile-project-search-path '("~/Projects")))
   (setq projectile-switch-project-action #'projectile-dired))
-#+end_src
 
-** Neotree
-#+begin_src emacs-lisp
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+
 (use-package neotree
   :config
   (setq neo-smart-open t
@@ -252,107 +221,7 @@
                  (setq word-wrap nil)
                  (make-local-variable 'auto-hscroll-mode)
                  (setq auto-hscroll-mode nil)))))
-#+end_src
 
-** Dashboard
-#+begin_src emacs-lisp
-(use-package dashboard
-  :elpaca t 
-  :init
-  (setq initial-buffer-choice 'dashboard-open)
-  (setq dashboard-icon-type 'all-the-icons)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
-  (setq dashboard-startup-banner '1)
-  (setq dashboard-items '((recents . 3)
-                          (agenda . 3)
-                          (bookmarks . 3)
-                          (projects . 3)
-                          (registers . 3)))
-  (setq dashboard-center-content t)
-  :config
-  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
-  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
-  (setq dashboard-set-navigator t)
-  (setq dashbaord-set-init-info t)
-  (setq dashboard-set-footer t)
-  (dashboard-setup-startup-hook))
-#+end_src
-
-
-* EXTRA PACKAGES
-** Rainbow Delimiters
-#+begin_src emacs-lisp
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-#+end_src
-
-** Sudo Edit
-#+begin_src emacs-lisp
-(use-package sudo-edit)
-#+end_src
-
-** All The Icons
-#+begin_src emacs-lisp
-(use-package all-the-icons
-  :ensure t
-  :if (display-graphic-p))
-(use-package all-the-icons-dired
-  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
-#+end_src
-
-** Nerd Icons
-#+begin_src emacs-lisp
-(use-package nerd-icons)
-#+end_src
-
-** Rainbow Mode
-#+begin_src emacs-lisp
-(use-package rainbow-mode
-  :hook
-  ((org-mode prog-mode) . rainbow-mode))
-#+end_src
-
-** General (Keybinds) 
-#+begin_src emacs-lisp
-(use-package general
-  :config
-  (general-evil-setup t)
-  (general-define-key
-    "C-x C-r" 'reload-init-file :wk "Reload init file")
-
-  (general-create-definer my-leader-def
-    :prefix "C-c") 
-
-  (my-leader-def
-    "t" '(:ignore t :wk "Toggles")
-    "t n" '(neotree-toggle :wk "Toggle neotree")
-    "t v" '(vterm-toggle :wk "Toggle vterm"))
-  (my-leader-def
-    "o" '(:ignore o :wk "Open")
-    "o r" '(recentf :wk "Open recent file"))
-    "o b" '(ibuffer :wk "Open ibuffer"))
-#+end_src
-
-** Highlight TODO
-#+begin_src emacs-lisp
-(use-package hl-todo
-  :hook ((org-mode . hl-todo-mode)
-         (prog-mode . hl-todo-mode))
-  :config
-  (setq hl-todo-highlight-punctuation ":"
-        hl-todo-keyword-faces
-        `(("TODO"       warning bold)
-          ("FIXME"      error bold)
-          ("HACK"       font-lock-constant-face bold)
-          ("REVIEW"     font-lock-keyword-face bold)
-          ("NOTE"       success bold)
-          ("DEPRECATED" font-lock-doc-face bold))))
-#+end_src
-
-** CompAny
-#+begin_src emacs-lisp
 (use-package company
   :after lsp-mode
   :diminish
@@ -375,20 +244,202 @@
   :after company
   :diminish
   :hook (company-mode . company-box-mode))
-#+end_src
 
-** Diminish
-#+begin_src emacs-lisp
+(use-package dashboard
+  :elpaca t 
+  :init
+  (setq initial-buffer-choice 'dashboard-open)
+  (setq dashboard-icon-type 'all-the-icons)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+  (setq dashboard-startup-banner '1)
+  (setq dashboard-items '((recents . 3)
+			  (agenda . 3)
+			  (projects . 3)))
+  (setq dashboard-center-content t)
+  :config
+  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
+  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
+  (setq dashboard-set-navigator t)
+  (setq dashbaord-set-init-info t)
+  (setq dashboard-set-footer t)
+  (dashboard-setup-startup-hook))
+
+(use-package sudo-edit)
+
+(use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p))
+(use-package all-the-icons-dired
+  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+
+(use-package nerd-icons)
+
+(use-package rainbow-mode
+  :hook
+  ((org-mode prog-mode) . rainbow-mode))
+
+(use-package hl-todo
+  :hook ((org-mode . hl-todo-mode)
+         (prog-mode . hl-todo-mode))
+  :config
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        `(("TODO"       warning bold)
+          ("FIXME"      error bold)
+          ("HACK"       font-lock-constant-face bold)
+          ("REVIEW"     font-lock-keyword-face bold)
+          ("NOTE"       success bold)
+          ("DEPRECATED" font-lock-doc-face bold))))
+
 (use-package diminish)
-#+end_src
 
-** Hydra
-#+begin_src emacs-lisp
-(use-package hydra)
-#+end_src
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
 
-** Ligatures
-#+begin_src emacs-lisp
+(use-package elcord)
+
+(set-face-attribute 'default nil
+  :font "FantasqueSansM Nerd Font Mono"
+  :height 160
+  :weight 'medium)
+(set-face-attribute 'variable-pitch nil
+  :font "SF Pro Display"
+  :height 160
+  :weight 'medium)
+(set-face-attribute 'fixed-pitch nil
+  :font "FantasqueSansM Nerd Font Mono"
+  :height 160
+  :weight 'medium)
+(set-face-attribute 'font-lock-comment-face nil
+  :slant 'italic)
+(set-face-attribute 'font-lock-keyword-face nil
+  :slant 'italic)
+
+(add-to-list 'default-frame-alist '(font . "FantasqueSansM Nerd Font Mono-12"))
+
+(delete-selection-mode 1)    ;; You can select text and delete it by typing.
+(electric-pair-mode 1)       ;; Turns on automatic parens pairing
+(setq visual-bell t)         ;; Enables visual bell
+;; The following prevents <> from auto-pairing when electric-pair-mode is on.
+;; Otherwise, org-tempo is broken when you try to <s TAB...
+(add-hook 'org-mode-hook (lambda ()
+           (setq-local electric-pair-inhibit-predicate
+                  `(lambda (c)
+                  (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
+(column-number-mode)
+(global-auto-revert-mode t)  ;; Automatically show changes if the file has changed.
+(setq display-line-numbers-type 'relative) 
+(global-display-line-numbers-mode t) ;; Display line numbers.
+(global-visual-line-mode t)  ;; Enable truncated lines.
+(menu-bar-mode -1)           ;; Disable the menu bar.
+(scroll-bar-mode -1)         ;; Disable the scroll bar.
+(tool-bar-mode -1)           ;; Disable the tool bar.
+(setq org-edit-src-content-indentation 0) ;; Set src block automatic indent to 0 instead of 2.
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit) ;; You only need to hit ESC once!
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(dolist (mode '(org-mode-hook
+                term-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+(setq backup-directory-alist '((".*" . "~/.local/share/Trash/"))) ;; Sends all backup files to trash.
+
+(org-indent-mode)
+(variable-pitch-mode 1)
+(visual-line-mode 1)
+
+(defun aileks/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.5)
+                  (org-level-2 . 1.4)
+                  (org-level-3 . 1.3)
+                  (org-level-4 . 1.2)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.0)
+                  (org-level-7 . 1.0)
+                  (org-level-8 . 1.0)))
+    (set-face-attribute (car face) nil :font "SF Pro Text" :weight 'regular :height (cdr face)))
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+  (aileks/org-font-setup)
+
+(defun aileks/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+	    visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . aileks/org-mode-visual-fill))
+
+(use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+
+(add-hook 'org-mode-hook 'org-indent-mode)
+(use-package org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+(require 'org-tempo) 
+
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+
+(defun reload-init-file () 
+  (interactive)
+  (server-start))
+
+(use-package vterm
+:config
+(setq shell-file-name "/usr/bin/zsh"
+      vterm-max-scrollback 5000))
+
+(use-package vterm-toggle
+  :after vterm
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (setq vterm-toggle-scope 'project)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                     (let ((buffer (get-buffer buffer-or-name)))
+                       (with-current-buffer buffer
+                         (or (equal major-mode 'vterm-mode)
+                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                  (display-buffer-reuse-window display-buffer-at-bottom)
+                  (reusable-frames . visible)
+                  (window-height . 0.3))))
+
+(use-package dap-mode
+  :ensure
+  :config
+  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
+  (require 'dap-lldb)
+  (require 'dap-cpptools)
+  (require 'dap-java)
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  (dap-tooltip-mode 1)
+  (tooltip-mode 1)
+  (dap-ui-controls-mode 1))
+
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
 (use-package ligature
   :config
   (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
@@ -405,193 +456,11 @@
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\\\" "://"))
   (global-ligature-mode t))
-#+end_src
 
+(use-package rustic)
 
-* FONTS
-** Setting Font Face
-#+begin_src emacs-lisp
-  (set-face-attribute 'default nil
-    :font "FantasqueSansM Nerd Font Mono"
-    :height 110
-    :weight 'medium)
-  (set-face-attribute 'variable-pitch nil
-    :font "SF Pro Display"
-    :height 120
-    :weight 'medium)
-  (set-face-attribute 'fixed-pitch nil
-    :font "FantasqueSansM Nerd Font Mono"
-    :height 110
-    :weight 'medium)
-  (set-face-attribute 'font-lock-comment-face nil
-    :slant 'italic)
-  (set-face-attribute 'font-lock-keyword-face nil
-    :slant 'italic)
-#+end_src
+(use-package rust-mode)
 
-** Fix Font Loading in Emacsclient Mode
-#+begin_src emacs-lisp
-  (add-to-list 'default-frame-alist '(font . "FantasqueSansM Nerd Font Mono-12"))
-#+end_src
-
-
-* TWEAKS
-** UI
-#+begin_src emacs-lisp
-(delete-selection-mode 1)    ;; You can select text and delete it by typing.
-(electric-pair-mode 1)       ;; Turns on automatic parens pairing
-;; The following prevents <> from auto-pairing when electric-pair-mode is on.
-;; Otherwise, org-tempo is broken when you try to <s TAB...
-(add-hook 'org-mode-hook (lambda ()
-           (setq-local electric-pair-inhibit-predicate
-                  `(lambda (c)
-                  (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
-(column-number-mode)
-(global-auto-revert-mode t)  ;; Automatically show changes if the file has changed.
-(setq display-line-numbers-type 'relative) 
-(global-display-line-numbers-mode t) ;; Display line numbers.
-(global-visual-line-mode t)  ;; Enable truncated lines.
-(menu-bar-mode -1)           ;; Disable the menu bar.
-(scroll-bar-mode -1)         ;; Disable the scroll bar.
-(tool-bar-mode -1)           ;; Disable the tool bar.
-(setq org-edit-src-content-indentation 0) ;; Set src block automatic indent to 0 instead of 2.
-(global-set-key [escape] 'keyboard-escape-quit) ;; You only need to hit ESC once!
-(global-set-key (kbd "C-=") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-decrease)
-(global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
-(global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
-#+end_src
-
-** Backup
-#+begin_src emacs-lisp
-(setq backup-directory-alist '((".*" . "~/.local/share/Trash/files"))) ;; Sends all backup files to trash.
-#+end_src
-
-
-* ORG MODE
-** Table of Contents
-#+begin_src emacs-lisp
-(use-package toc-org
-    :commands toc-org-enable
-    :init (add-hook 'org-mode-hook 'toc-org-enable))
-#+end_src
-
-** Org Bullets
-#+begin_src emacs-lisp
-(add-hook 'org-mode-hook 'org-indent-mode)
-(use-package org-bullets)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-#+end_src
-
-** Diminish Org Indent Mode
-#+begin_src emacs-lisp
-(eval-after-load 'org-indent '(diminish 'org-indent-mode))
-#+end_src
-
-** Org Level Headers
-#+begin_src emacs-lisp
-(custom-set-faces
- '(org-level-1 ((t (:inherit outline-1 :height 1.7))))
- '(org-level-2 ((t (:inherit outline-2 :height 1.6))))
- '(org-level-3 ((t (:inherit outline-3 :height 1.5))))
- '(org-level-4 ((t (:inherit outline-4 :height 1.4))))
- '(org-level-5 ((t (:inherit outline-5 :height 1.3))))
- '(org-level-6 ((t (:inherit outline-5 :height 1.2))))
- '(org-level-7 ((t (:inherit outline-5 :height 1.1)))))
-#+end_src
-
-** Org-Tempo
-Usage: 
-|------------------------------------------------------------------|
-| Typing the below + TAB | Expands to ...                          |
-|------------------------|-----------------------------------------|
-| <a                     | '#+BEGIN_EXPORT ascii' … '#+END_EXPORT  | 
-| <c                     | '#+BEGIN_CENTER' … '#+END_CENTER'       | 
-| <C                     | '#+BEGIN_COMMENT' … '#+END_COMMENT'     | 
-| <e                     | '#+BEGIN_EXAMPLE' … '#+END_EXAMPLE'     | 
-| <E                     | '#+BEGIN_EXPORT' … '#+END_EXPORT'       | 
-| <h                     | '#+BEGIN_EXPORT html' … '#+END_EXPORT'  | 
-| <l                     | '#+BEGIN_EXPORT latex' … '#+END_EXPORT' | 
-| <q                     | '#+BEGIN_QUOTE' … '#+END_QUOTE'         | 
-| <s                     | '#+BEGIN_SRC' … '#+END_SRC'             | 
-| <v                     | '#+BEGIN_VERSE' … '#+END_VERSE'         | 
-|------------------------------------------------------------------| 
-
-#+begin_src emacs-lisp 
-(require 'org-tempo) 
-#+end_src 
-
-
-* RELOAD EMACS 
-#+begin_src emacs-lisp 
-(defun reload-init-file () 
-  (interactive)
-  (server-start))
-#+end_src
-
-
-* SHELLS & TERMINALS
-** Vterm
-#+begin_src emacs-lisp
-(use-package vterm
-:config
-(setq shell-file-name "/usr/bin/zsh"
-      vterm-max-scrollback 5000))
-#+end_src
-
-** Vterm Toggle
-#+begin_src emacs-lisp
-(use-package vterm-toggle
-  :after vterm
-  :config
-  (setq vterm-toggle-fullscreen-p nil)
-  (setq vterm-toggle-scope 'project)
-  (add-to-list 'display-buffer-alist
-               '((lambda (buffer-or-name _)
-                     (let ((buffer (get-buffer buffer-or-name)))
-                       (with-current-buffer buffer
-                         (or (equal major-mode 'vterm-mode)
-                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
-                  (display-buffer-reuse-window display-buffer-at-bottom)
-                  (reusable-frames . visible)
-                  (window-height . 0.3))))
-#+end_src
-
-
-* DEVELOPMENT TOOLS
-** Dap Mode
-#+begin_src emacs-lisp
-(use-package dap-mode
-  :ensure
-  :config
-  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
-  (require 'dap-lldb)
-  (require 'dap-cpptools)
-  (require 'dap-java)
-  (dap-mode 1)
-  (dap-ui-mode 1)
-  (dap-tooltip-mode 1)
-  (tooltip-mode 1)
-  (dap-ui-controls-mode 1))
-#+end_src
-
-** LSP Java
-#+begin_src emacs-lisp
-(use-package lsp-java)
-#+end_src
-
-** Rustic
-#+begin_src emacs-lisp
-  (use-package rustic)
-#+end_src
-
-** Rust Mode
-#+begin_src emacs-lisp
-  (use-package rust-mode)
-#+end_src
-
-** LSP Mode & UI
-#+begin_src emacs-lisp
 (use-package lsp-mode
   :ensure
   :commands (lsp lsp-deferred)
@@ -624,26 +493,19 @@ Usage:
   (setq lsp-ui-doc-position 'bottom))
 
 (use-package lsp-ivy)
-#+end_src
 
-** YASnippet
-#+begin_src emacs-lisp
+(use-package lsp-java)
+
 (use-package yasnippet
   :ensure
   :config
   (yas-reload-all)
   (add-hook 'prog-mode-hook 'yas-minor-mode)
   (add-hook 'text-mode-hook 'yas-minor-mode))
-#+end_src
 
-** Evil Nerd Commenter
-#+begin_src emacs-lisp
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
-#+end_src
 
-** Irony
-#+begin_src emacs-lisp
 (use-package irony
   :config
   (unless (irony--find-server-executable) (call-interactively #'irony-install-server))
@@ -664,15 +526,81 @@ Usage:
 (use-package irony-eldoc
   :config
   (add-hook 'irony-mode-hook #'irony-eldoc))
-#+end_src
 
-* THEME
-#+begin_src emacs-lisp
-(add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 (load-theme 'dracula t)
-#+end_src
 
-* DISCORD RICH PRESENCE
-#+begin_src emacs-lisp
-(use-package elcord)
-#+end_src
+(use-package auto-package-update
+  :custom
+  (auto-package-update-interval 7)
+  (auto-package-update-prompt-before-update t)
+  (auto-package-update-hide-results t)
+  :config
+  (auto-package-update-maybe))
+
+(defun aileks/exwm-update-titles ()
+    (exwm-workspace-rename-buffer exwm-class-name))
+
+(use-package exwm
+  :config (setq exwm-workspace-number 9)
+
+;; Call function to update buffer titles to reflect open windows
+(add-hook 'exwm-update-class-hook #'aileks/exwm-update-titles)
+
+;; Remap caps lock to left control
+(start-process-shell-command "xmodmap" nil "xmodmap ~/.Xmodmap")
+
+;; Screen resolution utility
+(require 'exwm-randr)
+(exwm-randr-enable)
+
+;; System tray
+(require 'exwm-systemtray)
+(exwm-systemtray-enable)
+
+;; These keys should always pass through to Emacs
+  (setq exwm-input-prefix-keys
+    '(?\C-x
+      ?\C-u
+      ?\C-h
+      ?\M-x
+      ?\M-`
+      ?\M-&
+      ?\M-:
+      ?\C-\M-j  ;; Buffer list
+      ?\C-\ ))  ;; Ctrl+Space
+
+;; Keybind to enable the next key to be sent directly
+(define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+
+ ;; Set up global key bindings.  These always work, no matter the input state!
+  ;; Keep in mind that changing this list after EXWM initializes has no effect.
+  (setq exwm-input-global-keys
+        `(
+          ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+          ([?\s-r] . exwm-reset)
+
+          ;; Move between windows
+          ([s-h] . windmove-left)
+          ([s-l] . windmove-right)
+          ([s-k] . windmove-up)
+          ([s-j] . windmove-down)
+
+          ;; Launch applications via shell command
+          ([?\s-&] . (lambda (command)
+                       (interactive (list (read-shell-command "$ ")))
+                       (start-process-shell-command command nil command)))
+
+          ;; Switch workspace
+          ([?\s-w] . exwm-workspace-switch)
+          ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
+
+          ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+          ,@(mapcar (lambda (i)
+                      `(,(kbd (format "s-%d" i)) .
+                        (lambda ()
+                          (interactive)
+                          (exwm-workspace-switch-create ,i))))
+                    (number-sequence 0 9))))
+
+  (exwm-enable))
