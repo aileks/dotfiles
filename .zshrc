@@ -17,10 +17,10 @@ plugins=(git zsh-syntax-highlighting cp command-not-found colorize rust)
 source $ZSH/oh-my-zsh.sh
 
 # Aliases
-alias ls="exa --color=always --icons --group-directories-first"
-alias la="exa -al --color=always --icons --group-directories-first"
+alias ls="exa -lh --color=always --icons --group-directories-first"
+alias la="exa -lah --color=always --icons --group-directories-first"
 alias lt="exa -aT --color=always --icons --group-directories-first"
-alias lh="exa -al --color=always --icons --group-directories-first | grep '^\.'"
+alias lh="exa -la --color=always --icons --group-directories-first | grep '^\.'"
 alias gs="git status"
 alias ga="git add"
 alias gc="git commit -m"
@@ -28,7 +28,6 @@ alias gp="git push origin main"
 alias hx="helix"
 alias sudo="doas"
 alias cp="cpv"
-alias emacs="emacsclient -c -nw"
 
 ## General
 ### Diffs
