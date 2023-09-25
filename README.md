@@ -1,2 +1,2 @@
 # dotfiles
-## Arch dotfiles for Dwm and EXWM.
+Arch dotfiles for Dwm and EXWM.
