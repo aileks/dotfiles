@@ -1,2 +1,2 @@
-# dwm-dots
-Arch dwm dotfiles
+# dotfiles
+## Arch dotfiles for Dwm and EXWM.
