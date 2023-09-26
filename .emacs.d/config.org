@@ -56,6 +56,7 @@
 - [[#auto-updates][AUTO UPDATES]]
 - [[#experimental][EXPERIMENTAL]]
   - [[#exwm][EXWM]]
+  - [[#desktop-environment][Desktop Environment]]
 
 * ELPACA
 #+begin_src emacs-lisp
@@ -202,51 +203,59 @@
 
 ** Ivy & Counsel
 #+begin_src emacs-lisp
-  (use-package counsel
-    :after ivy
-    :bind
-    (("M-x" . counsel-M-x)
-	("C-x b" . counsel-ibuffer)
-	("C-x C-f" . counsel-find-file)
-	:map minibuffer-local-map
-	("C-r" . 'counsel-minibuffer-history))
-    :config
-    (counsel-mode))
+(use-package counsel
+  :after ivy
+  :bind
+  (("M-x" . counsel-M-x)
+   ("C-x b" . counsel-ibuffer)
+   ("C-x C-f" . counsel-find-file)
+   :map minibuffer-local-map
+   ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (counsel-mode))
 
-  (use-package ivy
-    :bind (("C-s" . swiper)
-    :map ivy-minibuffer-map
-    ("TAB" . ivy-alt-done)
-    ("C-l" . ivy-previous-line)
-    :map ivy-switch-buffer-map
-    ("C-k" . ivy-previous-line)
-    ("C-l" . ivy-done)
-    ("C-d" . ivy-switch-buffer-kill)
-    :map ivy-reverse-i-search-map
-    ("C-k" . ivy-previous-line)
-    ("C-d" . ivy-reverse-i-search-kill))
-    :custom
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-count-format "(%d/%d) ")
-    (setq enable-recursive-minibuffers t)
-    :config
-    (ivy-mode))
+(use-package ivy
+  :bind (("C-s" . swiper)
+  :map ivy-minibuffer-map
+  ("TAB" . ivy-alt-done)
+  ("C-l" . ivy-previous-line)
+  :map ivy-switch-buffer-map
+  ("C-k" . ivy-previous-line)
+  ("C-l" . ivy-done)
+  ("C-d" . ivy-switch-buffer-kill)
+  :map ivy-reverse-i-search-map
+  ("C-k" . ivy-previous-line)
+  ("C-d" . ivy-reverse-i-search-kill))
+  :custom
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq enable-recursive-minibuffers t)
+  :config
+  (ivy-mode))
 
-  (use-package ivy-rich
-    :after counsel
-    :ensure t
-    :init (ivy-rich-mode 1) 
-    :custom
-    (ivy-virtual-abbreviate 'full
-     ivy-rich-switch-buffer-align-virtual-buffer t
-     ivy-rich-path-style 'abbrev)
-    :config
-    (ivy-set-display-transformer 'ivy-switch-buffer
-				 'ivy-rich-switch-buffer-transformer))
+(use-package ivy-rich
+  :after counsel
+  :ensure t
+  :init (ivy-rich-mode 1) 
+  :custom
+  (ivy-virtual-abbreviate 'full
+   ivy-rich-switch-buffer-align-virtual-buffer t
+   ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-set-display-transformer 'ivy-switch-buffer
+			       'ivy-rich-switch-buffer-transformer))
 
-  (use-package all-the-icons-ivy-rich
-    :ensure t
-    :init (all-the-icons-ivy-rich-mode 1))
+(use-package all-the-icons-ivy-rich
+  :ensure t
+  :init (all-the-icons-ivy-rich-mode 1))
+
+(use-package ivy-posframe
+  :custom
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  :config
+  (ivy-posframe-mode 1))
 #+end_src
 
 ** Dired
@@ -760,27 +769,46 @@ Usage:
 * EXPERIMENTAL
 ** EXWM
 #+begin_src emacs-lisp
-(defun aileks/exwm-update-titles ()
+(defun aileks/org-babel-tangle-config ()
+  (when (string-equal (file-name-directory (buffer-file-name))
+                      (expand-file-name "~/.emacs.d/"))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(defun aileks/config-window-by-class ()
+  (pcase exwm-class-name
+  ("Thunderbird" (exwm-workspace-move-window 4))))
+
+(defun aileks/exwm-update-class ()
     (exwm-workspace-rename-buffer exwm-class-name))
 
 (use-package exwm
-  :config (setq exwm-workspace-number 9)
+  :config
+  (setq exwm-workspace-number 9)
 
-;; Call function to update buffer titles to reflect open windows
-(add-hook 'exwm-update-class-hook #'aileks/exwm-update-titles)
+  ;; Call function to update buffer titles to reflect open windows
+  (add-hook 'exwm-update-class-hook #'aileks/exwm-update-class)
 
-;; Remap caps lock to left control
-(start-process-shell-command "xmodmap" nil "xmodmap ~/.Xmodmap")
+  ;; Call function to set specific workspaces for specific applications
+  (add-hook 'exwm-update-class-hook #'aileks/config-window-by-class)
+  ;; Remap caps lock to left control
+  (start-process-shell-command "xmodmap" nil "xmodmap ~/.Xmodmap")
 
-;; Screen resolution utility
-(require 'exwm-randr)
-(exwm-randr-enable)
+  ;; Automatically move EXWM buffer to current workspace when selected
+  (setq exwm-layout-show-all-buffers t)
 
-;; System tray
-(require 'exwm-systemtray)
-(exwm-systemtray-enable)
+  ;; Display all EXWM buffers in every workspace buffer list
+  (setq exwm-workspace-show-all-buffers t)
 
-;; These keys should always pass through to Emacs
+  ;; Load after-init settings
+  (add-hook 'exwm-init-hook #'aileks/after-exwm-init)
+
+  ;; System tray
+  (require 'exwm-systemtray)
+  (exwm-systemtray-enable)
+
+  ;; These keys should always pass through to Emacs
   (setq exwm-input-prefix-keys
     '(?\C-x
       ?\C-u
@@ -792,39 +820,43 @@ Usage:
       ?\C-\M-j  ;; Buffer list
       ?\C-\ ))  ;; Ctrl+Space
 
-;; Keybind to enable the next key to be sent directly
-(define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+  ;; Keybind to enable the next key to be sent directly
+  (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
 
- ;; Set up global key bindings.  These always work, no matter the input state!
+  ;; Set up global key bindings.  These always work, no matter the input state!
   ;; Keep in mind that changing this list after EXWM initializes has no effect.
   (setq exwm-input-global-keys
-        `(
-          ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
-          ([?\s-r] . exwm-reset)
+       `(
+         ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+         ([?\s-r] . exwm-reset)
+         ;; Move between windows
+         ([s-h] . windmove-left)
+         ([s-l] . windmove-right)
+         ([s-k] . windmove-up)
+         ([s-j] . windmove-down)
 
-          ;; Move between windows
-          ([s-h] . windmove-left)
-          ([s-l] . windmove-right)
-          ([s-k] . windmove-up)
-          ([s-j] . windmove-down)
+         ;; Launch applications via shell command
+         ([?\s-&] . (lambda (command)
+                      (interactive (list (read-shell-command "$ ")))
+                      (start-process-shell-command command nil command)))
 
-          ;; Launch applications via shell command
-          ([?\s-&] . (lambda (command)
-                       (interactive (list (read-shell-command "$ ")))
-                       (start-process-shell-command command nil command)))
+         ;; Switch workspace
+         ([?\s-w] . exwm-workspace-switch)
+         ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
 
-          ;; Switch workspace
-          ([?\s-w] . exwm-workspace-switch)
-          ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
-
-          ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
-          ,@(mapcar (lambda (i)
+         ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+         ,@(mapcar (lambda (i)
                       `(,(kbd (format "s-%d" i)) .
-                        (lambda ()
-                          (interactive)
-                          (exwm-workspace-switch-create ,i))))
-                    (number-sequence 0 9))))
+                       (lambda ()
+                         (interactive)
+                         (exwm-workspace-switch-create ,i))))
+                   (number-sequence 0 9))))
 
+  ;; Better app launcher
+  (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
+  (exwm-input-set-key (kbd "s-f") 'exwm-layout-toggle-fullscreen)
+
+  ;; Enable EXWM
   (exwm-enable))
 
 (defun aileks/run-in-background (command)
@@ -833,11 +865,15 @@ Usage:
 
 (defun aileks/set-wallpaper ()
   (interactive)
-  ;; NOTE: You will need to update this to a valid background path!
   (start-process-shell-command
       "feh" nil  "feh --bg-scale ~/.bg.png"))
 
-(defun efs/exwm-init-hook ()
+(defun aileks/lockscreen ()
+  (interactive)
+  (start-process-shell-command
+      "xss-lock" nil "xss-lock -- ~/.config/scripts/lock.sh --nofork &"))
+
+(defun aileks/after-exwm-init ()
   ;; Make workspace 1 be the one where we land at startup
   (exwm-workspace-switch-create 1)
 
@@ -850,5 +886,20 @@ Usage:
 
   ;; Launch apps that will run in the background
   (aileks/run-in-background "nm-applet")
-  (aileks/run-in-background "pasystray")
+  (aileks/run-in-background "pasystray"))
+
+;; Set wallpaper
+(aileks/set-wallpaper)
+#+end_src
+
+** Desktop Environment
+#+begin_src emacs-lisp
+(use-package desktop-environment
+  :after exwm
+  :config (desktop-environment-mode)
+  :custom
+  (desktop-environment-brightness-small-increment "2%+")
+  (desktop-environment-brightness-small-decrement "2%-")
+  (desktop-environment-brightness-normal-increment "5%+")
+  (desktop-environment-brightness-normal-decrement "5%-"))
 #+end_src
