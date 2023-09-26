@@ -81,6 +81,8 @@ static const Layout layouts[] = {
       {MODKEY | ShiftMask, KEY, tag, {.ui = 1 << TAG}},                        \
       {MODKEY | ControlMask | ShiftMask, KEY, toggletag, {.ui = 1 << TAG}},
 
+// fix issue with binding print screen key
+#define Print 0xff61
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd)                                                             \
   {                                                                            \
@@ -133,6 +135,7 @@ static const Key keys[] = {
     {MODKEY | Mod1Mask | ShiftMask, XK_9, incrovgaps, {.i = -1}},
     {MODKEY | Mod1Mask, XK_0, togglegaps, {0}},
     {MODKEY | Mod1Mask | ShiftMask, XK_0, defaultgaps, {0}},
+    {0, XK_Print, spawn, SHCMD("flameshot gui")},
     {MODKEY, XK_Tab, view, {0}},
     {MODKEY, XK_q, killclient, {0}},
     {MODKEY, XK_t, setlayout, {.v = &layouts[0]}},
@@ -152,6 +155,7 @@ static const Key keys[] = {
         TAGKEYS(XK_5, 4) TAGKEYS(XK_6, 5) TAGKEYS(XK_7, 6) TAGKEYS(XK_8, 7)
             TAGKEYS(XK_9, 8){MODKEY | ShiftMask, XK_r, quit, {0}},
     {MODKEY, XK_l, spawn, SHCMD("$HOME/.config/scripts/lock.sh")},
+    {MODKEY | ShiftMask, XK_q, spawn, SHCMD("$HOME/.config/scripts/rofi-power.sh")},
     {0, XF86XK_AudioRaiseVolume, spawn, {.v = volupcmd}},
     {0, XF86XK_AudioLowerVolume, spawn, {.v = voldowncmd}},
     {0, XF86XK_AudioPlay, spawn, {.v = playpausecmd}},

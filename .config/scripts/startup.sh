@@ -10,3 +10,4 @@
 feh --no-fehbg --bg-scale ~/.bg.png &
 flameshot &
 setxkbmap -option numpad:mac &
+emacs --daemon &

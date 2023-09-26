@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Set variables
-OPTIONS="Reboot system\nPower-off system\nSuspend system\nHibernate system"
+OPTIONS="Reboot system\nPower-off system\nSuspend system\nLogout"
 LAUNCHER="rofi -dmenu -i -p rofi-power:"
 USE_LOCKER="false"
 LOCKER="i3lock"
@@ -22,8 +22,8 @@ then
       Suspend)
         $($USE_LOCKER) && "$LOCKER"; systemctl suspend
         ;;
-      Hibernate)
-        $($USE_LOCKER) && "$LOCKER"; systemctl hibernate
+      Logout)
+        $($USE_LOCKER) && "$LOCKER"; pkill dwm
         ;;
       *)
         ;;
