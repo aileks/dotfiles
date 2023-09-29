@@ -113,12 +113,11 @@ static const Key keys[] = {
     {MODKEY, XK_k, focusstack, {.i = -1}},
     {MODKEY, XK_i, incnmaster, {.i = +1}},
     {MODKEY | ShiftMask, XK_d, incnmaster, {.i = -1}},
-    {MODKEY | ShiftMask, XK_h, setmfact, {.f = -0.05}},
     {MODKEY, XK_l, setmfact, {.f = +0.05}},
+    {MODKEY, XK_h, setmfact, {.f = -0.05}},
     {MODKEY | ShiftMask, XK_h, setcfact, {.f = +0.25}},
     {MODKEY | ShiftMask, XK_l, setcfact, {.f = -0.25}},
     {MODKEY | ShiftMask, XK_o, setcfact, {.f = 0.00}},
-    {MODKEY, XK_Return, zoom, {0}},
     {MODKEY | Mod1Mask, XK_u, incrgaps, {.i = +1}},
     {MODKEY | Mod1Mask | ShiftMask, XK_u, incrgaps, {.i = -1}},
     {MODKEY | Mod1Mask, XK_i, incrigaps, {.i = +1}},
@@ -154,7 +153,7 @@ static const Key keys[] = {
     TAGKEYS(XK_1, 0) TAGKEYS(XK_2, 1) TAGKEYS(XK_3, 2) TAGKEYS(XK_4, 3)
         TAGKEYS(XK_5, 4) TAGKEYS(XK_6, 5) TAGKEYS(XK_7, 6) TAGKEYS(XK_8, 7)
             TAGKEYS(XK_9, 8){MODKEY | ShiftMask, XK_r, quit, {0}},
-    {MODKEY, XK_l, spawn, SHCMD("$HOME/.config/scripts/lock.sh")},
+    {MODKEY | Mod1Mask, XK_l, spawn, SHCMD("$HOME/.config/scripts/lock.sh")},
     {MODKEY | ShiftMask, XK_q, spawn, SHCMD("$HOME/.config/scripts/rofi-power.sh")},
     {0, XF86XK_AudioRaiseVolume, spawn, {.v = volupcmd}},
     {0, XF86XK_AudioLowerVolume, spawn, {.v = voldowncmd}},
