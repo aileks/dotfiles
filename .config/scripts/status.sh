@@ -6,7 +6,7 @@ update_cpu () {
 	sleep 0.5
 	read -r cpu a b c idle rest < /proc/stat
 	total=$((a+b+c+idle))
-	cpu=" 󰻠  $((100*( (total-prevtotal) - (idle-previdle) ) / (total-prevtotal) ))%"
+	cpu=" 󰻠 $((100*( (total-prevtotal) - (idle-previdle) ) / (total-prevtotal) ))%"
 }
 
 update_memory () { 
