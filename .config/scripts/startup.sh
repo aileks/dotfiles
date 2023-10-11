@@ -7,9 +7,9 @@
 /usr/bin/picom --config ~/.config/picom/picom.conf -b &
 
 # Personal
-feh --no-fehbg --bg-scale ~/.bg.png &
-flameshot &
-setxkbmap -option numpad:mac &
 nm-applet &
-exec ~/.config/scripts/keyboard.sh &
+feh --no-fehbg --bg-scale ~/.bg.png
+flameshot &
+setxkbmap -option numpad:mac
+exec ~/.config/scripts/keyboard.sh
 emacs --daemon &
