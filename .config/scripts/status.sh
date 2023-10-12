@@ -40,11 +40,10 @@ do
 	## [ $((sec % n)) -eq m ] && udpate_item
 	[ $((sec % 1 )) -eq 0 ] && update_cpu
 	[ $((sec % 5 )) -eq 0 ] && update_memory
-	[ $((sec % 30 )) -eq 0 ] && update_time
+	[ $((sec % 60 )) -eq 0 ] && update_time
 	[ $((sec % 5 )) -eq 0 ] && update_vol
 	[ $((sec % 60)) -eq 0 ] && update_bat
 	[ $((sec % 5 )) -eq 0 ] && display
 	sec=$((sec + 1))
     }
 done 
-
