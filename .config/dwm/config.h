@@ -26,9 +26,9 @@ static const int topbar = 1;      /* 0 means bottom bar */
 static const char *fonts[] = {"FiraCode Nerd Font Propo:size=10"};
 static const char dmenufont[] = "FiraCode Nerd Font Prop:size=10";
 static const char col_bg[] = "#babbf1";
-static const char col_bg2[] = "#414559";
+static const char col_bg2[] = "#303446";
 static const char col_border[] = "#babbf1";
-static const char col_border2[] = "#303446";
+static const char col_border2[] = "#414559";
 static const char col_fg[] = "#232634";
 static const char col_fg2[] = "#c6d0f5";
 static const char *colors[][3] = {
@@ -100,7 +100,7 @@ static const Layout layouts[] = {
 /* commands */
 static const char *roficmd[] = {"rofi",  "-show", "drun", NULL};
 static const char *termcmd[] = {"kitty", NULL};
-static const char *browsercmd[] = {"thorium-browser", NULL};
+static const char *browsercmd[] = {"mercury-browser", NULL};
 static const char *filemgr[] = {"thunar", NULL};
 static const char *volupcmd[] = {"pamixer", "-i", "5", NULL};
 static const char *voldowncmd[] = {"pamixer", "-d", "5", NULL};
