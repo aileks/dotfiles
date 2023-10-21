@@ -10,11 +10,11 @@ update_cpu () {
 }
 
 update_memory () { 
-	memory="   $(free --giga -h | sed -n "2s/\([^ ]* *\)\{2\}\([^ ]*\).*/\2/p")"
+	memory="  $(free --giga -h | sed -n "2s/\([^ ]* *\)\{2\}\([^ ]*\).*/\2/p")"
 }
 
 update_time () { 
-	time="   $(date "+%a %b %d %I:%M %P")"
+	time="  $(date "+%a %b %d %I:%M %P")"
 }
 
 update_bat () { 
@@ -23,11 +23,11 @@ update_bat () {
 }
 
 update_vol () { 
-	vol="   $(pamixer --get-volume-human)"
+	vol="  $(pamixer --get-volume-human)"
 }
 
 display () { 
-	xsetroot -name " $bat $cpu $memory $vol $time "
+	xsetroot -name " $bat  | $cpu  | $memory  | $vol  | $time "
 }
 
 trap "update_vol;display" "RTMIN"
