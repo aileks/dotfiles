@@ -12,7 +12,7 @@ export SUDO_EDITOR=nvim
 ZSH_THEME="bira"
 
 # Plugins
-plugins=(zsh-autosuggestions npm composer git suse fast-syntax-highlighting cp command-not-found colorize)
+plugins=(zsh-auto-suggestions npm composer git arch fast-syntax-highlighting cp command-not-found colorize)
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh
