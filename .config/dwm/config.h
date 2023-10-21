@@ -23,14 +23,14 @@ display systray on the last monitor*/
 static const int showsystray = 1; /* 0 means no systray */
 static const int showbar = 1;     /* 0 means no bar */
 static const int topbar = 1;      /* 0 means bottom bar */
-static const char *fonts[] = {"FantasqueSansM Nerd Font:size=12"};
-static const char dmenufont[] = "FantasqueSansM Nerd Font:size=10";
-static const char col_bg[] = "#ff5555";
-static const char col_bg2[] = "#44475a";
-static const char col_border[] = "#ff5555";
-static const char col_border2[] = "#44475a";
-static const char col_fg[] = "#282a36";
-static const char col_fg2[] = "#f8f8f2";
+static const char *fonts[] = {"FiraCode Nerd Font Propo:size=10"};
+static const char dmenufont[] = "FiraCode Nerd Font Prop:size=10";
+static const char col_bg[] = "#babbf1";
+static const char col_bg2[] = "#414559";
+static const char col_border[] = "#babbf1";
+static const char col_border2[] = "#303446";
+static const char col_fg[] = "#232634";
+static const char col_fg2[] = "#c6d0f5";
 static const char *colors[][3] = {
     /*               fg         bg         border   */
     [SchemeNorm] = {col_fg2, col_bg2, col_border2},
@@ -98,17 +98,16 @@ static const Layout layouts[] = {
   }
 
 /* commands */
-static const char *roficmd[] = {"rofi",  "-show",        "combi",    "-modes",
-                                "combi", "-combi-modes", "drun,run", NULL};
+static const char *roficmd[] = {"rofi",  "-show", "drun", NULL};
 static const char *termcmd[] = {"kitty", NULL};
-static const char *browsercmd[] = {"brave", NULL};
+static const char *browsercmd[] = {"thorium-browser", NULL};
 static const char *filemgr[] = {"thunar", NULL};
 static const char *volupcmd[] = {"pamixer", "-i", "5", NULL};
 static const char *voldowncmd[] = {"pamixer", "-d", "5", NULL};
 static const char *playpausecmd[] = {"playerctl", "play-pause", NULL};
 static const char *nextcmd[] = {"playerctl", "next", NULL};
 static const char *previouscmd[] = {"playerctl", "previous", NULL};
-static const char *editorcmd[] = {"emacsclient", "-c", NULL};
+static const char *editorcmd[] = {"kitty", "nvim", NULL};
 
 static const Key keys[] = {
     /* modifier                     key        function        argument */
@@ -120,8 +119,8 @@ static const Key keys[] = {
     {MODKEY, XK_h, focusstack, {.i = +1}},
     {MODKEY, XK_l, focusstack, {.i = -1}},
     {MODKEY | ShiftMask, XK_d, incnmaster, {.i = -1}},
-    {MODKEY | ShiftMask, XK_h, setmfact, {.f = +0.1}},
-    {MODKEY | ShiftMask, XK_l, setmfact, {.f = -0.1}},
+    {MODKEY | ShiftMask, XK_k, setmfact, {.f = +0.1}},
+    {MODKEY | ShiftMask, XK_j, setmfact, {.f = -0.1}},
     {MODKEY | ShiftMask, XK_o, setcfact, {.f = 0.00}},
     {MODKEY | Mod1Mask, XK_u, incrgaps, {.i = +1}},
     {MODKEY | Mod1Mask | ShiftMask, XK_u, incrgaps, {.i = -1}},

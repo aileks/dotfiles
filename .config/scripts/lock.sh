@@ -1,17 +1,17 @@
 #!/bin/sh
 
 alpha='dd'
-background='#282a36'
-selection='#44475a'
-comment='#6272a4'
+background='#232634'
+selection='#414559'
+comment='#626880'
 
-yellow='#f1fa8c'
-orange='#ffb86c'
-red='#ff5555'
-magenta='#ff79c6'
-blue='#6272a4'
-cyan='#8be9fd'
-green='#50fa7b'
+yellow='#e5c890'
+orange='#ef9f76'
+red='#e78284'
+magenta='#f4b8e4'
+blue='#8caaee'
+cyan='#85c1dc' 
+green='#a6d189'
 
 i3lock \
   --insidever-color=$selection$alpha \
