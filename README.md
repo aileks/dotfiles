@@ -1,3 +1,3 @@
 # dotfiles
 
-OpenSUSE dotfiles for Dwm.
+Arch dotfiles for Dwm.
