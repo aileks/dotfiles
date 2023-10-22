@@ -12,7 +12,7 @@ export SUDO_EDITOR=nvim
 ZSH_THEME="bira"
 
 # Plugins
-plugins=(zsh-auto-suggestions npm composer git arch fast-syntax-highlighting cp command-not-found colorize)
+plugins=(zsh-autosuggestions npm composer git archlinux fast-syntax-highlighting cp command-not-found colorize)
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh
@@ -32,3 +32,4 @@ alias cp="cpv"
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export PATH=$PATH:/home/aileks/.spicetify

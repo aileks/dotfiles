@@ -24,7 +24,7 @@ static const int showsystray = 1; /* 0 means no systray */
 static const int showbar = 1;     /* 0 means no bar */
 static const int topbar = 1;      /* 0 means bottom bar */
 static const char *fonts[] = {"FiraCode Nerd Font Propo:size=10"};
-static const char dmenufont[] = "FiraCode Nerd Font Prop:size=10";
+static const char dmenufont[] = "FiraCode Nerd Font Propo:size=10";
 static const char col_bg[] = "#babbf1";
 static const char col_bg2[] = "#303446";
 static const char col_border[] = "#babbf1";
