@@ -6,7 +6,7 @@ require('bufferline').setup({
       reveal = {'close'},
     },
     indicator = {
-      icon = '  ',
+      icon = ' ',
     },
     show_close_icon = true,
     buffer_close_icon = '󰅖',
@@ -20,10 +20,17 @@ require('bufferline').setup({
         text_align = 'left',
       },
     },
+    custom_areas = {
+      left = function()
+        return {
+          { text = '    ', fg = '#a6d189', bg = '#232634' },
+        }
+      end,
+    },
     separator_style = 'thin',
     modified_icon = '󰐙',
     highlights = require('catppuccin.groups.integrations.bufferline').get(),
-    always_show_bufferline = false,
+    always_show_bufferline = true,
     diagnostics_indicator = function(count, level, diagnostics_dict, context)
       local s = " "
       for e, n in pairs(diagnostics_dict) do
@@ -33,12 +40,6 @@ require('bufferline').setup({
       end
       return s
     end,
-    custom_areas = {
-      left = function() return {
-        { text = '  ', fg = '#a6d189' },
-      }
-      end,
-    },
   },
 })
 

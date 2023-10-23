@@ -7,7 +7,7 @@ local nvim = ""
 
 dashboard.section.header.val = {
     "                                                              ",
-    "                          ,--,                   ,-.          ",
+    "                        ,--,                   ,-.            ",
     "               ,--,   ,--.'|               ,--/ /|            ",
     "             ,--.'|   |  | :             ,--. :/ |            ",
     "             |  |,    :  : '             :  : ' /  .--.--.    ",
@@ -26,10 +26,11 @@ dashboard.section.header.val = {
 }
 
 dashboard.section.buttons.val = {
-    dashboard.button( 'SPC  n', '  New file' , ':enew'),
+    dashboard.button( 'SPC  n', '  New file' , ':enew<CR>'),
     dashboard.button( 'SPC fh', '  Recent files'   , ':Telescope oldfiles<CR>'),
     dashboard.button( 'SPC ff', '  Find file', ':Telescope find_files<CR>'),
     dashboard.button( 'SPC fg', '󰈭  Find word', ':Telescope live_grep<CR>'),
+    dashboard.button( 'SPC pu', '  Update plugins', ':Lazy update<CR>'),
     dashboard.button( ':q', '  Quit', ':q'),
 }
 
