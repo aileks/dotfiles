@@ -20,6 +20,7 @@ vim.opt.title = true
 
 -- Enable mouse
 vim.opt.mouse = 'a'
+vim.opt.mousemoveevent = true
 
 -- Term colors
 vim.opt.termguicolors = true
