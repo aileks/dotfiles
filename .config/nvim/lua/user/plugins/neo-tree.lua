@@ -10,7 +10,12 @@ require('neo-tree').setup({
           {text = '󰌵', texthl = 'DiagnosticSignHint'})
     end,
 
-    close_if_last_window = false,
+    sources = { "filesystem", "buffers", "git_status" },
+    source_selector = {
+        winbar = true,
+        content_layout = "center",
+    },
+    close_if_last_window = true,
     popup_border_style = 'rounded',
     enable_git_status = true,
     enable_diagnostics = true,
@@ -18,6 +23,7 @@ require('neo-tree').setup({
     open_files_do_not_replace_types = { 'terminal', 'trouble', 'qf' },
     sort_case_insensitive = false,
     sort_function = nil ,
+
 
     default_component_configs = {
         container = {
@@ -66,25 +72,10 @@ require('neo-tree').setup({
                 conflict  = '',
             }
         },
-        type = {
-            enabled = true,
-            required_width = 122,
-        },
-        last_modified = {
-            enabled = true,
-            required_width = 88,
-        },
-        created = {
-            enabled = true,
-            required_width = 110,
-        },
-        symlinked_target = {
-            enabled = false,
-        },
     },
     window = {
         position = 'left',
-        width = 40,
+        width = 30,
         mapping_options = {
             noremap = true,
             nowait = true,
@@ -154,12 +145,13 @@ require('neo-tree').setup({
             ['D'] = 'fuzzy_finder_directory',
             ['#'] = 'fuzzy_sorter',
             ['f'] = 'filter_on_submit',
-            ['<c-x>'] = 'clear_filter',
+            ['<C-x>'] = 'clear_filter',
+
             ['[g'] = 'prev_git_modified',
             [']g'] = 'next_git_modified',
             ['o'] = { 'show_help',
-              nowait=false,
-              config = { title = 'Order by', prefix_key = 'o' }},
+            nowait=false,
+            config = { title = 'Order by', prefix_key = 'o' }},
             ['oc'] = { 'order_by_created', nowait = false },
             ['od'] = { 'order_by_diagnostics', nowait = false },
             ['og'] = { 'order_by_git_status', nowait = false },
@@ -179,7 +171,7 @@ require('neo-tree').setup({
     buffers = {
         follow_current_file = {
             enabled = true,
-            leave_dirs_open = false,
+            leave_dirs_open = true,
         },
         group_empty_dirs = true,
         show_unloaded = true,
@@ -189,8 +181,8 @@ require('neo-tree').setup({
                 ['<bs>'] = 'navigate_up',
                 ['.'] = 'set_root',
                 ['o'] = { 'show_help',
-                  nowait=false,
-                  config = { title = 'Order by', prefix_key = 'o' }},
+                nowait=false,
+                config = { title = 'Order by', prefix_key = 'o' }},
                 ['oc'] = { 'order_by_created', nowait = false },
                 ['od'] = { 'order_by_diagnostics', nowait = false },
                 ['om'] = { 'order_by_modified', nowait = false },
@@ -211,8 +203,8 @@ require('neo-tree').setup({
                     ['gp'] = 'git_push',
                     ['gg'] = 'git_commit_and_push',
                     ['o'] = { 'show_help',
-                      nowait=false,
-                      config = { title = 'Order by', prefix_key = 'o' }},
+                    nowait=false,
+                    config = { title = 'Order by', prefix_key = 'o' }},
                     ['oc'] = { 'order_by_created', nowait = false },
                     ['od'] = { 'order_by_diagnostics', nowait = false },
                     ['om'] = { 'order_by_modified', nowait = false },
@@ -226,3 +218,4 @@ require('neo-tree').setup({
 })
 
 vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>')
+vim.keymap.set('n', '<leader>o', '<C-w><C-w>') -- Yes, I know this is hacky...

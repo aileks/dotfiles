@@ -18,10 +18,6 @@ require('lazy').setup({
         'catppuccin/nvim',
         name = 'catppuccin',
         priority = 1000,
-        config = function()
-            vim.cmd([[colorscheme catppuccin-frappe]])
-        end,
-        lazy = false,
     },
 
     {
@@ -62,7 +58,7 @@ require('lazy').setup({
 
     {
         'windwp/nvim-autopairs',
-        config = function() 
+        config = function()
             require('nvim-autopairs').setup()
         end,
     },
@@ -97,7 +93,7 @@ require('lazy').setup({
     },
 
     {
-        'max397574/better-escape.nvim', 
+        'max397574/better-escape.nvim',
         config = function()
             require('better_escape').setup()
         end,
@@ -123,20 +119,6 @@ require('lazy').setup({
             'nvim-lua/plenary.nvim',
             'MunifTanjim/nui.nvim',
             { 'nvim-tree/nvim-web-devicons', opts = true },
-            { 's1n7ax/nvim-window-picker',
-                config = function()
-                    require('window-picker').setup({
-                        filter_rules = {
-                            include_current_win = false,
-                            autoselect_one = true,
-                            bo = {
-                                filetype = { 'neo-tree', 'neo-tree-pupup', 'notify' },
-                                buftype = { 'terminal', 'quickfix' },
-                            },
-                        },
-                    })
-                end,
-            },
         },
         config = function()
             require('user/plugins/neo-tree')
@@ -155,10 +137,8 @@ require('lazy').setup({
 
     {
         'akinsho/bufferline.nvim',
-        dependencies = {
-            'catppuccin',
-            { 'nvim-tree/nvim-web-devicons', opts = true },
-        },
+        event = 'VeryLazy',
+        dependencies = 'catppuccin',
         config = function()
             require('user/plugins/bufferline')
         end,
@@ -246,9 +226,54 @@ require('lazy').setup({
         dependencies = {
             'williamboman/mason.nvim',
             'williamboman/mason-lspconfig.nvim',
+            'b0o/schemastore.nvim',
+            'nvimtools/none-ls.nvim',
+            'jay-babu/mason-null-ls.nvim'
         },
         config = function()
             require('user/plugins/lspconfig')
+        end,
+    },
+
+    {
+        'hrsh7th/nvim-cmp',
+        dependencies = {
+            'hrsh7th/cmp-nvim-lsp',
+            'hrsh7th/cmp-nvim-lsp-signature-help',
+            'hrsh7th/cmp-buffer',
+            'hrsh7th/cmp-path',
+            'L3MON4D3/LuaSnip',
+            'saadparwaiz1/cmp_luasnip',
+            'onsails/lspkind-nvim',
+        },
+        config = function()
+            require('user/plugins/cmp')
+        end,
+    },
+
+    {
+        'phpactor/phpactor',
+        event = 'VeryLazy',
+        filetype = 'php',
+        run = 'composer install --no-dev --optimize-autoloader', -- Run manually if it doesn't work
+        config = function()
+            vim.keymap.set('n', '<Leader>pm', ':PhpactorContextMenu<CR>')
+            vim.keymap.set('n', '<Leader>pn', ':PhpactorClassNew<CR>')
+        end,
+    },
+
+    {
+        'tpope/vim-projectionist',
+        dependencies = 'tpope/vim-dispatch',
+        config = function()
+            require('user/plugins/projectionist')
+        end,
+    },
+
+    {
+        'vim-test/vim-test',
+        config = function()
+            require('user/plugins/vim-test')
         end,
     },
 })

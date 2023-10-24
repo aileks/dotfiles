@@ -47,6 +47,6 @@ vim.keymap.set('v', '<A-k>', ":move '<-2<CR>gv=gv")
 vim.keymap.set('n', '<Leader>n', ':enew<CR>')
 
 -- Plugins
-vim.keymap.set('n', '<Leader>p', ':Lazy<CR>')
-vim.keymap.set('n', '<Leader>ps', ':Lazy sync<CR>')
-vim.keymap.set('n', '<Leader>pu', ':Lazy update<CR>')
+vim.keymap.set('n', '<Leader>L', ':Lazy<CR>')
+vim.keymap.set('n', '<Leader>Ls', ':Lazy sync<CR>')
+vim.keymap.set('n', '<Leader>Lu', ':Lazy update<CR>')

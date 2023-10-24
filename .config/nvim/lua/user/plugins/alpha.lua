@@ -2,7 +2,7 @@ local alpha = require('alpha')
 local dashboard = require('alpha.themes.dashboard')
 local plugins = #vim.tbl_keys(require("lazy").plugins())
 local v = vim.version()
-local datetime = os.date " %m-%d-%Y   %H:%M:%S"
+local datetime = os.date " %m-%d-%Y   %H:%M"
 local nvim = ""
 
 dashboard.section.header.val = {

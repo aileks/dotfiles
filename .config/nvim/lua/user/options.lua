@@ -61,8 +61,6 @@ vim.opt.backupdir:remove('.')
 vim.opt.spell = true
 
 -- Hacky workaround to fix BufferLine colors
-vim.cmd(':hi BufferLineFill guibg=#232634')
-vim.cmd(':hi BufferLineFill guifg=#303446')
-vim.cmd(':hi BufferLineSeparator guifg=#303446')
-vim.cmd(':hi BufferLineSeparator guibg=#232634')
-vim.cmd(':hi BufferLineSeparatorSelected guifg=#232634')
+-- vim.cmd(':hi BufferLineFill guibg=#232634')
+-- vim.cmd(':hi BufferLineSeparator guifg=#babbf1')
+-- vim.cmd(':hi BufferLineSeparatorSelected guifg=#babbf1')
