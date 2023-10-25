@@ -7,9 +7,10 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 require('lspconfig').intelephense.setup({ capabilities = capabilities })
 
 -- JavaScript
+
 require('lspconfig').volar.setup({
-  capabilities = capabilities,
-  filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+    capabilities = capabilities,
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
 })
 
 -- Tailwind CSS
@@ -17,18 +18,12 @@ require('lspconfig').tailwindcss.setup({ capabilities = capabilities })
 
 -- JSON
 require('lspconfig').jsonls.setup({
-  capabilities = capabilities,
-  settings = {
-    json = {
-      schemas = require('schemastore').json.schemas(),
+    capabilities = capabilities,
+    settings = {
+        json = {
+            schemas = require('schemastore').json.schemas(),
+        },
     },
-  },
-})
-
--- Emmet
-require('lspconfig').emmet-ls.setup({
-  capabilities = capabilities,
-  filetypes = { 'html', 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'php', 'css' },
 })
 
 -- Null-ls/None-ls
@@ -63,10 +58,10 @@ vim.keymap.set('n', '<Leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>')
 
 -- Diagnostics
 vim.diagnostic.config({
-  virtual_text = false,
-  float = {
-    source = true,
-  },
+    virtual_text = false,
+    float = {
+        source = true,
+    },
 })
 vim.fn.sign_define('DiagnosticSignError', { text = '', texthl = 'DiagnosticSignError' })
 vim.fn.sign_define('DiagnosticSignWarn', { text = '', texthl = 'DiagnosticSignWarn' })
