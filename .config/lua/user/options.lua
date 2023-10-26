@@ -62,7 +62,7 @@ vim.opt.backupdir:remove('.')
 vim.opt.spell = true
 
 -- Fix HTML snippets in PHP files
--- vim.cmd[[
---     au BufRead *.php set ft=php.html
---     au BufNewFile *.php set ft=php.html
--- ]]
+vim.cmd[[
+    au BufRead *.php set ft=php.html
+    au BufNewFile *.php set ft=php.html
+]]

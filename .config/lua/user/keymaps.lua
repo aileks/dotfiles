@@ -50,3 +50,6 @@ vim.keymap.set('n', '<Leader>n', ':enew<CR>')
 vim.keymap.set('n', '<Leader>L', ':Lazy<CR>')
 vim.keymap.set('n', '<Leader>Ls', ':Lazy sync<CR>')
 vim.keymap.set('n', '<Leader>Lu', ':Lazy update<CR>')
+
+-- Delete all the contents in a file
+vim.keymap.set('n', '<Leader>%', 'gg"+dG');

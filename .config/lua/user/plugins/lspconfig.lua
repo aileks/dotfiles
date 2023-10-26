@@ -7,11 +7,11 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protoc
 -- PHP
 require('lspconfig').intelephense.setup({
   capabilities = capabilities,
-  -- filetypes = {
-  --   "php",
-  --   "php.html",
-  --   "phtml",
-  -- },
+  filetypes = {
+    "php",
+    "php.html",
+    "phtml",
+  },
 })
 
 -- JavaScript, Vue, and TypeScript
@@ -22,22 +22,25 @@ require('lspconfig').volar.setup({
     'javascript',
     'javascriptreact',
     'typescriptreact',
-    'vue'
+    'vue',
   },
 })
 
 -- Tailwind CSS
 require('lspconfig').tailwindcss.setup({ capabilities = capabilities })
 
+-- Emmet
 require('lspconfig').emmet_ls.setup({
   capabilities = capabilities,
   filetypes = {
     'html',
     'css',
-    -- 'php',
+    'php',
     'javascriptreact',
     'typescriptreact',
     'vue',
+    'php.html',
+    'phtml',
   },
 })
 
@@ -49,6 +52,20 @@ require('lspconfig').jsonls.setup({
             schemas = require('schemastore').json.schemas(),
         },
     },
+})
+
+-- HTML
+require('lspconfig').html.setup({
+  capabilities = capabilities,
+  filetypes = {
+    'html',
+    'php',
+    'php.html',
+    'phtml',
+    'javascriptreact',
+    'typescriptreact',
+    'vue',
+  },
 })
 
 -- Null-ls/None-ls
