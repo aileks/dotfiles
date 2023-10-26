@@ -61,7 +61,8 @@ vim.opt.backupdir:remove('.')
 -- Underline spelling errors
 vim.opt.spell = true
 
--- Hacky workaround to fix BufferLine colors
--- vim.cmd(':hi BufferLineFill guibg=#232634')
--- vim.cmd(':hi BufferLineSeparator guifg=#babbf1')
--- vim.cmd(':hi BufferLineSeparatorSelected guifg=#babbf1')
+-- Fix HTML snippets in PHP files
+vim.cmd[[
+    au BufRead *.php set ft=php.html
+    au BufNewFile *.php set ft=php.html
+]]
