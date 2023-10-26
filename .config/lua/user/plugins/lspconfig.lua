@@ -1,13 +1,13 @@
 require('mason').setup()
 require('mason-lspconfig').setup({ automatic_installation = true })
 
+-- Capabilities for LSPs
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 -- PHP
 require('lspconfig').intelephense.setup({ capabilities = capabilities })
 
--- JavaScript
-
+-- JavaScript, Vue, and TypeScript
 require('lspconfig').volar.setup({
     capabilities = capabilities,
     filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
@@ -15,6 +15,18 @@ require('lspconfig').volar.setup({
 
 -- Tailwind CSS
 require('lspconfig').tailwindcss.setup({ capabilities = capabilities })
+
+require('lspconfig').emmet_ls.setup({
+  capabilities = capabilities,
+  filestypes = {
+    'html',
+    'css',
+    'php',
+    'javascriptreact',
+    'typescriptreact',
+    'vue',
+  },
+})
 
 -- JSON
 require('lspconfig').jsonls.setup({

@@ -58,6 +58,7 @@ require('lazy').setup({
 
     {
         'windwp/nvim-autopairs',
+        event = 'InsertEnter',
         config = function()
             require('nvim-autopairs').setup()
         end,
@@ -127,8 +128,8 @@ require('lazy').setup({
                             include_current_win = false,
                             autoselect_one = true,
                             bo = {
-                                filetype = { 'neo-tree', "neo-tree-popup", "notify" },
-                                buftype = { 'terminal', "quickfix" },
+                                filetype = { 'neo-tree', 'neo-tree-popup', 'notify' },
+                                buftype = { 'terminal', 'quickfix' },
                             },
                         },
                     })
@@ -136,14 +137,14 @@ require('lazy').setup({
             },
         },
         config = function()
-            vim.fn.sign_define("DiagnosticSignError",
-              {text = " ", texthl = "DiagnosticSignError"})
-            vim.fn.sign_define("DiagnosticSignWarn",
-              {text = " ", texthl = "DiagnosticSignWarn"})
-            vim.fn.sign_define("DiagnosticSignInfo",
-              {text = " ", texthl = "DiagnosticSignInfo"})
-            vim.fn.sign_define("DiagnosticSignHint",
-              {text = "󰌵", texthl = "DiagnosticSignHint"})
+            vim.fn.sign_define('DiagnosticSignError',
+              {text = ' ', texthl = 'DiagnosticSignError'})
+            vim.fn.sign_define('DiagnosticSignWarn',
+              {text = ' ', texthl = 'DiagnosticSignWarn'})
+            vim.fn.sign_define('DiagnosticSignInfo',
+              {text = ' ', texthl = 'DiagnosticSignInfo'})
+            vim.fn.sign_define('DiagnosticSignHint',
+              {text = '󰌵', texthl = 'DiagnosticSignHint'})
             require('user/plugins/neo-tree')
         end,
     },
@@ -259,13 +260,25 @@ require('lazy').setup({
     },
 
     {
+        'L3MON4D3/LuaSnip',
+        rtag = 'v2.*',
+        build = 'make install_jsregexp',
+        lazy = false,
+        dependencies = 'rafamadriz/friendly-snippets',
+        config = function()
+            require('luasnip.loaders.from_vscode').lazy_load()
+            require('luasnip.loaders.from_snipmate').lazy_load({ path = '~/.config/nvim/snippits' })
+        end,
+    },
+
+    {
         'hrsh7th/nvim-cmp',
         dependencies = {
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-nvim-lsp-signature-help',
             'hrsh7th/cmp-buffer',
             'hrsh7th/cmp-path',
-            'L3MON4D3/LuaSnip',
+            'hrsh7th/cmp-cmdline',
             'saadparwaiz1/cmp_luasnip',
             'onsails/lspkind-nvim',
         },
@@ -278,7 +291,7 @@ require('lazy').setup({
         'phpactor/phpactor',
         event = 'VeryLazy',
         filetype = 'php',
-        run = 'composer install --no-dev --optimize-autoloader', -- Run manually if it doesn't work
+        build = 'composer install --no-dev --optimize-autoloader', -- Run manually if it doesn't work
         config = function()
             vim.keymap.set('n', '<Leader>pm', ':PhpactorContextMenu<CR>')
             vim.keymap.set('n', '<Leader>pn', ':PhpactorClassNew<CR>')
@@ -297,6 +310,39 @@ require('lazy').setup({
         'vim-test/vim-test',
         config = function()
             require('user/plugins/vim-test')
+        end,
+    },
+
+    {
+        'norcalli/nvim-colorizer.lua',
+        config = function()
+            require('colorizer').setup()
+        end,
+    },
+
+    {
+        'adalessa/laravel.nvim',
+        dependencies = {
+            'tpope/vim-dotenv',
+            'MunifTanjim/nui.nvim',
+        },
+        cmd = { 'Sail', 'Artisan', 'Composer', 'Npm', 'Yarn', 'Laravel' },
+        keys = {
+            { '<leader>la', ':Laravel artisan<cr>' },
+            { '<leader>lr', ':Laravel routes<cr>' },
+            { '<leader>lm', ':Laravel related<cr>' },
+            {
+                '<leader>lt',
+                function()
+                    require('laravel.tinker').send_to_tinker()
+                end,
+                mode = 'v',
+            },
+        },
+        event = { 'VeryLazy' },
+        config = function()
+            require('laravel').setup()
+            require("telescope").load_extension "laravel"
         end,
     },
 })

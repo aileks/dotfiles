@@ -14,6 +14,7 @@ vim.opt.relativenumber = true
 
 -- Better tab completion for commands
 vim.opt.wildmode = 'longest:full,full'
+vim.opt.completeopt = 'menuone,longest,preview'
 
 -- Filename and working directory title
 vim.opt.title = true
