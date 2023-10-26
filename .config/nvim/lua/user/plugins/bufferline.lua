@@ -21,7 +21,7 @@ require('bufferline').setup({
     custom_areas = {
       left = function()
         return {
-          { text = ' 󰄛  ', fg = '#ca9ee6' },
+          { text = '  󰄛  ', fg = '#ca9ee6' },
         }
       end,
     },
@@ -42,6 +42,4 @@ require('bufferline').setup({
 
 vim.keymap.set('n', '<leader>bb', ':BufferLinePick<CR>')
 vim.keymap.set('n', '<leader>bd', ':BufferLinePickClose<CR>')
-vim.keymap.set('n', '<leader>l', ':BufferLineCycleNext<CR>')
-vim.keymap.set('n', '<leader>h', ':BufferLineCyclePrev<CR>')
 vim.keymap.set('n', '<leader>bc', ':BufferLineCloseOthers<CR>')

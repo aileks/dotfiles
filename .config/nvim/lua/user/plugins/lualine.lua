@@ -154,7 +154,7 @@ ins_right {
     end
     return msg
   end,
-  icon = '  :',
+  icon = ' :',
   color = { fg = colors.fg, gui = 'bold' },
 }
 
