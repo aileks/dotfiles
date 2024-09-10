@@ -21,10 +21,6 @@ rm -rf $HOME/.config/nvim
 check_error
 ln -s $DOTDIR/nvim $HOME/.config/nvim
 check_error
-rm -rf $HOME/.config/wezterm
-check_error
-ln -s $DOTDIR/wezterm $HOME/.config/wezterm
-check_error
 
 # install omz
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
