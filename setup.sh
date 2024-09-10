@@ -24,15 +24,6 @@ check_error
 rm -rf $HOME/.config/wezterm
 check_error
 ln -s $DOTDIR/wezterm $HOME/.config/wezterm
-
-# zed is a special case
-ln -sf $DOTDIR/zed/keymap.json $HOME/.config/zed/keymap.json
-check_error
-ln -sf $DOTDIR/zed/settings.json $HOME/.config/zed/settings.json
-check_error
-rm -rf $HOME/.config/zed/snippets
-check_error
-ln -s $DOTDIR/zed/snippets $HOME/.config/zed/snippets
 check_error
 
 # install omz
