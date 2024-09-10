@@ -1,6 +1,6 @@
 return {
   'Shatur/neovim-ayu',
-  config = function ()
+  config = function()
     require('ayu').setup({
       overrides = {
         -- Transparency options
@@ -13,9 +13,10 @@ return {
         CursorColumn = { bg = "None" },
         WhichKeyFloat = { bg = "None" },
         VertSplit = { bg = "None" },
+        LineNr = { bg = "#0F151E" },
       }
     })
 
-    vim.cmd.colorscheme('ayu-dark')
+    vim.cmd.colorscheme('ayu')
   end
 }
