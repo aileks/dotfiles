@@ -9,12 +9,12 @@ export EDITOR=nvim
 export SUDO_EDITOR=nvim
 
 # Theme
-ZSH_THEME="sorin"
+ZSH_THEME="kennethreitz"
 
 # Plugins
-plugins=(archlinux cp fast-syntax-highlighting fzf git python ruby thefuck tmux zsh-autosuggestions)
-ZSH_TMUX_AUTOSTART=true
-ZSH_TMUX_UNICODE=true
+plugins=(archlinux cp fast-syntax-highlighting fzf git python ruby thefuck zsh-autosuggestions)
+# ZSH_TMUX_AUTOSTART=true
+# ZSH_TMUX_UNICODE=true
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh
