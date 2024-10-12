@@ -5,5 +5,6 @@
 #### Includes configuration for:
 - Neovim
 - Tmux
+- Zsh
 
 Note: I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration.
