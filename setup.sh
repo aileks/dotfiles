@@ -11,19 +11,8 @@ ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 ln -sf $DOTDIR/ideavim/ideavimrc $HOME/.ideavimrc
 rm -rf $HOME/.config/nvim
 ln -s $DOTDIR/nvim $HOME/.config/nvim
-rm -rf $HOME/.config/wezterm
-ln -s $DOTDIR/wezterm $HOME/.config/wezterm
-rm -rf $HOME/.config/dunst
-ln -s $DOTDIR/dunst $HOME/.config/dunst
-rm -rf $HOME/.config/dwm
-ln -s $DOTDIR/dwm $HOME/.config/dwm
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
-
-# install dwm
-echo "Compiling dwm, sudo password needed!"
-echo ""
-cd $DOTDIR/dwm && sudo make install
 
 # install omz
 echo "Installing Oh My Zsh"
@@ -33,7 +22,6 @@ fi
 
 # install tmp
 echo "Installing tmux package manager"
-echo ""
 if [ ! -d "$HOME/.tmux" ]; then
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
