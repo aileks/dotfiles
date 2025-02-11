@@ -6,7 +6,7 @@ xset r rate 200 50
 xss-lock -- i3lock-fancy -pf BerkeleyMono-Nerd-Font &
 feh --no-fehbg --bg-fill ~/Pictures/Wallpaper/wallpaper.png &
 dash ~/.config/dwm/scripts/bar.sh &
-picom -b
+picom -b --config ~/.config/picom/picom.conf
 fcitx5 -d
 nm-applet &
 

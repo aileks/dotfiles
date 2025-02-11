@@ -1,5 +1,5 @@
 # Path
-export PATH="$PATH:$HOME/.local/bin:$HOME/.composer/vendor/bin:$HOME/.spicetify:$HOME/.pyenv/bin:$HOME/.bun:$HOME/.local/share/JetBrains/Toolbox/scripts"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.composer/vendor/bin:$HOME/.spicetify:$HOME/.pyenv/bin:$HOME/.bun/bin:$HOME/.local/share/JetBrains/Toolbox/scripts"
 
 # Path to OMZ installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -55,4 +55,3 @@ export PIPENV_VENV_IN_PROJECT=1
 
 # Misc
 eval "$(zoxide init zsh)"
-
