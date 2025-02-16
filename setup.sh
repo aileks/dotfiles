@@ -20,6 +20,8 @@ rm -rf $HOME/.config/dwm
 ln -s $DOTDIR/dwm $HOME/.config/dwm
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
+rm -rf $HOME/.config/helix
+ln -s $DOTDIR/helix $HOME/.config/helix
 
 # copy
 cp $DOTDIR/.Xresources $HOME
@@ -40,7 +42,6 @@ cp $DOTDIR/.Xresources $HOME
 
 # install tmp
 echo "Installing tmux package manager"
-echo ""
 if [ ! -d "$HOME/.tmux" ]; then
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
