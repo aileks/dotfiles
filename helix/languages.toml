@@ -30,13 +30,6 @@ language-servers = [ "marksman" ]
 [language-server.marksman]
 command = "marksman"
 
-# Bash
-[[language]]
-name = "bash"
-language-servers = [ "bash-ls" ]
-[language-server.bash-ls]
-command = "bash-language-server"
-
 # Python
 [[language]]
 name = "python"
