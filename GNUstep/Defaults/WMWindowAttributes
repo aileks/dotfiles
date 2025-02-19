@@ -1,0 +1,14 @@
+{
+  pcmanfm.Pcmanfm = {
+    Icon = pcmanfm.Pcmanfm.xpm;
+  };
+  brave.Brave = {
+    Icon = brave.png;
+  };
+  thunar.Thunar = {
+    Icon = thunar.png;
+  };
+  groupLeader.WPrefs = {
+    Icon = groupLeader.WPrefs.xpm;
+  };
+}

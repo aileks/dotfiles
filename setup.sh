@@ -10,8 +10,6 @@ ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 rm -rf $HOME/.config/picom
 ln -s $DOTDIR/picom $HOME/.config/picom
-rm -rf $HOME/.config/nvim
-ln -s $DOTDIR/nvim $HOME/.config/nvim
 rm -rf $HOME/.config/wezterm
 ln -s $DOTDIR/wezterm $HOME/.config/wezterm
 rm -rf $HOME/.config/dunst
@@ -20,32 +18,24 @@ rm -rf $HOME/.config/dwm
 ln -s $DOTDIR/dwm $HOME/.config/dwm
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
+rm -rf $HOME/GNUstep
+ln -s $DOTDIR/GNUstep $HOME/GNUstep
 rm -rf $HOME/.config/helix
 ln -s $DOTDIR/helix $HOME/.config/helix
 
-# copy
-cp $DOTDIR/.Xresources $HOME
-
-############################################
-### MADE OBSOLETE BY MY ANSIBLE PLAYBOOK ###
-############################################
-# install dwm
-# echo "Compiling dwm, sudo password needed!"
-# echo ""
-# cd $DOTDIR/dwm && sudo make install
-
 # install omz
-# echo "Installing Oh My Zsh"
-# if [ ! -d "$HOME/.oh-my-zsh" ]; then
-#     KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-# fi
+echo "Installing Oh My Zsh"
+echo ""
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 
 # install tmp
 echo "Installing tmux package manager"
+echo ""
 if [ ! -d "$HOME/.tmux" ]; then
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
-echo ""
 echo "Files Successfully Copied"
 echo ""

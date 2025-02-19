@@ -1,0 +1,83 @@
+{
+  FTitleColor = "#fcfcfc";
+  FrameBorderColor = "#000000";
+  MenuDisabledColor = "#7f7f7f";
+  IconTitleBack = "#000000";
+  HotCornerEdge = 2;
+  MoveToWorkspace9Key = "Shift+Mod1+9";
+  PixmapPath = (
+    "/home/aileks/GNUstep/Library/WindowMaker/Pixmaps",
+    "/home/aileks/GNUstep/Library/WindowMaker/Backgrounds",
+    "/home/aileks/GNUstep/Library/WindowMaker/CachedPixmaps",
+    "/usr/share/WindowMaker/Pixmaps",
+    "/usr/share/WindowMaker/Backgrounds",
+    "/usr/share/pixmaps",
+    "/usr/share/icons"
+  );
+  ToggleKbdModeKey = None;
+  BackgroundStyle = Stretched;
+  OpaqueResize = YES;
+  MoveToWorkspace7Key = "Shift+Mod1+7";
+  PartialCaptureKey = "Mod1+U";
+  HotCornerDelay = 250;
+  CenterKey = "Mod1+V";
+  IconTitleColor = "#fcfcfc";
+  ExitKey = "Control+Mod1+Q";
+  MoveToWorkspace2Key = "Shift+Mod1+2";
+  MenuTextColor = "#000000";
+  MenuTitleColor = "#fcfcfc";
+  AntialiasedText = YES;
+  HotCorners = NO;
+  MoveToWorkspace5Key = "Shift+Mod1+5";
+  WorkspaceNameDisplayPosition = bottom;
+  SmoothWorkspaceBack = YES;
+  MoveTo6to12Head = None;
+  IconSize = 48;
+  DbClickFullScreen = YES;
+  IconPosition = blv;
+  NoWindowOverDock = YES;
+  WorkspaceBack = (
+    tpixmap,
+    "/home/aileks/GNUstep/Library/WindowMaker/Backgrounds/plane.jpg",
+    gray20
+  );
+  HighlightTextColor = "#000000";
+  EnforceIconMargin = NO;
+  WindowSnapping = YES;
+  SnapToTopMaximizesFullscreen = YES;
+  ClipTitleColor = "#000000";
+  MoveTo12to6Head = None;
+  HotCornerActions = (None, None, None, None);
+  CloseKey = "Mod1+Q";
+  HighlightColor = "#fcfcfc";
+  FrameFocusedBorderColor = "#000000";
+  FocusMode = sloppy;
+  WindowCaptureKey = "Shift+Mod1+U";
+  WindowTitleFont = "Tahoma:slant=0:weight=200:width=100:pixelsize=12";
+  MoveToWorkspace8Key = "Shift+Mod1+8";
+  RunKey = "Mod1+space";
+  MoveToWorkspace3Key = "Shift+Mod1+3";
+  CClipTitleColor = "#616161";
+  MoveToWorkspace6Key = "Shift+Mod1+6";
+  IconPath = (
+    "/home/aileks/GNUstep/Library/Icons",
+    "/home/aileks/GNUstep/Library/WindowMaker/Pixmaps",
+    "/home/aileks/GNUstep/Library/WindowMaker/CachedPixmaps",
+    "/usr/share/WindowMaker/Icons",
+    "/usr/share/WindowMaker/Pixmaps",
+    "/usr/share/pixmaps",
+    "/home/aileks/.local/share/icons",
+    "/usr/share/icons"
+  );
+  MiniPreviewSize = 48;
+  MoveToWorkspace10Key = "Shift+Mod1+0";
+  KbdModeLock = NO;
+  ViKeyMenus = YES;
+  UTitleColor = "#000000";
+  CloseRootMenuByLeftOrRightMouseClick = NO;
+  PTitleColor = "#fcfcfc";
+  MoveToWorkspace1Key = "Shift+Mod1+1";
+  IconTheme = "Windows XP";
+  MoveToWorkspace4Key = "Shift+Mod1+4";
+  FrameSelectedBorderColor = "#fcfcfc";
+}
