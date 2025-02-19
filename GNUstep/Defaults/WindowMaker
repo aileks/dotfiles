@@ -1,8 +1,7 @@
 {
-  FTitleColor = white;
-  FrameBorderColor = "#b6b6b3";
-  MenuDisabledColor = gray40;
-  IconTitleBack = "#58001a";
+  FrameBorderColor = "#b5b5b2";
+  FTitleColor = "#ffffff";
+  MenuDisabledColor = "#666666";
   PixmapPath = (
     "/home/aileks/GNUstep/Library/WindowMaker/Pixmaps",
     "/home/aileks/GNUstep/Library/WindowMaker/Backgrounds",
@@ -12,62 +11,66 @@
     "/usr/share/pixmaps",
     "/usr/share/icons"
   );
-  MoveToWorkspace9Key = "Shift+Mod1+9";
+  IconTitleBack = "#58001a";
   HotCornerEdge = 2;
+  MoveToWorkspace9Key = "Shift+Mod1+9";
   FTitleBack = (hgradient, "rgb:21/00/05", "rgb:90/00/30");
-  ToggleKbdModeKey = None;
   ClipTitleFont = "Verdana:bold:pixelsize=10";
-  BackgroundStyle = Stretched;
   IconTitleFont = "Arial,sans serif:pixelsize=9";
   MoveToWorkspace7Key = "Shift+Mod1+7";
-  OpaqueResize = YES;
-  MenuTextBack = (hgradient, "rgb:c0/c0/c0", "rgb:90/90/90");
   LargeDisplayFont = "Trebuchet MS,sans serif:pixelsize=24";
   PartialCaptureKey = "Mod1+U";
-  HotCornerDelay = 250;
   CenterKey = "Mod1+V";
-  TitleJustify = left;
-  IconTitleColor = white;
-  ExitKey = "Control+Mod1+Q";
-  MenuTextColor = black;
+  IconTitleColor = "#ffffff";
   MoveToWorkspace2Key = "Shift+Mod1+2";
-  IconBack = (dgradient, "rgb:a6/a6/b6", "rgb:51/55/61");
-  MenuTitleColor = white;
-  AntialiasedText = YES;
+  MenuTitleColor = "#ffffff";
   MenuTitleFont = "Trebuchet MS,sans serif:bold:pixelsize=12";
-  MoveToWorkspace5Key = "Shift+Mod1+5";
   HotCorners = NO;
-  WindowTitleExtendSpace = 0;
   SmoothWorkspaceBack = YES;
-  WorkspaceNameDisplayPosition = bottom;
   MoveTo6to12Head = None;
-  IconSize = 48;
   DbClickFullScreen = YES;
   IconPosition = blv;
-  MenuTextFont = "Trebuchet MS,sans serif:pixelsize=12";
   NoWindowOverDock = YES;
   WorkspaceBack = (mdgradient, black, black, black, "#111133");
-  HighlightTextColor = black;
-  MenuTitleBack = (hgradient, "rgb:90/00/30", "rgb:21/00/05");
+  HighlightTextColor = "#000000";
   EnforceIconMargin = NO;
   WindowSnapping = YES;
-  SnapToTopMaximizesFullscreen = YES;
-  ClipTitleColor = black;
+  ClipTitleColor = "#000000";
   MoveTo12to6Head = None;
   HotCornerActions = (None, None, None, None);
-  CloseKey = "Mod1+Q";
-  HighlightColor = white;
-  FrameFocusedBorderColor = "#b6b6b3";
-  WindowTitleFont = "Trebuchet MS,sans serif:bold:pixelsize=12";
-  FocusMode = sloppy;
-  WindowCaptureKey = "Shift+Mod1+U";
+  FrameFocusedBorderColor = "#b5b5b2";
+  WindowTitleFont = "Trebuchet MS:slant=0:weight=200:width=100:pixelsize=12";
   MoveToWorkspace8Key = "Shift+Mod1+8";
   RunKey = "Mod1+space";
-  MoveToWorkspace3Key = "Shift+Mod1+3";
-  CClipTitleColor = gray30;
-  ResizebarBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
-  MenuStyle = normal;
   MoveToWorkspace6Key = "Shift+Mod1+6";
+  ResizebarBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
+  MiniPreviewSize = 48;
+  MoveToWorkspace10Key = "Shift+Mod1+0";
+  KbdModeLock = NO;
+  CloseRootMenuByLeftOrRightMouseClick = NO;
+  MoveToWorkspace1Key = "Shift+Mod1+1";
+  FrameSelectedBorderColor = "#fefefe";
+  ToggleKbdModeKey = None;
+  BackgroundStyle = Stretched;
+  OpaqueResize = YES;
+  MenuTextBack = (hgradient, "rgb:c0/c0/c0", "rgb:90/90/90");
+  HotCornerDelay = 250;
+  TitleJustify = left;
+  ExitKey = "Control+Mod1+Q";
+  MenuTextColor = "#000000";
+  AntialiasedText = YES;
+  MoveToWorkspace5Key = "Shift+Mod1+5";
+  WorkspaceNameDisplayPosition = bottom;
+  IconSize = 48;
+  MenuTextFont = "Trebuchet MS,sans serif:pixelsize=12";
+  MenuTitleBack = (hgradient, "rgb:90/00/30", "rgb:21/00/05");
+  SnapToTopMaximizesFullscreen = YES;
+  CloseKey = "Mod1+Q";
+  HighlightColor = "#ffffff";
+  FocusMode = sloppy;
+  WindowCaptureKey = "Shift+Mod1+U";
+  MoveToWorkspace3Key = "Shift+Mod1+3";
+  CClipTitleColor = "#4d4d4d";
   IconPath = (
     "/home/aileks/GNUstep/Library/Icons",
     "/home/aileks/GNUstep/Library/WindowMaker/Pixmaps",
@@ -78,19 +81,11 @@
     "/home/aileks/.local/share/icons",
     "/usr/share/icons"
   );
-  MiniPreviewSize = 48;
-  MoveToWorkspace10Key = "Shift+Mod1+0";
-  KbdModeLock = NO;
   PTitleBack = (hgradient, "rgb:51/50/55", "rgb:80/80/80");
-  MenuTextExtendSpace = 0;
-  UTitleColor = black;
+  UTitleColor = "#000000";
   ViKeyMenus = YES;
   UTitleBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
-  PTitleColor = white;
-  CloseRootMenuByLeftOrRightMouseClick = NO;
-  MenuTitleExtendSpace = 0;
-  MoveToWorkspace1Key = "Shift+Mod1+1";
+  PTitleColor = "#ffffff";
   MoveToWorkspace4Key = "Shift+Mod1+4";
   IconTheme = "Windows XP";
-  FrameSelectedBorderColor = "#ffffff";
 }

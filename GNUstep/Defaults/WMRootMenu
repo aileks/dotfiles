@@ -2,7 +2,8 @@
   "Window Maker",
   (
     Applications,
-    ("File Managers", (PCManFM, EXEC, pcmanfm)),
+    ("Web Browsers", (Brave, SHORTCUT, "Mod1+w", EXEC, brave)),
+    ("File Managers", (PCManFM, SHORTCUT, "Mod1+e", EXEC, pcmanfm)),
     (
       Development,
       (gitk, EXEC, gitk),
@@ -16,13 +17,14 @@
       ("Time & Date", EXEC, wmclock),
       ("System Tray", EXEC, wmsystemtray)
     ),
-    (Sound, ("Pulseaudio Volume Controls", EXEC, "pavucontrol")),
+    (Sound, ("Pulseaudio Volume Controls", EXEC, pavucontrol)),
     (
       Utilities,
+      ("Run Program", SHORTCUT, "Mod1+Return", EXEC, "wezterm-gui"),
       ("Wine Configurator", EXEC, winecfg)
     )
   ),
-  (Run..., SHEXEC, "%A(Run, Type command:)"),
+  (Run..., EXEC, "%A(Run, Type command:)"),
   (
     Appearance,
     (
@@ -136,7 +138,7 @@
     ),
     (
       "Save Theme",
-      SHEXEC,
+      EXEC,
       "getstyle -p \"%a(Theme name, Name to save theme as)\""
     ),
     (

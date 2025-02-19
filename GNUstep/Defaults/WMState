@@ -57,12 +57,23 @@
       },
       {
         Forced = No;
-        Name = default.default;
+        Name = pcmanfm.Pcmanfm;
+        DropCommand = "pcmanfm %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,6";
+        Lock = Yes;
+        PasteCommand = "pcmanfm %s";
+        Command = pcmanfm;
+      },
+      {
+        Forced = No;
+        Name = brave.Brave;
         DropCommand = "brave %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,5";
-        Lock = Yes;
+        Lock = No;
         PasteCommand = "brave %s";
         Command = brave;
       }
@@ -125,12 +136,23 @@
       },
       {
         Forced = No;
-        Name = default.default;
+        Name = pcmanfm.Pcmanfm;
+        DropCommand = "pcmanfm %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,6";
+        Lock = Yes;
+        PasteCommand = "pcmanfm %s";
+        Command = pcmanfm;
+      },
+      {
+        Forced = No;
+        Name = brave.Brave;
         DropCommand = "brave %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,5";
-        Lock = Yes;
+        Lock = No;
         PasteCommand = "brave %s";
         Command = brave;
       }
