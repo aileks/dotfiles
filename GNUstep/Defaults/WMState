@@ -24,62 +24,51 @@
       },
       {
         Forced = No;
+        Name = wmclock.WMClock;
+        DropCommand = "wmclock %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,3";
+        Lock = No;
+        PasteCommand = "wmclock %s";
+        Command = wmclock;
+      },
+      {
+        Forced = No;
+        Name = wmnet.WMNET;
+        DropCommand = "wmnet -d 100000 -Wenp5s0 %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,1";
+        Lock = No;
+        PasteCommand = "wmnet -d 100000 -Wenp5s0 %s";
+        Command = "wmnet -d 100000 -Wenp5s0";
+      },
+      {
+        Forced = No;
         Name = wmsystemtray0.wmsystemtray;
         DropCommand = "wmsystemtray %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,3";
+        Position = "0,4";
         Lock = No;
         PasteCommand = "wmsystemtray %s";
         Command = wmsystemtray;
       },
       {
         Forced = No;
-        Name = wmnet.WMNET;
-        DropCommand = "wmnet -d 100000 -Weth0 %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,1";
-        Lock = No;
-        PasteCommand = "wmnet -d 100000 -Weth0 %s";
-        Command = "wmnet -d 100000 -Weth0";
-      },
-      {
-        Forced = No;
-        Name = pcmanfm.Pcmanfm;
-        DropCommand = "pcmanfm %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,6";
-        Lock = No;
-        PasteCommand = "pcmanfm %s";
-        Command = pcmanfm;
-      },
-      {
-        Forced = No;
-        Name = brave.Brave;
+        Name = default.default;
         DropCommand = "brave %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,5";
-        Lock = No;
+        Lock = Yes;
         PasteCommand = "brave %s";
         Command = brave;
-      },
-      {
-        Forced = No;
-        Name = wmclock.WMClock;
-        DropCommand = "wmclock %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,4";
-        Lock = No;
-        PasteCommand = "wmclock %s";
-        Command = wmclock;
       }
     );
     Lowered = Yes;
-    Position = "2512,502";
+    Position = "2512,517";
     Applications1440 = (
       {
         Forced = No;
@@ -103,58 +92,47 @@
       },
       {
         Forced = No;
+        Name = wmclock.WMClock;
+        DropCommand = "wmclock %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,3";
+        Lock = No;
+        PasteCommand = "wmclock %s";
+        Command = wmclock;
+      },
+      {
+        Forced = No;
+        Name = wmnet.WMNET;
+        DropCommand = "wmnet -d 100000 -Wenp5s0 %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,1";
+        Lock = No;
+        PasteCommand = "wmnet -d 100000 -Wenp5s0 %s";
+        Command = "wmnet -d 100000 -Wenp5s0";
+      },
+      {
+        Forced = No;
         Name = wmsystemtray0.wmsystemtray;
         DropCommand = "wmsystemtray %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,3";
+        Position = "0,4";
         Lock = No;
         PasteCommand = "wmsystemtray %s";
         Command = wmsystemtray;
       },
       {
         Forced = No;
-        Name = wmnet.WMNET;
-        DropCommand = "wmnet -d 100000 -Weth0 %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,1";
-        Lock = No;
-        PasteCommand = "wmnet -d 100000 -Weth0 %s";
-        Command = "wmnet -d 100000 -Weth0";
-      },
-      {
-        Forced = No;
-        Name = pcmanfm.Pcmanfm;
-        DropCommand = "pcmanfm %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,6";
-        Lock = No;
-        PasteCommand = "pcmanfm %s";
-        Command = pcmanfm;
-      },
-      {
-        Forced = No;
-        Name = brave.Brave;
+        Name = default.default;
         DropCommand = "brave %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,5";
-        Lock = No;
+        Lock = Yes;
         PasteCommand = "brave %s";
         Command = brave;
-      },
-      {
-        Forced = No;
-        Name = wmclock.WMClock;
-        DropCommand = "wmclock %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,4";
-        Lock = No;
-        PasteCommand = "wmclock %s";
-        Command = wmclock;
       }
     );
   };

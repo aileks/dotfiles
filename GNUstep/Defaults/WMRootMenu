@@ -2,27 +2,27 @@
   "Window Maker",
   (
     Applications,
-    ("File Managers", (Thunar, EXEC, thunar)),
-    (Graphics, ("ImageMagick Display", EXEC, display)),
-    (Editors, (VIM, EXEC, "xterm -e vim"), (Nano, EXEC, "xterm -e nano")),
-    (Development, (gitk, EXEC, gitk), (idle, EXEC, idle)),
+    ("File Managers", (PCManFM, EXEC, pcmanfm)),
+    (
+      Development,
+      (gitk, EXEC, gitk),
+      (idle, EXEC, idle),
+      (xev, EXEC, "xterm -e xev")
+    ),
     (
       "Window Maker",
       (Net, EXEC, "wmnet -d 100000 -Weth0"),
       ("CPU Load", EXEC, wmcpuload),
-      ("System Tray", EXEC, wmsystemtray),
-      (Magnify, EXEC, wmagnify)
+      ("Time & Date", EXEC, wmclock),
+      ("System Tray", EXEC, wmsystemtray)
     ),
-    (Sound, ("ALSA mixer", EXEC, "xterm -e alsamixer")),
+    (Sound, ("Pulseaudio Volume Controls", EXEC, "pavucontrol")),
     (
       Utilities,
-      ("Wine Configurator", EXEC, winecfg),
-      (Xarchiver, EXEC, xarchiver)
-    ),
-    (System, (top, EXEC, "xterm -e top")),
-    ("P2P Network", (sftp, EXEC, "xterm -e sftp"))
+      ("Wine Configurator", EXEC, winecfg)
+    )
   ),
-  (Run..., EXEC, "%A(Run, Type command:)"),
+  (Run..., SHEXEC, "%A(Run, Type command:)"),
   (
     Appearance,
     (
@@ -136,7 +136,7 @@
     ),
     (
       "Save Theme",
-      EXEC,
+      SHEXEC,
       "getstyle -p \"%a(Theme name, Name to save theme as)\""
     ),
     (

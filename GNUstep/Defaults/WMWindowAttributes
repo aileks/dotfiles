@@ -1,4 +1,7 @@
 {
+  default.default = {
+    Icon = "/home/aileks/.local/share/icons/brave.png";
+  };
   pcmanfm.Pcmanfm = {
     Icon = pcmanfm.Pcmanfm.xpm;
   };
