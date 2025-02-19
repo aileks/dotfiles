@@ -79,7 +79,7 @@
       }
     );
     Lowered = Yes;
-    Position = "2512,517";
+    Position = "2512,512";
     Applications1440 = (
       {
         Forced = No;

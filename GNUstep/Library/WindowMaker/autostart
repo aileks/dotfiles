@@ -1,3 +1,4 @@
+picom -b
 wmsetbg ~/GNUstep/Library/WindowMaker/Backgrounds/wp.jpg
 # wmnet -d 100000 -Wenp5s0 &
 # wmclock &
@@ -5,5 +6,4 @@ wmsetbg ~/GNUstep/Library/WindowMaker/Backgrounds/wp.jpg
 # wmsysemtray &
 xset r rate 250 50
 xset m 20/10 4
-picom -b
 xrandr --output DP-4 --mode 2560x1440 --rate 165
