@@ -15,8 +15,8 @@
   HotCornerEdge = 2;
   MoveToWorkspace9Key = "Shift+Mod1+9";
   FTitleBack = (hgradient, "rgb:21/00/05", "rgb:90/00/30");
-  ClipTitleFont = "Rubik:slant=0:weight=200:width=100:pixelsize=10";
   MiniwindowPreviewBalloons = YES;
+  ClipTitleFont = "Rubik:slant=0:weight=200:width=100:pixelsize=10";
   MoveToWorkspace7Key = "Shift+Mod1+7";
   IconTitleFont = "Rubik:slant=0:weight=80:width=100:pixelsize=9";
   PartialCaptureKey = "Mod1+U";
@@ -30,6 +30,7 @@
   SmoothWorkspaceBack = YES;
   MoveTo6to12Head = None;
   DbClickFullScreen = YES;
+  IconPosition = blv;
   NoWindowOverDock = YES;
   WorkspaceBack = (
     tpixmap,
@@ -45,8 +46,8 @@
   ClipTitleColor = "#000000";
   MoveTo12to6Head = None;
   HotCornerActions = (None, None, None, None);
-  FrameFocusedBorderColor = "#b4b4b1";
   WorkspaceBorder = AllDirections;
+  FrameFocusedBorderColor = "#b4b4b1";
   WindowTitleFont = "Rubik:slant=0:weight=200:width=100:pixelsize=12";
   MoveToWorkspace8Key = "Shift+Mod1+8";
   RunKey = "Mod1+space";
@@ -81,7 +82,6 @@
   SnapToTopMaximizesFullscreen = YES;
   CloseKey = "Mod1+Q";
   HighlightColor = "#ffffff";
-  FocusMode = sloppy;
   WindowCaptureKey = "Shift+Mod1+U";
   MoveToWorkspace3Key = "Shift+Mod1+3";
   CClipTitleColor = "#4d4d4d";
@@ -96,8 +96,8 @@
     "/usr/share/icons"
   );
   PTitleBack = (hgradient, "rgb:51/50/55", "rgb:80/80/80");
-  UTitleColor = "#000000";
   ViKeyMenus = YES;
+  UTitleColor = "#000000";
   UTitleBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
   PTitleColor = "#ffffff";
   MoveToWorkspace4Key = "Shift+Mod1+4";

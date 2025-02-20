@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSMenuLocations</key>
+    <dict>
+	<key>\U001B</key>
+	<string>54 468 139 182 0 0  2560 1440 </string>
+    </dict>
+    <key>NSWindow Frame systemprefs</key>
+    <string>193 422 594 131 0 0  2560 1440 </string>
+</dict>
+</plist>

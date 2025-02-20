@@ -24,25 +24,36 @@
       },
       {
         Forced = No;
-        Name = wmnet.WMNET;
-        DropCommand = "wmnet -d 100000 -Wenp5s0 %d";
+        Name = wmusic.DockApp;
+        DropCommand = "wmusic %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,18";
         Lock = No;
-        PasteCommand = "wmnet -d 100000 -Wenp5s0 %s";
-        Command = "wmnet -d 100000 -Wenp5s0";
+        PasteCommand = "wmusic %s";
+        Command = wmusic;
       },
       {
         Forced = No;
-        Name = wmcpuload.DockApp;
-        DropCommand = "wmcpuload %d";
+        Name = cputnik.cputnik;
+        DropCommand = "cputnik %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,17";
         Lock = No;
-        PasteCommand = "wmcpuload %s";
-        Command = wmcpuload;
+        PasteCommand = "cputnik %s";
+        Command = cputnik;
+      },
+      {
+        Forced = No;
+        Name = wmressel.wmressel;
+        DropCommand = "wmressel %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,16";
+        Lock = No;
+        PasteCommand = "wmressel %s";
+        Command = wmressel;
       },
       {
         Forced = No;
@@ -50,10 +61,65 @@
         DropCommand = "wmclock %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,16";
+        Position = "0,15";
         Lock = No;
         PasteCommand = "wmclock %s";
         Command = wmclock;
+      },
+      {
+        Forced = No;
+        Name = brave.Brave;
+        DropCommand = "brave %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,1";
+        Lock = No;
+        PasteCommand = "brave %s";
+        Command = brave;
+      },
+      {
+        Forced = No;
+        Name = fsviewer.FSViewer;
+        DropCommand = "FSViewer %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,2";
+        Lock = Yes;
+        PasteCommand = "FSViewer %s";
+        Command = FSViewer;
+      },
+      {
+        Forced = No;
+        Name = xfe.Xfe;
+        DropCommand = "xfe %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,3";
+        Lock = No;
+        PasteCommand = "xfe %s";
+        Command = xfe;
+      },
+      {
+        Forced = No;
+        Name = SystemPreferences.GNUstep;
+        DropCommand = "SystemPreferences %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,4";
+        Lock = No;
+        PasteCommand = "SystemPreferences %s";
+        Command = SystemPreferences;
+      },
+      {
+        Forced = No;
+        Name = lxappearance.Lxappearance;
+        DropCommand = "lxappearance %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,5";
+        Lock = No;
+        PasteCommand = "lxappearance %s";
+        Command = lxappearance;
       }
     );
     Lowered = Yes;
@@ -81,25 +147,36 @@
       },
       {
         Forced = No;
-        Name = wmnet.WMNET;
-        DropCommand = "wmnet -d 100000 -Wenp5s0 %d";
+        Name = wmusic.DockApp;
+        DropCommand = "wmusic %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,18";
         Lock = No;
-        PasteCommand = "wmnet -d 100000 -Wenp5s0 %s";
-        Command = "wmnet -d 100000 -Wenp5s0";
+        PasteCommand = "wmusic %s";
+        Command = wmusic;
       },
       {
         Forced = No;
-        Name = wmcpuload.DockApp;
-        DropCommand = "wmcpuload %d";
+        Name = cputnik.cputnik;
+        DropCommand = "cputnik %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,17";
         Lock = No;
-        PasteCommand = "wmcpuload %s";
-        Command = wmcpuload;
+        PasteCommand = "cputnik %s";
+        Command = cputnik;
+      },
+      {
+        Forced = No;
+        Name = wmressel.wmressel;
+        DropCommand = "wmressel %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,16";
+        Lock = No;
+        PasteCommand = "wmressel %s";
+        Command = wmressel;
       },
       {
         Forced = No;
@@ -107,10 +184,65 @@
         DropCommand = "wmclock %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,16";
+        Position = "0,15";
         Lock = No;
         PasteCommand = "wmclock %s";
         Command = wmclock;
+      },
+      {
+        Forced = No;
+        Name = brave.Brave;
+        DropCommand = "brave %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,1";
+        Lock = No;
+        PasteCommand = "brave %s";
+        Command = brave;
+      },
+      {
+        Forced = No;
+        Name = fsviewer.FSViewer;
+        DropCommand = "FSViewer %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,2";
+        Lock = Yes;
+        PasteCommand = "FSViewer %s";
+        Command = FSViewer;
+      },
+      {
+        Forced = No;
+        Name = xfe.Xfe;
+        DropCommand = "xfe %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,3";
+        Lock = No;
+        PasteCommand = "xfe %s";
+        Command = xfe;
+      },
+      {
+        Forced = No;
+        Name = SystemPreferences.GNUstep;
+        DropCommand = "SystemPreferences %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,4";
+        Lock = No;
+        PasteCommand = "SystemPreferences %s";
+        Command = SystemPreferences;
+      },
+      {
+        Forced = No;
+        Name = lxappearance.Lxappearance;
+        DropCommand = "lxappearance %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,5";
+        Lock = No;
+        PasteCommand = "lxappearance %s";
+        Command = lxappearance;
       }
     );
   };
@@ -151,32 +283,7 @@
       Clip = {
         AutoRaiseLower = No;
         AutoCollapse = No;
-        Applications = (
-          {
-            Forced = No;
-            Name = fsviewer.FSViewer;
-            DropCommand = "FSViewer %d";
-            BuggyApplication = No;
-            AutoLaunch = No;
-            Position = "0,2";
-            Lock = Yes;
-            PasteCommand = "FSViewer %s";
-            Command = FSViewer;
-            Omnipresent = No;
-          },
-          {
-            Forced = No;
-            Name = brave.Brave;
-            DropCommand = "brave %d";
-            BuggyApplication = No;
-            AutoLaunch = No;
-            Position = "0,1";
-            Lock = No;
-            PasteCommand = "brave %s";
-            Command = brave;
-            Omnipresent = No;
-          }
-        );
+        Applications = ();
         Collapsed = No;
         AutoAttractIcons = No;
         Lowered = Yes;
