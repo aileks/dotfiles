@@ -2,9 +2,7 @@
   FTitleColor = white;
   FrameBorderColor = "#b5b5b2";
   MenuDisabledColor = gray40;
-  IconTitleBack = black;
-  MoveToWorkspace9Key = "Shift+Mod1+9";
-  HotCornerEdge = 2;
+  IconTitleBack = "#58001a";
   PixmapPath = (
     "/home/aileks/GNUstep/Library/WindowMaker/Pixmaps",
     "/home/aileks/GNUstep/Library/WindowMaker/Backgrounds",
@@ -14,19 +12,21 @@
     "/usr/share/pixmaps",
     "/usr/share/icons"
   );
-  FTitleBack = (solid, black);
+  HotCornerEdge = 2;
+  MoveToWorkspace9Key = "Shift+Mod1+9";
+  FTitleBack = (hgradient, "rgb:21/00/05", "rgb:90/00/30");
   ToggleKbdModeKey = None;
-  ClipTitleFont = "Tahoma:bold:pixelsize=10";
+  ClipTitleFont = "Verdana:bold:pixelsize=10";
   BackgroundStyle = Stretched;
-  IconTitleFont = "Rubik:pixelsize=9";
-  MoveToWorkspace7Key = "Shift+Mod1+7";
+  IconTitleFont = "Arial,sans serif:pixelsize=9";
   OpaqueResize = YES;
-  MenuTextBack = (solid, "rgb:aa/aa/aa");
+  MoveToWorkspace7Key = "Shift+Mod1+7";
+  MenuTextBack = (hgradient, "rgb:c0/c0/c0", "rgb:90/90/90");
   LargeDisplayFont = "Trebuchet MS,sans serif:pixelsize=24";
   PartialCaptureKey = "Mod1+U";
   HotCornerDelay = 250;
   CenterKey = "Mod1+V";
-  TitleJustify = center;
+  TitleJustify = left;
   IconTitleColor = white;
   ExitKey = "Control+Mod1+Q";
   MenuTextColor = black;
@@ -37,17 +37,21 @@
   MenuTitleFont = "Trebuchet MS,sans serif:bold:pixelsize=12";
   MoveToWorkspace5Key = "Shift+Mod1+5";
   HotCorners = NO;
+  SmoothWorkspaceBack = YES;
   WorkspaceNameDisplayPosition = bottom;
   MoveTo6to12Head = None;
-  SmoothWorkspaceBack = YES;
   IconSize = 48;
   DbClickFullScreen = YES;
   IconPosition = blv;
   MenuTextFont = "Trebuchet MS,sans serif:pixelsize=12";
   NoWindowOverDock = YES;
-  WorkspaceBack = (mdgradient, black, black, black, "#111133");
+  WorkspaceBack = (
+    tpixmap,
+    "/home/aileks/GNUstep/Library/WindowMaker/Backgrounds/wp.png",
+    gray20
+  );
   HighlightTextColor = black;
-  MenuTitleBack = (solid, black);
+  MenuTitleBack = (hgradient, "rgb:90/00/30", "rgb:21/00/05");
   EnforceIconMargin = NO;
   WindowSnapping = YES;
   SnapToTopMaximizesFullscreen = YES;
@@ -58,13 +62,13 @@
   HighlightColor = white;
   FrameFocusedBorderColor = "#b5b5b2";
   WindowTitleFont = "Trebuchet MS,sans serif:bold:pixelsize=12";
-  WindowCaptureKey = "Shift+Mod1+U";
   FocusMode = sloppy;
+  WindowCaptureKey = "Shift+Mod1+U";
   MoveToWorkspace8Key = "Shift+Mod1+8";
   RunKey = "Mod1+space";
   MoveToWorkspace3Key = "Shift+Mod1+3";
-  CClipTitleColor = gray20;
-  ResizebarBack = (solid, "rgb:aa/aa/aa");
+  CClipTitleColor = gray30;
+  ResizebarBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
   MenuStyle = normal;
   MoveToWorkspace6Key = "Shift+Mod1+6";
   IconPath = (
@@ -80,14 +84,14 @@
   MiniPreviewSize = 48;
   MoveToWorkspace10Key = "Shift+Mod1+0";
   KbdModeLock = NO;
-  PTitleBack = (solid, gray40);
+  PTitleBack = (hgradient, "rgb:51/50/55", "rgb:80/80/80");
   UTitleColor = black;
   ViKeyMenus = YES;
-  UTitleBack = (solid, "rgb:aa/aa/aa");
+  UTitleBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
   PTitleColor = white;
   CloseRootMenuByLeftOrRightMouseClick = NO;
   MoveToWorkspace1Key = "Shift+Mod1+1";
-  IconTheme = "Windows XP";
   MoveToWorkspace4Key = "Shift+Mod1+4";
+  IconTheme = "Windows XP";
   FrameSelectedBorderColor = "#fefefe";
 }
