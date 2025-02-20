@@ -1,15 +1,18 @@
 {
-  pcmanfm.Pcmanfm = {
-    Icon = pcmanfm.Pcmanfm.xpm;
-  };
   default.default = {
     Icon = "/home/aileks/.local/share/icons/brave.png";
+  };
+  pcmanfm.Pcmanfm = {
+    Icon = pcmanfm.Pcmanfm.xpm;
   };
   fsviewer.FSViewer = {
     Icon = fsviewer.FSViewer.xpm;
   };
   lxappearance.Lxappearance = {
     Icon = lxappearance.Lxappearance.xpm;
+  };
+  "virt-manager." = {
+    Icon = "virt-manager..xpm";
   };
   brave.Brave = {
     Icon = Netscape.xpm;
@@ -20,10 +23,13 @@
   xfe.Xfe = {
     Icon = xfe.Xfe.xpm;
   };
+  groupLeader.WPrefs = {
+    Icon = groupLeader.WPrefs.xpm;
+  };
   SystemPreferences.GNUstep = {
     Icon = SystemPreferences.GNUstep.xpm;
   };
-  groupLeader.WPrefs = {
-    Icon = groupLeader.WPrefs.xpm;
+  "virt-manager" = {
+    Icon = "virt-manager..xpm";
   };
 }

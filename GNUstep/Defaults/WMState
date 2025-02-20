@@ -94,7 +94,7 @@
         DropCommand = "SystemPreferences %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,3";
+        Position = "0,5";
         Lock = Yes;
         PasteCommand = "SystemPreferences %s";
         Command = SystemPreferences;
@@ -109,6 +109,17 @@
         Lock = Yes;
         PasteCommand = "lxappearance %s";
         Command = lxappearance;
+      },
+      {
+        Forced = No;
+        Name = "virt-manager.";
+        DropCommand = "virt-manager %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,3";
+        Lock = No;
+        PasteCommand = "virt-manager %s";
+        Command = "virt-manager";
       }
     );
     Lowered = Yes;
@@ -206,7 +217,7 @@
         DropCommand = "SystemPreferences %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,3";
+        Position = "0,5";
         Lock = Yes;
         PasteCommand = "SystemPreferences %s";
         Command = SystemPreferences;
@@ -221,6 +232,17 @@
         Lock = Yes;
         PasteCommand = "lxappearance %s";
         Command = lxappearance;
+      },
+      {
+        Forced = No;
+        Name = "virt-manager.";
+        DropCommand = "virt-manager %d";
+        BuggyApplication = No;
+        AutoLaunch = No;
+        Position = "0,3";
+        Lock = No;
+        PasteCommand = "virt-manager %s";
+        Command = "virt-manager";
       }
     );
   };
@@ -233,6 +255,63 @@
     Lock = No;
     Command = "-";
   };
+  Applications = (
+    {
+      Maximized = 0x0003;
+      Name = org.wezfurlong.wezterm.org.wezfurlong.wezterm;
+      Shaded = No;
+      Miniaturized = No;
+      Command = "wezterm-gui";
+      Geometry = "2486x1407+0+0";
+      Hidden = No;
+      Workspace = "Workspace 3";
+      ShortcutMask = 0;
+    },
+    {
+      Maximized = 0x0006;
+      Name = "brave-browser.Brave-browser";
+      Shaded = No;
+      Miniaturized = No;
+      Command = "/opt/brave-bin/brave";
+      Geometry = "1242x1407+0+0";
+      Hidden = No;
+      Workspace = "Workspace 1";
+      ShortcutMask = 0;
+    },
+    {
+      Maximized = 0x0000;
+      Name = discord.discord;
+      Shaded = No;
+      Miniaturized = No;
+      Command = "/opt/discord/Discord";
+      Geometry = "2033x1227+284+92";
+      Hidden = No;
+      Workspace = "Workspace 2";
+      ShortcutMask = 0;
+    },
+    {
+      Maximized = 0x000A;
+      Name = "brave-browser.Brave-browser";
+      Shaded = No;
+      Miniaturized = No;
+      Command = "/opt/brave-bin/brave";
+      Geometry = "1242x1407+1244+0";
+      Hidden = No;
+      Workspace = "Workspace 1";
+      ShortcutMask = 0;
+    },
+    {
+      Maximized = 0x0003;
+      Name = "proton mail.Proton Mail";
+      Shaded = No;
+      Miniaturized = No;
+      Command = "\"/opt/proton-mail/Proton Mail Beta\"";
+      Geometry = "2486x1407+0+0";
+      Hidden = No;
+      Workspace = "Workspace 5";
+      ShortcutMask = 0;
+    }
+  );
   Drawers = ();
   Workspaces = (
     {
@@ -291,4 +370,5 @@
       Name = "Workspace 5";
     }
   );
+  Workspace = "Workspace 4";
 }

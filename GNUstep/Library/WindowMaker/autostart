@@ -5,3 +5,4 @@ wmsetbg $HOME/GNUstep/Library/WindowMaker/Backgrounds/wp.jpg
 xset r rate 250 50
 nvidia-settings -l &
 nm-applet &
+pasystray &
