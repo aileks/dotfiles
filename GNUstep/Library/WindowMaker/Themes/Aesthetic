@@ -1,0 +1,55 @@
+{
+  FTitleColor = white;
+  FrameBorderColor = "#b5b5b2";
+  SelectCursor = (builtin, cross);
+  QuestionCursor = (builtin, question_arrow);
+  MenuDisabledColor = gray40;
+  IconTitleBack = "#58001a";
+  FTitleBack = (hgradient, "rgb:21/00/05", "rgb:90/00/30");
+  BottomLeftResizeCursor = (builtin, bottom_left_corner);
+  TopLeftResizeCursor = (builtin, top_left_corner);
+  ClipTitleFont = "Verdana:bold:pixelsize=10";
+  IconTitleFont = "Arial,sans serif:pixelsize=9";
+  MenuTextBack = (hgradient, "rgb:c0/c0/c0", "rgb:90/90/90");
+  LargeDisplayFont = "Trebuchet MS,sans serif:pixelsize=24";
+  ResizeCursor = (builtin, sizing);
+  TextCursor = (builtin, xterm);
+  TitleJustify = left;
+  IconTitleColor = white;
+  MenuTextColor = black;
+  IconBack = (dgradient, "rgb:a6/a6/b6", "rgb:51/55/61");
+  MenuTitleColor = white;
+  MenuTitleFont = "Trebuchet MS,sans serif:bold:pixelsize=12";
+  WindowTitleExtendSpace = 0;
+  NormalCursor = (builtin, left_ptr);
+  ArrowCursor = (builtin, top_left_arrow);
+  MenuTextFont = "Trebuchet MS,sans serif:pixelsize=12";
+  WorkspaceBack = (
+    tpixmap,
+    "/home/aileks/GNUstep/Library/WindowMaker/Backgrounds/wp.png",
+    gray20
+  );
+  VerticalResizeCursor = (builtin, sb_v_double_arrow);
+  HighlightTextColor = black;
+  MenuTitleBack = (hgradient, "rgb:90/00/30", "rgb:21/00/05");
+  ClipTitleColor = black;
+  TopRightResizeCursor = (builtin, top_right_corner);
+  WaitCursor = (builtin, watch);
+  HighlightColor = white;
+  FrameFocusedBorderColor = "#b5b5b2";
+  BottomRightResizeCursor = (builtin, bottom_right_corner);
+  WindowTitleFont = "Trebuchet MS,sans serif:bold:pixelsize=12";
+  CClipTitleColor = gray30;
+  MoveCursor = (builtin, fleur);
+  ResizebarBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
+  MenuStyle = normal;
+  HorizontalResizeCursor = (builtin, sb_h_double_arrow);
+  FrameBorderWidth = 1;
+  PTitleBack = (hgradient, "rgb:51/50/55", "rgb:80/80/80");
+  MenuTextExtendSpace = 0;
+  UTitleColor = black;
+  UTitleBack = (hgradient, "rgb:90/90/90", "rgb:c0/c0/c0");
+  PTitleColor = white;
+  MenuTitleExtendSpace = 0;
+  FrameSelectedBorderColor = "#fefefe";
+}

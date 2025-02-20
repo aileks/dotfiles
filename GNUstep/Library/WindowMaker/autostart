@@ -1,9 +1,7 @@
+#!/bin/bash
+
 picom -b
-wmsetbg ~/GNUstep/Library/WindowMaker/Backgrounds/wp.jpg
-# wmnet -d 100000 -Wenp5s0 &
-# wmclock &
-# wmcpuload &
-# wmsysemtray &
+wmsetbg $HOME/GNUstep/Library/WindowMaker/Backgrounds/wp.jpg
 xset r rate 250 50
-xset m 20/10 4
-xrandr --output DP-4 --mode 2560x1440 --rate 165
+nvidia-settings -l &
+nm-applet &

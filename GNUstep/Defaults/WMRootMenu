@@ -1,164 +1,102 @@
-(
-  "Window Maker",
-  (
-    Applications,
-    ("Web Browsers", (Brave, SHORTCUT, "Mod1+w", EXEC, brave)),
-    ("File Managers", (PCManFM, SHORTCUT, "Mod1+e", EXEC, pcmanfm)),
-    (
-      Development,
-      (gitk, EXEC, gitk),
-      (idle, EXEC, idle),
-      (xev, EXEC, "xterm -e xev")
+("WindowMaker",
+    ("Development",
+        ("CMake", EXEC, "cmake-gui"),
+        ("CMake curses GUI (ccmake)", EXEC, "xterm -e ccmake"),
+        ("Erlang Shell", EXEC, "xterm -e erl"),
+        ("IDLE (Python IDE)", EXEC, "idle"),
+        ("Python", EXEC, "xterm -e python")
     ),
-    (
-      "Window Maker",
-      (Net, EXEC, "wmnet -d 100000 -Weth0"),
-      ("CPU Load", EXEC, wmcpuload),
-      ("Time & Date", EXEC, wmclock),
-      ("System Tray", EXEC, wmsystemtray)
+    ("Editors",
+        ("AA Fire", EXEC, "xterm -e aafire -driver slang"),
+        ("Helix", EXEC, "xterm -e helix"),
+        ("Notepad", EXEC, "wintc-notepad"),
+        ("TextEdit", EXEC, "TextEdit")
     ),
-    (Sound, ("Pulseaudio Volume Controls", EXEC, pavucontrol)),
-    (
-      Utilities,
-      ("Run Program", SHORTCUT, "Mod1+Return", EXEC, "wezterm-gui"),
-      ("Wine Configurator", EXEC, winecfg)
+    ("Games",
+        ("Adventure",
+            ("Sclient", EXEC, "sclient")
+        ),
+        ("Arcade",
+            ("PacMan", EXEC, "pacman")
+        ),
+        ("Goverlay", EXEC, "goverlay")
+    ),
+    ("Multimedia",
+        ("ALSA mixer", EXEC, "xterm -e alsamixer"),
+        ("Qt V4L2 test Utility", EXEC, "qv4l2"),
+        ("Qt V4L2 video capture utility", EXEC, "qvidcap"),
+        ("Spotify", EXEC, "spotify"),
+        ("Volume Control", EXEC, "pavucontrol")
+    ),
+    ("Network",
+        ("Avahi SSH Server Browser", EXEC, "bssh"),
+        ("Avahi VNC Server Browser", EXEC, "bvnc"),
+        ("Brave", EXEC, "brave"),
+        ("Discord", EXEC, "discord"),
+        ("FireFox", EXEC, "firefox"),
+        ("hx", EXEC, "xterm -e hx"),
+        ("Internet Explorer", EXEC, "explorer"),
+        ("Proton Mail", EXEC, "proton-mail"),
+        ("TkVNC", EXEC, "xterm -e tkvnc")
+    ),
+    ("Other",
+        ("EdenMath", EXEC, "openapp EdenMath"),
+        ("GSPdf", EXEC, "openapp GSPdf"),
+        ("TextEdit", EXEC, "openapp TextEdit")
+    ),
+    ("Shells",
+        ("GIT", EXEC, "xterm -e git"),
+        ("UXTerm", EXEC, "uxterm"),
+        ("WezTerm", EXEC, "wezterm start --cwd ."),
+        ("Xterm", EXEC, "xterm")
+    ),
+    ("System",
+        ("Settings",
+            ("GNOME",
+                ("Advanced Network Configuration", EXEC, "nm-connection-editor"),
+                ("LightDM GTK Greeter settings", EXEC, "lightdm-gtk-greeter-settings-pkexec")
+            ),
+            ("Customize Look and Feel", EXEC, "lxappearance"),
+            ("Display", EXEC, "desk.cpl"),
+            ("Manage Printing", EXEC, "xdg-open http://localhost:631/"),
+            ("NVIDIA X Server Settings", EXEC, "nvidia-settings"),
+            ("System", EXEC, "sysdm.cpl"),
+            ("WPrefs", EXEC, "WPrefs")
+        ),
+        ("Avahi Zeroconf Browser", EXEC, "avahi-discover"),
+        ("btop++", EXEC, "xterm -e btop"),
+        ("Htop", EXEC, "xterm -e htop"),
+        ("pstree", EXEC, "xterm -e pstree"),
+        ("pstree", EXEC, "xterm -e pstree.x11"),
+        ("pstree", EXEC, "xterm -e /usr/bin/pstree.x11"),
+        ("Top", EXEC, "xterm -e top"),
+        ("Virtual Machine Manager", EXEC, "virt-manager")
+    ),
+    ("Utilities",
+        ("Galculator", EXEC, "galculator"),
+        ("Info", EXEC, "xterm -e info"),
+        ("Picom", EXEC, "picom"),
+        ("Xarchiver", EXEC, "xarchiver"),
+        ("Xev", EXEC, "xterm -e xev"),
+        ("Xkill", EXEC, "xkill"),
+        ("Xrefresh", EXEC, "xrefresh"),
+        ("Xsetroot", EXEC, "xsetroot")
+    ),
+    ("WindowMaker",
+        ("Workspaces", WORKSPACE_MENU),
+        ("Appearance",
+            ("Themes", OPEN_MENU, "-noext $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+            ("Styles", OPEN_MENU, "-noext $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+            ("Icons", OPEN_MENU, "-noext $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+            ("Backgrounds", OPEN_MENU, "-noext $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"),
+            ("Save Theme", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
+            ("Save IconSet", SHEXEC, "geticonset -t $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\"")
+        ),
+        ("Run...", SHEXEC, "%a(Run,Type command to run:)"),
+        ("Save session", SAVE_SESSION),
+        ("Clear session", CLEAR_SESSION),
+        ("Preferences", EXEC, "WPrefs"),
+        ("Restart", RESTART),
+        ("Exit", EXIT)
     )
-  ),
-  (Run..., EXEC, "%A(Run, Type command:)"),
-  (
-    Appearance,
-    (
-      Themes,
-      OPEN_MENU,
-      "-noext /usr/share/WindowMaker/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"
-    ),
-    (
-      Styles,
-      OPEN_MENU,
-      "-noext /usr/share/WindowMaker/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"
-    ),
-    (
-      "Icon Sets",
-      OPEN_MENU,
-      "-noext /usr/share/WindowMaker/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"
-    ),
-    (
-      Background,
-      (
-        Solid,
-        (
-          Black,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"black\")'"
-        ),
-        (
-          Blue,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"#505075\")'"
-        ),
-        (
-          Indigo,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"#243e6c\")'"
-        ),
-        (
-          Bluemarine,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"#243e6c\")'"
-        ),
-        (
-          Purple,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"#554466\")'"
-        ),
-        (
-          Wheat,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"wheat4\")'"
-        ),
-        (
-          "Dark Gray",
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"#333340\")'"
-        ),
-        (
-          Wine,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(solid, \"#400020\")'"
-        )
-      ),
-      (
-        Gradient,
-        (
-          Sunset,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(mvgradient, deepskyblue4, black, deepskyblue4, tomato4)'"
-        ),
-        (
-          Sky,
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(vgradient, \"blue4\", \"white\"'"
-        ),
-        (
-          "Blue Shades",
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#7080a5\", \"#101020\"'"
-        ),
-        (
-          "Indigo Shades",
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#746ebc\", \"#242e4c\"'"
-        ),
-        (
-          "Purple Shades",
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#654c66\", \"#151426\"'"
-        ),
-        (
-          "Wheat Shades",
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#a09060\", \"#302010\"'"
-        ),
-        (
-          "Grey Shades",
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\"'"
-        ),
-        (
-          "Wine Shades",
-          EXEC,
-          "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\"'"
-        )
-      ),
-      (
-        Images,
-        OPEN_MENU,
-        "-noext $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"
-      )
-    ),
-    (
-      "Save Theme",
-      EXEC,
-      "getstyle -p \"%a(Theme name, Name to save theme as)\""
-    ),
-    (
-      "Save IconSet",
-      SHEXEC,
-      "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name,Name to save icon set as)\""
-    )
-  ),
-  (Workspaces, WORKSPACE_MENU),
-  (
-    Workspace,
-    ("Hide Others", HIDE_OTHERS),
-    ("Show All", SHOW_ALL),
-    ("Arrange Icons", ARRANGE_ICONS),
-    (Refresh, REFRESH),
-    ("Save Session", SAVE_SESSION),
-    ("Clear Session", CLEAR_SESSION)
-  ),
-  ("Configure Window Maker", EXEC, WPrefs),
-  ("Info Panel", INFO_PANEL),
-  ("Restart Window Maker", RESTART),
-  ("Exit Window Maker", EXIT)
 )

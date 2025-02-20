@@ -1,15 +1,21 @@
 {
+  pcmanfm.Pcmanfm = {
+    Icon = pcmanfm.Pcmanfm.xpm;
+  };
   default.default = {
     Icon = "/home/aileks/.local/share/icons/brave.png";
   };
-  pcmanfm.Pcmanfm = {
-    Icon = pcmanfm.Pcmanfm.xpm;
+  fsviewer.FSViewer = {
+    Icon = fsviewer.FSViewer.xpm;
   };
   brave.Brave = {
     Icon = brave.png;
   };
   thunar.Thunar = {
     Icon = thunar.png;
+  };
+  SystemPreferences.GNUstep = {
+    Icon = SystemPreferences.GNUstep.xpm;
   };
   groupLeader.WPrefs = {
     Icon = groupLeader.WPrefs.xpm;

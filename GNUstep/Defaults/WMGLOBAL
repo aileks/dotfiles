@@ -1,4 +1,4 @@
 {
-  BoldSystemFont = "Rubik:weight=200:pixelsize=12";
-  SystemFont = "Rubik:pixelsize=12";
+  BoldSystemFont = "Rubik:slant=0:weight=200:width=100:pixelsize=12";
+  SystemFont = "Rubik:slant=0:weight=80:width=100:pixelsize=12";
 }

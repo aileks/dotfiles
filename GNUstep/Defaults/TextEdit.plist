@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSMenuLocations</key>
+    <dict>
+	<key>\U001B</key>
+	<string>709 930 102 162 0 0  2560 1440 </string>
+    </dict>
+</dict>
+</plist>
