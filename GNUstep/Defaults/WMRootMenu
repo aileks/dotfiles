@@ -9,7 +9,6 @@
     ("Editors",
         ("AA Fire", EXEC, "xterm -e aafire -driver slang"),
         ("Helix", EXEC, "xterm -e helix"),
-        ("Notepad", EXEC, "wintc-notepad"),
         ("TextEdit", EXEC, "TextEdit")
     ),
     ("Games",
@@ -21,12 +20,17 @@
         ),
         ("Goverlay", EXEC, "goverlay")
     ),
+    ("Graphics",
+        ("GraphicsMagick", EXEC, "gm display logo:"),
+        ("Inkscape", EXEC, "inkscape")
+    ),
     ("Multimedia",
         ("ALSA mixer", EXEC, "xterm -e alsamixer"),
         ("Qt V4L2 test Utility", EXEC, "qv4l2"),
         ("Qt V4L2 video capture utility", EXEC, "qvidcap"),
         ("Spotify", EXEC, "spotify"),
-        ("Volume Control", EXEC, "pavucontrol")
+        ("Volume Control", EXEC, "pavucontrol"),
+        ("wmusic", EXEC, "wmusic")
     ),
     ("Network",
         ("Avahi SSH Server Browser", EXEC, "bssh"),
@@ -35,7 +39,6 @@
         ("Discord", EXEC, "discord"),
         ("FireFox", EXEC, "firefox"),
         ("hx", EXEC, "xterm -e hx"),
-        ("Internet Explorer", EXEC, "explorer"),
         ("Proton Mail", EXEC, "proton-mail"),
         ("TkVNC", EXEC, "xterm -e tkvnc")
     ),
@@ -45,6 +48,7 @@
         ("TextEdit", EXEC, "openapp TextEdit")
     ),
     ("Shells",
+        ("File Manager PCManFM", EXEC, "pcmanfm"),
         ("GIT", EXEC, "xterm -e git"),
         ("UXTerm", EXEC, "uxterm"),
         ("WezTerm", EXEC, "wezterm start --cwd ."),
@@ -56,11 +60,12 @@
                 ("Advanced Network Configuration", EXEC, "nm-connection-editor"),
                 ("LightDM GTK Greeter settings", EXEC, "lightdm-gtk-greeter-settings-pkexec")
             ),
+            ("Chicago95 Plus!", EXEC, "PlusGUI"),
             ("Customize Look and Feel", EXEC, "lxappearance"),
-            ("Display", EXEC, "desk.cpl"),
+            ("Desktop Preferences", EXEC, "pcmanfm --desktop-pref"),
             ("Manage Printing", EXEC, "xdg-open http://localhost:631/"),
             ("NVIDIA X Server Settings", EXEC, "nvidia-settings"),
-            ("System", EXEC, "sysdm.cpl"),
+            ("Preferred Applications", EXEC, "libfm-pref-apps"),
             ("WPrefs", EXEC, "WPrefs")
         ),
         ("Avahi Zeroconf Browser", EXEC, "avahi-discover"),

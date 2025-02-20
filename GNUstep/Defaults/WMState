@@ -73,31 +73,20 @@
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,1";
-        Lock = No;
+        Lock = Yes;
         PasteCommand = "brave %s";
         Command = brave;
       },
       {
         Forced = No;
-        Name = fsviewer.FSViewer;
-        DropCommand = "FSViewer %d";
+        Name = pcmanfm.Pcmanfm;
+        DropCommand = "pcmanfm %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,2";
         Lock = Yes;
-        PasteCommand = "FSViewer %s";
-        Command = FSViewer;
-      },
-      {
-        Forced = No;
-        Name = xfe.Xfe;
-        DropCommand = "xfe %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,3";
-        Lock = No;
-        PasteCommand = "xfe %s";
-        Command = xfe;
+        PasteCommand = "pcmanfm %s";
+        Command = pcmanfm;
       },
       {
         Forced = No;
@@ -105,8 +94,8 @@
         DropCommand = "SystemPreferences %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,4";
-        Lock = No;
+        Position = "0,3";
+        Lock = Yes;
         PasteCommand = "SystemPreferences %s";
         Command = SystemPreferences;
       },
@@ -116,8 +105,8 @@
         DropCommand = "lxappearance %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,5";
-        Lock = No;
+        Position = "0,4";
+        Lock = Yes;
         PasteCommand = "lxappearance %s";
         Command = lxappearance;
       }
@@ -196,31 +185,20 @@
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,1";
-        Lock = No;
+        Lock = Yes;
         PasteCommand = "brave %s";
         Command = brave;
       },
       {
         Forced = No;
-        Name = fsviewer.FSViewer;
-        DropCommand = "FSViewer %d";
+        Name = pcmanfm.Pcmanfm;
+        DropCommand = "pcmanfm %d";
         BuggyApplication = No;
         AutoLaunch = No;
         Position = "0,2";
         Lock = Yes;
-        PasteCommand = "FSViewer %s";
-        Command = FSViewer;
-      },
-      {
-        Forced = No;
-        Name = xfe.Xfe;
-        DropCommand = "xfe %d";
-        BuggyApplication = No;
-        AutoLaunch = No;
-        Position = "0,3";
-        Lock = No;
-        PasteCommand = "xfe %s";
-        Command = xfe;
+        PasteCommand = "pcmanfm %s";
+        Command = pcmanfm;
       },
       {
         Forced = No;
@@ -228,8 +206,8 @@
         DropCommand = "SystemPreferences %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,4";
-        Lock = No;
+        Position = "0,3";
+        Lock = Yes;
         PasteCommand = "SystemPreferences %s";
         Command = SystemPreferences;
       },
@@ -239,8 +217,8 @@
         DropCommand = "lxappearance %d";
         BuggyApplication = No;
         AutoLaunch = No;
-        Position = "0,5";
-        Lock = No;
+        Position = "0,4";
+        Lock = Yes;
         PasteCommand = "lxappearance %s";
         Command = lxappearance;
       }

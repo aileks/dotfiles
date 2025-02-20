@@ -1,9 +1,9 @@
 {
-  default.default = {
-    Icon = "/home/aileks/.local/share/icons/brave.png";
-  };
   pcmanfm.Pcmanfm = {
     Icon = pcmanfm.Pcmanfm.xpm;
+  };
+  default.default = {
+    Icon = "/home/aileks/.local/share/icons/brave.png";
   };
   fsviewer.FSViewer = {
     Icon = fsviewer.FSViewer.xpm;
@@ -20,10 +20,10 @@
   xfe.Xfe = {
     Icon = xfe.Xfe.xpm;
   };
-  groupLeader.WPrefs = {
-    Icon = groupLeader.WPrefs.xpm;
-  };
   SystemPreferences.GNUstep = {
     Icon = SystemPreferences.GNUstep.xpm;
+  };
+  groupLeader.WPrefs = {
+    Icon = groupLeader.WPrefs.xpm;
   };
 }
