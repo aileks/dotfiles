@@ -18,10 +18,12 @@ rm -rf $HOME/.config/dwm
 ln -s $DOTDIR/dwm $HOME/.config/dwm
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
-rm -rf $HOME/GNUstep
-ln -s $DOTDIR/GNUstep $HOME/GNUstep
 rm -rf $HOME/.config/helix
 ln -s $DOTDIR/helix $HOME/.config/helix
+rm -rf $HOME/GNUstep/Library/WindowMaker/autostart
+ln -s $DOTDIR/GNUstep $HOME/GNUstep/Library/WindowMaker/autostart
+rm -rf $HOME/GNUstep/Library/WindowMaker/Backgrounds
+ln -s $DOTDIR/GNUstep $HOME/GNUstep/Library/WindowMaker/Backgrounds
 
 # install omz
 echo "Installing Oh My Zsh"

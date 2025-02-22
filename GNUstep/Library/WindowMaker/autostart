@@ -1,8 +1,13 @@
 #!/bin/bash
 
-picom -b
-wmsetbg $HOME/GNUstep/Library/WindowMaker/Backgrounds/wp.jpg
-xset r rate 250 50
-nvidia-settings -l &
+/usr/lib/xfce-polkit &
+xrandr --output DP-4 --mode 2560x1440 --rate 165 &
+picom -b &
+wmsetbg -S $HOME/GNUstep/Library/WindowMaker/Backgrounds/wp.jpg &
+xset r rate 250 50 &
+xset s on &
+xset s 600 &
+xss-lock -- xsecurelock &
 nm-applet &
 pasystray &
+
