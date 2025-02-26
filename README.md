@@ -1,6 +1,6 @@
 # Addicted to Configuration
 
-***Note***: I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration.
+**Note**: _I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration._
 
 #### Includes configuration for:
 - Helix
