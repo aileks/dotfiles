@@ -2,14 +2,14 @@
 
 **Note**: _I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration._
 
-#### Includes configuration for:
+### Includes configuration for:
 - Helix
 - Fastfetch
 - Tmux
 - WezTerm
 - Zsh
 
-#### Install general programs:
+### Install general programs:
 Debian/Ubuntu ([wezterm](https://wezfurlong.org/wezterm/install/linux.html#__tabbed_1_3) and [fastfetch](https://github.com/fastfetch-cli/fastfetch) need 3rd party repos)
 ```sh
 sudo apt install git helix zsh tmux wezterm fzf ripgrep eza trash-cli fastfetch zoxide
