@@ -33,6 +33,8 @@ command = "marksman"
 # Python
 [[language]]
 name = "python"
+formatter = { command = "black", args = ["--quiet", "-"] }
+auto-format = true
 language-servers = [ "pyright", "ruff" ]
 [language-server.pyright.config.python.analysis]
 typeCheckingMode = "basic"
