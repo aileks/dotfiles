@@ -3,13 +3,11 @@
 ## DWM dotfiles
 
 #### Includes configuration for:
+- Helix
+- Fastfetch
+- Tmux
 - WezTerm
 - Zsh
-- Helix
-- Tmux
-- Fastfetch
-- Window Maker
-- Dunst
 
 #### Install general programs:
 Debian/Ubuntu ([wezterm](https://wezfurlong.org/wezterm/install/linux.html#__tabbed_1_3) and [fastfetch](https://github.com/fastfetch-cli/fastfetch) need 3rd party repos)
