@@ -1,5 +1,7 @@
 # Addicted to Configuration
 
+***Note***: I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration.
+
 #### Includes configuration for:
 - Helix
 - Fastfetch
@@ -23,4 +25,3 @@ Arch
 sudo pacman -Syu git helix zsh tmux wezterm fzf ripgrep eza trash-cli fastfetch zoxide
 ```
 
-Note: I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration.
