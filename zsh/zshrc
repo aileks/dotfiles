@@ -9,7 +9,7 @@ export EDITOR=helix
 export SUDO_EDITOR=helix
 
 # Theme
-ZSH_THEME="edvardm"
+ZSH_THEME="refined"
 
 # Plugins
 plugins=(cp fast-syntax-highlighting fzf git poetry tmux ubuntu zsh-autosuggestions)
@@ -50,3 +50,6 @@ eval "$(pyenv init -)"
  
 # Misc
 eval "$(zoxide init zsh)"
+
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"

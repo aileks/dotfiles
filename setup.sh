@@ -15,6 +15,19 @@ ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 rm -rf $HOME/.config/helix
 ln -s $DOTDIR/helix $HOME/.config/helix
 
+# copy utils
+echo "Copying utils..."
+if [ -d "$HOME/.local/bin" ]; then
+    cp -r ./utils/* $HOME/.local/bin
+    echo "Files copied successfully to $HOME/.local/bin"
+else
+    echo "$HOME/.local/bin directory does not exist. Creating it..."
+    mkdir -p "$HOME/.local/bin"
+    cp -r ./utils/* "$HOME/.local/bin"
+    echo "Files copied successfully to newly created $HOME/.local/bin"
+fi
+echo ""
+
 # install omz
 echo "Installing Oh My Zsh"
 echo ""
@@ -29,5 +42,4 @@ if [ ! -d "$HOME/.tmux" ]; then
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
-echo "Files Successfully Copied"
-echo ""
+echo "Dotfiles setup successfully!"
