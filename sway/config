@@ -45,6 +45,7 @@ bindsym $mod+Shift+c exec swaymsg reload
 bindsym $mod+w exec $browser
 bindsym $mod+e exec $fm
 bindsym $mod+d exec discord
+bindsym $mod+Shift+x exec ~/.local/bin/wofi-power-menu
 bindsym Print exec bash -c 'grim -g "$(slurp)" - | wl-copy && notify-send "Screenshot" "Area copied to clipbard" -i dialog-information'
 bindsym $mod+Print exec grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png
 
