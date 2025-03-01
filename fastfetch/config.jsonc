@@ -3,8 +3,8 @@
     "logo": {
         "source": "builtin",
         "color": {
-            "1": "white",
-            "2": "cyan",
+            "1": "blue",
+            "2": "red",
         }
     },
     "display": {
@@ -43,7 +43,7 @@
         },
         {
             "type": "os",
-            "key": "  ",
+            "key": "  󰣇",
         },
         // {
         //     "type": "kernel",

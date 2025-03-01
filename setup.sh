@@ -12,6 +12,14 @@ rm -rf $HOME/.config/wezterm
 ln -s $DOTDIR/wezterm $HOME/.config/wezterm
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
+rm -rf $HOME/.config/sway
+ln -s $DOTDIR/sway $HOME/.config/sway
+rm -rf $HOME/.config/swaync
+ln -s $DOTDIR/swaync $HOME/.config/swaync
+rm -rf $HOME/.config/wofi
+ln -s $DOTDIR/wofi $HOME/.config/wofi
+rm -rf $HOME/.config/waybar
+ln -s $DOTDIR/waybar $HOME/.config/waybar
 
 # zed is a special case
 ln -sf $DOTDIR/zed/keymap.json $HOME/.config/zed/keymap.json

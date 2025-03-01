@@ -1,5 +1,5 @@
-#! /bin/bash
- 
+#!/usr/bin/env bash
+
 topic_constraint="none"
 while [[ "$#" -gt 0 ]]; do
   case $1 in
