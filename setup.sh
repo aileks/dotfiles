@@ -12,8 +12,12 @@ rm -rf $HOME/.config/wezterm
 ln -s $DOTDIR/wezterm $HOME/.config/wezterm
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
-rm -rf $HOME/.config/helix
-ln -s $DOTDIR/helix $HOME/.config/helix
+
+# zed is a special case
+ln -sf $DOTDIR/zed/keymap.json $HOME/.config/zed/keymap.json
+ln -sf $DOTDIR/zed/settings.json $HOME/.config/zed/settings.json
+rm -rf $HOME/.config/zed/snippets
+ln -s $DOTDIR/zed/snippets $HOME/.config/zed/snippets
 
 # copy utils
 echo "Copying utils..."
