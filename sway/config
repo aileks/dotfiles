@@ -28,7 +28,7 @@ output * max_render_time 1
 # Inputs
 input type:keyboard {
   xkb_layout us
-  repeat_delay 250
+  repeat_delay 300
   repeat_rate 50
 }
 
@@ -48,6 +48,7 @@ bindsym $mod+d exec discord
 bindsym $mod+Shift+x exec ~/.local/bin/wofi-power-menu
 bindsym Print exec bash -c 'grim -g "$(slurp)" - | wl-copy && notify-send "Screenshot" "Area copied to clipbard" -i dialog-information'
 bindsym $mod+Print exec grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png
+bindsym $mod+Shift+n exec swaync-client -t -sw
 
 # Window Navigation
 bindsym $mod+h focus left
@@ -145,3 +146,9 @@ bindsym XF86AudioPrev exec playerctl previous
 # Autostart
 exec_always --no-startup-id nm-applet
 exec_always --no-startup-id swaync
+
+# Environment
+exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec export XDG_CURRENT_DESKTOP=sway
+exec export GTK_USE_PORTAL=1

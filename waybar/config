@@ -93,40 +93,25 @@
         "on-click": "pavucontrol"
     },
     
-    "network": {
-        "format-wifi": "󰤨 {essid} ({signalStrength}%)",
-        "format-ethernet": "󰈁 {ipaddr}/{cidr}",
-        "tooltip-format": "󰈁 {ifname} via {gwaddr}",
-        "format-linked": "󰈂 {ifname} (No IP)",
-        "format-disconnected": "󰤮 Disconnected",
-        "format-alt": "󰈁 {ifname}: {ipaddr}/{cidr}"
-    },
-    
-    "backlight": {
-        "format": "{icon} {percent}%",
-        "format-icons": ["󰃞", "󰃟", "󰃠"],
-        "on-scroll-up": "brightnessctl set +5%",
-        "on-scroll-down": "brightnessctl set 5%-"
-    },
-    
-    "idle_inhibitor": {
-        "format": "{icon}",
+    "custom/notification": {
+        "tooltip": false,
+        "format": "{} {icon}",
         "format-icons": {
-            "activated": "󰒳",
-            "deactivated": "󰒲"
-        }
-    },
-    
-    "custom/media": {
-        "format": "󰎆 {}",
+          "notification": "<span foreground='red'><sup></sup></span>",
+          "none": "",
+          "dnd-notification": "<span foreground='red'><sup></sup></span>",
+          "dnd-none": "",
+          "inhibited-notification": "<span foreground='red'><sup></sup></span>",
+          "inhibited-none": "",
+          "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+          "dnd-inhibited-none": ""
+        },
         "return-type": "json",
-        "max-length": 40,
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
         "escape": true
     },
-    
-    "custom/power": {
-        "format": "󰐥",
-        "on-click": "wlogout"
-    }
 }
 

@@ -48,15 +48,13 @@ window#waybar.hidden {
 }
 
 #clock,
-#battery,
 #cpu,
 #memory,
 #temperature,
-#network,
 #pulseaudio,
-#custom-media,
 #tray,
-#idle_inhibitor {
+#idle_inhibitor,
+#custom-notifications {
     padding: 0 10px;
     margin: 0 5px;
     color: @text;
@@ -161,4 +159,8 @@ window#waybar.hidden {
 #idle_inhibitor.activated {
     background-color: @overlay;
     color: @text;
+}
+
+#custom-notification {
+  font-family: "BerkeleyMono Nerd Font";
 }
