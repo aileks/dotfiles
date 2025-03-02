@@ -19,21 +19,23 @@ set $rose_pine_foam     "#c4a7e7"
 set $rose_pine_iris     "#ebbcba"
 
 # Outputs
-output HDMI-A-1 disable
-output DP-3 mode 2560x1440@165Hz
-output * bg ~/Pictures/wp.jpg fill
-output * adaptive_sync off
-output * max_render_time 1
+output HDMI-A-1 mode 2560x1440@144Hz
+output DP-3 disable
+output * {
+    bg ~/Pictures/wp.jpg fill
+    adaptive_sync off
+    max_render_time 1
+}
 
 # Inputs
 input type:keyboard {
-  xkb_layout us
-  repeat_delay 300
-  repeat_rate 50
+    xkb_layout us
+    repeat_delay 300
+    repeat_rate 50
 }
 input * {
-  accel_profile flat
-  pointer_accel 0
+    accel_profile flat
+    pointer_accel 0
 }
 
 # Applications
@@ -93,8 +95,8 @@ bindsym $mod+Shift+space floating toggle
 
 # Bar
 bar {
-    swaybar_command waybar
-    position top
+swaybar_command waybar
+position top
 }
 
 # Effects
@@ -131,10 +133,10 @@ for_window [app_id="blueman-manager"] floating enable
 set $lock swaylock -C <(cat ~/.config/swaylock/config ~/.local/share/themes/rose-pine/swaylock/rose-pine)
 bindsym $mod+escape exec $lock
 exec swayidle -w \
-  timeout 300 '$lock' \
-  timeout 600 'swaymsg "output * dpms off"' \
-  resume 'swaymsg "output * dpms on"' \
-  before-sleep '$lock'
+timeout 300 '$lock' \
+timeout 600 'swaymsg "output * dpms off"' \
+resume 'swaymsg "output * dpms on"' \
+before-sleep '$lock'
 
 # Media Keys
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
@@ -149,7 +151,7 @@ exec_always --no-startup-id swaync
 
 # Environment
 xwayland enable
-exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
-exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-exec export XDG_CURRENT_DESKTOP=sway
-exec export GTK_USE_PORTAL=1
+exec export WLR_NO_HARDWARE_CURSORS=1
+exec systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+
