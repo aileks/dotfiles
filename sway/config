@@ -90,13 +90,13 @@ bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+b splith
 bindsym $mod+v splitv
 bindsym $mod+a focus parent
-floating_modifier $mod normal
 bindsym $mod+Shift+space floating toggle
+floating_modifier $mod normal
 
 # Bar
 bar {
-swaybar_command waybar
-position top
+    swaybar_command waybar
+    position top
 }
 
 # Effects
@@ -116,27 +116,31 @@ dim_inactive_colors.urgent #900000FF
 # Borders
 default_border pixel 2
 default_floating_border pixel 2
-client.focused          "$rose_pine_foam" "$rose_pine_surface" "$rose_pine_text" "$rose_pine_pine" "$rose_pine_foam"
-client.unfocused        "$rose_pine_surface" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_surface" "$rose_pine_surface"
+client.focused "$rose_pine_foam" "$rose_pine_surface" "$rose_pine_text" "$rose_pine_pine" "$rose_pine_foam"
+client.unfocused "$rose_pine_surface" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_surface" "$rose_pine_surface"
 client.focused_inactive "$rose_pine_overlay" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_overlay" "$rose_pine_overlay"
-client.urgent           "$rose_pine_love" "$rose_pine_overlay" "$rose_pine_text" "$rose_pine_love" "$rose_pine_love"
+client.urgent "$rose_pine_love" "$rose_pine_overlay" "$rose_pine_text" "$rose_pine_love" "$rose_pine_love"
 
 # Gaps
 gaps inner 4
 gaps outer 4
 
 # Window Rules
+for_window [app_id="galculator"] floating enable
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="blueman-manager"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [window_role="dialog"] floating enable
+for_window [title="(?i)(save|open|copy|move|download|file operation|transfer|progress|all files)"] floating enable
 
 # Screen Locking
-set $lock swaylock -C <(cat ~/.config/swaylock/config ~/.local/share/themes/rose-pine/swaylock/rose-pine)
+set $lock swaylock -C ~/.local/share/themes/rose-pine/swaylock/rose-pine
 bindsym $mod+escape exec $lock
 exec swayidle -w \
-timeout 300 '$lock' \
-timeout 600 'swaymsg "output * dpms off"' \
-resume 'swaymsg "output * dpms on"' \
-before-sleep '$lock'
+    timeout 600 '$lock' \
+    timeout 1200 'swaymsg "output * dpms off"' \
+    resume 'swaymsg "output * dpms on"' \
+    after-resume '$lock'
 
 # Media Keys
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
@@ -146,12 +150,11 @@ bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
 # Autostart
+exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit
 exec_always --no-startup-id nm-applet
 exec_always --no-startup-id swaync
 
 # Environment
 xwayland enable
-exec export WLR_NO_HARDWARE_CURSORS=1
 exec systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
-
