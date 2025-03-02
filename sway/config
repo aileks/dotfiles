@@ -2,7 +2,7 @@
 set $mod Mod4
 set $term wezterm
 set $browser brave
-set $fm pcmanfm
+set $fm thunar
 set $menu wofi --show drun -I
 
 # Color Palette
@@ -31,7 +31,6 @@ input type:keyboard {
   repeat_delay 300
   repeat_rate 50
 }
-
 input * {
   accel_profile flat
   pointer_accel 0
@@ -89,7 +88,8 @@ bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+b splith
 bindsym $mod+v splitv
 bindsym $mod+a focus parent
-bindsym $mod+Shift+space focus mode_toggle
+floating_modifier $mod normal
+bindsym $mod+Shift+space floating toggle
 
 # Bar
 bar {
@@ -148,6 +148,7 @@ exec_always --no-startup-id nm-applet
 exec_always --no-startup-id swaync
 
 # Environment
+xwayland enable
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec export XDG_CURRENT_DESKTOP=sway

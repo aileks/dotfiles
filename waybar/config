@@ -9,18 +9,20 @@
     
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["sway/window"],
-    "modules-right": ["pulseaudio", "cpu", "memory", "temperature", "battery", "clock", "tray"],
+    "modules-right": ["pulseaudio", "cpu", "memory", "temperature", "clock", "custom/notification", "tray"],
     
     "sway/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "format": "{icon}",
         "format-icons": {
-            "1": "󰋜",
-            "2": "󰈹",
-            "3": "󰭹",
-            "4": "󱓷",
-            "5": "󰊢",
+            "1": "󰖟",
+            "2": "󰭹",
+            "3": "",
+            "4": "󰙨",
+            "5": "",
+            "6": "",
+            "7": "",
             "urgent": "󰀨",
             "focused": "󰮯",
             "default": "󰋔"
@@ -59,19 +61,6 @@
         "critical-threshold": 80,
         "format": "{icon} {temperatureC}°C",
         "format-icons": ["󱃃", "󰔏", "󱃂"]
-    },
-    
-    "battery": {
-        "states": {
-            "good": 95,
-            "warning": 30,
-            "critical": 15
-        },
-        "format": "{icon} {capacity}%",
-        "format-charging": "󰂄 {capacity}%",
-        "format-plugged": "󰚥 {capacity}%",
-        "format-alt": "{icon} {time}",
-        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     },
     
     "pulseaudio": {

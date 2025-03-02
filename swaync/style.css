@@ -1,8 +1,8 @@
 * {
   all: unset;
-  font-family: FiraCode Nerd Font;
+  font-family: "BerkeleyMono Nerd Font";
   transition: 0.3s;
-  font-size: 1.2rem;
+  font-size: 14px;
 }
 
 .floating-notifications.background .notification-row {
