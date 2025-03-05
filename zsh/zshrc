@@ -30,6 +30,7 @@ alias vim="nvim"
 alias ar="php artisan"
 alias rm="trash"
 alias c="clear"
+alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
 alias ff="fastfetch"
 
@@ -46,3 +47,12 @@ eval "$(pyenv init -)"
 
 # Zoxide
 eval "$(zoxide init zsh)"
+
+# fzf plugin config
+export FZF_CTRL_T_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+export FZF_ALT_C_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'tree -C {}'"
