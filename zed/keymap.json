@@ -3,8 +3,9 @@
     "context": "Editor && vim_mode == normal && !VimWaiting && !menu",
     "bindings": {
       "space q q": "pane::CloseAllItems",
+      "space q": "pane::CloseActiveItem",
       "space w": "workspace::Save",
-      "space C": "editor::CopyPath",
+      "space C": "workspace::CopyPath",
       "space i": ["workspace::SendKeystrokes", "i enter escape"],
       "space a": "editor::ToggleCodeActions",
       "space d": "editor::GoToTypeDefinitionSplit",
