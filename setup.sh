@@ -8,8 +8,8 @@ DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # symlinks
 ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
-rm -rf $HOME/.config/wezterm
-ln -s $DOTDIR/wezterm $HOME/.config/wezterm
+rm -rf $HOME/.config/foot
+ln -s $DOTDIR/foot $HOME/.config/foot
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 rm -rf $HOME/.config/sway

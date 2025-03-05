@@ -1,6 +1,6 @@
 # Variables
 set $mod Mod4
-set $term wezterm
+set $term foot
 set $browser brave
 set $fm thunar
 set $menu wofi --show drun -I
