@@ -14,7 +14,7 @@ window {
     border: none;
     color: #e0def4;
     background-color: #26233a;
-    
+
 }
 
 #inner-box {
@@ -40,7 +40,7 @@ window {
     margin: 4px;
     border: none;
     color: #e0def4;
-} 
+}
 
 #entry:selected {
     background-color: #c4a7e7;
@@ -53,4 +53,3 @@ window {
     color: #191724;
     border-radius: 6px;
     outline: none;
-
