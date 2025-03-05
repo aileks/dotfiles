@@ -116,7 +116,7 @@ dim_inactive_colors.urgent #900000FF
 # Borders
 default_border pixel 2
 default_floating_border pixel 2
-client.focused "$rose_pine_foam" "$rose_pine_surface" "$rose_pine_text" "$rose_pine_pine" "$rose_pine_foam"
+client.focused "$rose_pine_foam" "$rose_pine_surface" "$rose_pine_text"  "$rose_pine_foam" "$rose_pine_foam" 
 client.unfocused "$rose_pine_surface" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_surface" "$rose_pine_surface"
 client.focused_inactive "$rose_pine_overlay" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_overlay" "$rose_pine_overlay"
 client.urgent "$rose_pine_love" "$rose_pine_overlay" "$rose_pine_text" "$rose_pine_love" "$rose_pine_love"
