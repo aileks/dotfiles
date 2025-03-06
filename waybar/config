@@ -4,13 +4,13 @@
     "height": 30,
     "spacing": 4,
     "margin-top": 3,
-    "margin-left": 5,
-    "margin-right": 5,
-    
+    "margin-left": 3,
+    "margin-right": 3,
+
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["sway/window"],
     "modules-right": ["pulseaudio", "cpu", "memory", "temperature", "clock", "custom/notification", "tray"],
-    
+
     "sway/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
@@ -25,44 +25,43 @@
             "7": "",
             "urgent": "󰀨",
             "focused": "󰮯",
-            "default": "󰋔"
         }
     },
-    
+
     "sway/mode": {
         "format": "<span style=\"italic\">󰉘 {}</span>"
     },
-    
+
     "sway/window": {
         "max-length": 50,
         "format": "󱂬 {title}"
     },
-    
+
     "tray": {
         "icon-size": 18,
         "spacing": 10
     },
-    
+
     "clock": {
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "format": "󰅐 {:%a, %d %b %H:%M}"
     },
-    
+
     "cpu": {
         "format": "󰘚 {usage}%",
         "tooltip": true
     },
-    
+
     "memory": {
         "format": "󰍛 {}%"
     },
-    
+
     "temperature": {
         "critical-threshold": 80,
         "format": "{icon} {temperatureC}°C",
         "format-icons": ["󱃃", "󰔏", "󱃂"]
     },
-    
+
     "pulseaudio": {
         "format": "{icon} {volume}%",
         "format-bluetooth": "󰂰 {icon} {volume}%",
@@ -81,7 +80,7 @@
         },
         "on-click": "pavucontrol"
     },
-    
+
     "custom/notification": {
         "tooltip": false,
         "format": "{} {icon}",
@@ -103,4 +102,3 @@
         "escape": true
     },
 }
-
