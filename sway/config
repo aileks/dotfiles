@@ -61,6 +61,12 @@ bindsym $mod+Shift+j move down
 bindsym $mod+Shift+k move up
 bindsym $mod+Shift+l move right
 
+# Window Resizing
+bindsym $mod+Control+h resize shrink width 20px
+bindsym $mod+Control+l resize grow width 20px
+bindsym $mod+Control+k resize shrink height 20px
+bindsym $mod+Control+j resize grow height 20px
+
 # Workspaces
 set $ws1 "1"
 set $ws2 "2"
@@ -116,7 +122,7 @@ dim_inactive_colors.urgent #900000FF
 # Borders
 default_border pixel 2
 default_floating_border pixel 2
-client.focused "$rose_pine_foam" "$rose_pine_surface" "$rose_pine_text"  "$rose_pine_foam" "$rose_pine_foam" 
+client.focused "$rose_pine_foam" "$rose_pine_surface" "$rose_pine_text"  "$rose_pine_foam" "$rose_pine_foam"
 client.unfocused "$rose_pine_surface" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_surface" "$rose_pine_surface"
 client.focused_inactive "$rose_pine_overlay" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_overlay" "$rose_pine_overlay"
 client.urgent "$rose_pine_love" "$rose_pine_overlay" "$rose_pine_text" "$rose_pine_love" "$rose_pine_love"
