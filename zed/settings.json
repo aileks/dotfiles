@@ -1,8 +1,16 @@
 {
+  "edit_predictions": {
+    "disabled_globs": [],
+    "mode": "eager",
+    "copilot": {
+      "proxy": null,
+      "proxy_no_verify": null
+    },
+    "enabled_in_assistant": false
+  },
   "icon_theme": "Colored Zed Icons Theme Dark",
   "features": {
-    "edit_prediction_provider": "zed",
-    "copilot": false
+    "copilot": true
   },
   "calls": {
     "mute_on_join": true
@@ -25,9 +33,6 @@
   "soft_wrap": "preferred_line_length",
   "preferred_line_length": 100,
   "restore_on_startup": "none",
-  "inlay_hints": {
-    "enabled": true
-  },
   "toolbar": {
     "breadcrumbs": false,
     "quick_actions": false
@@ -68,12 +73,6 @@
         "show_type_hints": true,
         "show_other_hints": true,
         "show_parameter_hints": false
-      },
-      "format_on_save": {
-        "external": {
-          "command": "prettier",
-          "arguments": ["--config", "~/.prettierrc", "--stdin-filepath", "{buffer_path}"]
-        }
       },
       "code_actions_on_format": {
         "source.fixAll.eslint": true
