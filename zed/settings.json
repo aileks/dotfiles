@@ -1,16 +1,14 @@
 {
-  "edit_predictions": {
-    "disabled_globs": [],
-    "mode": "eager",
-    "copilot": {
-      "proxy": null,
-      "proxy_no_verify": null
+  "assistant": {
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-latest"
     },
-    "enabled_in_assistant": false
+    "version": "2"
   },
   "icon_theme": "Colored Zed Icons Theme Dark",
   "features": {
-    "copilot": true
+    "edit_prediction_provider": "zed"
   },
   "calls": {
     "mute_on_join": true
