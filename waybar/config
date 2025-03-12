@@ -1,7 +1,7 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 30,
+    "height": 40,
     "spacing": 4,
     "margin-top": 3,
     "margin-left": 3,
@@ -38,7 +38,7 @@
     },
 
     "tray": {
-        "icon-size": 18,
+        "icon-size": 26,
         "spacing": 10
     },
 

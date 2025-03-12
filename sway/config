@@ -4,6 +4,10 @@ set $term foot
 set $browser brave
 set $fm thunar
 set $menu wofi --show drun -I
+set $gnome-schema org.gnome.desktop.interface
+
+# Set font
+font pango:Rubik 14
 
 # Color Palette
 set $rose_pine_base     "#191724"
@@ -18,13 +22,16 @@ set $rose_pine_pine     "#9ccfd8"
 set $rose_pine_foam     "#c4a7e7"
 set $rose_pine_iris     "#ebbcba"
 
-# Outputs
-output DP-2 mode 2560x1440@165Hz
-output * {
-    bg ~/Pictures/wp.jpg fill
-    adaptive_sync on
-    max_render_time 1
+# GTK Theme
+exec_always {
+    gsettings set $gnome-schema gtk-theme 'rose-pine-gtk'
+    gsettings set $gnome-schema icon-theme 'rose-pine-icons'
+    gsettings set $gnome-schema cursor-theme 'BreezeX-RosePine-Linux'
+    gsettings set $gnome-schema font-name 'Rubik'
 }
+
+# Outputs
+output DP-2 bg ~/Pictures/wp.jpg fill
 
 # Inputs
 input type:keyboard {
@@ -34,7 +41,7 @@ input type:keyboard {
 }
 input * {
     accel_profile flat
-    pointer_accel 0
+    pointer_accel 0.3
 }
 
 # Applications
@@ -45,8 +52,8 @@ bindsym $mod+Shift+c exec swaymsg reload
 bindsym $mod+w exec $browser
 bindsym $mod+e exec $fm
 bindsym $mod+d exec discord
-bindsym $mod+Shift+x exec ~/.local/bin/wofi-power-menu
-bindsym Print exec bash -c 'grim -g "$(slurp)" - | wl-copy && notify-send "Screenshot" "Area copied to clipbard" -i dialog-information'
+bindsym $mod+Shift+x exec wlogout
+bindsym Print exec bash -c 'grim -g "$(slurp)" - | wl-copy'
 bindsym $mod+Print exec grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png
 bindsym $mod+Shift+n exec swaync-client -t -sw
 
@@ -119,8 +126,8 @@ dim_inactive_colors.unfocused #000000FF
 dim_inactive_colors.urgent #900000FF
 
 # Borders
-default_border pixel 2
-default_floating_border pixel 2
+default_border pixel 3
+default_floating_border pixel 3
 client.focused "$rose_pine_foam" "$rose_pine_surface" "$rose_pine_text"  "$rose_pine_foam" "$rose_pine_foam"
 client.unfocused "$rose_pine_surface" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_surface" "$rose_pine_surface"
 client.focused_inactive "$rose_pine_overlay" "$rose_pine_muted" "$rose_pine_text" "$rose_pine_overlay" "$rose_pine_overlay"
@@ -139,6 +146,7 @@ for_window [window_type="utility"] floating enable
 for_window [title="File Operation Progress"] floating enable
 for_window [app_id="xdg-desktop-portal-gtk"] floating enable
 for_window [app_id="pavucontrol"] floating enable
+for_window [app_id="nm-connection-editor"] floating enable
 
 # Screen Locking
 set $lock swaylock -C ~/.local/share/themes/rose-pine/swaylock/rose-pine
@@ -162,6 +170,10 @@ exec_always --no-startup-id nm-applet
 exec_always --no-startup-id swaync
 
 # Environment
-xwayland enable
+# xwayland enable
 exec systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+exec_always --no-startup-id xrdb -merge ~/.Xresources
+exec_always --no-startup-id export GDK_SCALE=1
+exec_always --no-startup-id export GDK_DPI_SCALE=1.5
+seat * xcursor_theme "BreezeX-RosePine-Linux" 48

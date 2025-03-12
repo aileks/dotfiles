@@ -1,11 +1,4 @@
 {
-  "assistant": {
-    "default_model": {
-      "provider": "anthropic",
-      "model": "claude-3-5-sonnet-latest"
-    },
-    "version": "2"
-  },
   "icon_theme": "Colored Zed Icons Theme Dark",
   "features": {
     "edit_prediction_provider": "zed"
@@ -20,12 +13,12 @@
   },
   "autosave": "on_focus_change",
   "cursor_blink": false,
-  "ui_font_size": 16,
-  "buffer_font_size": 16,
+  "ui_font_size": 24,
+  "buffer_font_size": 24,
   "buffer_font_family": "BerkeleyMono Nerd Font",
   "buffer_line_height": "standard",
   "terminal": {
-    "font_size": 16
+    "font_size": 20
   },
   "projects_online_by_default": true,
   "soft_wrap": "preferred_line_length",

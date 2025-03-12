@@ -2,7 +2,7 @@
   all: unset;
   font-family: "BerkeleyMono Nerd Font";
   transition: 0.3s;
-  font-size: 14px;
+  font-size: 24px;
 }
 
 .floating-notifications.background .notification-row {
@@ -13,7 +13,7 @@
   border-radius: 0.5rem;
   background-color: #191724;
   color: #e0def4;
-  border: 1px solid #6e6a86;
+  border: 2px solid #6e6a86;
 }
 
 .floating-notifications.background
