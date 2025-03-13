@@ -1,6 +1,6 @@
 configuration{
     modi: "run,drun,window";
-    lines: 5;
+    lines: 8;
     font: "BerkeleyMono Nerd Font 14";
     show-icons: true;
     icon-theme: "rose-pine-icons";
@@ -50,7 +50,8 @@ element-text, element-icon, mode-switcher {
 }
 
 window {
-    height: 360px;
+    height: 1000px;
+    width: 800px;
     border: 3px;
     border-radius: 6px;
     border-color: @bordercolor;
@@ -90,7 +91,7 @@ listview {
     border: 0px;
     padding: 6px 0px 0px;
     margin: 10px 0px 0px 20px;
-    columns: 2;
+    columns: 1;
     background-color: @background;
     fixed-height: 0;
     spacing: 2px;
@@ -98,13 +99,13 @@ listview {
 }
 
 element {
-    padding: 5px;
+    padding: 8px 10px;
     background-color: @background;
     text-color: @foreground;
 }
 
 element-icon {
-    size: 25px;
+    size: 36px;
 }
 
 element.normal.urgent {
