@@ -18,6 +18,8 @@ rm -rf $HOME/.config/wezterm
 ln -s $DOTDIR/wezterm $HOME/.config/wezterm
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
+rm -rf $HOME/.config/picom
+ln -s $DOTDIR/picom $HOME/.config/picom
 
 # Zed is a special case
 ln -sf $DOTDIR/zed/keymap.json $HOME/.config/zed/keymap.json

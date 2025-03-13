@@ -107,8 +107,8 @@ bar {
 
 
 # Borders
-default_border pixel 3
-default_floating_border pixel 3
+default_border pixel 1
+default_floating_border pixel 1
 client.focused           $rose     $base $text  $rose      $rose
 client.focused_inactive  $text     $base $text  $subtle    $surface
 client.unfocused         $text     $base $text  $overlay   $overlay
@@ -146,7 +146,7 @@ bindsym XF86AudioPrev exec --no-startup-id playerctl previous
 exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
-exec_always --no-startup-id picom -b --config ~/.config/picom/picom.conf
+exec_always --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill ~/Pictures/wp.jpg
 
 # Environment
