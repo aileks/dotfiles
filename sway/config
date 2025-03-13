@@ -1,7 +1,7 @@
 # Variables
 set $mod Mod4
 set $term foot
-set $browser brave
+set $browser vivaldi
 set $fm thunar
 set $menu wofi --show drun -I --width 800 --height 600
 set $gnome-schema org.gnome.desktop.interface
@@ -41,7 +41,7 @@ input type:keyboard {
 }
 input * {
     accel_profile flat
-    pointer_accel 0.3
+    pointer_accel 0.5
 }
 
 # Applications
