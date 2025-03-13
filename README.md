@@ -4,11 +4,11 @@
 
 ### Includes configuration for:
 
-- SwayFX
-- Swaync
-- Wofi
-- Waybar
+- i3
+- Dunst
 - Fastfetch
+- Picom
+- Rofi
 - Tmux
 - WezTerm
 - Zed
