@@ -1,135 +1,166 @@
+configuration{
+    modi: "run,drun,window";
+    lines: 5;
+    font: "BerkeleyMono Nerd Font 14";
+    show-icons: true;
+    icon-theme: "rose-pine-icons";
+    terminal: "wezterm";
+    drun-display-format: "{icon} {name}";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    display-drun: "   Apps ";
+    display-run: "   Run ";
+    display-window: "   Window";
+    display-Network: " 󰤨  Network";
+    sidebar-mode: true;
+}
+
 @import "default"
 
 * {
-	bg: #191724;
-	cur: #1f1d2e;
-	fgd: #e0def4;
-	cmt: #6e6a86;
-	cya: #9ccfd8;
-	grn: #31748f;
-	ora: #ebbcba;
-	pur: #c4a7e7;
-	red: #eb6f92;
-	yel: #f6c177;
+    bg: #191724;
+    cur: #1f1d2e;
+    fgd: #e0def4;
+    cmt: #6e6a86;
+    cya: #9ccfd8;
+    grn: #31748f;
+    ora: #ebbcba;
+    pur: #c4a7e7;
+    red: #eb6f92;
+    yel: #f6c177;
 
-	font: "Cartograph CF 12";
+    font: "BerkeleyMono Nerd Font 22";
 
-	foreground: @fgd;
-	background: @bg;
-	active-background: @grn;
-	urgent-background: @red;
+    foreground: @fgd;
+    background: @bg;
+    active-background: @grn;
+    urgent-background: @red;
 
-	selected-background: @active-background;
-	selected-urgent-background: @urgent-background;
-	selected-active-background: @active-background;
-	separatorcolor: @active-background;
-	bordercolor: @ora;
+    selected-background: @active-background;
+    selected-urgent-background: @urgent-background;
+    selected-active-background: @active-background;
+    separatorcolor: @active-background;
+    bordercolor: @ora;
 }
 
-#window {
-	background-color: @background;
-	border:           3;
-	border-radius:    6;
-	border-color:     @bordercolor;
-	padding:          5;
+element-text, element-icon, mode-switcher {
+    background-color: inherit;
+    text-color: inherit;
 }
-#mainbox {
-	border:  0;
-	padding: 5;
+
+window {
+    height: 360px;
+    border: 3px;
+    border-radius: 6px;
+    border-color: @bordercolor;
+    background-color: @background;
+    padding: 5px;
 }
-#message {
-	border:       1px dash 0px 0px ;
-	border-color: @separatorcolor;
-	padding:      1px ;
+
+mainbox {
+    background-color: @background;
+    padding: 5px;
 }
-#textbox {
-	text-color: @foreground;
+
+inputbar {
+    children: [prompt, entry];
+    background-color: @background;
+    border-radius: 5px;
+    padding: 2px;
+    margin: 0px 0px 10px 0px;
 }
-#listview {
-	fixed-height: 0;
-	border:       2px dash 0px 0px ;
-	border-color: @bordercolor;
-	spacing:      2px ;
-	scrollbar:    false;
-	padding:      2px 0px 0px ;
+
+prompt {
+    background-color: @grn;
+    padding: 6px;
+    text-color: @background;
+    border-radius: 3px;
+    margin: 20px 0px 0px 20px;
 }
-#element {
-	border:  0;
-	padding: 1px ;
+
+entry {
+    padding: 6px;
+    margin: 20px 0px 0px 10px;
+    text-color: @cya;
+    background-color: @background;
 }
-#element.normal.normal {
-	background-color: @background;
-	text-color:       @foreground;
+
+listview {
+    border: 0px;
+    padding: 6px 0px 0px;
+    margin: 10px 0px 0px 20px;
+    columns: 2;
+    background-color: @background;
+    fixed-height: 0;
+    spacing: 2px;
+    scrollbar: false;
 }
-#element.normal.urgent {
-	background-color: @urgent-background;
-	text-color:       @urgent-foreground;
+
+element {
+    padding: 5px;
+    background-color: @background;
+    text-color: @foreground;
 }
-#element.normal.active {
-	background-color: @active-background;
-	text-color:       @background;
+
+element-icon {
+    size: 25px;
 }
-#element.selected.normal {
-	background-color: @selected-background;
-	text-color:       @foreground;
+
+element.normal.urgent {
+    background-color: @urgent-background;
+    text-color: @foreground;
 }
-#element.selected.urgent {
-	background-color: @selected-urgent-background;
-	text-color:       @foreground;
+
+element.normal.active {
+    background-color: @active-background;
+    text-color: @background;
 }
-#element.selected.active {
-	background-color: @selected-active-background;
-	text-color:       @background;
+
+element.selected {
+    background-color: @selected-background;
+    text-color: @background;
 }
-#element.alternate.normal {
-	background-color: @background;
-	text-color:       @foreground;
+
+element.selected.urgent {
+    background-color: @selected-urgent-background;
+    text-color: @background;
 }
-#element.alternate.urgent {
-	background-color: @urgent-background;
-	text-color:       @foreground;
+
+element.selected.active {
+    background-color: @selected-active-background;
+    text-color: @background;
 }
-#element.alternate.active {
-	background-color: @active-background;
-	text-color:       @foreground;
+
+element.alternate.normal {
+    background-color: @background;
+    text-color: @foreground;
 }
-#scrollbar {
-	width:        2px ;
-	border:       0;
-	handle-width: 8px ;
-	padding:      0;
+
+element.alternate.urgent {
+    background-color: @urgent-background;
+    text-color: @foreground;
 }
-#sidebar {
-	border:       2px dash 0px 0px ;
-	border-color: @separatorcolor;
+
+element.alternate.active {
+    background-color: @active-background;
+    text-color: @foreground;
 }
-#button.selected {
-	background-color: @selected-background;
-	text-color:       @foreground;
+
+mode-switcher {
+    spacing: 0;
 }
-#inputbar {
-	spacing:    0;
-	text-color: @foreground;
-	padding:    1px ;
+
+button {
+    padding: 10px;
+    background-color: @cur;
+    text-color: @cmt;
+    vertical-align: 0.5;
+    horizontal-align: 0.5;
 }
-#case-indicator {
-	spacing:    0;
-	text-color: @foreground;
+
+button.selected {
+    background-color: @background;
+    text-color: @grn;
 }
-#entry {
-	spacing:    0;
-	text-color: @cya;
-}
-#prompt {
-	spacing:    0;
-	text-color: @grn;
-}
-#inputbar {
-	children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
-}
-#textbox-prompt-colon {
-	expand:     false;
-	str:        ":";
-	margin:     0px 0.3em 0em 0em;
-	text-color: @grn;
-}
+

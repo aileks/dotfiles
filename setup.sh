@@ -8,6 +8,7 @@ DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Symlinks
 ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
+ln -sf $DOTDIR/.Xresources $HOME/.Xresources
 rm -rf $HOME/.config/i3
 ln -s $DOTDIR/i3 $HOME/.config/i3
 rm -rf $HOME/.config/dunst
