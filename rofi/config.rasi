@@ -52,8 +52,8 @@ element-text, element-icon, mode-switcher {
 window {
     height: 1000px;
     width: 800px;
-    border: 3px;
-    border-radius: 6px;
+    border: 2px;
+    border-radius: 4px;
     border-color: @bordercolor;
     background-color: @background;
     padding: 5px;
@@ -164,4 +164,3 @@ button.selected {
     background-color: @background;
     text-color: @grn;
 }
-
