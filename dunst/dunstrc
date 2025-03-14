@@ -1,37 +1,64 @@
 [global]
+    monitor = 0
+    follow = mouse
     width = 400
-    offset = 5x5
+    offset = (30, 30)
+    origin = top-right
+    progress_bar = true
     progress_bar_min_width = 380
     progress_bar_max_width = 380
+    progress_bar_height = 10
     progress_bar_corner_radius = 4
     padding = 10
     horizontal_padding = 10
     frame_width = 1
     gap_size = 3
+    separator_height = 0
+    separator_color = auto
+    corner_radius = 4
     font = "BerkeleyMono Nerd Font 14"
+    line_height = 4
+    markup = full
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    icon_position = left
+    min_icon_size = 48
+    max_icon_size = 48
     icon_theme = "rose-pine-icons"
     enable_recursive_icon_lookup = true
-    corner_radius = 4
     background = "#26233a"
     foreground = "#e0def4"
+    mouse_left_click = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
 
 [urgency_low]
     background = "#26273d"
     highlight = "#31748f"
     frame_color = "#31748f"
     default_icon = "dialog-information"
-    format = "<b><span foreground='#31748f'>%s</span></b>\n%b"
+    format = "<span foreground='#31748f'>%s</span>\n%b"
+    timeout = 5
 
 [urgency_normal]
-    background = "#362e3c"
-    highlight = "#f6c177"
-    frame_color = "#f6c177"
+    background = "#3a3045"
+    highlight = "#c4a7e7"
+    frame_color = "#c4a7e7"
     default_icon = "dialog-warning"
-    format = "<b><span foreground='#f6c177'>%s</span></b>\n%b"
+    format = "<b><span foreground='#c4a7e7'>%s</span></b>\n%b"
+    timeout = 10
 
 [urgency_critical]
     background = "#35263d"
     highlight = "#eb6f92"
     frame_color = "#eb6f92"
     default_icon = "dialog-error"
-    format = "<b><span foreground='#eb6f92'>%s</span></b>\n%b"
+    format = "<span foreground='#eb6f92'>%s</span>\n%b"
+    timeout = 0
