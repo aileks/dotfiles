@@ -87,23 +87,12 @@ bindsym $mod+a focus parent
 bindsym $mod+Shift+space floating toggle
 floating_modifier $mod
 
-# Bar
+# Disable Bar
 bar {
-    status_command i3status
-    position top
-    colors {
-        background $rose_pine_base
-        statusline $rose_pine_text
-        separator  $rose_pine_subtle
-
-        # class             border              background         text
-        focused_workspace   $foam               $surface           $text
-        active_workspace    $overlay            $muted             $text
-        inactive_workspace  $surface            $base              $text
-        urgent_workspace    $love               $love              $text
-    }
+    mode invisible
+    hidden_state hide
+    modifier none
 }
-
 
 # Borders
 default_border pixel 2
@@ -147,6 +136,7 @@ exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec_always --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill ~/Pictures/wp.jpg
+exec_always --no-startup-id $HOME/.local/bin/polybar.sh
 
 # Environment
 exec_always --no-startup-id xrdb -merge ~/.Xresources

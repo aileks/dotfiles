@@ -13,12 +13,12 @@
   },
   "autosave": "on_focus_change",
   "cursor_blink": false,
-  "ui_font_size": 24,
-  "buffer_font_size": 24,
+  "ui_font_size": 16,
+  "buffer_font_size": 16,
   "buffer_font_family": "BerkeleyMono Nerd Font",
   "buffer_line_height": "standard",
   "terminal": {
-    "font_size": 24
+    "font_size": 16
   },
   "projects_online_by_default": true,
   "soft_wrap": "preferred_line_length",
