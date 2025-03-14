@@ -131,7 +131,7 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- $lock
 exec_always --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill ~/Pictures/wp.jpg
 exec_always --no-startup-id $HOME/.local/bin/polybar.sh
-
-# Environment
 exec_always --no-startup-id xrdb -merge ~/.Xresources
 exec_always --no-startup-id xset r rate 250 50
+exec_always --no-startup-id xset s 600
+exec_always --no-startup-id xset dpms 900 900 900
