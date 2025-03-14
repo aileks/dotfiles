@@ -47,7 +47,7 @@
     timeout = 5
 
 [urgency_normal]
-    background = "#3a3045"
+    background = "#3d324a"
     highlight = "#c4a7e7"
     frame_color = "#c4a7e7"
     format = "<b><span foreground='#c4a7e7'>%s</span></b>\n%b"
