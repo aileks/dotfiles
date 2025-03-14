@@ -140,7 +140,7 @@ exec --no-startup-id xsetroot -cursor_name BreezeX-RosePine-Linux
 exec --no-startup-id /usr/bin/gnome-keyring-daemon --start --components=gpg,ssh,pkcs11
 exec_always --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill ~/Pictures/wp.jpg
-exec_always --no-startup-id $HOME/.local/bin/polybar.sh
+exec_always --no-startup-id bash -c "~/.local/bin/polybar.sh"
 exec_always --no-startup-id xrdb -merge ~/.Xresources
 exec_always --no-startup-id xset r rate 250 50
 exec_always --no-startup-id xset s 600
