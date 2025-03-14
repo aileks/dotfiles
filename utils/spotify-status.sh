@@ -5,10 +5,10 @@ if playerctl --player=spotify status &>/dev/null; then
     title=$(playerctl --player=spotify metadata title)
 
     if [ -n "$artist" ] && [ -n "$title" ]; then
-        echo "$artist - $title"
+        echo " %{F#9ccfd8} %{F-} ${artist} - ${title} "
     else
-        echo "No song information"
+        echo "%{F#eb6f92}No song information%{F-}"
     fi
 else
-    echo "Nothing is playing"
+    echo " %{F#eb6f92}%{F-} %{F#908caa}Idle%{F-} "
 fi
