@@ -5,6 +5,7 @@ set $term wezterm
 set $browser vivaldi
 set $fm thunar
 set $menu rofi -show drun
+set $session ~/.local/bin/launch-session-menu.sh
 
 # Set Font
 font pango:Rubik 14
@@ -35,7 +36,7 @@ bindsym $mod+Shift+r restart
 bindsym $mod+w exec $browser
 bindsym $mod+e exec $fm
 bindsym $mod+d exec discord
-bindsym $mod+Shift+x exec i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit'
+bindsym $mod+Shift+x exec --no-startup-id $session
 bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
 bindsym $mod+Print exec --no-startup-id maim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png
 
