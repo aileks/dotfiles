@@ -10,5 +10,5 @@ if playerctl --player=spotify status &>/dev/null; then
         echo "No song information"
     fi
 else
-    echo "Idle "
+    echo "Nothing is playing"
 fi

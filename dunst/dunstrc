@@ -43,7 +43,6 @@
     background = "#26273d"
     highlight = "#31748f"
     frame_color = "#31748f"
-    default_icon = "dialog-information"
     format = "<span foreground='#31748f'>%s</span>\n%b"
     timeout = 5
 
@@ -51,7 +50,6 @@
     background = "#3a3045"
     highlight = "#c4a7e7"
     frame_color = "#c4a7e7"
-    default_icon = "dialog-warning"
     format = "<b><span foreground='#c4a7e7'>%s</span></b>\n%b"
     timeout = 10
 
