@@ -35,5 +35,6 @@
 *.color7:       #6e6a86
 *.color15:      #908caa
 
-XCURSOR_THEME: BreezeX-RosePine-Linux
+Xcursor.theme: BreezeX-RosePine-Linux
+Xcursor.size: 32
 Xft.dpi: 144

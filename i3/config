@@ -28,14 +28,14 @@ set $highlightmed   #403d52
 set $highlighthigh  #524f67
 
 # Applications
-bindsym $mod+Return exec $term
+bindsym $mod+Return exec --no-startup-id $term
 bindsym $mod+q kill
-bindsym $mod+space exec $menu
+bindsym $mod+space exec --no-startup-id $menu
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
-bindsym $mod+w exec $browser
-bindsym $mod+e exec $fm
-bindsym $mod+d exec discord
+bindsym $mod+w exec --no-startup-id $browser
+bindsym $mod+e exec --no-startup-id $fm
+bindsym $mod+d exec --no-startup-id discord
 bindsym $mod+Shift+x exec --no-startup-id $session
 bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
 bindsym $mod+Print exec --no-startup-id maim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png
@@ -116,7 +116,7 @@ for_window [class="nm-connection-editor"] floating enable
 
 # Screen Locking
 set $lock ~/.local/bin/lock.sh
-bindsym $mod+Escape exec $lock
+bindsym $mod+Escape exec --no-startup-id $lock
 
 # Media Keys
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
@@ -130,6 +130,7 @@ exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id xss-lock --transfer-sleep-lock -- $lock
+exec --no-startup-id xsetroot -cursor_name BreezeX-RosePine-Linux
 exec_always --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill ~/Pictures/wp.jpg
 exec_always --no-startup-id $HOME/.local/bin/polybar.sh
