@@ -10,6 +10,16 @@ set $gnome-schema org.gnome.desktop.interface
 # Set font
 font pango:Rubik 14
 
+# GTK Theme
+exec_always {
+    gsettings set $gnome-schema gtk-theme "rose-pine-gtk"
+    gsettings set $gnome-schema icon-theme "rose-pine-icons"
+    gsettings set $gnome-schema cursor-theme "BreezeX-RosePine-Linux"
+    gsettings set $gnome-schema cursor-size 48
+    gsettings set $gnome-schema font-name "Rubik 14"
+}
+
+
 # Color Palette
 set $rose_pine_base     "#191724"
 set $rose_pine_surface  "#1f1d2e"
@@ -25,7 +35,7 @@ set $rose_pine_iris     "#ebbcba"
 
 # Outputs
 output DP-2 {
-    res 3840x2160 pos 0x0 scale 1
+    res 3840x2160 pos 0 0 scale 1
     bg ~/Pictures/wp.jpg fill
 }
 
@@ -166,10 +176,7 @@ exec_always --no-startup-id nm-applet
 exec_always --no-startup-id swaync
 
 # Environment
-# xwayland enable
+xwayland enable
 exec systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr
-exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
-exec_always --no-startup-id xrdb -merge ~/.Xresources
-exec_always --no-startup-id export GDK_SCALE=1
-exec_always --no-startup-id export GDK_DPI_SCALE=1.5
+exec_always --no-startup-id sh -c "xrdb -merge ~/.Xresources"
 seat * xcursor_theme "BreezeX-RosePine-Linux" 48
