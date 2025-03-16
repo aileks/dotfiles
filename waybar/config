@@ -30,6 +30,10 @@
     "sway/window": {
         "max-length": 50,
         "format": "󱂬 {title}",
+        "empty-state": {
+            "format": "󱂬 No Window",
+            "class": "empty-window"
+        },
         "icon-size": 18
     },
 

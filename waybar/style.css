@@ -13,8 +13,8 @@ window#waybar {
 
 #workspaces {
     background: @base;
-    border-radius: 4px;
     color: @text;
+    border-radius: 4px;
     padding: 0 8px;
     margin: 4px 0;
 }
@@ -22,13 +22,15 @@ window#waybar {
 #workspaces button {
     padding: 0 4px;
     border-radius: 4px;
-    margin: 4px 0;
+    margin: 6px 2px;
     color: @text;
 }
 
 #workspaces button.focused {
-    background: @rose;
+    background: linear-gradient(45deg, @iris, @love);
     color: @base;
+    border-radius: 4px;
+    background-clip: padding-box;
 }
 
 #window {
@@ -36,6 +38,12 @@ window#waybar {
     border-radius: 4px;
     padding: 0 8px;
     margin: 4px 0;
+}
+
+#window.empty-window {
+    color: @muted;
+    opacity: 0.8;
+    font-style: italic;
 }
 
 .modules-right {
