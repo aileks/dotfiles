@@ -23,7 +23,7 @@
             "5": "5",
             "6": "6",
             "7": "7",
-            "urgent": "",
+            "urgent": ""
         }
     },
 
@@ -68,32 +68,12 @@
         "on-click": "pavucontrol"
     },
 
-    "custom/notification": {
-        "tooltip": false,
-        "format": "{} {icon}",
-        "format-icons": {
-          "notification": "<span foreground='red'><sup></sup></span>",
-          "none": "",
-          "dnd-notification": "<span foreground='red'><sup></sup></span>",
-          "dnd-none": "",
-          "inhibited-notification": "<span foreground='red'><sup></sup></span>",
-          "inhibited-none": "",
-          "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
-          "dnd-inhibited-none": ""
-        },
-        "return-type": "json",
-        "escape": true
-    },
-
     "custom/media": {
-        "format": "{}",
+        "exec": "python3 $HOME/.config/waybar/scripts/spotify.py",
+        "format": "{}  ",
         "return-type": "json",
-        "exec": "$HOME/.config/waybar/scripts/spotify.sh",
-        "on-click": "playerctl -p spotify play-pause",
-        "on-click-right": "playerctl -p spotify next",
-        "on-scroll-up": "playerctl -p spotify previous",
-        "on-scroll-down": "playerctl -p spotify next",
-        "smooth-scrolling-threshold": 1,
-        "max-length": 40
-    },
+        "on-click": "playerctl play-pause",
+        "on-scroll-up": "playerctl next",
+        "on-scroll-down": "playerctl previous"
+    }
 }

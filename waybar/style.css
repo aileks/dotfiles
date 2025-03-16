@@ -2,7 +2,6 @@
 
 * {
     font-family: "BerkeleyMono Nerd Font";
-    font-weight: bold;
     font-size: 20px;
     min-height: 0;
 }
@@ -14,34 +13,36 @@ window#waybar {
 
 #workspaces {
     background: @base;
-    border-radius: 6px;
-    padding: 1px 8px;
-    margin: 4px 0 4px 8px;
+    border-radius: 4px;
+    color: @text;
+    padding: 0 8px;
+    margin: 4px 0;
 }
 
 #workspaces button {
-    padding: 0 8px;
-    transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.68);
+    padding: 0 4px;
+    border-radius: 4px;
+    margin: 4px 0;
+    color: @text;
 }
 
 #workspaces button.focused {
-    background: linear-gradient(45deg, @love, @iris);
+    background: @rose;
     color: @base;
-    border-radius: 6px;
 }
 
 #window {
-    background: @surface;
-    border-radius: 12px;
-    padding: 0 16px;
+    background: @base;
+    border-radius: 4px;
+    padding: 0 8px;
     margin: 4px 0;
 }
 
 .modules-right {
     background: @base;
-    border-radius: 12px;
-    padding: 2px 8px;
-    margin: 4px 8px 4px 0;
+    border-radius: 4px;
+    padding: 0 8px;
+    margin: 4px 0;
 }
 
 #clock,
@@ -49,16 +50,17 @@ window#waybar {
 #memory,
 #pulseaudio,
 #custom-notification,
+#custom-media,
 #tray {
-    border-radius: 8px;
-    padding: 0 16px;
-    margin: 4px 2px;
-    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 0 8px;
+    margin: 4px 0;
+    border: 1px solid @overlay;
 }
 
 #clock {
-    background: linear-gradient(45deg, @foam, @pine);
-    color: @base;
+    background: @highlightHigh;
+    color: @text;
 }
 
 #cpu {
@@ -78,36 +80,10 @@ window#waybar {
 
 #tray {
     background: @base;
-    padding: 0 12px;
-}
-
-#custom-notification {
-    background: @iris;
-    color: @base;
+    border: none;
 }
 
 #custom-media {
-    background: linear-gradient(45deg, @pine, @foam);
-    color: @base;
-    border-radius: 8px;
-    padding: 0 16px;
-    margin: 4px 2px;
-    border: 1px solid @highlight-high;
-}
-
-#custom-media.paused {
     background: @surface;
     color: @text;
-    border: 1px solid @overlay;
-}
-
-#custom-media.playing {
-    background: linear-gradient(45deg, @love, @rose);
-    color: @base;
-}
-
-#custom-media.paused {
-    background: @surface;
-    color: @text;
-    border: 1px solid @overlay;
 }
