@@ -38,3 +38,6 @@
 Xcursor.theme: BreezeX-RosePine-Linux
 Xcursor.size: 48
 Xft.dpi: 144
+Xft.autohint: 1
+Xft.hinting: 1
+Xft.rgba: rgb

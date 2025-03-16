@@ -1,0 +1,148 @@
+@import "./rose-pine.css";
+
+* {
+    font-family: "BerkeleyMono Nerd Font";
+    font-weight: bold;
+    font-size: 24px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: @base;
+    color: @text;
+    border: 2px solid @overlay;
+}
+
+window#waybar.hidden {
+    opacity: 0.5;
+}
+
+#workspaces button {
+    padding: 0 6px;
+    background-color: transparent;
+    color: @text;
+    box-shadow: inset 0 -2px transparent;
+    transition: all 0.3s;
+}
+
+#workspaces button.focused {
+    background-color: @surface;
+    box-shadow: inset 0 -2px @rose;
+}
+
+#workspaces button.urgent {
+    background-color: @love;
+    color: @base;
+}
+
+#workspaces button:hover {
+    background-color: @overlay;
+    box-shadow: inset 0 -2px @gold;
+}
+
+#clock,
+#cpu,
+#memory,
+#temperature,
+#pulseaudio,
+#tray,
+#idle_inhibitor,
+#custom-notification {
+    padding: 0 10px;
+    margin: 0 5px;
+    color: @text;
+    background-color: @surface;
+    border-bottom: 2px solid transparent;
+}
+
+#clock {
+    color: @foam;
+    border-bottom-color: @foam;
+}
+
+#battery {
+    color: @pine;
+    border-bottom-color: @pine;
+}
+
+#battery.charging,
+#battery.plugged {
+    color: @rose;
+    border-bottom-color: @rose;
+}
+
+#battery.warning:not(.charging) {
+    color: @gold;
+    border-bottom-color: @gold;
+}
+
+#battery.critical:not(.charging) {
+    animation-name: battery-blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    color: @love;
+    border-bottom-color: @love;
+}
+
+#cpu {
+    color: @iris;
+    border-bottom-color: @iris;
+}
+
+#memory {
+    color: @iris;
+    border-bottom-color: @iris;
+}
+
+#network {
+    color: @foam;
+    border-bottom-color: @foam;
+}
+
+#network.disconnected {
+    color: @muted;
+    border-bottom-color: @muted;
+}
+
+#pulseaudio {
+    color: @gold;
+    border-bottom-color: @gold;
+}
+
+#pulseaudio.muted {
+    color: @muted;
+    border-bottom-color: @muted;
+}
+
+#temperature {
+    color: @rose;
+    border-bottom-color: @rose;
+}
+
+#temperature.critical {
+    color: @love;
+    border-bottom-color: @love;
+}
+
+#tray {
+    background-color: @overlay;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+#custom-notification {
+    font-family: "BerkeleyMono Nerd Font";
+    border-bottom: 2px solid @rose;
+}
+
+#window {
+    font-weight: bold;
+}

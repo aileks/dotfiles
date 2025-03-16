@@ -5,8 +5,8 @@ export PATH="$PATH:$HOME/.local/bin:$HOME/.composer/vendor/bin:$HOME/.spicetify:
 export ZSH="$HOME/.oh-my-zsh"
 
 # Editor env variables
-export EDITOR=nvim
-export SUDO_EDITOR=nvim
+export EDITOR=vim
+export SUDO_EDITOR=vim
 
 # Theme
 ZSH_THEME="refined"
@@ -26,7 +26,6 @@ alias ga="git add -A"
 alias gs="git status"
 alias gc="git commit -m"
 alias cp="cpv"
-alias vim="nvim"
 alias ar="php artisan"
 alias rm="trash"
 alias c="clear"
