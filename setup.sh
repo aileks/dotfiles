@@ -25,6 +25,9 @@ ln -s $DOTDIR/foot $HOME/.config/foot
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 
+rm -rf $HOME/.config/waybar
+ln -s $DOTDIR/waybar $HOME/.config/waybar
+
 # Zed is a special case
 ln -sf $DOTDIR/zed/keymap.json $HOME/.config/zed/keymap.json
 ln -sf $DOTDIR/zed/settings.json $HOME/.config/zed/settings.json
