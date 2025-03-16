@@ -10,8 +10,8 @@ ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 ln -sf $DOTDIR/.Xresources $HOME/.Xresources
 
-rm -rf $HOME/.config/i3
-ln -s $DOTDIR/i3 $HOME/.config/i3
+rm -rf $HOME/.config/sway
+ln -s $DOTDIR/sway $HOME/.config/sway
 
 rm -rf $HOME/.config/dunst
 ln -s $DOTDIR/dunst $HOME/.config/dunst
@@ -19,17 +19,11 @@ ln -s $DOTDIR/dunst $HOME/.config/dunst
 rm -rf $HOME/.config/rofi
 ln -s $DOTDIR/rofi $HOME/.config/rofi
 
-rm -rf $HOME/.config/wezterm
-ln -s $DOTDIR/wezterm $HOME/.config/wezterm
+rm -rf $HOME/.config/foot
+ln -s $DOTDIR/foot $HOME/.config/foot
 
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
-
-rm -rf $HOME/.config/picom
-ln -s $DOTDIR/picom $HOME/.config/picom
-
-rm -rf $HOME/.config/polybar
-ln -s $DOTDIR/polybar $HOME/.config/polybar
 
 # Zed is a special case
 ln -sf $DOTDIR/zed/keymap.json $HOME/.config/zed/keymap.json
