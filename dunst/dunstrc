@@ -1,9 +1,9 @@
 [global]
     monitor = 0
     follow = mouse
-    width = 400
-    offset = (15, 42)
-    origin = top-right
+    width = 600
+    offset = (32, 32)
+    origin = bottom-right
     progress_bar = true
     progress_bar_min_width = 380
     progress_bar_max_width = 380
@@ -16,7 +16,7 @@
     separator_height = 0
     separator_color = auto
     corner_radius = 4
-    font = "BerkeleyMono Nerd Font 14"
+    font = "BerkeleyMono Nerd Font 24"
     line_height = 4
     markup = full
     alignment = left
@@ -30,7 +30,7 @@
     show_indicators = yes
     icon_position = left
     min_icon_size = 48
-    max_icon_size = 48
+    max_icon_size = 64
     icon_theme = "rose-pine-icons"
     enable_recursive_icon_lookup = true
     background = "#26233a"

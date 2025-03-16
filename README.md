@@ -4,12 +4,12 @@
 
 ### Includes configuration for:
 
-- i3
+- SwayFX
 - Dunst
 - Fastfetch
-- Picom
+- Foot
 - Rofi
 - Tmux
-- WezTerm
+- Waybar
 - Zed
 - Zsh

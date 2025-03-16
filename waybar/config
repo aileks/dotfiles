@@ -7,38 +7,34 @@
     "margin-left": 3,
     "margin-right": 3,
 
-    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-left": ["sway/workspaces", "custom/media"],
     "modules-center": ["sway/window"],
-    "modules-right": ["pulseaudio", "cpu", "memory", "temperature", "clock", "custom/notification", "tray"],
+    "modules-right": ["pulseaudio", "cpu", "memory", "clock", "custom/notification", "tray"],
 
     "sway/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "format": "{icon}",
         "format-icons": {
-            "1": "󰖟",
-            "2": "󰭹",
-            "3": "",
-            "4": "󰙨",
-            "5": "",
-            "6": "",
-            "7": "",
-            "urgent": "󰀨",
-            "focused": "󰮯",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "urgent": "",
         }
-    },
-
-    "sway/mode": {
-        "format": "<span style=\"italic\">󰉘 {}</span>"
     },
 
     "sway/window": {
         "max-length": 50,
-        "format": "󱂬 {title}"
+        "format": "󱂬 {title}",
+        "icon-size": 18
     },
 
     "tray": {
-        "icon-size": 26,
+        "icon-size": 28,
         "spacing": 10
     },
 
@@ -56,12 +52,6 @@
         "format": "󰍛 {}%"
     },
 
-    "temperature": {
-        "critical-threshold": 80,
-        "format": "{icon} {temperatureC}°C",
-        "format-icons": ["󱃃", "󰔏", "󱃂"]
-    },
-
     "pulseaudio": {
         "format": "{icon} {volume}%",
         "format-bluetooth": "󰂰 {icon} {volume}%",
@@ -73,9 +63,6 @@
             "headphone": "󰋋",
             "hands-free": "󰋎",
             "headset": "󰋎",
-            "phone": "󰏲",
-            "portable": "󰄝",
-            "car": "󰄋",
             "default": ["󰕿", "󰖀", "󰕾"]
         },
         "on-click": "pavucontrol"
@@ -95,10 +82,18 @@
           "dnd-inhibited-none": ""
         },
         "return-type": "json",
-        "exec-if": "which swaync-client",
-        "exec": "swaync-client -swb",
-        "on-click": "swaync-client -t -sw",
-        "on-click-right": "swaync-client -d -sw",
         "escape": true
+    },
+
+    "custom/media": {
+        "format": "{}",
+        "return-type": "json",
+        "exec": "$HOME/.config/waybar/scripts/spotify.sh",
+        "on-click": "playerctl -p spotify play-pause",
+        "on-click-right": "playerctl -p spotify next",
+        "on-scroll-up": "playerctl -p spotify previous",
+        "on-scroll-down": "playerctl -p spotify next",
+        "smooth-scrolling-threshold": 1,
+        "max-length": 40
     },
 }

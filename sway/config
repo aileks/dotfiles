@@ -173,7 +173,7 @@ bindsym XF86AudioPrev exec playerctl previous
 # Autostart
 exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit
 exec_always --no-startup-id nm-applet
-exec_always --no-startup-id swaync
+exec_always --no-startup-id dunst
 
 # Environment
 xwayland enable

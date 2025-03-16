@@ -3,146 +3,111 @@
 * {
     font-family: "BerkeleyMono Nerd Font";
     font-weight: bold;
-    font-size: 24px;
+    font-size: 20px;
     min-height: 0;
 }
 
 window#waybar {
-    background-color: @base;
-    color: @text;
-    border: 2px solid @overlay;
+    background-color: transparent;
+    border: none;
 }
 
-window#waybar.hidden {
-    opacity: 0.5;
+#workspaces {
+    background: @base;
+    border-radius: 6px;
+    padding: 1px 8px;
+    margin: 4px 0 4px 8px;
 }
 
 #workspaces button {
-    padding: 0 6px;
-    background-color: transparent;
-    color: @text;
-    box-shadow: inset 0 -2px transparent;
-    transition: all 0.3s;
+    padding: 0 8px;
+    transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.68);
 }
 
 #workspaces button.focused {
-    background-color: @surface;
-    box-shadow: inset 0 -2px @rose;
-}
-
-#workspaces button.urgent {
-    background-color: @love;
+    background: linear-gradient(45deg, @love, @iris);
     color: @base;
+    border-radius: 6px;
 }
 
-#workspaces button:hover {
-    background-color: @overlay;
-    box-shadow: inset 0 -2px @gold;
+#window {
+    background: @surface;
+    border-radius: 12px;
+    padding: 0 16px;
+    margin: 4px 0;
+}
+
+.modules-right {
+    background: @base;
+    border-radius: 12px;
+    padding: 2px 8px;
+    margin: 4px 8px 4px 0;
 }
 
 #clock,
 #cpu,
 #memory,
-#temperature,
 #pulseaudio,
-#tray,
-#idle_inhibitor,
-#custom-notification {
-    padding: 0 10px;
-    margin: 0 5px;
-    color: @text;
-    background-color: @surface;
-    border-bottom: 2px solid transparent;
+#custom-notification,
+#tray {
+    border-radius: 8px;
+    padding: 0 16px;
+    margin: 4px 2px;
+    border: 1px solid transparent;
 }
 
 #clock {
-    color: @foam;
-    border-bottom-color: @foam;
-}
-
-#battery {
-    color: @pine;
-    border-bottom-color: @pine;
-}
-
-#battery.charging,
-#battery.plugged {
-    color: @rose;
-    border-bottom-color: @rose;
-}
-
-#battery.warning:not(.charging) {
-    color: @gold;
-    border-bottom-color: @gold;
-}
-
-#battery.critical:not(.charging) {
-    animation-name: battery-blink;
-    animation-duration: 0.5s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-    color: @love;
-    border-bottom-color: @love;
+    background: linear-gradient(45deg, @foam, @pine);
+    color: @base;
 }
 
 #cpu {
-    color: @iris;
-    border-bottom-color: @iris;
+    background: @iris;
+    color: @base;
 }
 
 #memory {
-    color: @iris;
-    border-bottom-color: @iris;
-}
-
-#network {
-    color: @foam;
-    border-bottom-color: @foam;
-}
-
-#network.disconnected {
-    color: @muted;
-    border-bottom-color: @muted;
+    background: @rose;
+    color: @base;
 }
 
 #pulseaudio {
-    color: @gold;
-    border-bottom-color: @gold;
-}
-
-#pulseaudio.muted {
-    color: @muted;
-    border-bottom-color: @muted;
-}
-
-#temperature {
-    color: @rose;
-    border-bottom-color: @rose;
-}
-
-#temperature.critical {
-    color: @love;
-    border-bottom-color: @love;
+    background: @gold;
+    color: @base;
 }
 
 #tray {
-    background-color: @overlay;
-}
-
-#tray > .passive {
-    -gtk-icon-effect: dim;
-}
-
-#tray > .needs-attention {
-    -gtk-icon-effect: highlight;
+    background: @base;
+    padding: 0 12px;
 }
 
 #custom-notification {
-    font-family: "BerkeleyMono Nerd Font";
-    border-bottom: 2px solid @rose;
+    background: @iris;
+    color: @base;
 }
 
-#window {
-    font-weight: bold;
+#custom-media {
+    background: linear-gradient(45deg, @pine, @foam);
+    color: @base;
+    border-radius: 8px;
+    padding: 0 16px;
+    margin: 4px 2px;
+    border: 1px solid @highlight-high;
+}
+
+#custom-media.paused {
+    background: @surface;
+    color: @text;
+    border: 1px solid @overlay;
+}
+
+#custom-media.playing {
+    background: linear-gradient(45deg, @love, @rose);
+    color: @base;
+}
+
+#custom-media.paused {
+    background: @surface;
+    color: @text;
+    border: 1px solid @overlay;
 }
