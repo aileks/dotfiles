@@ -43,8 +43,9 @@
     },
 
     "clock": {
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format": "󰅐 {:%a, %d %b %H:%M}"
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><big>{calendar}</big></tt>",
+        "format": "󰅐 {:%a, %d %b %H:%M}",
+        "on-click": "gnome-calendar"
     },
 
     "cpu": {
