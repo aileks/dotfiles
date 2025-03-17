@@ -86,6 +86,10 @@ window#waybar {
     color: @base;
 }
 
+#pulseaudio.muted {
+    background: @love;
+}
+
 #tray {
     background: @base;
     border: none;

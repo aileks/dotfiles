@@ -61,7 +61,7 @@
         "format": "{icon} {volume}%",
         "format-bluetooth": "󰂰 {icon} {volume}%",
         "format-bluetooth-muted": "󰂲 {icon}",
-        "format-muted": "󰝟",
+        "format-muted": "󰝟 Muted",
         "format-source": "󰍬 {volume}%",
         "format-source-muted": "󰍭",
         "format-icons": {
@@ -70,7 +70,7 @@
             "headset": "󰋎",
             "default": ["󰕿", "󰖀", "󰕾"]
         },
-        "on-click": "pavucontrol"
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
     },
 
     "custom/media": {
