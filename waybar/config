@@ -74,8 +74,8 @@
     },
 
     "custom/media": {
-        "exec": "python3 $HOME/.config/waybar/scripts/spotify.py",
-        "format": "{}",
+        "exec": "python3 $HOME/.config/waybar/scripts/media.py",
+        "format": "{:.100}",
         "return-type": "json",
         "on-click": "playerctl play-pause",
         "on-scroll-up": "playerctl next",

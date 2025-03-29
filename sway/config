@@ -59,9 +59,11 @@ bindsym $mod+w exec $browser
 bindsym $mod+e exec $fm
 bindsym $mod+d exec discord
 bindsym $mod+Shift+x exec wlogout
-bindsym Print exec bash -c 'grim -g "$(slurp)" - | wl-copy'
-bindsym $mod+Print exec grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png
 bindsym $mod+t exec $theme-editor
+bindsym Print exec bash -c 'grim -g "$(slurp)" - | wl-copy'
+bindsym $mod+Print exec bash -c 'grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png'
+bindsym $mod+Shift+r exec bash -c 'wf-recorder -g "$(slurp)" -f ~/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4 &> /dev/null & echo $! > /tmp/wf-recorder.pid'
+bindsym $mod+Shift+Escape exec bash -c "kill -SIGINT $(cat /tmp/wf-recorder.pid 2>/dev/null) || pkill wf-recorder; rm -f /tmp/wf-recorder.pid"
 
 # Window Navigation
 bindsym $mod+h focus left
@@ -178,6 +180,7 @@ exec_always --no-startup-id dunst
 
 # Environment
 xwayland enable
+exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr
-exec_always --no-startup-id sh -c "xrdb -merge ~/.Xresources"
+exec_always --no-startup-id xrdb -merge ~/.Xresources
 seat * xcursor_theme "BreezeX-RosePine-Linux" 48

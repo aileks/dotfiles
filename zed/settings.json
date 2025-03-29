@@ -1,4 +1,8 @@
 {
+  "edit_predictions": {
+    "mode": "eager",
+    "enabled_in_assistant": true
+  },
   "icon_theme": "Colored Zed Icons Theme Dark",
   "features": {
     "edit_prediction_provider": "zed"
@@ -145,7 +149,7 @@
     "include_warnings": false,
     "inline": {
       "enabled": true,
-      "min_column": 80,
+      "min_column": 40,
       "max_severity": "warning"
     }
   }
