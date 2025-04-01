@@ -1,5 +1,5 @@
 # Path
-export PATH="$PATH:$HOME/.local/bin:$HOME/.composer/vendor/bin:$HOME/.spicetify:$HOME/.pyenv/bin:$HOME/.bun/bin:$HOME/.local/share/JetBrains/Toolbox/scripts:${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.composer/vendor/bin:$HOME/.spicetify:$HOME/.pyenv/bin:$HOME/.bun/bin:$HOME/.local/share/JetBrains/Toolbox/scripts:$HOME/.mix/escripts"
 
 # Path to OMZ installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -61,3 +61,19 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 export PATH="/home/aileks/.config/herd-lite/bin:$PATH"
 export PHP_INI_SCAN_DIR="/home/aileks/.config/herd-lite/bin:$PHP_INI_SCAN_DIR"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/aileks/.miniconda/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/aileks/.miniconda/etc/profile.d/conda.sh" ]; then
+        . "/home/aileks/.miniconda/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/aileks/.miniconda/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
