@@ -51,7 +51,7 @@
     highlight = "#c4a7e7"
     frame_color = "#c4a7e7"
     format = "<b><span foreground='#c4a7e7'>%s</span></b>\n%b"
-    timeout = 10
+    timeout = 5
 
 [urgency_critical]
     background = "#35263d"
@@ -59,4 +59,4 @@
     frame_color = "#eb6f92"
     default_icon = "dialog-error"
     format = "<span foreground='#eb6f92'>%s</span>\n%b"
-    timeout = 0
+    timeout = 15

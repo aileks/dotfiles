@@ -180,7 +180,9 @@ exec_always --no-startup-id dunst
 
 # Environment
 xwayland enable
-exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-exec systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr
+exec --no-startup-id xdg-desktop-portal -r &
+exec --no-startup-id xdg-desktop-portal-wlr -r &
+exec --no-startup-id export XDG_CURRENT_DESKTOP=sway
+exec --no-startup-id export QT_QPA_PLATFORM=wayland
 exec_always --no-startup-id xrdb -merge ~/.Xresources
 seat * xcursor_theme "BreezeX-RosePine-Linux" 48
