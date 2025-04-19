@@ -4,7 +4,7 @@ configuration{
     font: "BerkeleyMono Nerd Font 14";
     show-icons: true;
     icon-theme: "rose-pine-icons";
-    terminal: "wezterm";
+    terminal: "foot";
     drun-display-format: "{icon} {name}";
     location: 0;
     disable-history: false;
