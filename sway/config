@@ -1,9 +1,10 @@
 # Variables
 set $mod Mod4
 set $term foot
-set $browser vivaldi
+set $browser firefox
 set $fm thunar
 set $menu rofi -show drun
+set $emoji rofi -modi "emoji:rofimoji" -show emoji
 set $theme-editor nwg-look
 set $gnome-schema org.gnome.desktop.interface
 
@@ -60,6 +61,7 @@ bindsym $mod+e exec $fm
 bindsym $mod+d exec discord
 bindsym $mod+Shift+x exec wlogout
 bindsym $mod+t exec $theme-editor
+bindsym $mod+u exec $emoji
 bindsym Print exec bash -c 'grim -g "$(slurp)" - | wl-copy'
 bindsym $mod+Print exec bash -c 'grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png'
 bindsym $mod+Shift+r exec bash -c 'wf-recorder -g "$(slurp)" -f ~/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4 &> /dev/null & echo $! > /tmp/wf-recorder.pid'
@@ -150,8 +152,8 @@ for_window [window_type="dialog"] floating enable
 for_window [window_role="dialog"] floating enable
 for_window [window_type="utility"] floating enable
 for_window [title="File Operation Progress"] floating enable
-for_window [title="Vivaldi Settings"] floating enable
-for_window [app_id="xdg-desktop-portal-gtk"] floating enable
+for_window [title="Library"] floating enable
+for_window [app_id="xdg-desktop-portal-wlr"] floating enable
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="nm-connection-editor"] floating enable
 for_window [app_id="qalculate-gtk"] floating enable

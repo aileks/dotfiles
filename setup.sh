@@ -65,4 +65,4 @@ else
 fi
 echo ""
 
-echo "Dotfiles setup successfully!"
+echo "Dotfiles copied successfully!"
