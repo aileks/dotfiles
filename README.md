@@ -4,7 +4,7 @@
 
 ### Includes configuration for:
 
-- SwayFX
+- Hyprland
 - Dunst
 - Fastfetch
 - Foot

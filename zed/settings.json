@@ -29,7 +29,7 @@
   "buffer_font_family": "BerkeleyMono Nerd Font",
   "buffer_line_height": "standard",
   "terminal": {
-    "font_size": 24
+    "font_size": 22
   },
   "projects_online_by_default": true,
   "preferred_line_length": 120,

@@ -7,11 +7,11 @@
     "margin-left": 3,
     "margin-right": 3,
 
-    "modules-left": ["sway/workspaces", "custom/media"],
-    "modules-center": ["sway/window"],
+    "modules-left": ["hyprland/workspaces", "custom/media"],
+    "modules-center": ["hyprland/window"],
     "modules-right": ["pulseaudio", "cpu", "memory", "clock", "custom/notification", "tray"],
 
-    "sway/workspaces": {
+    "hyprland/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "format": "{icon}",
@@ -23,11 +23,14 @@
             "5": "5",
             "6": "6",
             "7": "7",
-            "urgent": ""
+            "urgent": " ",
+        },
+        "persistent-workspaces": {
+            "*": 7
         }
     },
 
-    "sway/window": {
+    "hyprland/window": {
         "max-length": 50,
         "format": "󱂬 {title}",
         "empty-state": {

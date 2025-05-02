@@ -10,8 +10,8 @@ ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 ln -sf $DOTDIR/.Xresources $HOME/.Xresources
 
-rm -rf $HOME/.config/sway
-ln -s $DOTDIR/sway $HOME/.config/sway
+rm -rf $HOME/.config/hypr
+ln -s $DOTDIR/hypr $HOME/.config/hypr
 
 rm -rf $HOME/.config/dunst
 ln -s $DOTDIR/dunst $HOME/.config/dunst
