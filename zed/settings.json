@@ -10,7 +10,7 @@
     "mode": "eager",
     "enabled_in_assistant": true
   },
-  "icon_theme": "Colored Zed Icons Theme Dark",
+  "icon_theme": "Material Icon Theme",
   "features": {
     "edit_prediction_provider": "zed"
   },
