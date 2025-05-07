@@ -1,14 +1,15 @@
 {
-  "assistant": {
+  "agent": {
+    "model_parameters": [],
     "default_model": {
-      "provider": "google",
-      "model": "gemini-2.5-pro-exp-03-25"
+      "provider": "zed.dev",
+      "model": "claude-3-7-sonnet-thinking-latest"
     },
     "version": "2"
   },
   "edit_predictions": {
     "mode": "eager",
-    "enabled_in_assistant": true
+    "enabled_in_text_threads": true
   },
   "icon_theme": "Material Icon Theme",
   "features": {
@@ -25,6 +26,9 @@
   "autosave": "on_focus_change",
   "cursor_blink": false,
   "ui_font_size": 24,
+  "ui_font_family": "Rubik",
+  "agent_font_size": 24,
+  "agent_font_family": "BerkeleyMono Nerd Font",
   "buffer_font_size": 24,
   "buffer_font_family": "BerkeleyMono Nerd Font",
   "buffer_line_height": "standard",
