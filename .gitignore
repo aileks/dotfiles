@@ -1,0 +1,5 @@
+qutebrowser/bookmarks/
+qutebrowser/quickmarks
+qutebrowser/history.sqlite
+qutebrowser/cookies
+__pycache__/
