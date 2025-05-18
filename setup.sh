@@ -19,8 +19,8 @@ ln -s $DOTDIR/dunst $HOME/.config/dunst
 rm -rf $HOME/.config/rofi
 ln -s $DOTDIR/rofi $HOME/.config/rofi
 
-rm -rf $HOME/.config/foot
-ln -s $DOTDIR/foot $HOME/.config/foot
+rm -rf $HOME/.config/ghostty
+ln -s $DOTDIR/ghostty $HOME/.config/ghostty
 
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
