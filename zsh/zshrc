@@ -12,7 +12,7 @@ export SUDO_EDITOR=vim
 ZSH_THEME="refined"
 
 # Plugins
-plugins=(cp fast-syntax-highlighting fzf git poetry zsh-autosuggestions)
+plugins=(archlinux cp fast-syntax-highlighting fzf git poetry zsh-autosuggestions)
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh
@@ -32,21 +32,6 @@ alias c="clear"
 alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
 alias ff="fastfetch"
-
-# Zypper
-alias zse="zypper se -s"
-alias zpa="zypper pa"
-alias zls="sudo zypper ls"
-alias zin="sudo zypper in"
-alias zinr="sudo zypper inr"
-alias zrm="sudo zypper rm"
-alias zsi="sudo zypper si"
-alias zve="sudo zypper ve"
-alias zref="sudo zypper ref"
-alias zup="sudo zypper up"
-alias zdup="sudo zypper dup"
-alias zar="sudo zypper ar"
-alias zrr="sudo zypper rr"
 
 # GPG stuff
 export GPG_TTY=$(tty)
