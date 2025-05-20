@@ -7,7 +7,7 @@
 - Hyprland
 - Dunst
 - Fastfetch
-- Foot
+- Ghostty
 - Rofi
 - Tmux
 - Waybar
