@@ -36,11 +36,11 @@ c.completion.open_categories = [
 # Appearance
 c.tabs.show = "multiple"
 c.colors.webpage.preferred_color_scheme = "dark"
-c.colors.webpage.darkmode.enabled = True
-c.colors.webpage.darkmode.algorithm = "lightness-cielab"
-c.colors.webpage.darkmode.threshold.background = 100
-c.colors.webpage.darkmode.policy.images = "smart"
-config.set("colors.webpage.darkmode.enabled", False, "file://*")
+# c.colors.webpage.darkmode.enabled = True
+# c.colors.webpage.darkmode.algorithm = "lightness-cielab"
+# c.colors.webpage.darkmode.threshold.background = 100
+# c.colors.webpage.darkmode.policy.images = "smart"
+# config.set("colors.webpage.darkmode.enabled", False, "file://*")
 
 # Fonts
 c.fonts.default_family = ["sans-serif"]
