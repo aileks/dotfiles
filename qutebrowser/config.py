@@ -19,7 +19,6 @@ c.downloads.location.directory = "~/Downloads"
 c.downloads.location.prompt = True
 c.tabs.title.format = "{audio}{current_title}"
 c.url.start_pages = ["https://ecosia.com"]
-c.colors.webpage.preferred_color_scheme = "dark"
 c.zoom.default = "120%"
 c.url.searchengines = {
     "DEFAULT": "https://ecosia.com/search?q={}",
@@ -33,6 +32,15 @@ c.completion.open_categories = [
     "history",
     "filesystem",
 ]
+
+# Appearance
+c.tabs.show = "multiple"
+c.colors.webpage.preferred_color_scheme = "dark"
+c.colors.webpage.darkmode.enabled = True
+c.colors.webpage.darkmode.algorithm = "lightness-cielab"
+c.colors.webpage.darkmode.threshold.background = 100
+c.colors.webpage.darkmode.policy.images = "smart"
+config.set("colors.webpage.darkmode.enabled", False, "file://*")
 
 # Fonts
 c.fonts.default_family = ["sans-serif"]
@@ -92,3 +100,4 @@ config.bind("pP", "open -- {primary}")
 config.bind("pp", "open -- {clipboard}")
 config.bind("pt", "open -t -- {clipboard}")
 config.bind("qm", "macro-record")
+config.bind(",j", "spawn --output-messages --userscript format_json.py")
