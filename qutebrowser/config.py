@@ -1,8 +1,8 @@
 import rosepine
 
+# Bootstrapping
 config = config  # type: ignore # noqa: F821
 c = c  # type: ignore # noqa: F821
-
 config.load_autoconfig()
 rosepine.setup(c, "rose-pine", False)
 
@@ -36,10 +36,10 @@ c.completion.open_categories = [
 # Appearance
 c.tabs.show = "multiple"
 c.colors.webpage.preferred_color_scheme = "dark"
-# c.colors.webpage.darkmode.enabled = True
-# c.colors.webpage.darkmode.algorithm = "lightness-cielab"
-# c.colors.webpage.darkmode.threshold.background = 100
-# c.colors.webpage.darkmode.policy.images = "smart"
+c.colors.webpage.darkmode.enabled = True
+c.colors.webpage.darkmode.algorithm = "lightness-cielab"
+c.colors.webpage.darkmode.threshold.background = 100
+c.colors.webpage.darkmode.policy.images = "smart"
 config.set("colors.webpage.darkmode.enabled", False, "file://*")
 
 # Fonts
@@ -51,18 +51,22 @@ c.fonts.web.family.serif = "Literata"
 c.fonts.web.family.standard = "Rubik"
 
 # Privacy
-c.content.webgl = False
+config.set("content.webgl", False, "*")
 c.content.headers.do_not_track = True
 c.content.autoplay = False
 c.content.webrtc_ip_handling_policy = "disable-non-proxied-udp"
 c.content.canvas_reading = False
 c.content.geolocation = False
-c.content.cookies.accept = "no-unknown-3rdparty"
+c.content.cookies.accept = "no-3rdparty"
 c.content.cookies.store = True
+c.content.desktop_capture = "ask"
+c.content.media.audio_capture = "ask"
+c.content.media.video_capture = "ask"
+c.content.headers.accept_language = "en-US,en;q=0.9"
 
 # Content Blocking
 c.content.blocking.enabled = True
-c.content.blocking.method = "both"
+c.content.blocking.method = "adblock"
 c.content.blocking.adblock.lists = [
     "https://easylist.to/easylist/easylist.txt",
     "https://easylist.to/easylist/easyprivacy.txt",
