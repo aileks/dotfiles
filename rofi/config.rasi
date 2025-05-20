@@ -1,7 +1,7 @@
-configuration{
+configuration {
     modi: "run,drun";
     lines: 8;
-    font: "BerkeleyMono Nerd Font 10";
+    font: "BerkeleyMono Nerd Font 12";
     show-icons: true;
     icon-theme: "rose-pine-icons";
     terminal: "foot";
@@ -30,7 +30,7 @@ configuration{
     red: #eb6f92;
     yel: #f6c177;
 
-    font: "BerkeleyMono Nerd Font 22";
+    font: "BerkeleyMono Nerd Font 16";
 
     foreground: @fgd;
     background: @bg;
@@ -50,8 +50,8 @@ element-text, element-icon, mode-switcher {
 }
 
 window {
-    height: 1000px;
-    width: 800px;
+    height: 800px;
+    width: 600px;
     border: 2px;
     border-radius: 4px;
     border-color: @bordercolor;

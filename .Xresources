@@ -36,7 +36,7 @@
 *.color15:      #908caa
 
 Xcursor.theme: BreezeX-RosePine-Linux
-Xcursor.size: 42
+Xcursor.size: 40
 Xft.dpi: 120
 Xfc.lcdfilter: lcddefault
 Xft.antialias: 1

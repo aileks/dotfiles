@@ -59,6 +59,7 @@ window#waybar {
 #pulseaudio,
 #custom-notification,
 #custom-media,
+#temperature,
 #tray {
     border-radius: 4px;
     padding: 0 8px;
@@ -98,4 +99,9 @@ window#waybar {
 #custom-media {
     background: @surface;
     color: @text;
+}
+
+#temperature {
+    background: @foam;
+    color: @base;
 }
