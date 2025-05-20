@@ -28,6 +28,9 @@ ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 rm -rf $HOME/.config/waybar
 ln -s $DOTDIR/waybar $HOME/.config/waybar
 
+rm -rf $HOME/.config/qutebrowser
+ln -s $DOTDIR/qutebrowser $HOME/.config/qutebrowser
+
 # Zed is a special case
 ln -sf $DOTDIR/zed/keymap.json $HOME/.config/zed/keymap.json
 ln -sf $DOTDIR/zed/settings.json $HOME/.config/zed/settings.json
