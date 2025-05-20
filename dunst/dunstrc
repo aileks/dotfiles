@@ -1,7 +1,7 @@
 [global]
     monitor = 0
     follow = mouse
-    width = 600
+    width = 400
     offset = (32, 32)
     origin = top-right
     progress_bar = true
@@ -16,7 +16,7 @@
     separator_height = 0
     separator_color = auto
     corner_radius = 4
-    font = "BerkeleyMono Nerd Font 24"
+    font = "BerkeleyMono Nerd Font 16"
     line_height = 4
     markup = full
     alignment = left

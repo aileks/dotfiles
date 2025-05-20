@@ -1,9 +1,10 @@
 theme = rose-pine
 font-family = "BerkeleyMono Nerd Font"
-font-size = 16
+font-size = 18
 shell-integration-features = no-cursor
 cursor-style = block
 cursor-style-blink = true
 background-opacity = 0.9
 background-blur = true
 window-decoration = false
+confirm-close-surface = false
