@@ -97,8 +97,8 @@ window#waybar {
 }
 
 #custom-media {
-    background: @surface;
-    color: @text;
+    background: @base;
+    color: @foam;
 }
 
 #temperature {
