@@ -1,33 +1,22 @@
 {
-  "agent": {
-    "model_parameters": [],
-    "default_model": {
-      "provider": "copilot_chat",
-      "model": "gemini-2.5-pro"
-    },
-    "version": "2"
-  },
-  "edit_predictions": {
-    "mode": "eager",
-    "enabled_in_text_threads": true
-  },
-  "icon_theme": "Material Icon Theme",
+  "icon_theme": "Catppuccin Mocha",
   "features": {
     "edit_prediction_provider": "zed"
   },
   "calls": {
     "mute_on_join": true
   },
-  "theme": "Rosé Pine",
+  "theme": "Catppuccin Mocha",
   "telemetry": {
     "metrics": false,
     "diagnostics": false
   },
   "autosave": "on_focus_change",
   "cursor_blink": false,
-  "ui_font_size": 18,
+  "ui_font_size": 16,
+  "ui_font_family": "Open Sans",
   "agent_font_size": 18,
-  "agent_font_family": "Rubik",
+  "agent_font_family": "Open Sans",
   "buffer_font_size": 18,
   "buffer_font_family": "BerkeleyMono Nerd Font",
   "buffer_line_height": "standard",
@@ -35,7 +24,7 @@
     "font_size": 18
   },
   "projects_online_by_default": true,
-  "preferred_line_length": 120,
+  "preferred_line_length": 100,
   "soft_wrap": "preferred_line_length",
   "restore_on_startup": "none",
   "toolbar": {
