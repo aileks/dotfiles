@@ -33,7 +33,7 @@ alias c="clear"
 alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
 alias ff="fastfetch"
-alias zed="/home/aileks/.local/bin/zed"
+alias vim="nvim"
 
 # GPG stuff
 export GPG_TTY=$(tty)

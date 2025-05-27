@@ -1,7 +1,18 @@
 {
+  "agent": {
+    "always_allow_tool_actions": true,
+    "default_profile": "write",
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "gemini-2.5-pro"
+    },
+    "model_parameters": [],
+    "single_file_review": true,
+    "version": "2"
+  },
   "icon_theme": "Catppuccin Mocha",
   "features": {
-    "edit_prediction_provider": "zed"
+    "edit_prediction_provider": "copilot"
   },
   "calls": {
     "mute_on_join": true
@@ -24,7 +35,7 @@
     "font_size": 18
   },
   "projects_online_by_default": true,
-  "preferred_line_length": 100,
+  "preferred_line_length": 120,
   "soft_wrap": "preferred_line_length",
   "restore_on_startup": "none",
   "toolbar": {
@@ -61,6 +72,9 @@
         }
       }
     },
+    "Ruby": {
+      "language_servers": ["solargraph", "rubocop", "tailwindcss-language-server", "!ruby-lsp"]
+    },
     "TypeScript": {
       "code_actions_on_format": {
         "source.fixAll.eslint": true
@@ -93,6 +107,56 @@
       ]
     }
   },
+  "lsp": {
+    "solargraph": {
+      "initialization_options": {
+        "diagnostics": true,
+        "formatting": true
+      }
+    },
+    "rubocop": {
+      "initialization_options": {
+        "safeAutocorrect": false
+      }
+    },
+    "tailwindcss-language-server": {
+      "settings": {
+        "includeLanguages": {
+          "erb": "html",
+          "ruby": "html"
+        },
+        "experimental": {
+          "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
+        }
+      }
+    },
+    "ruff": {
+      "initialization_options": {
+        "settings": {
+          "lineLength": 88,
+          "lint": {
+            "extendSelect": ["I", "F", "E", "W", "B", "UP", "C4", "S", "TCH"]
+          }
+        }
+      }
+    },
+    "pyright": {
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "workspace",
+          "typeCheckingMode": "strict"
+        }
+      }
+    }
+  },
+  "diagnostics": {
+    "include_warnings": false,
+    "inline": {
+      "enabled": true,
+      "min_column": 40,
+      "max_severity": "warning"
+    }
+  },
   "scrollbar": {
     "show": "never"
   },
@@ -107,33 +171,5 @@
   "vim_mode": true,
   "vim": {
     "use_smartcase_find": true
-  },
-  "lsp": {
-    "ruff": {
-      "initialization_options": {
-        "settings": {
-          "lineLength": 88,
-          "lint": {
-            "extendSelect": ["I"]
-          }
-        }
-      }
-    }
-  },
-  "pyright": {
-    "settings": {
-      "python.analysis": {
-        "diagnosticMode": "workspace",
-        "typeCheckingMode": "strict"
-      }
-    }
-  },
-  "diagnostics": {
-    "include_warnings": false,
-    "inline": {
-      "enabled": true,
-      "min_column": 40,
-      "max_severity": "warning"
-    }
   }
 }

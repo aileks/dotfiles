@@ -1,8 +1,9 @@
-theme = catppuccin-mocha
+theme = detuned
 font-family = "BerkeleyMono Nerd Font"
-font-size = 18
+font-size = 12
 shell-integration-features = no-cursor
 cursor-style = block
 cursor-style-blink = true
-background-opacity = 0.97
+background-opacity = 0.9
 confirm-close-surface = false
+window-decoration = none
