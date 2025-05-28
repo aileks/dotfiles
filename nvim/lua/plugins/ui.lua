@@ -1,48 +1,14 @@
 return {
   -- Catppuccin theme
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "nyoom-engineering/oxocarbon.nvim",
+    name = "oxocarbon",
     priority = 1000,
     config = function()
-      require("catppuccin").setup({
-        flavour = "mocha",
-        transparent_background = true,
-        integrations = {
-          cmp = true,
-          gitsigns = true,
-          nvimtree = true,
-          treesitter = true,
-          notify = false,
-          mini = {
-            enabled = true,
-            indentscope_color = "",
-          },
-          telescope = true,
-          indent_blankline = {
-            enabled = true,
-            colored_indent_levels = false,
-          },
-          noice = true,
-          lsp_trouble = true,
-          native_lsp = {
-            enabled = true,
-            virtual_text = {
-              errors = { "italic" },
-              hints = { "italic" },
-              warnings = { "italic" },
-              information = { "italic" },
-            },
-            underlines = {
-              errors = { "underline" },
-              hints = { "underline" },
-              warnings = { "underline" },
-              information = { "underline" },
-            },
-          },
-        },
-      })
-      vim.cmd.colorscheme("catppuccin")
+      vim.cmd.colorscheme("oxocarbon")
+      vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+      vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+      vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
     end,
   },
 
@@ -81,7 +47,7 @@ return {
     config = function()
       require("lualine").setup({
         options = {
-          theme = "catppuccin",
+          theme = "oxocarbon",
           component_separators = { left = "", right = "" },
           section_separators = { left = "", right = "" },
         },
