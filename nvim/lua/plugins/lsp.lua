@@ -47,6 +47,30 @@ return {
       },
     })
 
+    -- Ruby
+    lspconfig.solargraph.setup({
+      capabilities = capabilities,
+      on_attach = function(client, bufnr)
+        client.server_capabilities.documentFormattingProvider = false
+        client.server_capabilities.documentRangeFormattingProvider = false
+      end,
+      settings = {
+        solargraph = {
+          diagnostics = true,
+          completion = true,
+          hover = true,
+          formatting = false,
+        },
+      },
+    })
+    lspconfig.rubocop.setup({
+      capabilities = capabilities,
+      on_attach = function(client, bufnr)
+        client.server_capabilities.documentFormattingProvider = true
+        client.server_capabilities.documentRangeFormattingProvider = true
+      end,
+    })
+
     -- Python
     lspconfig.pyright.setup({
       capabilities = capabilities,
