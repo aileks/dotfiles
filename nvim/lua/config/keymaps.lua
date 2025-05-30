@@ -53,9 +53,6 @@ keymap.set('n', '<C-d>', '<C-d>zz')
 -- Disable Q
 keymap.set("n", "Q", "<nop>")
 
--- Open netrw
-keymap.set('n', '<leader>e', vim.cmd.Lex)
-
 -- Easier save & quit
 keymap.set('n', '<leader>w', vim.cmd.w)
 keymap.set('n', '<leader>W', vim.cmd.wall)

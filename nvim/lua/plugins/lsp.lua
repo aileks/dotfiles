@@ -148,9 +148,6 @@ return {
     -- Tailwind
     lspconfig.tailwindcss.setup({ capabilities = capabilities })
 
-    -- Julia
-    lspconfig.julials.setup({ capabilities = capabilities })
-
     -- none-ls
     local null_ls = require('null-ls')
     local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
@@ -204,8 +201,6 @@ return {
         'markdown',
       },
     })
-
-    require('mason-null-ls').setup({ automatic_installation = true })
 
     -- Keymaps
     vim.keymap.set('n', '<leader>d', '<cmd>lua vim.diagnostic.open_float()<CR>')
