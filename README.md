@@ -13,3 +13,5 @@
 - Waybar
 - Zed
 - Zsh
+
+License under the [GPLv3](LICENSE)
