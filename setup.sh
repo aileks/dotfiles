@@ -8,41 +8,15 @@ DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Symlinks
 ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
-ln -sf $DOTDIR/.Xresources $HOME/.Xresources
 
-rm -rf $HOME/.config/hypr
-ln -s $DOTDIR/hypr $HOME/.config/hypr
-
-rm -rf $HOME/.config/dunst
-ln -s $DOTDIR/dunst $HOME/.config/dunst
-
-rm -rf $HOME/.config/rofi
-ln -s $DOTDIR/rofi $HOME/.config/rofi
-
-rm -rf $HOME/.config/ghostty
-ln -s $DOTDIR/ghostty $HOME/.config/ghostty
+rm -rf $HOME/.config/wezterm
+ln -s $DOTDIR/wezterm $HOME/.config/wezterm
 
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 
-rm -rf $HOME/.config/waybar
-ln -s $DOTDIR/waybar $HOME/.config/waybar
-
 rm -rf $HOME/.config/nvim
 ln -s $DOTDIR/nvim $HOME/.config/nvim
-
-# Copy utils
-echo "Copying utils..."
-if [ -d "$HOME/.local/bin" ]; then
-    cp -r ./utils/* $HOME/.local/bin
-    echo "Files copied successfully to $HOME/.local/bin"
-else
-    echo "$HOME/.local/bin directory does not exist. Creating it..."
-    mkdir -p "$HOME/.local/bin"
-    cp -r ./utils/* "$HOME/.local/bin"
-    echo "Files copied successfully to newly created $HOME/.local/bin"
-fi
-echo ""
 
 # Install omz
 echo "Installing Oh My Zsh"
@@ -62,4 +36,5 @@ else
 fi
 echo ""
 
-echo "Dotfiles copied successfully!"
+echo "Pulling in Kōsei..."
+bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.0/setup.sh)
