@@ -18,6 +18,15 @@ ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 rm -rf $HOME/.config/nvim
 ln -s $DOTDIR/nvim $HOME/.config/nvim
 
+rm -rf $HOME/.config/btop
+ln -s $DOTDIR/btop $HOME/.config/btop
+
+rm -rf $HOME/.config/bat
+ln -s $DOTDIR/bat $HOME/.config/bat
+
+rm -rf $HOME/.config/cava
+ln -s $DOTDIR/cava $HOME/.config/cava
+
 # Install omz
 echo "Installing Oh My Zsh"
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -36,7 +45,7 @@ else
 fi
 echo ""
 
-echo "Would you like to run Kōsei? (y/n)"
+echo "Would you like to run Kōsei? (y/N)"
 read -r run_kousei
 
 if [[ "$run_kousei" =~ ^[Yy]$ ]] || [[ "$run_kousei" =~ ^[Yy][Ee][Ss]$ ]]; then
@@ -44,7 +53,7 @@ if [[ "$run_kousei" =~ ^[Yy]$ ]] || [[ "$run_kousei" =~ ^[Yy][Ee][Ss]$ ]]; then
     bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.0/setup.sh)
     echo "Kōsei setup finished."
 else
-    echo "Skipping Kōsei setup."
+    echo "Skipping Kōsei setup..."
 fi
 echo ""
 
