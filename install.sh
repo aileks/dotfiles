@@ -36,5 +36,16 @@ else
 fi
 echo ""
 
-echo "Pulling in Kōsei..."
-bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.0/setup.sh)
+echo "Would you like to run Kōsei? (y/n)"
+read -r run_kousei
+
+if [[ "$run_kousei" =~ ^[Yy]$ ]] || [[ "$run_kousei" =~ ^[Yy][Ee][Ss]$ ]]; then
+    echo "Pulling in and running Kōsei..."
+    bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.0/setup.sh)
+    echo "Kōsei setup finished."
+else
+    echo "Skipping Kōsei setup."
+fi
+echo ""
+
+echo "Dotfiles installation complete!"
