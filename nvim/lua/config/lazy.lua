@@ -1,13 +1,26 @@
 require("lazy").setup({
   spec = {
     { import = "plugins" },
+    -- { import = "plugins.debugging" },
+    -- { import = "plugins.rails" },
+    -- { import = "plugins.testing" },
   },
   defaults = {
     lazy = false,
-    version = false, -- always use the latest git commit
+    version = false,
   },
-  install = { colorscheme = { "catppuccin" } },
-  checker = { enabled = true }, -- automatically check for plugin updates
+  install = { 
+    colorscheme = { "oxocarbon" }
+  },
+  checker = { 
+    enabled = true,
+    notify = false,
+    frequency = 3600,
+  },
+  change_detection = {
+    enabled = true,
+    notify = false,
+  },
   performance = {
     rtp = {
       disabled_plugins = {
@@ -16,6 +29,34 @@ require("lazy").setup({
         "tohtml",
         "tutor",
         "zipPlugin",
+        "netrwPlugin",
+      },
+    },
+  },
+  ui = {
+    border = "rounded",
+    icons = {
+      cmd = " ",
+      config = "",
+      event = "",
+      ft = " ",
+      init = " ",
+      import = " ",
+      keys = " ",
+      lazy = "󰒲 ",
+      loaded = "●",
+      not_loaded = "○",
+      plugin = " ",
+      runtime = " ",
+      require = "󰢱 ",
+      source = " ",
+      start = "",
+      task = "✔ ",
+      list = {
+        "●",
+        "➜",
+        "★",
+        "‒",
       },
     },
   },
