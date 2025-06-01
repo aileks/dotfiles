@@ -1,9 +1,6 @@
 require("lazy").setup({
   spec = {
     { import = "plugins" },
-    -- { import = "plugins.debugging" },
-    -- { import = "plugins.rails" },
-    -- { import = "plugins.testing" },
   },
   defaults = {
     lazy = false,
