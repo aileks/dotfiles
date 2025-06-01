@@ -1,5 +1,4 @@
 return {
-  -- Neotest
   {
     "nvim-neotest/neotest",
     dependencies = {
@@ -44,7 +43,7 @@ return {
 
           -- Python testing
           require("neotest-python")({
-            dap = { 
+            dap = {
               justMyCode = false,
               console = "integratedTerminal",
             },
@@ -70,7 +69,7 @@ return {
             end,
           }),
         },
-        
+
         -- UI configuration
         icons = {
           child_indent = "│",
@@ -87,14 +86,14 @@ return {
           skipped = "ⓢ",
           unknown = "?"
         },
-        
+
         floating = {
           border = "rounded",
           max_height = 0.6,
           max_width = 0.6,
           options = {}
         },
-        
+
         highlights = {
           adapter_name = "NeotestAdapterName",
           border = "NeotestBorder",
@@ -114,43 +113,43 @@ return {
           test = "NeotestTest",
           unknown = "NeotestUnknown"
         },
-        
+
         output = {
           enabled = true,
           open_on_run = "short",
         },
-        
+
         output_panel = {
           enabled = true,
           open = "botright split | resize 15",
         },
-        
+
         quickfix = {
           enabled = true,
           open = false,
         },
-        
+
         run = {
           enabled = true,
         },
-        
+
         running = {
           concurrent = true,
         },
-        
+
         status = {
           enabled = true,
           signs = true,
           virtual_text = false,
         },
-        
+
         strategies = {
           integrated = {
             height = 40,
             width = 120,
           },
         },
-        
+
         summary = {
           animated = true,
           enabled = true,
@@ -194,7 +193,7 @@ return {
       end, { desc = "Test: Run File" })
 
       keymap.set("n", "<leader>td", function()
-        require("neotest").run.run({strategy = "dap"})
+        require("neotest").run.run({ strategy = "dap" })
       end, { desc = "Test: Debug Nearest" })
 
       keymap.set("n", "<leader>ts", function()
@@ -202,7 +201,7 @@ return {
       end, { desc = "Test: Stop" })
 
       keymap.set("n", "<leader>ta", function()
-        require("neotest").run.run({suite = true})
+        require("neotest").run.run({ suite = true })
       end, { desc = "Test: Run All" })
 
       -- Test output and summary

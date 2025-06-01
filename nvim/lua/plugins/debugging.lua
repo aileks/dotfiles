@@ -42,7 +42,7 @@ return {
           name = "Debug Rails server",
           request = "attach",
           localfs = true,
-          port = 38698,
+          port = 42069,
           server = "127.0.0.1",
           options = {
             source_filetype = "ruby",
@@ -208,7 +208,7 @@ return {
       vim.api.nvim_create_user_command("DebugRailsTest", function()
         local file = vim.fn.expand("%")
         print("Starting Rails test with debugger...")
-        print("Run: bundle exec rdbg -n --open --port 69420 -c -- bin/rails test " .. file)
+        print("Run: bundle exec rdbg -n --open --port 42069 -c -- bin/rails test " .. file)
         print("Then attach using <F5> and select 'Debug Rails test'")
       end, {})
     end,

@@ -1,5 +1,4 @@
 return {
-  -- Telescope
   {
     "nvim-telescope/telescope.nvim",
     branch = "0.1.x",
@@ -73,7 +72,7 @@ return {
           },
           live_grep = {
             additional_args = function()
-              return {"--hidden"}
+              return { "--hidden" }
             end
           },
           buffers = {
@@ -151,7 +150,6 @@ return {
     end,
   },
 
-  -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -205,12 +203,12 @@ return {
             end
           end,
         },
-        
-        indent = { 
+
+        indent = {
           enable = true,
-          disable = { "ruby", "python" }, -- Use LSP for these
+          disable = { "ruby", "python" },
         },
-        
+
         incremental_selection = {
           enable = true,
           keymaps = {
@@ -220,7 +218,7 @@ return {
             node_decremental = "<bs>",
           },
         },
-        
+
         textobjects = {
           select = {
             enable = true,
@@ -305,7 +303,7 @@ return {
     version = false,
     config = function()
       -- Better Around/Inside textobjects
-      require("mini.ai").setup({ 
+      require("mini.ai").setup({
         n_lines = 500,
         custom_textobjects = {
           o = require("mini.ai").gen_spec.treesitter({
@@ -346,7 +344,7 @@ return {
         },
       })
 
-      -- Fast and familiar per-line commenting
+      -- Per-line commenting
       require("mini.comment").setup({
         options = {
           custom_commentstring = function()
@@ -368,46 +366,6 @@ return {
           line_up = '<M-k>',
         },
       })
-
-      -- File explorer
-      require("mini.files").setup({
-        content = {
-          filter = function(entry)
-            return entry.name ~= '.DS_Store' and entry.name ~= '.git'
-          end,
-          prefix = function() end,
-        },
-        mappings = {
-          close = 'q',
-          go_in = 'l',
-          go_in_plus = 'L',
-          go_out = 'h',
-          go_out_plus = 'H',
-          reset = '<BS>',
-          reveal_cwd = '@',
-          show_help = 'g?',
-          synchronize = '=',
-          trim_left = '<',
-          trim_right = '>',
-        },
-        options = {
-          permanent_delete = true,
-          use_as_default_explorer = true,
-        },
-        windows = {
-          max_number = math.huge,
-          preview = false,
-          width_focus = 50,
-          width_nofocus = 15,
-          width_preview = 25,
-        },
-      })
-
-      vim.keymap.set("n", "<leader>e", function()
-        if not require("mini.files").close() then
-          require("mini.files").open()
-        end
-      end, { desc = "Toggle file explorer" })
     end,
   },
 
@@ -422,11 +380,11 @@ return {
       "TmuxNavigatePrevious",
     },
     keys = {
-      { "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
-      { "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
-      { "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
-      { "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
-      { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
+      { "<C-h>",  "<cmd><C-U>TmuxNavigateLeft<cr>" },
+      { "<C-j>",  "<cmd><C-U>TmuxNavigateDown<cr>" },
+      { "<C-k>",  "<cmd><C-U>TmuxNavigateUp<cr>" },
+      { "<C-l>",  "<cmd><C-U>TmuxNavigateRight<cr>" },
+      { "<C-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
     },
   },
 
@@ -486,31 +444,31 @@ return {
           if vim.wo.diff then return ']c' end
           vim.schedule(function() gs.next_hunk() end)
           return '<Ignore>'
-        end, {expr=true})
+        end, { expr = true })
 
         map('n', '[c', function()
           if vim.wo.diff then return '[c' end
           vim.schedule(function() gs.prev_hunk() end)
           return '<Ignore>'
-        end, {expr=true})
+        end, { expr = true })
 
         -- Actions
         map('n', '<leader>hs', gs.stage_hunk)
         map('n', '<leader>hr', gs.reset_hunk)
-        map('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
-        map('v', '<leader>hr', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+        map('v', '<leader>hs', function() gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') } end)
+        map('v', '<leader>hr', function() gs.reset_hunk { vim.fn.line('.'), vim.fn.line('v') } end)
         map('n', '<leader>hS', gs.stage_buffer)
         map('n', '<leader>hu', gs.undo_stage_hunk)
         map('n', '<leader>hR', gs.reset_buffer)
         map('n', '<leader>hp', gs.preview_hunk)
-        map('n', '<leader>hb', function() gs.blame_line{full=true} end)
+        map('n', '<leader>hb', function() gs.blame_line { full = true } end)
         map('n', '<leader>tb', gs.toggle_current_line_blame)
         map('n', '<leader>hd', gs.diffthis)
         map('n', '<leader>hD', function() gs.diffthis('~') end)
         map('n', '<leader>td', gs.toggle_deleted)
 
         -- Text object
-        map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
       end
     },
   },

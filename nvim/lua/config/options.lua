@@ -18,7 +18,7 @@ opt.title = true
 opt.termguicolors = true
 opt.ignorecase = true
 opt.smartcase = true
-opt.wrap = false
+opt.wrap = true
 opt.breakindent = true
 opt.linebreak = true
 opt.list = true
@@ -46,7 +46,7 @@ opt.redrawtime = 10000
 opt.exrc = true
 opt.secure = true
 opt.titlestring = '%f // nvim'
-opt.wrap = true
+opt.smoothscroll = true
 
 -- highlighted yank stuff
 cmd [[

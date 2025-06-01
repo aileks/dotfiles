@@ -11,8 +11,8 @@ return {
   config = function()
     require('mason').setup({
       ui = {
-        height = 0.8,
-        border = "rounded",
+        width = 0.8,
+        height = 0.9,
         icons = {
           package_installed = "✓",
           package_pending = "➜",
@@ -39,7 +39,6 @@ return {
 
     require('mason-null-ls').setup({
       ensure_installed = {
-        "prettier",
         "prettierd",
         "black",
         "isort",
@@ -73,7 +72,6 @@ return {
       vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
       vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
       vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-      vim.keymap.set('n', '<leader>lf', function() vim.lsp.buf.format { async = true } end, bufopts)
     end
 
     -- Lua
@@ -309,13 +307,6 @@ return {
           extra_args = { "--profile", "black" }
         }),
 
-        -- Ruby (fallback)
-        null_ls.builtins.formatting.rubocop.with({
-          condition = function(utils)
-            return utils.root_has_file({ '.rubocop.yml', '.rubocop.yaml' })
-          end,
-        }),
-
         -- ERB
         null_ls.builtins.diagnostics.erb_lint.with({
           condition = function(utils)
@@ -344,37 +335,6 @@ return {
       end,
     })
 
-    -- Prettier
-    require('prettier').setup({
-      bin = 'prettierd',
-      cli_options = {
-        arrow_parens = 'avoid',
-        jsx_single_quote = true,
-        print_width = 100,
-        single_attribute_per_line = false,
-        single_quote = true,
-        tab_width = 2,
-        trailing_comma = 'es5',
-        use_tabs = false,
-        vue_indent_script_and_style = true,
-      },
-      filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
-        'vue',
-        'html',
-        'css',
-        'scss',
-        'sass',
-        'json',
-        'yaml',
-        'markdown',
-        'graphql',
-      },
-    })
-
     -- Global LSP keymaps
     local opts = { noremap = true, silent = true }
     vim.keymap.set('n', '<leader>d', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
@@ -386,7 +346,7 @@ return {
     vim.keymap.set('n', 'gi', ':Telescope lsp_implementations<CR>', { silent = true })
     vim.keymap.set('n', 'gr', ':Telescope lsp_references<CR>', { silent = true })
     vim.keymap.set('n', '<leader>lr', ':LspRestart<CR>', { silent = true })
-    -- vim.keymap.set('n', '<leader>lf', ':Format<CR>', { silent = true })
+    vim.keymap.set('n', '<leader>lf', ':Format<CR>', { silent = true })
     vim.keymap.set('n', '<leader>lp', ':Prettier<CR>', { silent = true })
     vim.keymap.set('i', '<C-h>', function() vim.lsp.buf.signature_help() end, opts)
 

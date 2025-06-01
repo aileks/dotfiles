@@ -91,28 +91,6 @@ return {
     ft = { "ruby", "eruby", "lua", "sh", "zsh", "vim" },
   },
 
-  -- Test runner for Ruby/Rails
-  {
-    "vim-test/vim-test",
-    dependencies = {
-      "preservim/vimux",
-    },
-    ft = { "ruby", "eruby", "python", "javascript", "typescript" },
-    config = function()
-      vim.g["test#strategy"] = "vimux"
-      vim.g["test#ruby#rspec#executable"] = "bundle exec rspec"
-      vim.g["test#ruby#minitest#executable"] = "bundle exec ruby"
-      vim.g["test#python#pytest#executable"] = "python -m pytest"
-
-      local keymap = vim.keymap
-      keymap.set("n", "<leader>tn", ":TestNearest<CR>", { desc = "Test: Run Nearest" })
-      keymap.set("n", "<leader>tf", ":TestFile<CR>", { desc = "Test: Run File" })
-      keymap.set("n", "<leader>ts", ":TestSuite<CR>", { desc = "Test: Run Suite" })
-      keymap.set("n", "<leader>tl", ":TestLast<CR>", { desc = "Test: Run Last" })
-      keymap.set("n", "<leader>tv", ":TestVisit<CR>", { desc = "Test: Visit" })
-    end,
-  },
-
   -- Tmux integration
   {
     "preservim/vimux",
