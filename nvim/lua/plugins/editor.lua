@@ -122,7 +122,7 @@ return {
       keymap.set("n", "<leader>r", "<cmd>Telescope oldfiles<cr>", { desc = "Recent files" })
       keymap.set("n", "<leader>/", "<cmd>Telescope live_grep<cr>", { desc = "Live grep" })
       keymap.set("n", "<leader>G", "<cmd>Telescope live_grep_args<cr>", { desc = "Live grep with args" })
-      keymap.set("n", "<leader>b", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
+      keymap.set("n", "<leader>B", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
       keymap.set("n", "<leader>h", "<cmd>Telescope help_tags<cr>", { desc = "Help tags" })
 
       -- Git
