@@ -1,5 +1,5 @@
 return {
-  -- Catppuccin theme
+  -- Oxocarbon theme
   {
     "nyoom-engineering/oxocarbon.nvim",
     name = "oxocarbon",
@@ -63,18 +63,18 @@ return {
     end,
   },
 
-  -- Noice (UI for messages, cmdline and popupmenu)
+  -- Noice
   {
     "folke/noice.nvim",
     event = "VeryLazy",
     dependencies = {
       "MunifTanjim/nui.nvim",
-      {
-        "rcarriga/nvim-notify",
-        opts = {
-          background_colour = "#000000",
-        }
-      },
+      -- {
+      --   "rcarriga/nvim-notify",
+      --   opts = {
+      --     background_colour = "#000000",
+      --   }
+      -- },
     },
     opts = {
       lsp = {

@@ -24,7 +24,7 @@ return {
     require('mason-lspconfig').setup({
       ensure_installed = {
         "lua_ls",
-        "solargraph",
+        "ruby_lsp",
         "rubocop",
         "pyright",
         "ruff",
@@ -42,7 +42,6 @@ return {
         "prettierd",
         "black",
         "isort",
-        "rubocop",
         "erb_lint",
       },
       automatic_installation = true
@@ -97,37 +96,34 @@ return {
     })
 
     -- Ruby
-    lspconfig.solargraph.setup({
+    lspconfig.ruby_lsp.setup({
       capabilities = capabilities,
-      on_attach = function(client, bufnr)
-        on_attach(client, bufnr)
-        -- Disable formatting in favor of rubocop
-        client.server_capabilities.documentFormattingProvider = false
-        client.server_capabilities.documentRangeFormattingProvider = false
-      end,
-      settings = {
-        solargraph = {
-          diagnostics = true,
-          completion = true,
-          hover = true,
-          formatting = false,
-          symbols = true,
-          definitions = true,
-          references = true,
-          folding = true,
-          highlights = true,
-          autoformat = false,
-          useBundler = true,
-          bundlerPath = "bundle",
-          transport = "stdio",
-        },
-      },
-      init_options = {
-        formatting = false,
-      },
-      cmd = { "solargraph", "stdio" },
+      on_attach = on_attach,
       filetypes = { "ruby", "eruby" },
-      root_dir = lspconfig.util.root_pattern("Gemfile", ".git"),
+      root_dir = lspconfig.util.root_pattern("Gemfile", ".git", ".ruby-lsp"),
+      settings = {
+        rubyLsp = {
+          enableExperimentalFeatures = false,
+          features = {
+            diagnostics = true,
+            completion = true,
+            definition = true,
+            formatting = true,
+            hover = true,
+            highlight = true,
+            onTypeFormatting = true,
+            references = true,
+            rename = true,
+            selectionRanges = true,
+            semanticHighlighting = true,
+            signatureHelp = true,
+            workspaceSymbol = true,
+            foldingRanges = true,
+            codeActions = true,
+            inlayHint = true,
+          },
+        }
+      }
     })
     lspconfig.rubocop.setup({
       capabilities = capabilities,
@@ -362,7 +358,6 @@ return {
         source = "if_many",
         prefix = "●",
       },
-      signs = true,
       underline = true,
       update_in_insert = false,
       severity_sort = true,
@@ -372,30 +367,26 @@ return {
         header = "",
         prefix = "",
       },
+      signs = {
+        text = {
+          [vim.diagnostic.severity.ERROR] = "",
+          [vim.diagnostic.severity.WARN] = "",
+          [vim.diagnostic.severity.INFO] = "",
+          [vim.diagnostic.severity.HINT] = ""
+        },
+        linehl = {
+          [vim.diagnostic.severity.ERROR] = "ErrorMsg",
+          [vim.diagnostic.severity.WARN] = "WarningMsg",
+          [vim.diagnostic.severity.INFO] = "InfoMsg",
+          [vim.diagnostic.severity.HINT] = "HintMsg"
+        },
+        numhl = {
+          [vim.diagnostic.severity.ERROR] = "ErrorLine",
+          [vim.diagnostic.severity.WARN] = "WarningLine",
+          [vim.diagnostic.severity.INFO] = "InfoLine",
+          [vim.diagnostic.severity.HINT] = "HintLine"
+        }
+      },
     })
-
-    local signs = { Error = "", Warn = "", Hint = "", Info = "" }
-    for type, icon in pairs(signs) do
-      local hl = "DiagnosticSign" .. type
-      vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-    end
-
-    local border = {
-      { "🭽", "FloatBorder" },
-      { "▔", "FloatBorder" },
-      { "🭾", "FloatBorder" },
-      { "▕", "FloatBorder" },
-      { "🭿", "FloatBorder" },
-      { "▁", "FloatBorder" },
-      { "🭼", "FloatBorder" },
-      { "▏", "FloatBorder" },
-    }
-
-    local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
-    function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-      opts = opts or {}
-      opts.border = opts.border or border
-      return orig_util_open_floating_preview(contents, syntax, opts, ...)
-    end
   end,
 }
