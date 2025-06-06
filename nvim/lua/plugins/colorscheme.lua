@@ -1,5 +1,12 @@
 return {
-  { "nyoom-engineering/oxocarbon.nvim" },
+  {
+    "nyoom-engineering/oxocarbon.nvim",
+    opts = {
+      vim.api.nvim_set_hl(0, "Normal", { bg = "none" }),
+      vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" }),
+      vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" }),
+    },
+  },
   {
     "LazyVim/LazyVim",
     opts = {
