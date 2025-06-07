@@ -1,13 +1,9 @@
 return {
-  {
-    "nyoom-engineering/oxocarbon.nvim",
-    lazy = false,
-    priority = 1000,
-  },
+  { "ellisonleao/gruvbox.nvim" },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "oxocarbon",
+      colorscheme = "gruvbox",
     },
   },
 }
