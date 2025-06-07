@@ -30,31 +30,31 @@ ln -s $DOTDIR/cava $HOME/.config/cava
 # Install omz
 echo "Installing Oh My Zsh"
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 else
-    echo "Oh My Zsh already installed, skipping..."
+	echo "Oh My Zsh already installed, skipping..."
 fi
 echo ""
 
 # Install tpm
 echo "Installing tmux package manager"
 if [ ! -d "$HOME/.tmux" ]; then
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 else
-    echo "Tmux package manager already installed, skipping..."
+	echo "Tmux package manager already installed, skipping..."
 fi
 echo ""
 
-echo "Would you like to run Kōsei? (y/N)"
-read -r run_kousei
-
-if [[ "$run_kousei" =~ ^[Yy]$ ]] || [[ "$run_kousei" =~ ^[Yy][Ee][Ss]$ ]]; then
-    echo "Pulling in and running Kōsei..."
-    bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.0/setup.sh)
-    echo "Kōsei setup finished."
-else
-    echo "Skipping Kōsei setup..."
-fi
-echo ""
+# echo "Would you like to run Kōsei? (y/N)"
+# read -r run_kousei
+#
+# if [[ "$run_kousei" =~ ^[Yy]$ ]] || [[ "$run_kousei" =~ ^[Yy][Ee][Ss]$ ]]; then
+#     echo "Pulling in and running Kōsei..."
+#     bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.0/setup.sh)
+#     echo "Kōsei setup finished."
+# else
+#     echo "Skipping Kōsei setup..."
+# fi
+# echo ""
 
 echo "Dotfiles installation complete!"

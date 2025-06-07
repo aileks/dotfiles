@@ -3,7 +3,7 @@
 -- Add any additional options here
 vim.opt.wrap = true
 vim.opt.spell = true
-vim.g.lazyvim_ruby_lsp = "ruby_lsp"
+vim.g.lazyvim_ruby_lsp = "solargraph"
 vim.g.lazyvim_ruby_formatter = "rubocop"
 vim.g.lazyvim_python_lsp = "pyright"
 vim.g.lazyvim_python_ruff = "ruff"
