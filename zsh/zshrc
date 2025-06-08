@@ -34,7 +34,6 @@ alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
 alias ff="fastfetch"
 alias vim="nvim"
-alias bat="batcat"
 
 # GPG stuff
 export GPG_TTY=$(tty)
