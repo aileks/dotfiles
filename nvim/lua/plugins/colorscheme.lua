@@ -5,7 +5,6 @@ return {
     config = true,
     opts = {
       contrast = "hard",
-      transparent_mode = true,
     },
   },
   {
