@@ -9,8 +9,8 @@ DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 
-rm -rf $HOME/.config/wezterm
-ln -s $DOTDIR/wezterm $HOME/.config/wezterm
+rm -rf $HOME/.config/alacritty
+ln -s $DOTDIR/alacritty $HOME/.config/alacritty
 
 rm -rf $HOME/.config/fastfetch
 ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
@@ -44,17 +44,5 @@ else
 	echo "Tmux package manager already installed, skipping..."
 fi
 echo ""
-
-# echo "Would you like to run Kōsei? (y/N)"
-# read -r run_kousei
-#
-# if [[ "$run_kousei" =~ ^[Yy]$ ]] || [[ "$run_kousei" =~ ^[Yy][Ee][Ss]$ ]]; then
-#     echo "Pulling in and running Kōsei..."
-#     bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.0/setup.sh)
-#     echo "Kōsei setup finished."
-# else
-#     echo "Skipping Kōsei setup..."
-# fi
-# echo ""
 
 echo "Dotfiles installation complete!"
