@@ -19,7 +19,7 @@
   font-family: "BerkeleyMono Nerd Font";
   font-size: 14px;
   min-height: 0;
-  margin: 0 4px;
+  margin: 0 2px;
 }
 
 window#waybar {
@@ -60,7 +60,7 @@ window#waybar {
 .modules-right {
   background: @bg0;
   padding: 0 8px;
-  margin: 4px 4px;
+  margin: 4px 2px;
 }
 
 #clock,
