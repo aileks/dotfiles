@@ -13,7 +13,7 @@ riverctl spawn "dbus-update-activation-environment SEATD_SOCK DISPLAY WAYLAND_DI
 riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
 riverctl spwan "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 riverctl spawn "xrdb -merge $HOME/.Xresources"
-riverctl xcursor-theme "volantes_cursors"
+riverctl xcursor-theme "Simp1e-Gruvbox-Dark"
 
 riverctl input "pointer-1133-50503-Logitech_USB_Receiver" accel-profile flat
 riverctl set-repeat 50 250
@@ -102,4 +102,4 @@ swayidle -w \
 	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
 	timeout 1800 "wlr-randr --output DP-2 --off" \
 	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
-	resume "wlr-randr --output DP-2 --on" &
+	after-resume "wlr-randr --output DP-2 --on" &
