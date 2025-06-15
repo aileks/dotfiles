@@ -97,7 +97,7 @@ rescrobbled &
 /usr/lib/xdg-desktop-portal -r &
 
 while pgrep -x swaybg >/dev/null; do sleep 1; done
-swaybg -m fill -i ~/.config/river/backgrounds/background.jpg
+swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg
 
 swayidle -w \
 	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
