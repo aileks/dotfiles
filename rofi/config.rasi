@@ -3,7 +3,7 @@ configuration {
     lines: 8;
     font: "BerkeleyMono Nerd Font 10";
     show-icons: true;
-    icon-theme: "oomox-gruvbox-dark";
+    icon-theme: "gruvbox-dark-icons-gtk";
     terminal: "alacritty";
     drun-display-format: "{icon} {name}";
     location: 0;
@@ -17,18 +17,18 @@ configuration {
 @import "default"
 
 * {
-    bg: #191724;
-    cur: #1f1d2e;
-    fgd: #e0def4;
-    cmt: #6e6a86;
-    cya: #9ccfd8;
-    grn: #31748f;
-    ora: #ebbcba;
-    pur: #c4a7e7;
-    red: #eb6f92;
-    yel: #f6c177;
+    bg: #1d2021;
+    cur: #3c3836;
+    fgd: #fbf1c7;
+    cmt: #928374;
+    cya: #83a598;
+    grn: #b8bb26;
+    ora: #fe8019;
+    pur: #d3869b;
+    red: #fb4934;
+    yel: #fabd2f;
 
-    font: "BerkeleyMono Nerd Font 16";
+    font: "BerkeleyMono Nerd Font 14";
 
     foreground: @fgd;
     background: @bg;
@@ -48,10 +48,9 @@ element-text, element-icon, mode-switcher {
 }
 
 window {
-    height: 800px;
-    width: 600px;
+    height: 600px;
+    width: 800px;
     border: 2px;
-    border-radius: 4px;
     border-color: @bordercolor;
     background-color: @background;
     padding: 5px;

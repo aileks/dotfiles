@@ -40,7 +40,7 @@ riverctl spawn "$HOME/.config/autostart.sh"
 
 gnome_schema="org.gnome.desktop.interface"
 gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
-gsettings set "$gnome_schema" icon-theme "oomox-gruvbox-dark"
+gsettings set "$gnome_schema" icon-theme "gruvbox-dark-icons-gtk"
 gsettings set "$gnome_schema" cursor-theme "Colloid-dark-cursors"
 gsettings set "$gnome_schema" font-name "Adwaita Sans 11"
 
