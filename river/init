@@ -41,9 +41,10 @@ riverctl map normal Super+Shift X spawn wlogout
 riverctl map normal Super space spawn "rofi -show drun"
 riverctl map normal Super U spawn "rofi -show emoji"
 riverctl map normal Super Escape spawn "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.png"
-riverctl map normal None Print spawn 'grim -g $(slurp) - | wl-copy'
-riverctl map normal Super Print spawn 'grim -g $(slurp) ~/Pictures/Screenshots/Capture_$(date +%Y-%m-%d_%H-%M-%S).png'
-riverctl map normal Super+Shift R spawn '$HOME/.config/river/scripts/record.sh'
+riverctl map normal None Print spawn '$HOME/.config/river/scripts/screenshot.sh -s -c'
+riverctl map normal Super Print spawn '$HOME/.config/river/scripts/screenshot.sh -f -b'
+riverctl map normal Super+Shift Print spawn '$HOME/.config/river/scripts/screenshot.sh -s -b'
+riverctl map normal Super R spawn '$HOME/.config/river/scripts/record.sh'
 
 for i in $(seq 1 9); do
 	tags=$((1 << ($i - 1)))
