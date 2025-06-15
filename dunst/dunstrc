@@ -1,7 +1,7 @@
 [global]
 font = BerkeleyMono Nerd Font 14
 origin = top-right
-offset = (10, 10)
+offset = (5, 0)
 height = (80, 300)
 frame_width = 2
 separator_height = 2
