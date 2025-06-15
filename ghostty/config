@@ -1,0 +1,7 @@
+shell-integration-features = no-cursor
+theme = GruvboxDarkHard
+font-family = "BerkeleyMono Nerd Font"
+font-size = 16
+background-opacity = 0.95
+window-decoration = none
+cursor-style = block

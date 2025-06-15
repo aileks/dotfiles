@@ -8,10 +8,11 @@ riverctl declare-mode "passthrough"
 riverctl default-layout rivertile
 rivertile -view-padding 4 -outer-padding 4 -main-ratio 0.5 &
 
-gsettings set org.gnome.desktop.default-applications.terminal exec alacritty.desktop
+gsettings set org.gnome.desktop.default-applications.terminal exec ghostty.desktop
 riverctl spawn "dbus-update-activation-environment SEATD_SOCK DISPLAY WAYLAND_DISPLAY DESKTOP_SESSION=river XDG_CURRENT_DESKTOP=river"
 riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
 riverctl spwan "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+riverctl spawn "xrdb -merge $HOME/.Xresources"
 
 riverctl input "pointer-1133-50503-Logitech_USB_Receiver" accel-profile flat
 riverctl set-repeat 50 250
@@ -33,7 +34,7 @@ riverctl rule-add -app-id "xdg-desktop-portal-gtk" float
 
 riverctl map normal Super Q close
 riverctl map normal Super F toggle-fullscreen
-riverctl map normal Super Return spawn alacritty
+riverctl map normal Super Return spawn ghostty
 riverctl map normal Super W spawn brave
 riverctl map normal Super E spawn thunar
 riverctl map normal Super+Shift X spawn wlogout
