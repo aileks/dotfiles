@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+wlr-randr --output DP-2 --mode 2560x1440@165.080Hz
+
+riverctl map normal Super+Shift C spawn "$HOME/.config/river/init"
+
+riverctl declare-mode "passthrough"
+riverctl default-layout rivertile
+rivertile -view-padding 4 -outer-padding 4 -main-ratio 0.5 &
+
+gsettings set org.gnome.desktop.default-applications.terminal exec alacritty.desktop
+riverctl spawn "dbus-update-activation-environment SEATD_SOCK DISPLAY WAYLAND_DISPLAY DESKTOP_SESSION=river XDG_CURRENT_DESKTOP=river"
+riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
+riverctl spwan "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+
+riverctl input "pointer-1133-50503-Logitech_USB_Receiver" accel-profile flat
+riverctl set-repeat 50 250
+riverctl border-width 2
+riverctl set-layout-gaps outer 4
+riverctl set-layout-gaps inner 4
+riverctl border-color-focused 0xd4be98
+riverctl border-color-unfocused 0x92a58b
+riverctl background-color 0x282828
+
+riverctl rule-add -app-id "float" -title '.*Open Files.*'
+riverctl rule-add -app-id "float" -title '.*File Operation Progress.*'
+riverctl rule-add -app-id "float" -title '.*Library.*'
+riverctl rule-add -app-id "float" -title 'galculator'
+riverctl rule-add -app-id "pavucontrol-qt" float
+riverctl rule-add -app-id "nm-connection-editor" float
+riverctl rule-add -app-id "blueman-manager" float
+riverctl rule-add -app-id "org.pulseaudio.pavucontrol" float
+riverctl rule-add -app-id "flameshot" float
+
+riverctl map normal Super Q close
+riverctl map normal Super F toggle-fullscreen
+riverctl map normal Super Return spawn alacritty
+riverctl map normal Super W spawn brave
+riverctl map normal Super E spawn thunar
+riverctl map normal Super+Shift X spawn wlogout
+riverctl map normal Super space spawn "rofi -show drun"
+riverctl map normal Super U spawn "rofi -show emoji"
+riverctl map normal Super Escape spawn "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.png"
+riverctl map normal None Print spawn '$HOME/.config/river/scripts/screenshot.sh -s -c'
+riverctl map normal Super Print spawn '$HOME/.config/river/scripts/screenshot.sh -f -b'
+riverctl map normal Super+Shift Print spawn '$HOME/.config/river/scripts/screenshot.sh -s -b'
+riverctl map normal Super R spawn '$HOME/.config/river/scripts/record.sh'
+
+for i in $(seq 1 9); do
+	tags=$((1 << ($i - 1)))
+	riverctl map normal Super $i set-focused-tags $tags
+	riverctl map normal Super+Shift $i set-view-tags $tags
+	riverctl map normal Super+Control $i toggle-focused-tags $tags
+	riverctl map normal Super+Shift+Control $i toggle-view-tags $tags
+done
+
+riverctl map-pointer normal Super BTN_LEFT move-view
+riverctl map-pointer normal Super BTN_RIGHT resize-view
+riverctl map normal Super J focus-view next
+riverctl map normal Super K focus-view previous
+riverctl map normal Super+Control H send-layout-cmd rivertile "main-ratio -0.05"
+riverctl map normal Super+Control L send-layout-cmd rivertile "main-ratio +0.05"
+riverctl map normal Super+Shift J swap next
+riverctl map normal Super+Shift K swap previous
+riverctl map normal Super+Shift Space toggle-float
+
+for mode in normal locked; do
+	riverctl map $mode None XF86AudioRaiseVolume spawn "pamixer -i 5"
+	riverctl map $mode None XF86AudioLowerVolume spawn "pamixer -d 5"
+	riverctl map $mode None XF86AudioMute spawn "pamixer --toggle-mute"
+	riverctl map $mode None XF86AudioMedia spawn "playerctl play-pause"
+	riverctl map $mode None XF86AudioPlay spawn "playerctl play-pause"
+	riverctl map $mode None XF86AudioPrev spawn "playerctl previous"
+	riverctl map $mode None XF86AudioNext spawn "playerctl next"
+done
+
+gnome_schema="org.gnome.desktop.interface"
+gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
+gsettings set "$gnome_schema" icon-theme "gruvbox-dark-icons-gtk"
+gsettings set "$gnome_schema" cursor-theme "Colloid-dark-cursors"
+gsettings set "$gnome_schema" font-name "Adwaita Sans 11"
+
+riverctl xcursor-theme "Colloid-dark-cursors"
+
+killall -q waybar
+killall -q dunst
+killall -q nm-applet
+killall -q rescrobbled
+killall -q swaybg
+killall -q swayidle
+
+waybar &
+dunst &
+nm-applet &
+rescrobbled &
+/usr/lib/xdg-desktop-portal-wlr -r &
+/usr/lib/xdg-desktop-portal -r &
+
+while pgrep -x swaybg >/dev/null; do sleep 1; done
+swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg
+
+swayidle -w \
+	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
+	timeout 1800 "wlr-randr --output DP-2 --off" \
+	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
+	resume "wlr-randr --output DP-2 --on" &

@@ -1,0 +1,14 @@
+[general]
+import = ["~/.config/alacritty/themes/gruvbox_dark.toml"]
+
+[font]
+size = 16
+
+[font.normal]
+family = "BerkeleyMono Nerd Font"
+
+[window]
+opacity = 0.9
+
+[env]
+WINIT_UNIX_BACKEND = "wayland"

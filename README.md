@@ -1,17 +1,18 @@
 # Addicted to Configuration
 
-**Note**: _I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration._
+My Arch (btw) setup.
 
-### Includes configuration for:
+> **Note**: _I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration._
 
-- Hyprland
+Includes configuration for:
+- River
 - Dunst
 - Fastfetch
-- Ghostty
+- Alacritty
 - Rofi
 - Tmux
 - Waybar
-- Zed
+- Neovim
 - Zsh
 
-License under the [GPLv3](LICENSE)
+License under the [GPLv3 license](LICENSE)
