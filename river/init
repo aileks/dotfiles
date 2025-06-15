@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+wlr-randr --output DP-2 --mode 2560x1440@165.080Hz
+
+riverctl map normal Super+Shift C spawn "$HOME/.config/river/init"
+
+gsettings set org.gnome.desktop.default-applications.terminal exec alacritty.desktop
+riverctl spawn "dbus-update-activation-environment SEATD_SOCK DISPLAY WAYLAND_DISPLAY DESKTOP_SESSION=river XDG_CURRENT_DESKTOP=river"
+riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
+riverctl spwan "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+
+riverctl input "pointer-1133-50503-Logitech_USB_Receiver" accel-profile flat
+riverctl set-repeat 50 250
+riverctl border-width 2
+riverctl set-layout-gaps outer 4
+riverctl set-layout-gaps inner 4
+riverctl border-color-focused 0xd4be98
+riverctl border-color-unfocused 0x92a58b
+riverctl background-color 0x282828
+
+riverctl rule-add -app-id "float" -title '.*Open Files.*'
+riverctl rule-add -app-id "float" -title '.*File Operation Progress.*'
+riverctl rule-add -app-id "float" -title '.*Library.*'
+riverctl rule-add -app-id "float" -title 'galculator'
+riverctl rule-add -app-id "pavucontrol-qt" float
+riverctl rule-add -app-id "nm-connection-editor" float
+riverctl rule-add -app-id "blueman-manager" float
+riverctl rule-add -app-id "org.pulseaudio.pavucontrol" float
+
+riverctl declare-mode "passthrough"
+riverctl spawn "exec /usr/libexec/xdg-desktop-portal-wlr -r"
+riverctl spawn "exec /usr/libexec/xdg-desktop-portal -r"
+
+riverctl default-layout rivertile
+rivertile -view-padding 6 -outer-padding 6 -main-ratio 0.5 &
+
+riverctl spawn "$HOME/.config/lock.sh"
+riverctl spawn "$HOME/.config/keybinds.sh"
+riverctl spawn "$HOME/.config/autostart.sh"
+
+gnome_schema="org.gnome.desktop.interface"
+gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
+gsettings set "$gnome_schema" icon-theme "oomox-gruvbox-dark"
+gsettings set "$gnome_schema" cursor-theme "Colloid-dark-cursors"
+gsettings set "$gnome_schema" font-name "Adwaita Sans 11"
+
+riverctl xcursor-theme "Colloid-dark-cursors"

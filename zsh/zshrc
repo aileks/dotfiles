@@ -13,7 +13,7 @@ export MANPAGE="less -R --use-color -Dd+r -Du+b"
 ZSH_THEME="refined"
 
 # Plugins
-plugins=(cp fast-syntax-highlighting fzf git poetry ruby ubuntu zsh-autosuggestions)
+plugins=(archlinux cp fast-syntax-highlighting fzf git poetry ruby zsh-autosuggestions)
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh

@@ -1,0 +1,115 @@
+@define-color bgh #1d2021;
+@define-color bg0 #282828;
+@define-color bg1 #3c3836;
+@define-color bg2 #504945;
+@define-color bg3 #665c54;
+@define-color bg4 #7c6f64;
+@define-color gray #928374;
+@define-color fg0 #fbf1c7;
+@define-color fg1 #ebdbb2;
+@define-color red #fb4934;
+@define-color orange #d65d0e;
+@define-color yellow #fabd2f;
+@define-color green #b8bb26;
+@define-color blue #458588;
+@define-color aqua #83a598;
+@define-color purple #d3869b;
+
+* {
+  font-family: "BerkeleyMono Nerd Font";
+  font-size: 13px;
+  min-height: 0;
+  margin: 0 4px;
+}
+
+window#waybar {
+  background-color: transparent;
+  border: none;
+}
+
+#tags {
+  background: @bg0;
+  color: @fg0;
+  padding: 0 8px;
+  margin: 4px 0;
+}
+
+#tags button {
+  padding: 1px 1px;
+  margin: 3px 2px;
+  border-radius: 0;
+  color: @fg0;
+}
+
+#tags button.occupied {
+  background: @fg1;
+  color: @bg1;
+}
+
+#tags button.focused {
+  background: @green;
+  color: @bg1;
+}
+
+#window {
+  background: @bg0;
+  padding: 0 8px;
+  margin: 4px 0;
+}
+
+.modules-right {
+  background: @bg0;
+  padding: 0 8px;
+  margin: 4px 4px;
+}
+
+#clock,
+#cpu,
+#memory,
+#pulseaudio,
+#custom-notification,
+#custom-media,
+#temperature,
+#tray {
+  padding: 0 8px;
+  margin: 4px 0;
+}
+
+#clock {
+  background: @gray;
+  color: @bgh;
+}
+
+#cpu {
+  background: @purple;
+  color: @bg1;
+}
+
+#memory {
+  background: @orange;
+  color: @fg0;
+}
+
+#pulseaudio {
+  background: @blue;
+  color: @fg0;
+}
+
+#pulseaudio.muted {
+  background: @red;
+}
+
+#tray {
+  background: @bg1;
+  border: none;
+}
+
+#custom-media {
+  background: @bg0;
+  color: @green;
+}
+
+#temperature {
+  background: @aqua;
+  color: @bg1;
+}

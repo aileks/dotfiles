@@ -9,6 +9,18 @@ DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 
+rm -rf $HOME/.config/river
+ln -s $DOTDIR/river $HOME/.config/river
+
+rm -rf $HOME/.config/waybar
+ln -s $DOTDIR/waybar $HOME/.config/waybar
+
+rm -rf $HOME/.config/rofi
+ln -s $DOTDIR/rofi $HOME/.config/rofi
+
+rm -rf $HOME/.config/dunst
+ln -s $DOTDIR/dunst $HOME/.config/dunst
+
 rm -rf $HOME/.config/alacritty
 ln -s $DOTDIR/alacritty $HOME/.config/alacritty
 
