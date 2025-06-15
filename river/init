@@ -13,6 +13,7 @@ riverctl spawn "dbus-update-activation-environment SEATD_SOCK DISPLAY WAYLAND_DI
 riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
 riverctl spwan "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 riverctl spawn "xrdb -merge $HOME/.Xresources"
+riverctl xcursor-theme "volantes_cursors"
 
 riverctl input "pointer-1133-50503-Logitech_USB_Receiver" accel-profile flat
 riverctl set-repeat 50 250
@@ -79,8 +80,6 @@ gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
 gsettings set "$gnome_schema" icon-theme "gruvbox-dark-icons-gtk"
 gsettings set "$gnome_schema" cursor-theme "Colloid-dark-cursors"
 gsettings set "$gnome_schema" font-name "Adwaita Sans 11"
-
-riverctl xcursor-theme "Colloid-dark-cursors"
 
 killall -q waybar
 killall -q dunst
