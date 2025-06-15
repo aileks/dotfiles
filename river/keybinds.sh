@@ -8,7 +8,7 @@ riverctl map normal Super space spawn 'rofi -show drun'
 riverctl map normal Super E spawn thunar
 riverctl map normal Super+Shift X spawn wlogout
 riverctl map normal Super U spawn 'rofi -show emoji'
-riverctl map normal Super Escape spawn swaylock
+riverctl map normal Super Escape spawn 'swaylock -f -i ~/Pictures/Wallpapers/diamond.png'
 riverctl map normal Super F toggle-fullscreen
 
 # screenshots and recording
@@ -18,7 +18,7 @@ riverctl map normal Super+Shift R spawn 'bash -c '\''wf-recorder -g "$(slurp)" -
 riverctl map normal Super+Shift Escape spawn 'bash -c "kill -SIGINT $(cat /tmp/wf-recorder.pid 2>/dev/null) || pkill wf-recorder; rm -f /tmp/wf-recorder.pid"'
 
 # tag management
-for i in $(seq 1 9); do
+for i in $(seq 1 7); do
 	tags=$((1 << ($i - 1)))
 	riverctl map normal Super $i set-focused-tags $tags
 	riverctl map normal Super+Shift $i set-view-tags $tags
