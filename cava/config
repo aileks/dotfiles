@@ -3,7 +3,6 @@ background = '#32302f'
 gradient = 1
 gradient_count = 8
 
-#GruvBox Green to Red Gradient
 gradient_color_1 = '#98971a'
 gradient_color_2 = '#98971a'
 gradient_color_3 = '#fabd2f'
