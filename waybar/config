@@ -18,7 +18,7 @@
 
     "clock": {
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><big>{calendar}</big></tt>",
-        "format": "󰅐 {:%a, %d %b %H:%M}",
+        "format": "󰅐 {:%a, %b %d %H:%M}",
         "on-click": "gnome-calendar"
     },
 
