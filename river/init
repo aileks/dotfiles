@@ -41,7 +41,7 @@ riverctl map normal Super E spawn thunar
 riverctl map normal Super+Shift X spawn wlogout
 riverctl map normal Super space spawn "rofi -show drun"
 riverctl map normal Super U spawn "rofi -show emoji"
-riverctl map normal Super Escape spawn "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.png"
+riverctl map normal Super Escape spawn "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg"
 riverctl map normal None Print spawn '$HOME/.config/river/scripts/screenshot.sh -s -c'
 riverctl map normal Super Print spawn '$HOME/.config/river/scripts/screenshot.sh -f -b'
 riverctl map normal Super+Shift Print spawn '$HOME/.config/river/scripts/screenshot.sh -s -b'
