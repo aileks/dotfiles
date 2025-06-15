@@ -9,7 +9,7 @@
 This repository contains configurations for the following applications:
 
 - **Window Manager**: River
-- **Terminal**: Alacritty
+- **Terminal**: Ghostty
 - **Shell**: Zsh
 - **Multiplexer**: Tmux
 - **Editor**: Neovim
