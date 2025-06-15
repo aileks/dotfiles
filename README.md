@@ -1,18 +1,29 @@
 # Addicted to Configuration
 
-My Arch (btw) setup.
+> Note: These configurations use [Berkeley Mono](https://usgraphics.com/products/berkeley-mono), which is a paid font. You may need to purchase it or replace it with a font of your choice in the configuration files.
 
-> **Note**: _I use a [paid font](https://berkeleygraphics.com/typefaces/berkeley-mono/) for some of my configuration._
+## Configured Applications
 
-Includes configuration for:
-- River
-- Dunst
-- Fastfetch
-- Alacritty
-- Rofi
-- Tmux
-- Waybar
-- Neovim
-- Zsh
+This repository contains configurations for the following applications:
 
-License under the [GPLv3 license](LICENSE)
+- **Window Manager**: River
+- **Terminal**: Alacritty
+- **Shell**: Zsh
+- **Multiplexer**: Tmux
+- **Editor**: Neovim
+- **Status Bar**: Waybar
+- **Application Launcher**: Rofi
+- **Notification Daemon**: Dunst
+- **System Information**: Fastfetch
+- **Other**:
+  - btop
+  - bat
+  - cava
+
+## Installation
+
+```sh
+git clone https://github.com/aileks/dotfiles.git
+cd dotfiles
+./install.sh
+```
