@@ -12,7 +12,7 @@
     "modules-right": ["pulseaudio", "cpu", "memory", "temperature", "clock", "tray"],
 
     "tray": {
-        "icon-size": 28,
+        "icon-size": 18,
         "spacing": 10
     },
 
