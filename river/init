@@ -8,7 +8,7 @@ riverctl declare-mode "passthrough"
 riverctl default-layout rivertile
 rivertile -view-padding 4 -outer-padding 4 -main-ratio 0.5 &
 
-gsettings set org.gnome.desktop.default-applications.terminal exec ghostty.desktop
+gsettings set org.gnome.desktop.default-applications.terminal exec kitty.desktop
 riverctl spawn "dbus-update-activation-environment SEATD_SOCK DISPLAY WAYLAND_DISPLAY DESKTOP_SESSION=river XDG_CURRENT_DESKTOP=river"
 riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
 riverctl spwan "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
@@ -17,13 +17,12 @@ riverctl xcursor-theme "Simp1e-Gruvbox-Dark"
 
 riverctl input "pointer-1133-50503-Logitech_USB_Receiver" accel-profile flat
 riverctl set-repeat 50 250
-riverctl border-width 2
 riverctl focus-follows-cursor normal
 riverctl set-layout-gaps outer 4
 riverctl set-layout-gaps inner 4
-riverctl border-color-focused 0xd4be98
-riverctl border-color-unfocused 0x92a58b
-riverctl background-color 0x282828
+riverctl border-width 2
+riverctl border-color-focused 0x83a598
+riverctl border-color-unfocused 0x928374
 
 riverctl rule-add -app-id "qalculate-gtk" float
 riverctl rule-add -app-id "pavucontrol-qt" float
@@ -35,7 +34,7 @@ riverctl rule-add -app-id "xdg-desktop-portal-gtk" float
 
 riverctl map normal Super Q close
 riverctl map normal Super F toggle-fullscreen
-riverctl map normal Super Return spawn ghostty
+riverctl map normal Super Return spawn kitty
 riverctl map normal Super W spawn brave
 riverctl map normal Super E spawn thunar
 riverctl map normal Super+Shift X spawn wlogout
@@ -76,9 +75,9 @@ for mode in normal locked; do
 done
 
 gnome_schema="org.gnome.desktop.interface"
-gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
-gsettings set "$gnome_schema" icon-theme "gruvbox-dark-icons-gtk"
-gsettings set "$gnome_schema" cursor-theme "Colloid-dark-cursors"
+gsettings set "$gnome_schema" gtk-theme "Colloid-Dark-Compact-Gruvbox"
+gsettings set "$gnome_schema" icon-theme "Gruvbox-Plus-Dark"
+gsettings set "$gnome_schema" cursor-theme "S1mple-Gruvbox-Dark"
 gsettings set "$gnome_schema" font-name "Adwaita Sans 11"
 
 killall -q waybar
