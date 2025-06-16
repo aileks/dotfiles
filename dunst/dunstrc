@@ -2,7 +2,7 @@
 font = BerkeleyMono Nerd Font 14
 origin = top-right
 offset = (5, 0)
-height = (80, 300)
+height = (80, 400)
 frame_width = 2
 separator_height = 2
 padding = 10
