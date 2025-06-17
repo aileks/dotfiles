@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-wlr-randr --output DP-2 --mode 2560x1440@165.080Hz
+wlr-randr --output DP-2 --mode 2560x1440@165.080Hz &
 
 riverctl map normal Super+Shift C spawn "$HOME/.config/river/init"
 
