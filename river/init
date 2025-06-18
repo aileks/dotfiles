@@ -24,6 +24,9 @@ riverctl border-width 2
 riverctl border-color-focused 0x83a598
 riverctl border-color-unfocused 0x928374
 
+riverctl rule-add -app-id "thunar" -title "Rename*" float
+riverctl rule-add -app-id "thunar" -title "File Operation Progress" float
+riverctl rule-add -app-id "thunar" ssd
 riverctl rule-add -app-id "qalculate-gtk" float
 riverctl rule-add -app-id "pavucontrol-qt" float
 riverctl rule-add -app-id "nm-connection-editor" float
