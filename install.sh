@@ -9,35 +9,16 @@ DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ln -sf $DOTDIR/tmux/tmux.conf $HOME/.tmux.conf
 ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 
-rm -rf $HOME/.config/river
-ln -s $DOTDIR/river $HOME/.config/river
-
-rm -rf $HOME/.config/waybar
-ln -s $DOTDIR/waybar $HOME/.config/waybar
-
-rm -rf $HOME/.config/rofi
-ln -s $DOTDIR/rofi $HOME/.config/rofi
-
-rm -rf $HOME/.config/dunst
-ln -s $DOTDIR/dunst $HOME/.config/dunst
-
-rm -rf $HOME/.config/kitty
-ln -s $DOTDIR/kitty $HOME/.config/kitty
-
-rm -rf $HOME/.config/fastfetch
-ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
-
-rm -rf $HOME/.config/nvim
-ln -s $DOTDIR/nvim $HOME/.config/nvim
-
-rm -rf $HOME/.config/btop
-ln -s $DOTDIR/btop $HOME/.config/btop
-
-rm -rf $HOME/.config/bat
-ln -s $DOTDIR/bat $HOME/.config/bat
-
-rm -rf $HOME/.config/cava
-ln -s $DOTDIR/cava $HOME/.config/cava
+ln -sf $DOTDIR/river $HOME/.config/river
+ln -sf $DOTDIR/waybar $HOME/.config/waybar
+ln -sf $DOTDIR/rofi $HOME/.config/rofi
+ln -sf $DOTDIR/dunst $HOME/.config/dunst
+ln -sf $DOTDIR/ghostty $HOME/.config/ghostty
+ln -sf $DOTDIR/fastfetch $HOME/.config/fastfetch
+ln -sf $DOTDIR/nvim $HOME/.config/nvim
+ln -sf $DOTDIR/btop $HOME/.config/btop
+ln -sf $DOTDIR/bat $HOME/.config/bat
+ln -sf $DOTDIR/cava $HOME/.config/cava
 
 # Install omz
 echo "Installing Oh My Zsh"
