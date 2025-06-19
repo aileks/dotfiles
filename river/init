@@ -27,6 +27,8 @@ riverctl border-color-unfocused 0x928374
 riverctl rule-add -app-id "thunar" -title "Rename*" float
 riverctl rule-add -app-id "thunar" -title "File Operation Progress" float
 riverctl rule-add -app-id "thunar" ssd
+riverctl rule-add -app-id "solaar" ssd
+riverctl rule-add -app-id "org.gnome.Calendar" ssd
 riverctl rule-add -app-id "qalculate-gtk" float
 riverctl rule-add -app-id "pavucontrol-qt" float
 riverctl rule-add -app-id "nm-connection-editor" float

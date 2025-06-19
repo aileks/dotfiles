@@ -1,7 +1,6 @@
 configuration {
     modi: "run,drun";
     lines: 8;
-    font: "BerkeleyMono Nerd Font 10";
     show-icons: true;
     icon-theme: "gruvbox-dark-icons-gtk";
     terminal: "alacritty";
