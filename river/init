@@ -53,6 +53,9 @@ riverctl set-layout-gaps inner 4
 riverctl border-width 2
 riverctl border-color-focused 0x83a598
 riverctl border-color-unfocused 0x928374
+riverctl declare-mode "passthrough"
+riverctl default-layout rivertile
+rivertile -view-padding 4 -outer-padding 4 -main-ratio 0.5 &
 
 riverctl rule-add -app-id "thunar" -title "Rename*" float
 riverctl rule-add -app-id "thunar" -title "File Operation Progress" float
@@ -110,7 +113,3 @@ for mode in normal locked; do
 	riverctl map $mode None XF86AudioPrev spawn "playerctl previous"
 	riverctl map $mode None XF86AudioNext spawn "playerctl next"
 done
-
-riverctl declare-mode "passthrough"
-riverctl default-layout rivertile
-rivertile -view-padding 4 -outer-padding 4 -main-ratio 0.5 &
