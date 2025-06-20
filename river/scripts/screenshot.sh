@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 SAVE_DIR="${HOME}/Pictures/Screenshots"
-FILENAME="Capture_$(date +'%Y-%m-%d_%Hh%Mm%Ss.png')"
+FILENAME="Capture_$(date +'%Y-%m-%d at %H:%M:%S')"
 FILE_PATH="${SAVE_DIR}/${FILENAME}"
 
-mkdir -p "$SAVE_DIR"
+if [ ! -d "$SAVE_DIR" ]; then
+	mkdir -p "$SAVE_DIR"
+fi
 
 usage() {
 	echo "Usage: $(basename "$0") [options]"
@@ -70,17 +72,21 @@ if [ "$MODE" != "full" ] && [ -z "$GEOMETRY" ]; then
 	exit 1
 fi
 
+if [[ -n "$GEOMETRY" ]]; then
+	GRIM_ARGS+=(-g "$GEOMETRY")
+fi
+
 case "$TARGET" in
 file)
-	grim -g "$GEOMETRY" "$FILE_PATH"
+	grim "${GRIM_ARGS[@]}" "$FILE_PATH"
 	notify-send "Screenshot Saved" "Saved to <b>${FILE_PATH}</b>"
 	;;
 copy)
-	grim -g "$GEOMETRY" - | wl-copy
+	grim "${GRIM_ARGS[@]}" - | wl-copy
 	notify-send "Screenshot Copied" "Copied to clipboard."
 	;;
 both)
-	grim -g "$GEOMETRY" - | tee "$FILE_PATH" | wl-copy
+	grim "${GRIM_ARGS[@]}" - | tee "$FILE_PATH" | wl-copy
 	notify-send "Screenshot Saved & Copied" "Saved to <b>${FILE_PATH}</b> and copied."
 	;;
 esac

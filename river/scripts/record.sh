@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
 VIDEOS_DIR="$HOME/Videos/Recordings"
-mkdir -p "$VIDEOS_DIR"
+
+if [ ! -d "$VIDEOS_DIR" ]; then
+	mkdir -p "$VIDEOS_DIR"
+fi
 
 PID_FILE="/tmp/wf-recorder.pid"
 
