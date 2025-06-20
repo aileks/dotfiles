@@ -1,20 +1,50 @@
 #!/usr/bin/env bash
 
+eval "$(gnome-keyring-daemon --start --components=secrets,ssh,pkcs11)"
+export GNOME_KEYRING_CONTROL
+export SSH_AUTH_SOCK
+export DESKTOP_SESSION=river
+export XDG_CURRENT_DESKTOP=river
+
+dbus-update-activation-environment --systemd --all
+systemctl --user import-environment
+
+killall -q xdg-desktop-portal-wlr
+killall -q xdg-desktop-portal
+killall -q waybar
+killall -q dunst
+killall -q nm-applet
+killall -q blueman-applet
+killall -q swaybg
+killall -q swayidle
+
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+/usr/lib/xdg-desktop-portal-wlr -r &
+/usr/lib/xdg-desktop-portal -r &
+
+waybar &
+dunst &
+nm-applet &
+blueman-applet &
+
+swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg &
+swayidle -w \
+	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
+	timeout 1800 "wlr-randr --output DP-2 --off" \
+	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
+	after-resume "wlr-randr --output DP-2 --on" &
+
 wlr-randr --output DP-2 --mode 2560x1440@165.080Hz &
-
-riverctl map normal Super+Shift C spawn "$HOME/.config/river/init"
-
-riverctl declare-mode "passthrough"
-riverctl default-layout rivertile
-rivertile -view-padding 4 -outer-padding 4 -main-ratio 0.5 &
-
+xrdb -merge "$HOME/.Xresources" &
 gsettings set org.gnome.desktop.default-applications.terminal exec ghostty.desktop
-riverctl spawn "dbus-update-activation-environment SEATD_SOCK DISPLAY WAYLAND_DISPLAY DESKTOP_SESSION=river XDG_CURRENT_DESKTOP=river"
-riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
-riverctl spwan "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-riverctl spawn "xrdb -merge $HOME/.Xresources"
-riverctl xcursor-theme "Simp1e-Gruvbox-Dark"
 
+gnome_schema="org.gnome.desktop.interface"
+gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
+gsettings set "$gnome_schema" icon-theme "Gruvbox-Plus-Dark"
+gsettings set "$gnome_schema" cursor-theme "S1mple-Gruvbox-Dark"
+gsettings set "$gnome_schema" font-name "Adwaita Sans 11"
+
+riverctl xcursor-theme "Simp1e-Gruvbox-Dark"
 riverctl input "pointer-1133-50503-Logitech_USB_Receiver" accel-profile flat
 riverctl set-repeat 50 250
 riverctl focus-follows-cursor normal
@@ -38,6 +68,7 @@ riverctl rule-add -app-id "org.pulseaudio.pavucontrol" float
 riverctl rule-add -app-id "flameshot" float
 riverctl rule-add -app-id "xdg-desktop-portal-gtk" float
 
+riverctl map normal Super+Shift C spawn "$HOME/.config/river/init"
 riverctl map normal Super Q close
 riverctl map normal Super F toggle-fullscreen
 riverctl map normal Super Return spawn ghostty
@@ -80,27 +111,6 @@ for mode in normal locked; do
 	riverctl map $mode None XF86AudioNext spawn "playerctl next"
 done
 
-gnome_schema="org.gnome.desktop.interface"
-gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
-gsettings set "$gnome_schema" icon-theme "Gruvbox-Plus-Dark"
-gsettings set "$gnome_schema" cursor-theme "S1mple-Gruvbox-Dark"
-gsettings set "$gnome_schema" font-name "Adwaita Sans 11"
-
-killall -q waybar
-killall -q dunst
-killall -q nm-applet
-killall -q blueman-applet
-killall -q swaybg
-killall -q swayidle
-
-waybar &
-dunst &
-nm-applet &
-blueman-applet &
-/usr/lib/xdg-desktop-portal-wlr -r &
-/usr/lib/xdg-desktop-portal -r &
-
-while pgrep -x swaybg >/dev/null; do sleep 1; done
-swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg
-
-riverctl spawn 'swayidle -w timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" timeout 1800 "wlr-randr --output DP-2 --off" before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" after-resume "wlr-randr --output DP-2 --on"'
+riverctl declare-mode "passthrough"
+riverctl default-layout rivertile
+rivertile -view-padding 4 -outer-padding 4 -main-ratio 0.5 &
