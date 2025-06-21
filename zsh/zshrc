@@ -55,9 +55,12 @@ export FZF_CTRL_T_OPTS="
 export FZF_ALT_C_OPTS="
   --walker-skip .git,node_modules,target
   --preview 'tree -C {}'"
+export FZF_DEFAULT_OPTS="
+--color=bg+:#3c3836,bg:#282828,spinner:#fb4934,hl:#fabd2f
+--color=fg:#ebdbb2,header:#ebdbb2,info:#b8bb26,pointer:#fb4934
+--color=marker:#fb4934,fg+:#ebdbb2,prompt:#b8bb26,hl+:#fb4934"
 
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-export PATH=$PATH:/home/aileks/.spicetify

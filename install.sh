@@ -33,9 +33,6 @@ ln -s $DOTDIR/nvim $HOME/.config/nvim
 rm -rf $HOME/.config/btop
 ln -s $DOTDIR/btop $HOME/.config/btop
 
-rm -rf $HOME/.config/bat
-ln -s $DOTDIR/bat $HOME/.config/bat
-
 rm -rf $HOME/.config/cava
 ln -s $DOTDIR/cava $HOME/.config/cava
 
