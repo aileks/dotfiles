@@ -1,38 +1,5 @@
 #!/usr/bin/env bash
 
-eval "$(gnome-keyring-daemon --start --components=secrets,ssh,pkcs11)"
-export GNOME_KEYRING_CONTROL
-export SSH_AUTH_SOCK
-export DESKTOP_SESSION=river
-export XDG_CURRENT_DESKTOP=river
-
-dbus-update-activation-environment --systemd --all
-systemctl --user import-environment
-
-killall -q xdg-desktop-portal-wlr
-killall -q xdg-desktop-portal
-killall -q waybar
-killall -q dunst
-killall -q nm-applet
-killall -q blueman-applet
-killall -q swaybg
-killall -q swayidle
-
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-/usr/lib/xdg-desktop-portal-wlr -r &
-/usr/lib/xdg-desktop-portal -r &
-
-waybar &
-dunst &
-nm-applet &
-blueman-applet &
-
-swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg &
-swayidle -w \
-	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
-	timeout 1800 "systemctl suspend" \
-	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg"
-
 wlr-randr --output DP-2 --mode 2560x1440@165.080Hz &
 xrdb -merge "$HOME/.Xresources" &
 gsettings set org.gnome.desktop.default-applications.terminal exec ghostty.desktop
@@ -113,3 +80,35 @@ for mode in normal locked; do
 	riverctl map $mode None XF86AudioPrev spawn "playerctl previous"
 	riverctl map $mode None XF86AudioNext spawn "playerctl next"
 done
+
+eval "$(gnome-keyring-daemon --start --components=secrets,ssh,pkcs11)"
+riverctl spawn "export GNOME_KEYRING_CONTROL"
+riverctl spawn "export SSH_AUTH_SOCK"
+riverctl spawn "export DESKTOP_SESSION=river"
+riverctl spawn "export XDG_CURRENT_DESKTOP=river"
+riverctl spawn "dbus-update-activation-environment --systemd --all"
+riverctl spawn "systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+
+killall -q xdg-desktop-portal-wlr
+killall -q xdg-desktop-portal
+killall -q waybar
+killall -q dunst
+killall -q nm-applet
+killall -q blueman-applet
+killall -q swaybg
+killall -q swayidle
+
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+/usr/lib/xdg-desktop-portal-wlr -r &
+/usr/lib/xdg-desktop-portal -r &
+
+waybar &
+dunst &
+nm-applet &
+blueman-applet &
+
+swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg &
+swayidle -w \
+	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
+	timeout 1800 "systemctl suspend" \
+	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg"
