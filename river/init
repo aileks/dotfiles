@@ -30,9 +30,8 @@ blueman-applet &
 swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg &
 swayidle -w \
 	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
-	timeout 1800 "wlr-randr --output DP-2 --off" \
-	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
-	after-resume "wlr-randr --output DP-2 --on" &
+	timeout 1800 "systemctl suspend" \
+	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg"
 
 wlr-randr --output DP-2 --mode 2560x1440@165.080Hz &
 xrdb -merge "$HOME/.Xresources" &
