@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-wlr-randr --output DP-2 --mode 2560x1440@165.080Hz &
-xrdb -merge "$HOME/.Xresources" &
 gsettings set org.gnome.desktop.default-applications.terminal exec ghostty.desktop
-
 gnome_schema="org.gnome.desktop.interface"
 gsettings set "$gnome_schema" gtk-theme "Gruvbox-Dark"
 gsettings set "$gnome_schema" icon-theme "Gruvbox-Plus-Dark"
@@ -27,6 +24,7 @@ riverctl rule-add -app-id "thunar" -title "Rename*" float
 riverctl rule-add -app-id "thunar" -title "File Operation Progress" float
 riverctl rule-add -app-id "thunar" ssd
 riverctl rule-add -app-id "solaar" ssd
+riverctl rule-add -app-id "blueman-manager" ssd
 riverctl rule-add -app-id "org.gnome.DejaDup" ssd
 riverctl rule-add -app-id "com.mitchellh.ghostty" ssd
 riverctl rule-add -app-id "org.gnome.Calendar" ssd
@@ -42,7 +40,7 @@ riverctl map normal Super+Shift C spawn "$HOME/.config/river/init"
 riverctl map normal Super Q close
 riverctl map normal Super F toggle-fullscreen
 riverctl map normal Super Return spawn ghostty
-riverctl map normal Super W spawn chromium
+riverctl map normal Super W spawn brave
 riverctl map normal Super E spawn thunar
 riverctl map normal Super+Shift X spawn wlogout
 riverctl map normal Super space spawn "rofi -show drun"
@@ -97,6 +95,7 @@ killall -q nm-applet
 killall -q blueman-applet
 killall -q swaybg
 killall -q swayidle
+killall -q ivpn-ui
 
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 /usr/lib/xdg-desktop-portal-wlr -r &
@@ -106,9 +105,13 @@ waybar &
 dunst &
 nm-applet &
 blueman-applet &
+/opt/ivpn/ui/bin/ivpn-ui &
 
 swaybg -m fill -i ~/Pictures/Wallpapers/diamond.jpg &
 swayidle -w \
 	timeout 900 "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" \
 	timeout 1800 "systemctl suspend" \
-	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg"
+	before-sleep "swaylock -f -i $HOME/Pictures/Wallpapers/diamond.jpg" &
+
+xrdb -merge "$HOME/.Xresources"
+wlr-randr --output DP-2 --mode 2560x1440@165.080Hz &
