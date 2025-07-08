@@ -30,9 +30,6 @@ ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 rm -rf $HOME/.config/nvim
 ln -s $DOTDIR/nvim $HOME/.config/nvim
 
-rm -rf $HOME/.config/btop
-ln -s $DOTDIR/btop $HOME/.config/btop
-
 rm -rf $HOME/.config/cava
 ln -s $DOTDIR/cava $HOME/.config/cava
 
