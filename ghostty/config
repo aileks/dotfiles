@@ -1,12 +1,11 @@
 term = xterm-256color
 shell-integration-features = no-cursor
 shell-integration = zsh
-theme = GruvboxDarkHard
-font-family = "AdwaitaMono Nerd Font Mono"
+theme = CutiePro
+font-family = "BerkeleyMono Nerd Font"
 font-size = 16
 background-opacity = 0.9
 background-blur = true
 cursor-style = block
-window-padding-x = 10
-window-padding-y = 6
 confirm-close-surface = false
+window-decoration = none
