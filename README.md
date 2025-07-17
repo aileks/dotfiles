@@ -9,10 +9,10 @@ This repository contains configurations for the following applications:
 
 - **Terminal**: Ghostty
 - **Shell**: Zsh
-- **Multiplexer**: Tmux
-- **Editor**: Neovim
-- **System Information**: Fastfetch
-- **Other**: cava
+- **Multiplexer**: tmux
+- **Editor**: neovim
+- **System Information**: fastfetch
+- **Misc**: cava
 
 ## Installation
 
