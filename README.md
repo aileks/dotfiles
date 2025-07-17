@@ -11,7 +11,7 @@ This repository contains configurations for the following applications:
 - **Shell**: Zsh
 - **Multiplexer**: tmux
 - **Editor**: neovim
-- **System Information**: fastfetch
+- **Fetcher**: fastfetch
 - **Misc**: cava
 
 ## Installation
