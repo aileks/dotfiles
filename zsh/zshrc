@@ -6,14 +6,14 @@ export ZSH="$HOME/.oh-my-zsh"
 
 # Editor env variables
 export EDITOR=nvim
-export SUDO_EDITOR=zed
+export SUDO_EDITOR=nvim
 export MANPAGE="less -R --use-color -Dd+r -Du+b"
 
 # Theme
 ZSH_THEME="refined"
 
 # Plugins
-plugins=(cp dnf fast-syntax-highlighting fzf git ruby ubuntu zsh-autosuggestions)
+plugins=(archlinux cp dnf fast-syntax-highlighting fzf git ruby zsh-autosuggestions)
 
 # OMZ script
 source $ZSH/oh-my-zsh.sh
