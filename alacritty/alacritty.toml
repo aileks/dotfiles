@@ -1,12 +1,12 @@
-general.import = [ "~/.config/omarchy/current/theme/alacritty.toml" ]
+general.import = ["~/.config/omarchy/current/theme/alacritty.toml"]
 
 [env]
 TERM = "xterm-256color"
 
 [font]
-normal = { family = "BerkeleyMono Nerd Font", style = "Regular" }
-bold = { family = "BerkeleyMono Nerd Font", style = "Bold" }
-italic = { family = "BerkeleyMono Nerd Font", style = "Italic" }
+normal = { family = "AdwaitaMono Nerd Font Mono", style = "Regular" }
+bold = { family = "AdwaitaMono Nerd Font Mono", style = "Bold" }
+italic = { family = "AdwaitaMono Nerd Font Mono", style = "Italic" }
 size = 16
 
 [window]
@@ -16,6 +16,4 @@ decorations = "None"
 opacity = 0.98
 
 [keyboard]
-bindings = [
-{ key = "F11", action = "ToggleFullscreen" }
-]
+bindings = [{ key = "F11", action = "ToggleFullscreen" }]
