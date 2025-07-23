@@ -12,14 +12,14 @@ ln -sf $DOTDIR/zsh/zshrc $HOME/.zshrc
 rm -rf $HOME/.config/ghostty
 ln -s $DOTDIR/ghostty $HOME/.config/ghostty
 
-rm -rf $HOME/.config/fastfetch
-ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
+# rm -rf $HOME/.config/fastfetch
+# ln -s $DOTDIR/fastfetch $HOME/.config/fastfetch
 
-rm -rf $HOME/.config/nvim
-ln -s $DOTDIR/nvim $HOME/.config/nvim
+# rm -rf $HOME/.config/nvim
+# ln -s $DOTDIR/nvim $HOME/.config/nvim
 
-rm -rf $HOME/.config/cava
-ln -s $DOTDIR/cava $HOME/.config/cava
+# rm -rf $HOME/.config/cava
+# ln -s $DOTDIR/cava $HOME/.config/cava
 
 # Install omz
 echo "Installing Oh My Zsh"
@@ -38,5 +38,3 @@ else
 	echo "Tmux package manager already installed, skipping..."
 fi
 echo ""
-
-echo "Dotfiles installation complete!"
