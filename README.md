@@ -13,6 +13,7 @@ This repository contains configurations modified from [omarchy](https://github.c
 - **Multiplexer**: Tmux
 - **Editor**: Neovim
 - **Fetcher**: Fastfetch
+- **System Monitor**: Btop
 
 ## Installation
 
