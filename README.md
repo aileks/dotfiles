@@ -7,13 +7,14 @@
 
 This repository contains configurations modified from [omarchy](https://github.com/basecamp/omarchy).
 
-- **Window Manager**: Hyprland
-- **Terminal**: Alacritty
-- **Shell**: Zsh
+- **Bar**: Waybar
+- **Editor**: Zed
+- **Launcher**: Walker
 - **Multiplexer**: Tmux
-- **Editor**: Neovim
-- **Fetcher**: Fastfetch
-- **System Monitor**: Btop
+- **Shell**: Zsh
+- **System Info**: Fastfetch
+- **Terminal**: Alacritty
+- **Window Manager**: Hyprland
 
 ## Installation
 
