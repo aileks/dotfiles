@@ -5,4 +5,23 @@
 //
 // To see the default key bindings run `zed: open default keymap`
 // from the command palette.
-[]
+[
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-k": "editor::CutToEndOfLine"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-up": "editor::MoveLineUp"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-down": "editor::MoveLineDown"
+    }
+  }
+]
