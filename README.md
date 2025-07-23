@@ -5,7 +5,7 @@
 
 ## Configured Applications
 
-This repository contains configurations modified from [omarchy](https://github.com/dhh/omarchy).
+This repository contains configurations modified from [omarchy](https://github.com/basecamp/omarchy).
 
 - **Terminal**: Alacritty
 - **Shell**: Zsh
