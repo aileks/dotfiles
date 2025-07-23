@@ -1,27 +1,12 @@
-// Zed keymap
-//
-// For information on binding keys, see the Zed
-// documentation: https://zed.dev/docs/key-bindings
-//
-// To see the default key bindings run `zed: open default keymap`
-// from the command palette.
 [
   {
-    "context": "Editor",
+    "context": "Editor && !VimControl",
     "bindings": {
-      "ctrl-shift-k": "editor::CutToEndOfLine"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-up": "editor::MoveLineUp"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-down": "editor::MoveLineDown"
+      "ctrl-shift-k": "editor::CutToEndOfLine",
+      "ctrl-up": "editor::MoveToStartOfParagraph",
+      "ctrl-down": "editor::MoveToEndOfParagraph",
+      "ctrl-j": "editor::JoinLines",
+      "alt-k": "editor::SplitSelectionIntoLines"
     }
   }
 ]
