@@ -5,14 +5,13 @@
 
 ## Configured Applications
 
-This repository contains configurations for the following applications:
+This repository contains configurations modified from [omarchy](https://github.com/dhh/omarchy).
 
-- **Terminal**: Ghostty
+- **Terminal**: Alacritty
 - **Shell**: Zsh
 - **Multiplexer**: tmux
 - **Editor**: neovim
 - **Fetcher**: fastfetch
-- **Misc**: cava
 
 ## Installation
 
