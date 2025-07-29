@@ -56,8 +56,6 @@ install_cli_tools() {
         sudo dnf install -y "$package" || print_warning "Failed to install $package"
     done
 
-    chsh -s $(which zsh)
-
     print_success "CLI tools installed"
 }
 

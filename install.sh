@@ -209,15 +209,13 @@ main() {
     install_zsh_plugins
     configure_git
 
-    print_header "Setup Complete!"
-    print_success "Your Fedora development environment is ready!"
-    print_warning "You may need to restart your terminal or run 'source ~/.zshrc' to apply changes."
+    chsh -s "$(which zsh)"
+    print_success "Default shell changed to zsh"
+    print_warning "Please log out and log back in for the shell change to take effect."
 
-    if prompt_user "Change default shell to zsh?" "y"; then
-        chsh -s "$(which zsh)"
-        print_success "Default shell changed to zsh"
-        print_warning "Please log out and log back in for the shell change to take effect."
-    fi
+    print_header "Setup Complete!"
+    print_warning "You may need to restart your terminal or run \`source ~/.zshrc\` to apply changes."
+
 }
 
 main "$@"
