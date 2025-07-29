@@ -101,8 +101,8 @@ install_dev_tools() {
     sudo dnf config-manager addrepo --from-repofile https://developer.download.nvidia.com/compute/cuda/repos/fedora41/x86_64/cuda-fedora41.repo --overwrite
     sudo dnf clean all
 
-    echo "Installing NVIDIA CUDA Toolkit 12.9..."
-    sudo dnf -y install cuda-toolkit-12-9 nvidia-container-toolkit
+    echo "Installing NVIDIA CUDA Toolkit..."
+    sudo dnf -y install cuda-toolkit-12-8 nvidia-container-toolkit
     print_success "NVIDIA CUDA Toolkit installed"
 
     print_success "All development tools installed"
