@@ -77,14 +77,10 @@ install_packages() {
     print_header "Package Installation"
 
     if prompt_user "Would you like to install the full package set?" "n"; then
-        if [[ -f "$DOTDIR/scripts/packages.sh" ]]; then
-            bash "$DOTDIR/scripts/packages.sh"
+        bash "$DOTDIR/scripts/packages.sh"
 
-            if prompt_user "Log in with GitHub CLI?" "y"; then
-                gh auth login
-            fi
-        else
-            print_error "Package script not found at $DOTDIR/scripts/packages.sh"
+        if prompt_user "Log in with GitHub CLI?" "y"; then
+            gh auth login
         fi
     else
         print_warning "Skipping all package installation..."
@@ -169,10 +165,20 @@ install_zsh_plugins() {
     fi
 }
 
+install_theme() {
+    print_header "Set Up Theme"
+
+    if prompt_user "Install Gruvbox theme?" "n"; then
+        bash "$DOTDIR/scripts/theme.sh"
+    else
+        print_warning "Skipping all package installation..."
+    fi
+}
+
 configure_git() {
     print_header "Git Configuration"
 
-    if prompt_user "Configure git user settings?" "n"; then
+    if [[ ! -f "$HOME/.gitconfig" ]] && prompt_user "Configure git user settings?" "n"; then
         echo -n "Enter your git name: "
         read -r git_name
         echo -n "Enter your git email: "
@@ -196,11 +202,14 @@ main() {
     install_omz
     install_tpm
     install_zsh_plugins
+    install_theme
     configure_git
 
-    chsh -s "$(which zsh)"
-    print_success "Default shell changed to zsh"
-    print_warning "Please log out and log back in for the shell change to take effect."
+    if [[ $SHELL != /usr/bin/zsh ]]; then
+        chsh -s "$(which zsh)"
+        print_success "Default shell changed to zsh"
+        print_warning "Please log out and log back in for the shell change to take effect."
+    fi
 
     print_header "Setup Complete!"
     print_warning "You may need to restart your terminal or run \`source ~/.zshrc\` to apply changes."
