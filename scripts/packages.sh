@@ -61,6 +61,16 @@ install_cli_tools() {
     print_success "CLI tools installed"
 }
 
+install_ghostty() {
+    print_header "Installing Ghostty"
+
+    echo "Installing Ghostty..."
+    dnf copr enable scottames/ghostty
+    dnf install -y ghostty
+
+    print_success "Ghostty installed"
+}
+
 install_github_cli() {
     print_header "Installing GitHub CLI"
 
