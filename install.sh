@@ -12,7 +12,7 @@ DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 print_header() {
     echo -e "\n${BLUE}========================================${NC}"
-    echo -e "${BLUE}$1${NC}"
+    echo -e "             ${BLUE}$1${NC}"
     echo -e "${BLUE}========================================${NC}\n"
 }
 
@@ -43,7 +43,6 @@ prompt_user() {
         echo -e "${YELLOW}$question $prompt${NC}"
         read -r response
 
-        # Use default if response is empty
         if [[ -z "$response" ]]; then
             response="$default"
         fi
@@ -61,7 +60,6 @@ check_fedora() {
         print_error "This script is designed for Fedora Linux."
         exit 1
     fi
-    print_success "Fedora detected"
 }
 
 update_system() {
@@ -105,15 +103,11 @@ setup_dotfiles() {
         fi
     done
 
-    if [[ -f "$DOTDIR/tmux/tmux.conf" ]]; then
-        ln -sf "$DOTDIR/tmux/tmux.conf" "$HOME/.tmux.conf"
-        print_success "Linked tmux.conf"
-    fi
+    ln -sf "$DOTDIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+    print_success "Linked tmux.conf"
 
-    if [[ -f "$DOTDIR/zsh/zshrc" ]]; then
-        ln -sf "$DOTDIR/zsh/zshrc" "$HOME/.zshrc"
-        print_success "Linked zshrc"
-    fi
+    ln -sf "$DOTDIR/zsh/zshrc" "$HOME/.zshrc"
+    print_success "Linked zshrc"
 
     CONFIG_DIRS=("ghostty" "zed" "fastfetch")
     echo -e "\nCreating symlinks for .config directories..."
@@ -121,19 +115,14 @@ setup_dotfiles() {
     mkdir -p "$HOME/.config"
 
     for dir in "${CONFIG_DIRS[@]}"; do
-        if [[ -d "$DOTDIR/$dir" ]]; then
-            echo "Setting up $dir"
-            # Backup existing directory
-            if [[ -d "$HOME/.config/$dir" && ! -L "$HOME/.config/$dir" ]]; then
-                print_warning "Backing up existing .config/$dir to .config/${dir}.bak"
-                mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
-            fi
-            rm -rf "$HOME/.config/$dir"
-            ln -s "$DOTDIR/$dir" "$HOME/.config/$dir"
-            print_success "Linked $dir config"
-        else
-            print_warning "$dir directory not found, skipping..."
+        if [[ -d "$HOME/.config/$dir" && ! -L "$HOME/.config/$dir" ]]; then
+            print_warning "Backing up existing .config/$dir to .config/${dir}.bak"
+            mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
         fi
+
+        rm -rf "$HOME/.config/$dir"
+        ln -s "$DOTDIR/$dir" "$HOME/.config/$dir"
+        print_success "Linked $dir config"
     done
 }
 
@@ -185,11 +174,11 @@ configure_git() {
 
     if prompt_user "Configure git user settings?" "n"; then
         echo -n "Enter your git name: "
-        read -r git_username
+        read -r git_name
         echo -n "Enter your git email: "
         read -r git_email
 
-        git config --global user.name "$git_username"
+        git config --global user.name "$git_name"
         git config --global user.email "$git_email"
         print_success "Git configured"
     else
