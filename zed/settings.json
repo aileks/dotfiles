@@ -6,13 +6,13 @@
     },
     "always_allow_tool_actions": true
   },
-  "show_edit_predictions": false,
+  "show_edit_predictions": true,
   "telemetry": {
     "metrics": false,
     "diagnostics": false
   },
   "icon_theme": "Colored Zed Icons Theme Dark",
-  "theme": "Catppuccin Espresso (Blur)",
+  "theme": "Gruvbox Dark Hard",
   "features": {
     "edit_prediction_provider": "zed"
   },
@@ -23,7 +23,7 @@
   "ui_font_size": 18,
   "agent_font_size": 16,
   "buffer_font_size": 18,
-  "buffer_font_family": "SFMono Nerd Font Mono",
+  "buffer_font_family": "AdwaitaMono Nerd Font Mono",
   "buffer_line_height": "standard",
   "preferred_line_length": 100,
   "soft_wrap": "preferred_line_length",
