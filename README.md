@@ -21,5 +21,5 @@ This repository contains configurations modified from [omarchy](https://github.c
 ```sh
 git clone https://github.com/aileks/dotfiles.git
 cd dotfiles
-bash install.sh
+./install.sh
 ```
