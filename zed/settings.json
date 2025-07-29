@@ -20,9 +20,11 @@
     "mute_on_join": true
   },
   "autosave": "on_focus_change",
-  "ui_font_size": 18,
+  "format_on_save": "on",
+  "formatter": "language_server",
+  "ui_font_size": 16,
   "agent_font_size": 16,
-  "buffer_font_size": 18,
+  "buffer_font_size": 16,
   "buffer_font_family": "AdwaitaMono Nerd Font Mono",
   "buffer_line_height": "standard",
   "preferred_line_length": 100,
@@ -60,11 +62,18 @@
       }
     },
     "Ruby": {
-      "language_servers": ["ruby-lsp", "rubocop", "!solargraph"]
+      "language_servers": [
+        "ruby-lsp",
+        "rubocop",
+        "!solargraph"
+      ]
     },
     "Python": {
-      "show_edit_predictions": false,
-      "language_servers": ["pyright", "ruff"],
+      "show_edit_predictions": true,
+      "language_servers": [
+        "pyright",
+        "ruff"
+      ],
       "format_on_save": {
         "language_server": {
           "name": "ruff"
@@ -91,7 +100,9 @@
         "settings": {
           "lineLength": 88,
           "lint": {
-            "extendSelect": ["I"]
+            "extendSelect": [
+              "I"
+            ]
           }
         }
       }
