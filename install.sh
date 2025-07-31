@@ -170,6 +170,7 @@ main() {
     configure_git
 
     if [[ $SHELL != /usr/bin/zsh ]]; then
+        print_info "Changing default shell to zsh..."
         chsh -s "$(which zsh)"
         print_success "Default shell changed to zsh"
     fi

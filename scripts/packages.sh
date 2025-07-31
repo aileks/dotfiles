@@ -16,13 +16,27 @@ install_essentials() {
 }
 
 install_cli_tools() {
-    print_header "Install CLI Tools"
+    print_header "Install CLI Utils"
 
     local cli_packages=( "git" "unzip" "ripgrep" "wl-clipboard" "zoxide" "eza" "fzf"
-        "tmux" "jq" "tldr" "neovim" "btop" "trash-cli" "zoxide" "zsh" )
+        "tmux" "jq" "tldr" "btop" "trash-cli" "zoxide" "zsh" )
 
     sudo apt install -y "${cli_packages[@]}"
-    print_success "CLI tools installed"
+    print_success "CLI utils installed"
+}
+
+install_pacstall_packages() {
+    print_header "Pacstall Setup"
+
+    local pacstall_packages=( "neovim" "fastfetch" )
+
+    print_info "Installing Pacstall..."
+    sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+
+    print_info "Installing packages..."
+    sudo pacstall -S "${pacstall_packages[@]}"
+
+    print_success "Pacstall setup and packages installed"
 }
 
 install_ghostty() {
@@ -83,7 +97,6 @@ install_signal() {
         rm signal-desktop-keyring.gpg
         print_success "Signal Desktop installed"
     else
-        echo
         print_warning "Skipping Signal Desktop installation..."
     fi
 }
@@ -99,7 +112,6 @@ install_albert() {
         sudo apt install -y albert
         print_success "Albert installed"
     else
-        echo
         print_warning "Skipping Albert installation..."
     fi
 }
@@ -120,7 +132,6 @@ remove_snaps() {
             "snapd"
         )
 
-        echo "Removing specified snap packages..."
         for snap in "${snaps_to_remove[@]}"; do
             sudo snap remove --purge -y "$snap"
         done
@@ -138,7 +149,7 @@ EOF
 
         sudo apt update
         sudo apt install --install-suggests -y gnome-software
-        print_success "Snapd has been completely removed and blocked."
+        print_success "Snaps have been completely removed and blocked."
     else
         print_warning "Skipping snap removal..."
     fi
@@ -157,18 +168,18 @@ main() {
     install_font
     install_signal
     install_albert
+    install_pacstall_packages
     remove_snaps
 
     if prompt_user "Install Brave Browser?" "y"; then
         curl -fsS https://dl.brave.com/install.sh | sh
     else
-        echo
         print_warning "Skipping Brave Browser install..."
     fi
 
     cleanup_system
 
-    print_header "General Package Installation Complete!"
+    print_success "Package installation complete"
 }
 
 main "$@"
