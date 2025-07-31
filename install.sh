@@ -13,7 +13,6 @@ check_ubuntu() {
 }
 
 update_system() {
-    print_header "Updating System"
     if prompt_user "Update system packages?" "y"; then
         sudo apt update && sudo apt upgrade -y
         print_success "System updated"
