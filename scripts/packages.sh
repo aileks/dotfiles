@@ -99,7 +99,7 @@ install_signal() {
         echo "deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main" | sudo tee /etc/apt/sources.list.d/signal-xenial.list
 
         sudo apt update
-        sudo apt install signal-desktop
+        sudo apt install -y signal-desktop
         rm signal-desktop-keyring.gpg
         print_success "Signal Desktop installed"
     else
@@ -115,7 +115,7 @@ install_albert() {
         curl -fsSL https://download.opensuse.org/repositories/home:manuelschneid3r/xUbuntu_24.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/home_manuelschneid3r.gpg > /dev/null
 
         sudo apt update
-        sudo apt install albert
+        sudo apt install -y albert
         print_success "Albert installed"
     else
         print_warning "Skipping Albert installation..."
