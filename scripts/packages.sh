@@ -92,7 +92,7 @@ install_font() {
 install_signal() {
     print_header "Installing Signal Desktop"
 
-    if prompt_user "Do you want to install Signal Desktop?" "n"; then
+    if prompt_user "Do you want to install Signal Desktop?" "y"; then
         wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg;
         cat signal-desktop-keyring.gpg | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
 
@@ -110,7 +110,7 @@ install_signal() {
 install_albert() {
     print_header "Installing Albert"
 
-    if prompt_user "Do you want to install Albert?" "n"; then
+    if prompt_user "Do you want to install Albert?" "y"; then
         echo "deb http://download.opensuse.org/repositories/home:/manuelschneid3r/xUbuntu_24.04/ /" | sudo tee /etc/apt/sources.list.d/home:manuelschneid3r.list
         curl -fsSL https://download.opensuse.org/repositories/home:manuelschneid3r/xUbuntu_24.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/home_manuelschneid3r.gpg > /dev/null
 
@@ -125,20 +125,26 @@ install_albert() {
 cleanup_system() {
     print_header "System Cleanup"
     sudo apt autoremove -y
-    sudo apt clean
-    print_success "System cleaned up"
+    print_success "Cleanup complete"
 }
 
 main() {
     print_header "Installing General Packages"
+
     install_essentials
     install_cli_tools
     install_github_cli
-    install_signal
     install_ghostty
     install_font
-    install_flatpaks
+    install_signal
+    install_albert
+
+    if prompt_user "Install Brave Browser?" "y"; then
+        curl -fsS https://dl.brave.com/install.sh | sh
+    fi
+
     cleanup_system
+
     print_header "General Package Installation Complete!"
 }
 
