@@ -5,10 +5,10 @@ set -e
 source "$(dirname "$0")/common.sh"
 
 install_essentials() {
-    print_header "Installing Essential Tools"
+    print_header "Installing Essentials"
 
     sudo apt update
-    sudo apt install -y build-essential curl wget git unzip ubuntu-restricted-extras
+    sudo apt install -y build-essential curl wget git unzip wl-clipboard ubuntu-restricted-extras
 
     print_success "Essential build tools installed"
 }
@@ -54,6 +54,7 @@ install_ghostty() {
     fi
 
     rm -f "$deb_path"
+    sudo update-alternatives --set x-terminal-emulator /usr/bin/ghostty
     print_success "Ghostty installed successfully"
 }
 
@@ -72,15 +73,20 @@ install_github_cli() {
 }
 
 install_font() {
-    print_header "Installing Adwaita Mono Nerd Font"
+    print_header "Installing Adwaita Fonts"
 
     mkdir -p "$HOME/.local/share/fonts"
+
+    git clone https://gitlab.gnome.org/GNOME/adwaita-fonts.git
+    cd adwaita-fonts
+    cp sans/*.ttf "$HOME/.local/share/fonts/"
+
     wget -q "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/AdwaitaMono.zip" -O "/tmp/AdwaitaMono.zip"
     unzip -oq "/tmp/AdwaitaMono.zip" -d "$HOME/.local/share/fonts/"
     rm "/tmp/AdwaitaMono.zip"
 
     fc-cache -fv
-    print_success "Adwaita Mono Nerd Font installed"
+    print_success "Adwaita Fonts installed"
 }
 
 install_signal() {

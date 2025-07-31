@@ -5,6 +5,7 @@ set -e
 source "$(dirname "$0")/common.sh"
 
 print_info "Installing Gruvbox GTK Theme..."
+sudo apt install -y gtk2-engines-murrine
 git clone https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme.git /tmp/gruvbox
 /tmp/gruvbox/themes/install.sh -s compact -c dark -d ~/.local/share/themes -l -t teal --tweaks float
 

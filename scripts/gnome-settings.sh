@@ -4,6 +4,15 @@ set -e
 
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
+print_info "Setting sane defaults..."
+gsettings set org.gnome.mutter center-new-windows true
+gsettings set org.gnome.desktop.interface font-name "Adwaita Sans 11"
+gsettings set org.gnome.desktop.interface monospace-font-name 'AdwaitaMono Nerd Font 11'
+gsettings set org.gnome.mutter dynamic-workspaces false
+gsettings set org.gnome.desktop.wm.preferences num-workspaces 9
+gsettings set org.gnome.desktop.wm.keybindings close "['<Super>q']"
+gsettings set org.gnome.shell.keybindings toggle-overview "[]"
+
 print_info "Installing GNOME Shell Extensions..."
 sudo apt install -y pipx
 pipx install gnome-extensions-cli --system-site-packages
@@ -32,6 +41,7 @@ gsettings set org.gnome.shell.keybindings switch-to-application-7 "['<Alt>7']"
 gsettings set org.gnome.shell.keybindings switch-to-application-8 "['<Alt>8']"
 gsettings set org.gnome.shell.keybindings switch-to-application-9 "['<Alt>9']"
 
+# Workspace Management
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Super>1']"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Super>2']"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Super>3']"
@@ -50,9 +60,6 @@ gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-6 "['<Super><Sh
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-7 "['<Super><Shift>7']"
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-8 "['<Super><Shift>8']"
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-9 "['<Super><Shift>9']"
-
-gsettings set org.gnome.desktop.wm.keybindings close "['<Super>q']"
-gsettings set org.gnome.shell.keybindings toggle-overview "[]"
 
 # Alfred custom keybinding
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name "Launch Albert"
