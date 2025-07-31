@@ -39,21 +39,25 @@ print_header() {
 print_info() {
     echo
     echo -e "${CYAN}ℹ $1${NC}"
+    echo
 }
 
 print_success() {
     echo
     echo -e "${GREEN}✓ $1${NC}"
+    echo
 }
 
 print_warning() {
     echo
     echo -e "${YELLOW}⚠ $1${NC}"
+    echo
 }
 
 print_error() {
     echo
     echo -e "${RED}✗ $1${NC}"
+    echo
 }
 
 prompt_user() {

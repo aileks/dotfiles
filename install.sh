@@ -61,14 +61,19 @@ setup_dotfiles() {
     ln -sf "$DOTDIR/zsh/zshrc" "$HOME/.zshrc"
     print_success "Linked zshrc"
 
-    CONFIG_DIRS=("ghostty" "zed" "fastfetch")
-    print_info -e "\nCreating symlinks for .config directories..."
+    mkdir -p "$HOME/.config/zed"
+    ln -sf "$DOTDIR/zed/keymap.json" "$HOME/.config/zed/keymap.json"
+    ln -sf "$DOTDIR/zed/settings.json" "$HOME/.config/zed/settings.json"
+
+    CONFIG_DIRS=("ghostty" "fastfetch")
+    print_info "Creating symlinks for .config directories..."
     mkdir -p "$HOME/.config"
     for dir in "${CONFIG_DIRS[@]}"; do
         if [[ -d "$HOME/.config/$dir" && ! -L "$HOME/.config/$dir" ]]; then
             print_warning "Backing up existing .config/$dir to .config/${dir}.bak"
             mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
         fi
+
         rm -rf "$HOME/.config/$dir"
         ln -s "$DOTDIR/$dir" "$HOME/.config/$dir"
         print_success "Linked $dir config"
