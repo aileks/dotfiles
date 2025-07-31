@@ -18,7 +18,7 @@ install_essentials() {
 install_cli_tools() {
     print_header "Install CLI Utils"
 
-    local cli_packages=( "git" "unzip" "ripgrep" "wl-clipboard" "zoxide" "eza" "fzf"
+    local cli_packages=( "git" "axel" "unzip" "ripgrep" "wl-clipboard" "zoxide" "eza" "fzf"
         "tmux" "jq" "tldr" "btop" "trash-cli" "zoxide" "zsh" )
 
     sudo apt install -y "${cli_packages[@]}"
