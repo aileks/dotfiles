@@ -19,7 +19,7 @@ install_cli_tools() {
     print_header "Install CLI Tools"
 
     local cli_packages=( "git" "unzip" "ripgrep" "wl-clipboard" "zoxide" "eza" "fzf"
-        "tmux" "jq" "tldr" "neovim" "trash-cli" "zoxide" "zsh" )
+        "tmux" "jq" "tldr" "neovim" "btop" "trash-cli" "zoxide" "zsh" )
 
     sudo apt install -y "${cli_packages[@]}"
     print_success "CLI tools installed"
