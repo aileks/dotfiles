@@ -45,7 +45,7 @@ install_packages() {
 setup_dotfiles() {
     print_header "Setting Up Dotfiles"
 
-    echo "Creating symlinks for dotfiles..."
+    print_info "Creating symlinks for dotfiles..."
     for file in ".tmux.conf" ".zshrc"; do
         if [[ -f "$HOME/$file" && ! -L "$HOME/$file" ]]; then
             print_warning "Backing up existing $file to ${file}.bak"
@@ -60,7 +60,7 @@ setup_dotfiles() {
     print_success "Linked zshrc"
 
     CONFIG_DIRS=("ghostty" "zed" "fastfetch")
-    echo -e "\nCreating symlinks for .config directories..."
+    print_info -e "\nCreating symlinks for .config directories..."
     mkdir -p "$HOME/.config"
     for dir in "${CONFIG_DIRS[@]}"; do
         if [[ -d "$HOME/.config/$dir" && ! -L "$HOME/.config/$dir" ]]; then

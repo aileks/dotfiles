@@ -101,6 +101,21 @@ install_signal() {
     fi
 }
 
+install_albert() {
+    print_header "Installing Albert"
+
+    if prompt_user "Do you want to install Albert?" "n"; then
+        echo "deb http://download.opensuse.org/repositories/home:/manuelschneid3r/xUbuntu_24.04/ /" | sudo tee /etc/apt/sources.list.d/home:manuelschneid3r.list
+        curl -fsSL https://download.opensuse.org/repositories/home:manuelschneid3r/xUbuntu_24.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/home_manuelschneid3r.gpg > /dev/null
+
+        sudo apt update
+        sudo apt install albert
+        print_success "Albert installed"
+    else
+        print_warning "Skipping Albert installation..."
+    fi
+}
+
 cleanup_system() {
     print_header "System Cleanup"
     sudo apt autoremove -y

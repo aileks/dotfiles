@@ -17,28 +17,32 @@ install_tools() {
     curl -f https://zed.dev/install.sh | ZED_CHANNEL=preview sh
     print_success "Zed Preview installed"
 
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
-    sudo dpkg -i cuda-keyring_1.1-1_all.deb
-    sudo apt-get update
-    rm cuda-keyring_1.1-1_all.deb
-    sudo apt-get -y install cuda-toolkit-12-5
-    print_success "NVIDIA CUDA Toolkit installed"
+    if prompt_user "Install CUDA Toolkit?" "n"; then
+      wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+      sudo dpkg -i cuda-keyring_1.1-1_all.deb
+
+      sudo apt update
+      sudo apt -y install cuda-toolkit-12-8
+    else
+        echo "Skipping CUDA Toolkit installation..."
+    fi
 }
 
 install_conda() {
     print_header "Installing Miniconda"
+
     wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
-    bash /tmp/miniconda.sh -b -p "$HOME/miniconda3"
-    "$HOME/miniconda3/bin/conda" init zsh
+    bash /tmp/miniconda.sh -b -p "$HOME/.miniconda3"
+    "$HOME/.miniconda3/bin/conda" init zsh
     rm /tmp/miniconda.sh
-    sed -i 's|/home/aileks/.miniconda3|'$HOME'/miniconda3|g' "$HOME/.zshrc"
+
     print_success "Conda installed and initialized"
 }
 
 install_mise() {
-    print_header "Installing mise (Runtime Version Manager)"
+    print_header "Installing mise"
+
     curl https://mise.run | sh
-    echo 'eval "$(~/.local/bin/mise activate zsh)"' >> "$HOME/.zshrc" || true
     print_success "mise installed"
 }
 
