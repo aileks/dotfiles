@@ -21,13 +21,11 @@ gnome-extensions disable tiling-assistant@ubuntu.com
 gnome-extensions disable ubuntu-dock@ubuntu.com
 gnome-extensions disable ding@rastersoft.com
 
-gext install user-theme@gnome-shell-extensions.gcampax.github.com
-gext install tophat@gnome-shell-extensions.gcampax.github.com
-gext install just-perfection-desktop@just-perfection
-gext install simple-weather@romanlefler.com
-gext install forge@jmmaranan.com
-
-gsettings set org.gnome.shell.extensions.user-theme name "Gruvbox-Teal-Dark-Compact"
+$HOME/.local/share/pipx/venvs/gnome-extensions-cli/bin/gext install user-theme@gnome-shell-extensions.gcampax.github.com
+$HOME/.local/share/pipx/venvs/gnome-extensions-cli/bin/gext install tophat@fflewddur.github.io
+$HOME/.local/share/pipx/venvs/gnome-extensions-cli/bin/gext install just-perfection-desktop@just-perfection
+$HOME/.local/share/pipx/venvs/gnome-extensions-cli/bin/gext install simple-weather@romanlefler.com
+$HOME/.local/share/pipx/venvs/gnome-extensions-cli/bin/gext install forge@jmmaranan.com
 
 print_info "Setting Keyboard Shortcuts..."
 # Use alt here to prevent keybinding conflicts

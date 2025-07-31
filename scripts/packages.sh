@@ -5,35 +5,28 @@ set -e
 source "$(dirname "$0")/common.sh"
 
 install_essentials() {
-    print_header "Installing Essentials"
+    print_header "Install Essentials"
+
+    local essentials=( "build-essential" "gnome-tweaks" "gnome-shell-extension-manager" "ubuntu-restricted-extras" )
 
     sudo apt update
-    sudo apt install -y build-essential curl wget git unzip wl-clipboard ubuntu-restricted-extras
+    sudo apt install -y "${essentials[@]}"
 
-    print_success "Essential build tools installed"
+    print_success "Essential tools installed"
 }
 
 install_cli_tools() {
-    print_header "Installing CLI Tools"
+    print_header "Install CLI Tools"
 
-    local cli_packages=(
-        "ripgrep"
-        "eza"
-        "fzf"
-        "tmux"
-        "jq"
-        "tldr"
-        "neovim"
-        "trash-cli"
-        "zsh"
-    )
+    local cli_packages=( "git" "unzip" "ripgrep" "wl-clipboard" "zoxide" "eza" "fzf"
+        "tmux" "jq" "tldr" "neovim" "trash-cli" "zoxide" "zsh" )
 
     sudo apt install -y "${cli_packages[@]}"
     print_success "CLI tools installed"
 }
 
 install_ghostty() {
-    print_header "Installing Ghostty from .deb"
+    print_header "Install Ghostty"
 
     local ghostty_deb_url="https://github.com/mkasberg/ghostty-ubuntu/releases/download/1.1.3-0-ppa2/ghostty_1.1.3-0.ppa2_amd64_24.04.deb"
     local deb_path="/tmp/ghostty.deb"
@@ -58,28 +51,15 @@ install_ghostty() {
     print_success "Ghostty installed successfully"
 }
 
-install_github_cli() {
-    print_header "Installing GitHub CLI"
-
-    sudo mkdir -p -m 755 /etc/apt/keyrings
-    out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg
-    cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
-    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-
-    sudo apt update
-    sudo apt install -y gh
-    print_success "GitHub CLI installed"
-}
 
 install_font() {
-    print_header "Installing Adwaita Fonts"
+    print_header "Install Adwaita Fonts"
 
     mkdir -p "$HOME/.local/share/fonts"
 
-    git clone https://gitlab.gnome.org/GNOME/adwaita-fonts.git
-    cd adwaita-fonts
-    cp sans/*.ttf "$HOME/.local/share/fonts/"
+    git clone https://gitlab.gnome.org/GNOME/adwaita-fonts.git /tmp/adwaita-fonts
+    cp /tmp/adwaita-fonts/sans/*.ttf "$HOME/.local/share/fonts/"
+    rm -rf "/tmp/adwaita-fonts"
 
     wget -q "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/AdwaitaMono.zip" -O "/tmp/AdwaitaMono.zip"
     unzip -oq "/tmp/AdwaitaMono.zip" -d "$HOME/.local/share/fonts/"
@@ -90,7 +70,7 @@ install_font() {
 }
 
 install_signal() {
-    print_header "Installing Signal Desktop"
+    print_header "Install Signal Desktop"
 
     if prompt_user "Do you want to install Signal Desktop?" "y"; then
         wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg;
@@ -103,12 +83,13 @@ install_signal() {
         rm signal-desktop-keyring.gpg
         print_success "Signal Desktop installed"
     else
+        echo
         print_warning "Skipping Signal Desktop installation..."
     fi
 }
 
 install_albert() {
-    print_header "Installing Albert"
+    print_header "Install Albert"
 
     if prompt_user "Do you want to install Albert?" "y"; then
         echo "deb http://download.opensuse.org/repositories/home:/manuelschneid3r/xUbuntu_24.04/ /" | sudo tee /etc/apt/sources.list.d/home:manuelschneid3r.list
@@ -118,7 +99,48 @@ install_albert() {
         sudo apt install -y albert
         print_success "Albert installed"
     else
+        echo
         print_warning "Skipping Albert installation..."
+    fi
+}
+
+remove_snaps() {
+    print_header "Remove Snaps"
+
+    if prompt_user "Completely remove snapd and all snap packages?" "y"; then
+        local snaps_to_remove=(
+            "firefox"
+            "snap-store"
+            "gtk-common-themes"
+            "gnome-42-2204"
+            "snapd-desktop-integration"
+            "firmware-updater"
+            "core22"
+            "bare"
+            "snapd"
+        )
+
+        echo "Removing specified snap packages..."
+        for snap in "${snaps_to_remove[@]}"; do
+            sudo snap remove --purge -y "$snap"
+        done
+
+        sudo apt autoremove --purge -y snapd
+        sudo rm -rf ~/snap
+        sudo rm -rf /snap
+
+        print_info "Blacklisting snaps..."
+        cat <<EOF | sudo tee /etc/apt/preferences.d/no-snapd.pref
+Package: snapd
+Pin: release a=*
+Pin-Priority: -10
+EOF
+
+        sudo apt update
+        sudo apt install --install-suggests -y gnome-software
+        print_success "Snapd has been completely removed and blocked."
+    else
+        print_warning "Skipping snap removal..."
     fi
 }
 
@@ -129,18 +151,19 @@ cleanup_system() {
 }
 
 main() {
-    print_header "Installing General Packages"
-
     install_essentials
     install_cli_tools
-    install_github_cli
     install_ghostty
     install_font
     install_signal
     install_albert
+    remove_snaps
 
     if prompt_user "Install Brave Browser?" "y"; then
         curl -fsS https://dl.brave.com/install.sh | sh
+    else
+        echo
+        print_warning "Skipping Brave Browser install..."
     fi
 
     cleanup_system

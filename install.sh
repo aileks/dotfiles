@@ -9,6 +9,9 @@ check_ubuntu() {
     if ! grep -q "Ubuntu" /etc/os-release; then
         print_error "This script is designed for Ubuntu Linux."
         exit 1
+    else
+        print_info "Installing tools needed for script..."
+        sudo apt install -y curl wget
     fi
 }
 
@@ -42,7 +45,7 @@ install_packages() {
 }
 
 setup_dotfiles() {
-    print_header "Setting Up Dotfiles"
+    print_header "Set Up Dotfiles"
 
     print_info "Creating symlinks for dotfiles..."
     for file in ".tmux.conf" ".zshrc"; do
@@ -73,7 +76,7 @@ setup_dotfiles() {
 }
 
 install_omz() {
-    print_header "Installing Oh My Zsh"
+    print_header "Oh My Zsh"
 
     if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
         KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -84,7 +87,7 @@ install_omz() {
 }
 
 install_tpm() {
-    print_header "Installing Tmux Package Manager"
+    print_header "Tmux Package Manager"
 
     if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
         mkdir -p "$HOME/.tmux/plugins"
@@ -96,19 +99,17 @@ install_tpm() {
 }
 
 install_zsh_plugins() {
-    print_header "Installing Zsh Plugins"
+    print_header "Oh My Zsh Plugins"
 
-    if [[ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]]; then
-        git clone https://github.com/zsh-users/zsh-autosuggestions \
-          "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+    if [[ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]]; then
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
         print_success "zsh-autosuggestions installed"
     else
         print_warning "zsh-autosuggestions already installed, skipping..."
     fi
 
-    if [[ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting" ]]; then
-        git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git \
-          "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting"
+    if [[ ! -d "$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting" ]]; then
+        git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
         print_success "fast-syntax-highlighting installed"
     else
         print_warning "fast-syntax-highlighting already installed, skipping..."
@@ -128,7 +129,7 @@ install_theme() {
 configure_gnome() {
     print_header "GNOME Configuration"
 
-    bash "$DOTDIR/scripts/gnome.sh"
+    bash "$DOTDIR/scripts/gnome-settings.sh"
     print_success "GNOME configured"
 }
 
@@ -142,6 +143,7 @@ configure_git() {
         read -r git_email
         git config --global user.name "$git_name"
         git config --global user.email "$git_email"
+
         print_success "Git configured"
     else
         print_warning "Skipping git configuration..."
@@ -163,16 +165,17 @@ main() {
     configure_git
 
     if [[ $SHELL != /usr/bin/zsh ]]; then
-        if ! grep -q "$(which zsh)" /etc/shells; then
-            command -v zsh | sudo tee -a /etc/shells
-        fi
         chsh -s "$(which zsh)"
         print_success "Default shell changed to zsh"
-        print_warning "Please log out and log back in for the shell change to take effect."
     fi
 
     print_header "Setup Complete!"
-    print_warning "You may need to restart your terminal or reboot to apply changes."
+
+    if prompt_user "Reboot to apply changes?" "y"; then
+        sudo reboot
+    else
+        print_warning "Remember to reboot later!"
+    fi
 }
 
 main "$@"

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -35,18 +37,22 @@ print_header() {
 }
 
 print_info() {
+    echo
     echo -e "${CYAN}ℹ $1${NC}"
 }
 
 print_success() {
+    echo
     echo -e "${GREEN}✓ $1${NC}"
 }
 
 print_warning() {
+    echo
     echo -e "${YELLOW}⚠ $1${NC}"
 }
 
 print_error() {
+    echo
     echo -e "${RED}✗ $1${NC}"
 }
 
