@@ -126,6 +126,17 @@ install_theme() {
     fi
 }
 
+configure_gnome() {
+    print_header "GNOME Configuration"
+
+    if prompt_user "Configure GNOME settings?" "n"; then
+        bash "$DOTDIR/scripts/gnome.sh"
+        print_success "GNOME configured"
+    else
+        print_warning "Skipping GNOME configuration..."
+    fi
+}
+
 configure_git() {
     print_header "Git Configuration"
 
@@ -153,6 +164,7 @@ main() {
     install_tpm
     install_zsh_plugins
     install_theme
+    configure_gnome
     configure_git
 
     if [[ $SHELL != /usr/bin/zsh ]]; then
