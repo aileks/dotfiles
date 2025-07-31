@@ -2,71 +2,20 @@
 
 set -e
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
 DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$DOTDIR/scripts/common.sh"
 
-print_header() {
-    echo -e "\n${BLUE}========================================${NC}"
-    echo -e "             ${BLUE}$1${NC}"
-    echo -e "${BLUE}========================================${NC}\n"
-}
-
-print_success() {
-    echo -e "${GREEN}✓ $1${NC}"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠ $1${NC}"
-}
-
-print_error() {
-    echo -e "${RED}✗ $1${NC}"
-}
-
-prompt_user() {
-    local question="$1"
-    local default="${2:-n}"
-    local prompt
-
-    if [[ "$default" == "y" ]]; then
-        prompt="[Y/n]"
-    else
-        prompt="[y/N]"
-    fi
-
-    while true; do
-        echo -e "${YELLOW}$question $prompt${NC}"
-        read -r response
-
-        if [[ -z "$response" ]]; then
-            response="$default"
-        fi
-
-        case "$response" in
-            [Yy]|[Yy][Ee][Ss]) return 0 ;;
-            [Nn]|[Nn][Oo]) return 1 ;;
-            *) echo -e "${RED}Please answer yes or no.${NC}" ;;
-        esac
-    done
-}
-
-check_fedora() {
-    if [[ ! -f /etc/fedora-release ]]; then
-        print_error "This script is designed for Fedora Linux."
+check_ubuntu() {
+    if ! grep -q "Ubuntu" /etc/os-release; then
+        print_error "This script is designed for Ubuntu Linux."
         exit 1
     fi
 }
 
 update_system() {
     print_header "Updating System"
-
     if prompt_user "Update system packages?" "y"; then
-        sudo dnf update -y
+        sudo apt update && sudo apt upgrade -y
         print_success "System updated"
     else
         print_warning "Skipping system update..."
@@ -76,14 +25,20 @@ update_system() {
 install_packages() {
     print_header "Package Installation"
 
-    if prompt_user "Would you like to install the full package set?" "n"; then
+    if prompt_user "Would you like to install general packages?" "n"; then
         bash "$DOTDIR/scripts/packages.sh"
-
-        if prompt_user "Log in with GitHub CLI?" "y"; then
-            gh auth login
-        fi
     else
-        print_warning "Skipping all package installation..."
+        print_warning "Skipping general package installation..."
+    fi
+
+    if prompt_user "Would you like to install development tools?" "n"; then
+        bash "$DOTDIR/scripts/dev-tools.sh"
+    else
+        print_warning "Skipping development tools installation..."
+    fi
+
+    if command -v gh &> /dev/null && prompt_user "Log in with GitHub CLI?" "y"; then
+        gh auth login
     fi
 }
 
@@ -91,7 +46,6 @@ setup_dotfiles() {
     print_header "Setting Up Dotfiles"
 
     echo "Creating symlinks for dotfiles..."
-
     for file in ".tmux.conf" ".zshrc"; do
         if [[ -f "$HOME/$file" && ! -L "$HOME/$file" ]]; then
             print_warning "Backing up existing $file to ${file}.bak"
@@ -99,23 +53,20 @@ setup_dotfiles() {
         fi
     done
 
+    mkdir -p "$HOME"
     ln -sf "$DOTDIR/tmux/tmux.conf" "$HOME/.tmux.conf"
     print_success "Linked tmux.conf"
-
     ln -sf "$DOTDIR/zsh/zshrc" "$HOME/.zshrc"
     print_success "Linked zshrc"
 
     CONFIG_DIRS=("ghostty" "zed" "fastfetch")
     echo -e "\nCreating symlinks for .config directories..."
-
     mkdir -p "$HOME/.config"
-
     for dir in "${CONFIG_DIRS[@]}"; do
         if [[ -d "$HOME/.config/$dir" && ! -L "$HOME/.config/$dir" ]]; then
             print_warning "Backing up existing .config/$dir to .config/${dir}.bak"
             mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
         fi
-
         rm -rf "$HOME/.config/$dir"
         ln -s "$DOTDIR/$dir" "$HOME/.config/$dir"
         print_success "Linked $dir config"
@@ -168,10 +119,10 @@ install_zsh_plugins() {
 install_theme() {
     print_header "Set Up Theme"
 
-    if prompt_user "Install Gruvbox theme?" "n"; then
+    if prompt_user "Install and apply Gruvbox theme?" "n"; then
         bash "$DOTDIR/scripts/theme.sh"
     else
-        print_warning "Skipping all package installation..."
+        print_warning "Skipping theme installation..."
     fi
 }
 
@@ -183,7 +134,6 @@ configure_git() {
         read -r git_name
         echo -n "Enter your git email: "
         read -r git_email
-
         git config --global user.name "$git_name"
         git config --global user.email "$git_email"
         print_success "Git configured"
@@ -193,9 +143,9 @@ configure_git() {
 }
 
 main() {
-    print_header "Fedora Setup"
+    print_header "Ubuntu Setup"
 
-    check_fedora
+    check_ubuntu
     update_system
     install_packages
     setup_dotfiles
@@ -206,14 +156,16 @@ main() {
     configure_git
 
     if [[ $SHELL != /usr/bin/zsh ]]; then
+        if ! grep -q "$(which zsh)" /etc/shells; then
+            command -v zsh | sudo tee -a /etc/shells
+        fi
         chsh -s "$(which zsh)"
         print_success "Default shell changed to zsh"
         print_warning "Please log out and log back in for the shell change to take effect."
     fi
 
     print_header "Setup Complete!"
-    print_warning "You may need to restart your terminal or run \`source ~/.zshrc\` to apply changes."
-
+    print_warning "You may need to restart your terminal or reboot to apply changes."
 }
 
 main "$@"
