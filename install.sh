@@ -118,7 +118,7 @@ install_zsh_plugins() {
 install_theme() {
     print_header "Set Up Theme"
 
-    if prompt_user "Install and apply Gruvbox theme?" "n"; then
+    if prompt_user "Install and apply Gruvbox theme?" "y"; then
         bash "$DOTDIR/scripts/theme.sh"
     else
         print_warning "Skipping theme installation..."
@@ -128,18 +128,14 @@ install_theme() {
 configure_gnome() {
     print_header "GNOME Configuration"
 
-    if prompt_user "Configure GNOME settings?" "n"; then
-        bash "$DOTDIR/scripts/gnome.sh"
-        print_success "GNOME configured"
-    else
-        print_warning "Skipping GNOME configuration..."
-    fi
+    bash "$DOTDIR/scripts/gnome.sh"
+    print_success "GNOME configured"
 }
 
 configure_git() {
     print_header "Git Configuration"
 
-    if [[ ! -f "$HOME/.gitconfig" ]] && prompt_user "Configure git user settings?" "n"; then
+    if [[ ! -f "$HOME/.gitconfig" ]] && prompt_user "Configure git user settings?" "y"; then
         echo -n "Enter your git name: "
         read -r git_name
         echo -n "Enter your git email: "
