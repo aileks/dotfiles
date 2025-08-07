@@ -22,7 +22,7 @@ sudo systemctl daemon-reload
 
 # Hyprland Basics
 yay -S --noconfirm --needed hyprland hyprshot hyprpicker hyprlock hypridle \
-    polkit-gnome hyprland-qtutils walker-bin libqalculate waybar \
+    polkit-gnome hyprland-qtutils walker-bin libqalculate waybar wlogout \
     mako swaybg swayosd xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
 
 # Desktop Utilities

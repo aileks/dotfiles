@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+[[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
+OUTPUT_DIR="$HOME/Videos/Recordings"
+
+if [[ ! -d "$OUTPUT_DIR" ]]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
+
+screenrecording() {
+    filename="$OUTPUT_DIR/recording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
+    notify-send "Screen recording starting..." -t 1000
+    sleep 1
+
+    wf-recorder -f "$filename" -c libx264 -p crf=23 -p preset=medium -p movflags=+faststart "$@"
+}
+
+if pgrep -x wf-recorder >/dev/null; then
+    pkill -x wf-recorder
+    notify-send "Screen recording saved to $OUTPUT_DIR" -t 2000
+elif [[ "$1" == "output" ]]; then
+    screenrecording
+else
+    region=$(slurp) || exit 1
+    screenrecording -g "$region"
+fi
