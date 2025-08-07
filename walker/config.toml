@@ -72,14 +72,21 @@ stylesheet = "~/.config/walker/style.css"
     hide_category = true
     hide_without_query = true
 
+[builtins.bookmarks]
+    switcher_only = true
+    hidden = true
+
+[builtins.custom_commands]
+    switcher_only = true
+    hidden = true
+
 [builtins.calc]
     require_number = true
     weight = 5
     name = "Calculator"
     icon = "accessories-calculator"
     placeholder = "Calculator"
-    min_chars = 3                   # Min chars to calculate. 3 allows "3+3"
-    prefix = "="
+    min_chars = 3
 
 [builtins.windows]
     weight = 5
@@ -121,6 +128,10 @@ stylesheet = "~/.config/walker/style.css"
     show_unqualified = false
     prefix = ":"
 
+[builtins.hyprland_keybinds]
+    switcher_only = true
+    hidden = true
+
 [builtins.symbols]
     after_copy = ""
     weight = 5
@@ -137,8 +148,8 @@ stylesheet = "~/.config/walker/style.css"
     cmd_alt = "xdg-open $(dirname ~/%RESULT%)"
     weight = 5
     icon = "file"
-    name = "🕵 Finder"
-    placeholder = "🕵 Finder"
+    name = " 🕵 Finder"
+    placeholder = "Finder"
     switcher_only = true
     ignore_gitignore = true
     refresh = true
