@@ -5,6 +5,8 @@ SERVICES=(
     "fstrim.timer"
     "NetworkManager"
     "docker"
+    "cups"
+    "cups-browsed"
 )
 
 for service in "${SERVICES[@]}"; do
