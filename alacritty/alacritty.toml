@@ -27,10 +27,10 @@
     TERM = "xterm-256color"
 
 [font]
-    normal = { family = "AdwaitaMono Nerd Font Mono", style = "Regular" }
-    bold = { family = "AdwaitaMono Nerd Font Mono", style = "Bold" }
-    italic = { family = "AdwaitaMono Nerd Font Mono", style = "Italic" }
-    size = 13
+    normal = { family = "BerkeleyMono Nerd Font", style = "Regular" }
+    bold = { family = "BerkeleyMono Nerd Font", style = "Bold" }
+    italic = { family = "BerkeleyMono Nerd Font", style = "Italic" }
+    size = 14
 
 [window]
     padding.x = 14
