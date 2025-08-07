@@ -8,7 +8,7 @@
     "hyprland/workspaces"
   ],
   "modules-center": [
-    "clock",
+    "clock"
   ],
   "modules-right": [
     "group/tray-expander",
@@ -43,7 +43,7 @@
       "6": [],
       "7": [],
       "8": [],
-      "9": [],
+      "9": []
     }
   },
   "cpu": {
