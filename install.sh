@@ -91,20 +91,8 @@ done
 info "Copying local utilities..."
 BIN_DIR="$DOTFILES_DIR/bin"
 LOCAL_BIN_DIR="$HOME/.local/bin"
-
 mkdir -p "$LOCAL_BIN_DIR"
-
-for script in "$BIN_DIR"/*.sh; do
-    if [ -f "$script" ] && [ -x "$script" ]; then
-        target_path="$LOCAL_BIN_DIR/$(basename "$script" .sh)"
-        if [ ! -L "$target_path" ]; then
-            info "Copying $(basename "$script")..."
-            cp "$script" "$target_path"
-        else
-            info "$(basename "$script") already exists."
-        fi
-    fi
-done
+cp -r "$BIN_DIR"/* "$LOCAL_BIN_DIR"
 
 question "System setup is complete. It is highly recommended to reboot now. Reboot? (y/N)"
 read -n 1 -r
