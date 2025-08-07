@@ -1,5 +1,5 @@
 # Path
-export PATH="$PATH:$HOME/.local/bin:$HOME/.miniconda3/bin:$HOME/.local/share/omarchy/bin"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.miniconda3/bin"
 
 # Env Variables
 export ZSH="$HOME/.oh-my-zsh"
@@ -44,6 +44,7 @@ export FZF_DEFAULT_OPTS="
   --color=fg:#ebdbb2,header:#ebdbb2,info:#b8bb26,pointer:#fb4934
   --color=marker:#fb4934,fg+:#ebdbb2,prompt:#b8bb26,hl+:#fb4934"
 
+# Custom Functions
 web2app() {
   if [ "$#" -ne 3 ]; then
     echo "Usage: web2app <AppName> <AppURL> <IconURL> (IconURL must be in PNG -- use https://dashboardicons.com)"
@@ -108,4 +109,3 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
-

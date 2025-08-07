@@ -61,13 +61,6 @@
         "source.fixAll.eslint": true
       }
     },
-    "Ruby": {
-      "language_servers": [
-        "ruby-lsp",
-        "rubocop",
-        "!solargraph"
-      ]
-    },
     "Python": {
       "show_edit_predictions": true,
       "language_servers": [
@@ -104,18 +97,6 @@
               "I"
             ]
           }
-        }
-      }
-    },
-    "rubocop": {
-      "initialization_options": {
-        "safeAutocorrect": false
-      }
-    },
-    "ruby-lsp": {
-      "initialization_options": {
-        "enabledFeatures": {
-          "diagnostics": false
         }
       }
     },
