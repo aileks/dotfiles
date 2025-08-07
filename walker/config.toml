@@ -11,7 +11,6 @@ as_window = false
 timeout = 0
 disable_click_to_close = false
 force_keyboard_focus = true
-stylesheet = "~/.config/walker/style.css"
 
 [keys]
     accept_typeahead = ["tab"]
@@ -26,6 +25,12 @@ stylesheet = "~/.config/walker/style.css"
 [keys.activation_modifiers]
     keep_open = "shift"
     alternate = "alt"
+
+[keys.ai]
+    clear_session = ["ctrl x"]
+    copy_last_response = ["ctrl c"]
+    resume_session = ["ctrl r"]
+    run_last_responstruee = ["ctrl e"]
 
 [events]
     on_activate = ""
@@ -167,8 +172,8 @@ stylesheet = "~/.config/walker/style.css"
     placeholder = "Runner"
     typeahead = true
     history = true
-    generic_entry = false       # Generic command runner
-    shell_config = ""           # Path to shell to parse for aliases
+    generic_entry = false
+    shell_config = "~/.zshrc"
     refresh = true
     use_fd = false
     switcher_only = true
