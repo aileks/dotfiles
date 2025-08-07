@@ -39,4 +39,4 @@ curl -fsS https://dl.brave.com/install.sh | sh
 
 # Applications
 yay -S --noconfirm --needed qalculate-gtk gnome-keyring signal-desktop \
-    notesnook-bin localsend-bin
+    notesnook-bin localsend-bin deezer

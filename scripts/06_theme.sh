@@ -11,4 +11,4 @@ sudo cp -r /tmp/icons/src/* /usr/share/icons/Papirus
 /tmp/icons/papirus-folders -C gruvbox-original-purple --theme Papirus-Dark
 
 # Extras
-yay -S --noconfirm --needed plymouth-theme-black-hud-git xcursor-simp1e-gruvbox-dark
+yay -S --noconfirm --needed plymouth-theme-black-hud-git posy-cursors
