@@ -1,3 +1,4 @@
+mkdir -p ~/.local/share/applications
 update-desktop-database ~/.local/share/applications
 
 # Open all images with imv
