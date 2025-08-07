@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-sudo pacman -S --noconfirm cups cups-pdf cups-filters cups-browsed system-config-printer avahi nss-mdns
+sudo pacman -S --noconfirm --needed cups cups-pdf cups-filters cups-browsed system-config-printer avahi nss-mdns
 
 sudo mkdir -p /etc/systemd/resolved.conf.d
 echo -e "[Resolve]\nMulticastDNS=no" | sudo tee /etc/systemd/resolved.conf.d/10-disable-multicast.conf

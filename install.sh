@@ -6,6 +6,7 @@ RESET='\033[0m'
 INFO='\033[0;32m'
 WARN='\033[0;33m'
 ERROR='\033[0;31m'
+QUESTION='\033[0;36m'
 
 info() {
     echo -e "${INFO}INFO: $1${RESET}"
@@ -20,6 +21,9 @@ error() {
     exit 1
 }
 
+question() {
+    echo -e "${QUESTION}INPUT: $1${RESET}"
+}
 
 info "Starting dotfiles setup..."
 
@@ -83,3 +87,31 @@ for config in "${CONFIG_FILES[@]}"; do
         info "Symlink for $config already exists."
     fi
 done
+
+info "Copying local utilities..."
+BIN_DIR="$DOTFILES_DIR/bin"
+LOCAL_BIN_DIR="$HOME/.local/bin"
+
+mkdir -p "$LOCAL_BIN_DIR"
+
+for script in "$BIN_DIR"/*.sh; do
+    if [ -f "$script" ] && [ -x "$script" ]; then
+        target_path="$LOCAL_BIN_DIR/$(basename "$script" .sh)"
+        if [ ! -L "$target_path" ]; then
+            info "Copying $(basename "$script")..."
+            cp "$script" "$target_path"
+        else
+            info "$(basename "$script") already exists."
+        fi
+    fi
+done
+
+question "System setup is complete. It is highly recommended to reboot now. Reboot? (y/N)"
+read -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    info "Rebooting now..."
+    sudo reboot
+else
+    info "Skipping reboot. Please remember to reboot your system later to apply all changes."
+fi

@@ -10,5 +10,5 @@ git clone https://github.com/xelser/gruvbox-papirus-folders.git /tmp/icons
 sudo cp -r /tmp/icons/src/* /usr/share/icons/Papirus
 /tmp/icons/papirus-folders -C gruvbox-original-purple --theme Papirus-Dark
 
-# Plymouth Theme
-yay -S --no-confirm --needed plymouth-theme-black-hud-git
+# Extras
+yay -S --noconfirm --needed plymouth-theme-black-hud-git xcursor-simp1e-gruvbox-dark

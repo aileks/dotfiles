@@ -27,8 +27,8 @@ yay -S --noconfirm --needed hyprland hyprshot hyprpicker hyprlock hypridle \
 
 # Desktop Utilities
 sudo pacman -S --noconfirm --needed \
-    brightnessctl playerctl pamixer wireplumber wl-clip-persist nautilus \
-    ffmpegthumbnailer gvfs-mtp slurp satty celluoid papers imv bluez blueman
+    playerctl pamixer wireplumber wl-clip-persist nautilus network-manager-applet \
+    ffmpegthumbnailer gvfs-mtp slurp satty celluloid papers imv bluez blueman
 
 # Editors
 sudo pacman -S --noconfirm --needed nvim luarocks tree-sitter-cli
