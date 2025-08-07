@@ -105,3 +105,5 @@ sudo systemctl enable seamless-login.service
 # Mask plymouth-quit-wait.service to prevent it from running.
 sudo systemctl mask plymouth-quit-wait.service
 sudo systemctl daemon-reload
+
+sudo mkinitcpio -P

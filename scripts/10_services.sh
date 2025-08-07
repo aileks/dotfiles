@@ -7,6 +7,7 @@ SERVICES=(
     "docker"
     "cups"
     "cups-browsed"
+    "ufw"
 )
 
 for service in "${SERVICES[@]}"; do

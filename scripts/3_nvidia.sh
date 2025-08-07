@@ -23,14 +23,14 @@ if [ -n "$(lspci | grep -i 'nvidia')" ]; then
     sudo pacman -Syy
 
     PACKAGES_TO_INSTALL=(
-    "${KERNEL_HEADERS}"
-    "${NVIDIA_DRIVER_PACKAGE}"
-    "nvidia-utils"
-    "lib32-nvidia-utils"
-    "egl-wayland"
-    "libva-nvidia-driver"
-    "qt5-wayland"
-    "qt6-wayland"
+        "${KERNEL_HEADERS}"
+        "${NVIDIA_DRIVER_PACKAGE}"
+        "nvidia-utils"
+        "lib32-nvidia-utils"
+        "egl-wayland"
+        "libva-nvidia-driver"
+        "qt5-wayland"
+        "qt6-wayland"
     )
 
     sudo pacman -S --needed --noconfirm "${PACKAGES_TO_INSTALL[@]}"
@@ -45,6 +45,4 @@ if [ -n "$(lspci | grep -i 'nvidia')" ]; then
     sudo sed -i -E 's/ nvidia_drm//g; s/ nvidia_uvm//g; s/ nvidia_modeset//g; s/ nvidia//g;' "$MKINITCPIO_CONF"
     sudo sed -i -E "s/^(MODULES=\\()/\\1${NVIDIA_MODULES} /" "$MKINITCPIO_CONF"
     sudo sed -i -E 's/  +/ /g' "$MKINITCPIO_CONF"
-
-    sudo mkinitcpio -P
 fi
