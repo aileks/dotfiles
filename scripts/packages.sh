@@ -31,5 +31,6 @@ sudo pacman -S --noconfirm --needed \
     brightnessctl playerctl pamixer wireplumber wl-clip-persist nautilus \
     ffmpegthumbnailer gvfs-mtp slurp satty celluoid papers imv bluez blueman
 
-# Neovim
+# Editors
 sudo pacman -S --noconfirm --needed nvim luarocks tree-sitter-cli
+curl -f https://zed.dev/install.sh | ZED_CHANNEL=preview sh
