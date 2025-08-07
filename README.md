@@ -13,3 +13,8 @@ git clone https://github.com/aileks/dotfiles.git
 cd dotfiles
 ./install.sh
 ```
+
+## TODO
+- [ ] Add ability to run from URL
+- [ ] Clean up scripts
+- [ ] Fix some of Walker's builtins
