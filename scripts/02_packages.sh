@@ -3,7 +3,7 @@
 # Bare Necessities
 yay -S --noconfirm --needed base-devel wget curl unzip inetutils fd eza fzf \
     ripgrep zoxide bat jq xmlstarlet wl-clipboard fastfetch btop man tldr \
-    less whois plocate alacritty mise imagemagick postgresql-libs github-cli \
+    less whois plocate alacritty mise imagemagick tmux postgresql-libs github-cli \
     docker docker-compose docker-buildx lazydocker-bin plymouth
 
 # Limit log size to avoid running out of disk
