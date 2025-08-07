@@ -1,11 +1,15 @@
 @define-color foreground rgba(255, 255, 255, 0.8);
 @define-color background hsla(240, 12.7%, 13.9%, 0.98);
 @define-color color1 hsl(172, 100%, 25.3%);
+@define-color selected-text #fabd2f;
+@define-color text #ebdbb2;
+@define-color base #282828;
+@define-color border #ebdbb2;
+@define-color foreground #ebdbb2;
+@define-color background #282828;
 
 #window,
 #box,
-#aiScroll,
-#aiList,
 #search,
 #password,
 #input,
@@ -19,133 +23,131 @@ slider,
 #item,
 #text,
 #label,
-#bar,
 #sub,
 #activationlabel {
     all: unset;
 }
 
-#cfgerr {
-    background: rgba(255, 0, 0, 0.4);
-    margin-top: 20px;
-    padding: 8px;
-    font-size: 1.2em;
+* {
+    font-family: 'SFMono Nerd Font', monospace;
+    font-size: 18px;
 }
 
 #window {
-    color: @foreground;
+    background: transparent;
+    color: @text;
 }
 
 #box {
-    border-radius: 2px;
-    background: @background;
-    padding: 32px;
-    border: 1px solid lighter(@background);
-    box-shadow:
-        0 19px 38px rgba(0, 0, 0, 0.3),
-        0 15px 12px rgba(0, 0, 0, 0.22);
+    background: alpha(@base, 0.95);
+    padding: 20px;
+    border: 2px solid @border;
+    border-radius: 0px;
 }
 
 #search {
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.1),
-        0 1px 2px rgba(0, 0, 0, 0.22);
-    background: lighter(@background);
-    padding: 8px;
+    background: @base;
+    padding: 10px;
+    margin-bottom: 0;
 }
 
 #prompt {
-    margin-left: 4px;
-    margin-right: 12px;
-    color: @foreground;
-    opacity: 0.2;
+    opacity: 0;
+    min-width: 0;
+    margin: 0;
 }
 
 #clear {
-    color: @foreground;
-    opacity: 0.8;
-}
-
-#password,
-#input,
-#typeahead {
-    border-radius: 2px;
+    opacity: 0;
+    min-width: 0;
 }
 
 #input {
     background: none;
-}
-
-#password {}
-
-#spinner {
-    padding: 8px;
-}
-
-#typeahead {
-    color: @foreground;
-    opacity: 0.8;
+    color: @text;
+    padding: 0;
 }
 
 #input placeholder {
     opacity: 0.5;
+    color: @text;
 }
 
-#list {}
+#typeahead {
+    opacity: 0;
+}
+
+#list {
+    background: transparent;
+}
 
 child {
-    padding: 8px;
-    border-radius: 2px;
+    padding: 0px 12px;
+    background: transparent;
+    border-radius: 0;
 }
 
 child:selected,
 child:hover {
-    background: alpha(@color1, 0.4);
+    background: transparent;
 }
 
-#item {}
+#item {
+    padding: 0;
+}
 
 #icon {
-    margin-right: 8px;
+    margin-right: 10px;
+    -gtk-icon-transform: scale(0.7);
 }
 
-#text {}
+#text {
+    color: @text;
+    padding: 14px 0;
+}
 
 #label {
-    font-weight: 500;
+    font-weight: normal;
+}
+
+child:selected #text,
+child:selected #label,
+child:hover #text,
+child:hover #label {
+    color: @selected-text;
 }
 
 #sub {
-    opacity: 0.5;
-    font-size: 0.8em;
+    opacity: 0;
+    font-size: 0;
+    min-height: 0;
 }
 
-#activationlabel {}
-
-#bar {}
-
-.barentry {}
-
-.activation #activationlabel {}
-
-.activation #text,
-.activation #icon,
-.activation #search {
-    opacity: 0.5;
+#activationlabel {
+    opacity: 0;
+    min-width: 0;
 }
 
+scrollbar {
+    opacity: 0;
+}
+
+#spinner {
+    opacity: 0;
+}
+
+#aiScroll,
+#aiList,
 .aiItem {
-    padding: 10px;
-    border-radius: 2px;
-    color: @foreground;
-    background: @background;
+    opacity: 0;
+    min-height: 0;
 }
 
-.aiItem.user {
-    padding-left: 0;
-    padding-right: 0;
+#bar {
+    opacity: 0;
+    min-height: 0;
 }
 
-.aiItem.assistant {
-    background: lighter(@background);
+.barentry {
+    opacity: 0;
 }

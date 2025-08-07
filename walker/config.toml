@@ -11,6 +11,7 @@ as_window = false
 timeout = 0
 disable_click_to_close = false
 force_keyboard_focus = true
+stylesheet = "~/.config/walker/style.css"
 
 [keys]
     accept_typeahead = ["tab"]
@@ -136,8 +137,8 @@ force_keyboard_focus = true
     cmd_alt = "xdg-open $(dirname ~/%RESULT%)"
     weight = 5
     icon = "file"
-    name = " Finder"
-    placeholder = " Finder"
+    name = "🕵 Finder"
+    placeholder = "🕵 Finder"
     switcher_only = true
     ignore_gitignore = true
     refresh = true
