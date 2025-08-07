@@ -10,7 +10,6 @@ yay -S --noconfirm --needed wget curl unzip inetutils impala fd eza fzf \
 sudo mkdir -p /etc/docker
 echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' | sudo tee /etc/docker/daemon.json
 
-sudo systemctl enable docker
 sudo usermod -aG docker ${USER}
 
 # Prevent Docker from preventing boot for network-online.target
