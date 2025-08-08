@@ -21,9 +21,12 @@ EOF
 sudo systemctl daemon-reload
 
 # Hyprland Basics
-yay -S --noconfirm --needed hyprland hyprshot hyprpicker hyprlock hypridle \
-    polkit-gnome hyprland-qtutils walker-bin libqalculate waybar wlogout \
-    mako swaybg swayosd xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
+yay -S --noconfirm --needed hyprland hyprshot hyprpicker hyprlock hypridle polkit-gnome \
+    hyprland-qtutils walker-bin deja-dup libqalculate waybar wlogout mako swaybg swayosd \
+    xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
+
+# Deja-Dup on non-GNOME desktops needs this set manually for automatic backups
+gsettings set org.gnome.DejaDup periodic true
 
 # Desktop Utilities
 sudo pacman -S --noconfirm --needed \
