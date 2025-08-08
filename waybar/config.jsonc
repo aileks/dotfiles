@@ -8,15 +8,15 @@
     "hyprland/workspaces"
   ],
   "modules-center": [
-    "clock"
+    "hyprland/window"
   ],
   "modules-right": [
-    "group/tray-expander",
-    "bluetooth",
-    "network",
-    "pulseaudio",
     "cpu",
-    "battery"
+    "memory",
+    "bluetooth",
+    "pulseaudio",
+    "tray",
+    "clock"
   ],
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -46,15 +46,33 @@
       "9": []
     }
   },
+  "hyprland/window": {
+    "format": "{} {}",
+    "max-length": 50,
+    "icon": true,
+    "icon-size": 16
+  },
   "cpu": {
-    "interval": 5,
-    "format": "󰍛",
-    "on-click": "alacritty -e btop"
+    "format": "󰍛 {usage}%",
+    "interval": 1,
+    "states": {
+      "warning": 75,
+      "critical": 90
+    }
+  },
+  "memory": {
+    "format": " {used:.1f} GB",
+    "interval": 1,
+    "states": {
+      "warning": 75,
+      "critical": 90
+    }
   },
   "clock": {
     "format": "{:%A %H:%M}",
-    "format-alt": "{:%d %B W%V %Y}",
-    "tooltip": false
+    "format-alt": "{:%B %e, %Y}",
+    "tooltip-format": "<big>{calendar}</big>",
+    "tooltip": true
   },
   "network": {
     "format-icons": [
@@ -65,30 +83,28 @@
       "󰤨"
     ],
     "format": "{icon}",
-    "format-wifi": "{icon}",
-    "format-ethernet": "󰀂",
+    "format-wifi": "{icon} {essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "format-ethernet": "󰀂 ⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "format-disconnected": "󰖪",
-    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-    "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
-    "interval": 3,
+    "interval": 2,
     "nospacing": 1,
-    "on-click": "alacritty --class=Impala -e impala"
+    "on-click": "nm-connection-editor"
   },
   "bluetooth": {
     "format": "",
     "format-disabled": "󰂲",
-    "format-connected": "",
+    "format-connected": " {device_alias}",
     "tooltip-format": "Devices connected: {num_connections}",
+    "interval": 5,
     "on-click": "blueman-manager"
   },
   "pulseaudio": {
-    "format": "{icon}",
+    "format": "{icon} {volume}%",
     "on-click": "alacritty --class=Wiremix -e wiremix",
     "on-click-right": "pamixer -t",
-    "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,
-    "format-muted": "󰝟",
+    "format-muted": "󰖁 Muted",
     "format-icons": {
       "default": [
         "",
@@ -97,23 +113,8 @@
       ]
     }
   },
-  "group/tray-expander": {
-    "orientation": "inherit",
-    "drawer": {
-      "transition-duration": 600,
-      "children-class": "tray-group-item"
-    },
-    "modules": [
-      "custom/expand-icon",
-      "tray"
-    ]
-  },
-  "custom/expand-icon": {
-    "format": " ",
-    "tooltip": false
-  },
   "tray": {
-    "icon-size": 12,
-    "spacing": 12
+    "icon-size": 16,
+    "spacing": 10
   }
 }

@@ -8,7 +8,8 @@
     border-radius: 0;
     min-height: 0;
     font-family: "AdwaitaMono Nerd Font Propo";
-    font-size: 13px;
+    /* Adwaita font looks better at odd sizes */
+    font-size: 15px;
 }
 
 .modules-left {
@@ -22,8 +23,8 @@
 #workspaces button {
     all: initial;
     padding: 0 6px;
-    margin: 0 1.5px;
-    min-width: 9px;
+    margin: 0 2px;
+    min-width: 10px;
 }
 
 #workspaces button.empty {
@@ -36,16 +37,27 @@
 #network,
 #bluetooth,
 #pulseaudio,
-#clock,
-#custom-omarchy {
+#clock {
     min-width: 12px;
-    margin: 0 7.5px;
-}
-
-#custom-expand-icon {
-    margin-right: 12px;
+    margin: 0 8px;
 }
 
 tooltip {
-    padding: 2px;
+    border-radius: 4px;
+    background-color: #bd93f9;
+}
+
+#cpu,
+#memory {
+    padding: 0 10px;
+}
+
+#cpu.warning,
+#memory.warning {
+    color: #d65d0e;
+}
+
+#cpu.critical,
+#memory.critical {
+    color: #fb4934;
 }
