@@ -2,6 +2,11 @@
 
 set -e
 
+if ! grep -q '^ID=arch$' /etc/os-release; then
+    echo "This script is intended only for Arch Linux." >&2
+    exit 1
+fi
+
 RESET='\033[0m'
 INFO='\033[0;32m'
 WARN='\033[0;33m'
