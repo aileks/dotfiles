@@ -4,7 +4,7 @@ menu() {
   echo -e "$2" | walker --dmenu --theme dmenu_250 -p "$1…" $3
 }
 
-case $(menu "System" "  Lock\n󰤄  Suspend\n  Relaunch\n󰜉  Restart\n󰐥  Shutdown") in
+case $(menu "Session" "  Lock\n󰤄  Suspend\n  Relaunch\n󰜉  Restart\n󰐥  Shutdown") in
 *Lock*) hyprlock ;;
 *Suspend*) systemctl suspend ;;
 *Relaunch*) uwsm stop ;;
