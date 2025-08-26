@@ -59,6 +59,9 @@ function __icon_map() {
         "Keynote")
             icon_result=":keynote:"
             ;;
+        "Mail")
+            icon_result=":mail:"
+            ;;
         "Maps")
             icon_result=":maps:"
             ;;
