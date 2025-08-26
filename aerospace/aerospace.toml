@@ -1,6 +1,4 @@
-# Available commands: https://nikitabobko.github.io/AeroSpace/commands
 after-login-command = []
-# Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = []
 exec-on-workspace-change = [
     '/opt/homebrew/bin/bash',
@@ -32,8 +30,13 @@ outer.top = 40
 outer.right = 6
 
 [mode.main.binding]
-cmd-alt-ctrl-slash = 'layout tiles horizontal vertical'
-cmd-alt-ctrl-comma = 'layout accordion horizontal vertical'
+alt-slash = 'layout tiles horizontal vertical'
+alt-comma = 'layout accordion horizontal vertical'
+
+alt-h = ['join-with left']
+alt-j = ['join-with down']
+alt-k = ['join-with up']
+alt-l = ['join-with right']
 
 cmd-alt-ctrl-h = 'focus left'
 cmd-alt-ctrl-j = 'focus down'
@@ -82,10 +85,7 @@ cmd-alt-ctrl-semicolon = 'mode service'
 esc = ['reload-config', 'mode main']
 r = ['flatten-workspace-tree', 'mode main']
 f = ['layout floating tiling', 'mode main']
-ctrl-h = ['join-with left']
-ctrl-j = ['join-with down']
-ctrl-k = ['join-with up']
-ctrl-l = ['join-with right']
+
 
 [mode.resize.binding]
 h = 'resize smart -20'
