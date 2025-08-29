@@ -23,6 +23,9 @@ function __icon_map() {
         "Color Picker")
             icon_result=":color_picker:"
             ;;
+        "Dia")
+            icon_result=":dia:"
+            ;;
         "Deezer")
             icon_result=":deezer:"
             ;;
