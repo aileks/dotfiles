@@ -53,6 +53,9 @@ function __icon_map() {
         "Ghostty")
             icon_result=":ghostty:"
             ;;
+        "Helium")
+            icon_result=":google_chrome:"
+            ;;
         "iPhone Mirroring")
             icon_result=":iphone_mirroring:"
             ;;
