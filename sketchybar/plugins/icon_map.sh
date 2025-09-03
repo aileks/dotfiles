@@ -62,7 +62,7 @@ function __icon_map() {
         "iPhone Mirroring")
             icon_result=":iphone_mirroring:"
             ;;
-        "Karabiner-Elements")
+        "Karabiner-Elements" | "Karabiner-EventViewer")
             icon_result=":keyboard:"
             ;;
         "Keynote")
