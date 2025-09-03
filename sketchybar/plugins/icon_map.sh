@@ -149,7 +149,7 @@ function __icon_map() {
         "Xcode")
             icon_result=":xcode:"
             ;;
-        "Zed")
+        "Zed" | "Zed Preview")
             icon_result=":zed:"
             ;;
         "Zen")
