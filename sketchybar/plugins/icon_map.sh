@@ -11,6 +11,9 @@ function __icon_map() {
         "App Store")
             icon_result=":app_store:"
             ;;
+        "Arc")
+            icon_result=":arc:"
+            ;;
         "Books")
             icon_result=":book:"
             ;;
