@@ -44,11 +44,9 @@ update_spaces() {
     done
 }
 
+# hacky but I'll deal with it later
 case "$SENDER" in
-    "aerospace_workspace_change"|"front_app_switched"|"space_windows_change"|"forced")
-        update_spaces
-        ;;
-    *)
+    "aerospace_workspace_change"|"front_app_switched"|"space_windows_change"|"window_destroyed"|"window_created"|"forced")
         update_spaces
         ;;
 esac
