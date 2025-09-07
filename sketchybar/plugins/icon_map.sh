@@ -29,6 +29,9 @@ function __icon_map() {
         "Color Picker")
             icon_result=":color_picker:"
             ;;
+        "Comet")
+            icon_result=":comet:"
+            ;;
         "Dia")
             icon_result=":dia:"
             ;;
