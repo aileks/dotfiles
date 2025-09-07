@@ -21,9 +21,10 @@
   },
   "base_keymap": "VSCode",
   "agent": {
+    "single_file_review": true,
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-sonnet-4-thinking"
+      "provider": "copilot_chat",
+      "model": "claude-sonnet-4"
     },
     "always_allow_tool_actions": true
   },
@@ -43,7 +44,7 @@
     "dark": "Gruvbox Dark"
   },
   "features": {
-    "edit_prediction_provider": "zed"
+    "edit_prediction_provider": "copilot"
   },
   "calls": {
     "mute_on_join": true
