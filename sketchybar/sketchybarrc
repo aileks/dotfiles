@@ -35,6 +35,8 @@ default=(
     label.padding_right=8
     background.corner_radius=12
     background.height=24
+    background.border_color=$GREY
+    background.border_width=1
 )
 
 sketchybar --default "${default[@]}"
