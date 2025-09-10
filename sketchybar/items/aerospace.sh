@@ -14,8 +14,6 @@ sketchybar --add event window_title_changed
 for sid in $(aerospace list-workspaces --all); do
   sketchybar --add item space.$sid left \
              --set space.$sid \
-             background.color=$BG1 \
-             background.corner_radius=8 \
              background.height=24 \
              label.font="sketchybar-app-font:Regular:14" \
              icon.font="AdwaitaMono Nerd Font Propo:Bold:14" \

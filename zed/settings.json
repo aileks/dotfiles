@@ -21,6 +21,7 @@
   },
   "base_keymap": "VSCode",
   "agent": {
+    "default_profile": "write",
     "single_file_review": true,
     "default_model": {
       "provider": "copilot_chat",
