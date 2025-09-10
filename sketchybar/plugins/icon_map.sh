@@ -38,6 +38,9 @@ function __icon_map() {
         "Deezer")
             icon_result=":deezer:"
             ;;
+        "Disk Utility")
+            icon_result=":gear_old:"
+            ;;
         "Element")
             icon_result=":element:"
             ;;
@@ -63,7 +66,7 @@ function __icon_map() {
             icon_result=":ghostty:"
             ;;
         "Helium")
-            icon_result=":google_chrome:"
+            icon_result=":helium:"
             ;;
         "iPhone Mirroring")
             icon_result=":iphone_mirroring:"
