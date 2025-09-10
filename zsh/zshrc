@@ -29,6 +29,7 @@ alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
 alias ff="fastfetch"
 alias vim="zed"
+alias update="bubu && sketchybar --trigger brew_update"
 
 # Evals
 eval "$(zoxide init zsh)"
