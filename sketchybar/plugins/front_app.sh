@@ -8,7 +8,6 @@ else
     APP_NAME=$(aerospace list-windows --focused --format "%{app-name}" 2>/dev/null)
 fi
 
-# Exit if no app name
 if [ -z "$APP_NAME" ]; then
     sketchybar --set "$NAME" drawing=off
     return
@@ -17,6 +16,6 @@ fi
 sketchybar --set "$NAME" icon="􀢌" \
                          icon.font="SF Pro:Bold:14" \
                          icon.color=$FG2 \
-                         label=$APP_NAME \
+                         label="$APP_NAME" \
                          background.color=$BG1 \
                          drawing=on
