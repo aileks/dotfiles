@@ -1,9 +1,5 @@
 after-login-command = []
-after-startup-command = [
-    '/bin/bash',
-    '-c',
-    'sketchybar --trigger forced',
-]
+after-startup-command = []
 exec-on-workspace-change = [
     '/bin/bash',
     '-c',

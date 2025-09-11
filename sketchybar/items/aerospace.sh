@@ -10,6 +10,7 @@ sketchybar --add event front_app_switched
 sketchybar --add event space_windows_change
 sketchybar --add event window_focus
 sketchybar --add event window_title_changed
+sketchybar --add event forced
 
 for sid in $(aerospace list-workspaces --all); do
   sketchybar --add item space.$sid left \
@@ -29,6 +30,6 @@ done
 sketchybar --add item aerospace_controller left \
            --set aerospace_controller drawing=off \
            script="$PLUGIN_DIR/aerospace.sh" \
-           --subscribe aerospace_controller aerospace_workspace_change front_app_switched space_windows_change window_destroyed window_created window_focus window_title_changed
+           --subscribe aerospace_controller aerospace_workspace_change front_app_switched space_windows_change window_destroyed window_created window_focus window_title_changed forced
 
 sketchybar --trigger aerospace_controller forced

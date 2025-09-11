@@ -17,9 +17,6 @@ function __icon_map() {
         "Books")
             icon_result=":book:"
             ;;
-        "Brave Browser")
-            icon_result=":brave_browser:"
-            ;;
         "Calculator")
             icon_result=":calculator:"
             ;;
@@ -59,8 +56,8 @@ function __icon_map() {
         "FreeTube")
             icon_result=":freetube:"
             ;;
-        "System Preferences" | "System Settings")
-            icon_result=":gear:"
+        "Google Chrome")
+            icon_result=":google_chrome:"
             ;;
         "Ghostty")
             icon_result=":ghostty:"
@@ -139,6 +136,9 @@ function __icon_map() {
             ;;
         "Steam" | "Steam Helper")
             icon_result=":steam:"
+            ;;
+        "System Preferences" | "System Settings")
+            icon_result=":gear:"
             ;;
         "Terminal")
             icon_result=":terminal:"
