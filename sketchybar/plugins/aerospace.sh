@@ -48,4 +48,7 @@ case "$SENDER" in
     "aerospace_workspace_change"|"front_app_switched"|"space_windows_change"|"window_destroyed"|"window_created"|"forced")
         update_spaces
         ;;
+    *)
+        update_spaces
+        ;;
 esac
