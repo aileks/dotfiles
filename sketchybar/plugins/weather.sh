@@ -2,6 +2,10 @@
 
 sketchybar --set $NAME label="Fetching Weather..."
 
+if [ "$SENDER" = "system_woke" ]; then
+  sleep 1
+fi
+
 IP=$(curl -s https://ipinfo.io/ip)
 LOCATION_JSON=$(curl -s https://ipinfo.io/$IP/json)
 
@@ -9,7 +13,7 @@ LOCATION="$(echo $LOCATION_JSON | jq '.city' | tr -d '"')"
 REGION="$(echo $LOCATION_JSON | jq '.region' | tr -d '"')"
 
 LOCATION_ESCAPED="${LOCATION// /+}+${REGION// /+}"
-WEATHER_JSON=$(curl -s "https://wttr.in/$LOCATION_ESCAPED?format=j2&lang=en")
+WEATHER_JSON=$(curl -s "https://wttr.in/$LOCATION_ESCAPED?format=j2&lang=en&random=$RANDOM")
 
 if [ -z "$WEATHER_JSON" ]; then
     sketchybar --set $NAME label="$LOCATION"
