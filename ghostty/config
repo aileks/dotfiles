@@ -1,8 +1,8 @@
 term = xterm-256color
 shell-integration-features = no-cursor
 shell-integration = zsh
-theme = GruvboxDarkHard
-font-family = "BerkeleyMono Nerd Font"
+theme = Gruvbox Dark Hard
+font-family = BerkeleyMono Nerd Font
 font-size = 20
 background-opacity = 0.9
 background-blur = true
