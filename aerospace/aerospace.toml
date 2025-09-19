@@ -6,7 +6,7 @@ after-startup-command = []
 #     'sketchybar --trigger aerospace_workspace_change AEROSPACE_FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE AEROSPACE_PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE',
 # ]
 
-start-at-login = true
+start-at-login = false
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
 accordion-padding = 200
@@ -26,7 +26,7 @@ inner.horizontal = 6
 inner.vertical = 6
 outer.left = 6
 outer.bottom = 6
-outer.top = 32
+outer.top = 6
 outer.right = 6
 
 [mode.main.binding]
@@ -74,7 +74,7 @@ cmd-alt-ctrl-w = 'exec-and-forget open -a Zen'
 cmd-alt-ctrl-z = 'exec-and-forget open -a Zed'
 cmd-alt-ctrl-y = 'exec-and-forget open -a FreeTube'
 cmd-alt-ctrl-s = 'exec-and-forget open -a Signal'
-cmd-alt-ctrl-m = 'exec-and-forget open -a Deezer'
+cmd-alt-ctrl-m = 'exec-and-forget open -a Music'
 cmd-alt-ctrl-d = 'exec-and-forget open -a Element'
 cmd-alt-ctrl-n = 'exec-and-forget open -a Notesnook'
 
