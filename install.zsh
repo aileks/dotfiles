@@ -44,17 +44,13 @@ command_exists() {
     command -v "$1" &>/dev/null
 }
 
-is_installed() {
-    brew list --formula "$1" &>/dev/null 2>&1 || brew list --cask "$1" &>/dev/null 2>&1
-}
-
 wait_for_user() {
     local message="$1"
     echo -e "${YELLOW}$message${NC}"
     read -p "Press Enter to continue..."
 }
 
-TOTAL_STEPS=9
+TOTAL_STEPS=7
 CURRENT_STEP=0
 
 show_progress() {
@@ -116,37 +112,24 @@ install_homebrew() {
         brew update
         log_success "Homebrew updated"
     fi
-
-    log_info "Adding Homebrew taps..."
-    brew tap nikitabobko/tap &>/dev/null || true
-    brew tap FelixKratz/formulae &>/dev/null || true
 }
 
-install_cli_tools() {
-    show_progress "Installing command line tools"
+install_packages() {
+    show_progress "Installing packages from Brewfile"
 
-    local cli_tools=(
-        curl wget tmux mise ripgrep sketchybar fzf trash-cli
-        fastfetch tree btop jq gh bash eza zoxide bat
-    )
-    local failed_installs=()
+    local brewfile_path="$DOTFILES_DIR/Brewfile"
 
-    for tool in "${cli_tools[@]}"; do
-        if is_installed "$tool"; then
-            log_info "$tool is already installed, skipping..."
-        else
-            log_info "Installing $tool..."
-            if brew install "$tool" &>/dev/null; then
-                log_success "$tool installed successfully"
-            else
-                log_warning "Failed to install $tool"
-                failed_installs+=("$tool")
-            fi
-        fi
-    done
+    if [[ ! -f "$brewfile_path" ]]; then
+        log_error "Brewfile not found at $brewfile_path"
+        return 1
+    fi
 
-    if [[ ${#failed_installs[@]} -gt 0 ]]; then
-        log_warning "Some tools failed to install: ${failed_installs[*]}"
+    log_info "Installing packages and applications from Brewfile..."
+    if brew bundle install --file="$brewfile_path"; then
+        log_success "All packages from Brewfile installed successfully"
+    else
+        log_warning "Some packages may have failed to install from Brewfile"
+        log_info "You can check which packages failed and install them manually"
     fi
 }
 
@@ -169,69 +152,6 @@ install_oh_my_zsh() {
     if [[ ! -d "$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting" ]]; then
         git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git \
             "$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
-    fi
-}
-
-install_miniconda() {
-    show_progress "Setting up Miniconda"
-
-    if ! command_exists conda; then
-        log_info "Installing Miniconda..."
-
-        local install_dir="$HOME/.local/bin"
-        mkdir -p "$install_dir"
-
-        local conda_url
-        if [[ $(uname -m) == "arm64" ]]; then
-            conda_url="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
-        else
-            conda_url="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
-        fi
-
-        local installer_path="$HOME/miniconda.sh"
-        if curl -fsSL -o "$installer_path" "$conda_url"; then
-            bash "$installer_path" -b -p "$install_dir/miniconda3"
-            rm "$installer_path"
-
-            "$install_dir/miniconda3/bin/conda" init zsh
-            log_success "Miniconda installed successfully"
-        else
-            log_error "Failed to download Miniconda installer"
-            return 1
-        fi
-    else
-        log_info "Conda already installed"
-    fi
-}
-
-install_gui_apps() {
-    show_progress "Installing GUI applications"
-
-    local cask_apps=(
-        tg-pro element ghostty zed aerospace deezer freetube
-        protonvpn proton-mail proton-drive brave-browser notesnook
-        font-adwaita font-adwaita-mono-nerd-font karabiner-elements
-        pearcleaner lulu zoom
-    )
-    local failed_installs=()
-
-    for app in "${cask_apps[@]}"; do
-        if is_installed "$app"; then
-            log_info "$app is already installed, skipping..."
-        else
-            log_info "Installing $app..."
-            if brew install --cask "$app" &>/dev/null; then
-                log_success "$app installed successfully"
-            else
-                log_warning "Failed to install $app"
-                failed_installs+=("$app")
-            fi
-        fi
-    done
-
-    if [[ ${#failed_installs[@]} -gt 0 ]]; then
-        log_warning "Some apps failed to install: ${failed_installs[*]}"
-        log_info "You can try installing them manually later with: brew install --cask <app_name>"
     fi
 }
 
@@ -314,6 +234,7 @@ create_symlink() {
 
 update_dotfiles() {
     TOTAL_STEPS=1
+
     CURRENT_STEP=0
 
     show_progress "Updating and re-linking dotfiles"
@@ -343,7 +264,6 @@ cleanup_and_finish() {
     echo "  • Xcode Command Line Tools: $(xcode-select -p 2>/dev/null && echo "✓ Installed" || echo "✗ Not found")"
     echo "  • Homebrew: $(command_exists brew && echo "✓ Installed" || echo "✗ Not found")"
     echo "  • Oh-My-Zsh: $([[ -d "$HOME/.oh-my-zsh" ]] && echo "✓ Installed" || echo "✗ Not found")"
-    echo "  • Conda: $(command_exists conda && echo "✓ Installed" || echo "✗ Not found")"
     echo "  • Dotfiles: $([[ -d "$DOTFILES_DIR" ]] && echo "✓ Configured" || echo "✗ Not found")"
     echo
     echo "Next steps:"
@@ -384,11 +304,9 @@ main() {
             check_system
             install_xcode_tools
             install_homebrew
-            install_cli_tools
-            install_oh_my_zsh
-            install_miniconda
-            install_gui_apps
             setup_dotfiles
+            install_packages
+            install_oh_my_zsh
             cleanup_and_finish
             ;;
         2)
