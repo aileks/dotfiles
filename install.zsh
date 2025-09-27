@@ -274,12 +274,12 @@ cleanup_and_finish() {
     echo
     log_warning "A REBOOT IS RECOMMENDED TO ENSURE ALL SYSTEM CHANGES TAKE EFFECT PROPERLY."
     echo
-    read -r "?Would you like to reboot now? (y/N): "
+    read -r "Would you like to reboot now? (y/N): "
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         log_info "Rebooting in 5 seconds... (Press Ctrl+C to cancel)"
         sleep 5
         log_warning "Rebooting now!"
-        sudo reboot
+        osascript -e 'tell application "System Events" to restart'
     else
         log_info "Remember to reboot your system when convenient to complete the setup."
     fi
