@@ -260,12 +260,6 @@ cleanup_and_finish() {
 
     log_success "macOS setup completed successfully!"
     echo
-    log_info "Summary:"
-    echo "  • Xcode Command Line Tools: $(xcode-select -p 2>/dev/null && echo "✓ Installed" || echo "✗ Not found")"
-    echo "  • Homebrew: $(command_exists brew && echo "✓ Installed" || echo "✗ Not found")"
-    echo "  • Oh-My-Zsh: $([[ -d "$HOME/.oh-my-zsh" ]] && echo "✓ Installed" || echo "✗ Not found")"
-    echo "  • Dotfiles: $([[ -d "$DOTFILES_DIR" ]] && echo "✓ Configured" || echo "✗ Not found")"
-    echo
     echo "Next steps:"
     echo "  1. Run 'brew doctor' to check for any issues"
     echo "  2. Restart your terminal or run 'source ~/.zshrc' to apply changes"
