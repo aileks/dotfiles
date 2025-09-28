@@ -74,6 +74,33 @@ check_system() {
     fi
 }
 
+create_symlink() {
+    local src="$1"
+    local dest="$2"
+    local dest_dir
+
+    dest_dir=$(dirname "$dest")
+    if [[ ! -d "$dest_dir" ]]; then
+        mkdir -p "$dest_dir"
+        log_info "Created directory: $dest_dir"
+    fi
+
+    if [[ -e "$dest" && ! -L "$dest" ]] || [[ -L "$dest" && ! -e "$dest" ]]; then
+         log_info "Backing up existing file/directory: $dest"
+         mv "$dest" "${dest}${BACKUP_SUFFIX}"
+    elif [[ -L "$dest" ]]; then
+        log_info "Removing existing symlink: $dest"
+        rm "$dest"
+    fi
+
+    if ln -s "$src" "$dest"; then
+        log_success "Created symlink: $dest -> $src"
+    else
+        log_error "Failed to create symlink: $dest -> $src"
+        return 1
+    fi
+}
+
 install_xcode_tools() {
     show_progress "Installing Xcode Command Line Tools"
 
@@ -188,8 +215,7 @@ setup_dotfiles() {
         "fastfetch:$HOME/.config/fastfetch"
         "ghostty:$HOME/.config/ghostty"
         "sketchybar:$HOME/.config/sketchybar"
-        "zed/settings.json:$HOME/.config/zed/settings.json"
-        "zed/keymap.json:$HOME/.config/zed/keymap.json"
+        "vscode/settings.json:$HOME/Library/Application Support/Code/User/settings.json"
     )
 
     for mapping in "${symlink_mappings[@]}"; do
@@ -203,33 +229,6 @@ setup_dotfiles() {
             log_warning "Source file/directory not found: $full_src_path - skipping symlink creation"
         fi
     done
-}
-
-create_symlink() {
-    local src="$1"
-    local dest="$2"
-    local dest_dir
-
-    dest_dir=$(dirname "$dest")
-    if [[ ! -d "$dest_dir" ]]; then
-        mkdir -p "$dest_dir"
-        log_info "Created directory: $dest_dir"
-    fi
-
-    if [[ -e "$dest" && ! -L "$dest" ]] || [[ -L "$dest" && ! -e "$dest" ]]; then
-         log_info "Backing up existing file/directory: $dest"
-         mv "$dest" "${dest}${BACKUP_SUFFIX}"
-    elif [[ -L "$dest" ]]; then
-        log_info "Removing existing symlink: $dest"
-        rm "$dest"
-    fi
-
-    if ln -s "$src" "$dest"; then
-        log_success "Created symlink: $dest -> $src"
-    else
-        log_error "Failed to create symlink: $dest -> $src"
-        return 1
-    fi
 }
 
 update_dotfiles() {
