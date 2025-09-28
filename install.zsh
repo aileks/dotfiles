@@ -230,6 +230,38 @@ setup_dotfiles() {
         fi
     done
 }
+ 
+install_miniforge() {
+    show_progress "Setting up conda"
+
+    if ! command_exists conda; then
+        log_info "Installing Miniforge3..."
+
+        local install_dir="$HOME/.local/bin"
+        mkdir -p "$install_dir"
+
+        local conda_url
+        if [[ $(uname -m) == "arm64" ]]; then
+            conda_url="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Darwin-arm64.sh"
+        else
+            conda_url="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Darwin-x86_64.sh"
+        fi
+
+        local installer_path="$HOME/miniforge.sh"
+        if curl -fsSL -o "$installer_path" "$conda_url"; then
+            bash "$installer_path" -b -p "$install_dir/miniforge3"
+            rm "$installer_path"
+
+            "$install_dir/miniforge3/bin/conda" init zsh
+            log_success "Miniforge3 installed successfully"
+        else
+            log_error "Failed to download Miniforge3 installer"
+            return 1
+        fi
+    else
+        log_info "Conda already installed"
+    fi
+}
 
 update_dotfiles() {
     TOTAL_STEPS=1
@@ -300,6 +332,7 @@ main() {
             setup_dotfiles
             install_packages
             install_oh_my_zsh
+            install_miniforge
             cleanup_and_finish
             ;;
         2)
