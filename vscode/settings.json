@@ -12,6 +12,8 @@
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.experimentalGpuAcceleration": "on",
   "editor.minimap.enabled": false,
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
   "json.format.keepLines": true,
 
   "editor.wordWrapColumn": 120,
@@ -68,6 +70,5 @@
   "vim.insertModeKeyBindingsNonRecursive": [
     { "before": [ "j", "k" ], "after": [ "<Esc>" ] },
     { "before": [ "k", "j" ], "after": [ "<Esc>" ] }
-  ],
-  "git.enableSmartCommit": true
+  ]
 }
