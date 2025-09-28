@@ -180,6 +180,10 @@ install_oh_my_zsh() {
         git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git \
             "$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
     fi
+    
+    if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+        git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    fi
 }
 
 setup_dotfiles() {
