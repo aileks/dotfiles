@@ -1,7 +1,7 @@
 {
   "github.copilot.nextEditSuggestions.enabled": true,
   "workbench.colorTheme": "Gruvbox Dark Hard",
-  "editor.fontSize": 16,
+  "editor.fontSize": 14,
   "editor.formatOnSave": true,
   "files.autoSave": "onFocusChange",
   "editor.fontFamily": "BerkeleyMono Nerd Font",
@@ -15,11 +15,10 @@
   "git.enableSmartCommit": true,
   "git.autofetch": true,
   "json.format.keepLines": true,
+  "editor.fontLigatures": true,
 
   "editor.wordWrapColumn": 120,
-  "editor.rulers": [
-    120
-  ],
+  "editor.rulers": [ 120 ],
   "python.analysis.typeCheckingMode": "strict",
   "workbench.iconTheme": "gruvbox-material-icon-theme",
 
