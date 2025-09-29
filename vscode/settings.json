@@ -16,6 +16,8 @@
   "git.autofetch": true,
   "json.format.keepLines": true,
   "editor.fontLigatures": true,
+  "editor.guides.bracketPairs": true,
+  "window.zoomLevel": -0.5,
 
   "editor.wordWrapColumn": 120,
   "editor.rulers": [ 120 ],
@@ -69,5 +71,5 @@
   "vim.insertModeKeyBindingsNonRecursive": [
     { "before": [ "j", "k" ], "after": [ "<Esc>" ] },
     { "before": [ "k", "j" ], "after": [ "<Esc>" ] }
-  ]
+  ],
 }
