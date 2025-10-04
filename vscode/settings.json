@@ -19,69 +19,16 @@
   "editor.guides.bracketPairs": true,
   "window.zoomLevel": -0.5,
   "editor.wordWrapColumn": 120,
-  "editor.rulers": [ 120 ],
+  "editor.rulers": [120],
   "python.analysis.typeCheckingMode": "strict",
   "workbench.iconTheme": "gruvbox-material-icon-theme",
   "[sql]": {
     "editor.formatOnSave": false
   },
-
-  "vim.leader": " ",
-  "vim.useSystemClipboard": true,
-  "vim.highlightedyank.enable": true,
-  "vim.highlightedyank.color": "rgba(250, 189, 47, 0.5)",
-  "vim.normalModeKeyBindingsNonRecursive": [
-    { "before": [ "<leader>", "f" ], "commands": [ "workbench.action.quickOpen" ] },
-    { "before": [ "<leader>", "p" ], "commands": [ "workbench.action.toggleSidebarVisibility" ] },
-    { "before": [ "<leader>", "e" ], "commands": [ "workbench.action.toggleSidebarVisibility" ] },
-    { "before": [ "<leader>", "t" ], "commands": [ "workbench.action.toggleTerminal" ] },
-    { "before": [ "<leader>", "/" ], "commands": [ "workbench.action.findInFiles" ] },
-    { "before": [ "<leader>", "o" ], "commands": [ "workbench.view.outline" ] },
-    { "before": [ "<leader>", "s" ], "commands": [ "workbench.action.gotoSymbol" ] },
-    { "before": [ "<leader>", "c" ], "commands": [ "workbench.action.showCommands" ] },
-    { "before": [ "<leader>", "d" ], "commands": [ "workbench.actions.view.problems" ] },
-    { "before": [ "<leader>", "r" ], "commands": [ "editor.action.rename" ] },
-    { "before": [ "<leader>", "b" ], "commands": [ "gitlens.toggleFileBlame" ] },
-    { "before": [ "<leader>", "g", "a" ], "commands": [ "git.stageAll" ] },
-    { "before": [ "<leader>", "g", "c" ], "commands": [ "git.commit" ] },
-    { "before": [ "<leader>", "g", "p" ], "commands": [ "git.push" ] },
-    { "before": [ "<leader>", "g", "l" ], "commands": [ "git.pull" ] },
-    { "before": [ "<leader>", "g", "d" ], "commands": [ "workbench.action.files.openChanges" ] },
-    { "before": [ "<leader>", "g", "b" ], "commands": [ "git.checkout" ] },
-    { "before": [ "<leader>", "g", "t" ], "commands": [ "git.stash" ] },
-    { "before": [ "<leader>", "g", "T" ], "commands": [ "git.stashPop" ] },
-    { "before": [ "Y" ], "after": [ "y$" ] },
-    { "before": [ "Z", "Z" ], "commands": [ "workbench.action.save" ] },
-    { "before": [ "Z", "Q" ], "commands": [ "workbench.action.closeActiveEditor" ] },
-    { "before": [ "<C-d>" ], "after": [ "<C-d>", "zz" ] },
-    { "before": [ "<C-u>" ], "after": [ "<C-u>", "zz" ] },
-    { "before": [ "g", "y", "y" ], "commands": [ "editor.action.copyLinesDownAction" ] },
-    { "before": [ "g", "*" ], "commands": [ "editor.action.addSelectionToNextFindMatch" ] },
-    { "before": [ "g", "#" ], "commands": [ "editor.action.addSelectionToPreviousFindMatch" ] },
-    { "before": [ "L" ], "commands": [ "workbench.action.nextEditor" ] },
-    { "before": [ "H" ], "commands": [ "workbench.action.previousEditor" ] },
-  ],
-
-  "vim.visualModeKeyBindingsNonRecursive": [
-    { "before": [ "g", "c" ], "commands": [ "editor.action.commentLine" ] },
-    { "before": [ "g", "A" ], "commands": [ "editor.action.insertCursorAtEndOfEachLineSelected" ] },
-    { "before": [ ">" ], "after": [ ">", "g", "v" ] },
-    { "before": [ "<" ], "after": [ "<", "g", "v" ] }
-  ],
-
-  "vim.insertModeKeyBindingsNonRecursive": [
-    { "before": [ "j", "k" ], "after": [ "<Esc>" ] },
-    { "before": [ "k", "j" ], "after": [ "<Esc>" ] }
-  ],
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.userWords": [
-    "explainability",
-    "Matplotlib",
-    "Plotly",
-    "tidyverse"
-  ],
+  "cSpell.userWords": ["explainability", "Matplotlib", "Plotly", "tidyverse"],
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -90,5 +37,57 @@
   "editor.minimap.maxColumn": 100,
   "editor.scrollbar.horizontal": "visible",
   "prettier.experimentalTernaries": true,
-  "prettier.printWidth": 100
+  "prettier.printWidth": 100,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "vim.leader": " ",
+  "vim.useSystemClipboard": true,
+  "vim.highlightedyank.enable": true,
+  "vim.highlightedyank.color": "rgba(250, 189, 47, 0.5)",
+  "vim.normalModeKeyBindingsNonRecursive": [
+    { "before": ["<leader>", "f"], "commands": ["workbench.action.quickOpen"] },
+    { "before": ["<leader>", "p"], "commands": ["workbench.action.toggleSidebarVisibility"] },
+    { "before": ["<leader>", "e"], "commands": ["workbench.action.toggleSidebarVisibility"] },
+    { "before": ["<leader>", "t"], "commands": ["workbench.action.toggleTerminal"] },
+    { "before": ["<leader>", "/"], "commands": ["workbench.action.findInFiles"] },
+    { "before": ["<leader>", "o"], "commands": ["workbench.view.outline"] },
+    { "before": ["<leader>", "s"], "commands": ["workbench.action.gotoSymbol"] },
+    { "before": ["<leader>", "c"], "commands": ["workbench.action.showCommands"] },
+    { "before": ["<leader>", "d"], "commands": ["workbench.actions.view.problems"] },
+    { "before": ["<leader>", "r"], "commands": ["editor.action.rename"] },
+    { "before": ["<leader>", "b"], "commands": ["gitlens.toggleFileBlame"] },
+    { "before": ["<leader>", "g", "a"], "commands": ["git.stageAll"] },
+    { "before": ["<leader>", "g", "c"], "commands": ["git.commit"] },
+    { "before": ["<leader>", "g", "p"], "commands": ["git.push"] },
+    { "before": ["<leader>", "g", "l"], "commands": ["git.pull"] },
+    { "before": ["<leader>", "g", "d"], "commands": ["workbench.action.files.openChanges"] },
+    { "before": ["<leader>", "g", "b"], "commands": ["git.checkout"] },
+    { "before": ["<leader>", "g", "t"], "commands": ["git.stash"] },
+    { "before": ["<leader>", "g", "T"], "commands": ["git.stashPop"] },
+    { "before": ["Y"], "after": ["y$"] },
+    { "before": ["Z", "Z"], "commands": ["workbench.action.save"] },
+    { "before": ["Z", "Q"], "commands": ["workbench.action.closeActiveEditor"] },
+    { "before": ["<C-d>"], "after": ["<C-d>", "zz"] },
+    { "before": ["<C-u>"], "after": ["<C-u>", "zz"] },
+    { "before": ["g", "y", "y"], "commands": ["editor.action.copyLinesDownAction"] },
+    { "before": ["g", "*"], "commands": ["editor.action.addSelectionToNextFindMatch"] },
+    { "before": ["g", "#"], "commands": ["editor.action.addSelectionToPreviousFindMatch"] },
+    { "before": ["L"], "commands": ["workbench.action.nextEditor"] },
+    { "before": ["H"], "commands": ["workbench.action.previousEditor"] }
+  ],
+
+  "vim.visualModeKeyBindingsNonRecursive": [
+    { "before": ["g", "c"], "commands": ["editor.action.commentLine"] },
+    { "before": ["g", "A"], "commands": ["editor.action.insertCursorAtEndOfEachLineSelected"] },
+    { "before": [">"], "after": [">", "g", "v"] },
+    { "before": ["<"], "after": ["<", "g", "v"] }
+  ],
+
+  "vim.insertModeKeyBindingsNonRecursive": [
+    { "before": ["j", "k"], "after": ["<Esc>"] },
+    { "before": ["k", "j"], "after": ["<Esc>"] }
+  ],
+  "[shellscript]": {
+    "editor.defaultFormatter": "mkhl.shfmt"
+  }
 }
