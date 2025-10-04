@@ -5,7 +5,7 @@
   "editor.formatOnSave": true,
   "files.autoSave": "onFocusChange",
   "editor.fontFamily": "BerkeleyMono Nerd Font",
-  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrap": "on",
   "editor.formatOnPaste": true,
   "editor.mouseWheelZoom": true,
   "editor.autoIndentOnPaste": true,
@@ -18,17 +18,18 @@
   "editor.fontLigatures": true,
   "editor.guides.bracketPairs": true,
   "window.zoomLevel": -0.5,
-
   "editor.wordWrapColumn": 120,
   "editor.rulers": [ 120 ],
   "python.analysis.typeCheckingMode": "strict",
   "workbench.iconTheme": "gruvbox-material-icon-theme",
+  "[sql]": {
+    "editor.formatOnSave": false
+  },
 
   "vim.leader": " ",
   "vim.useSystemClipboard": true,
   "vim.highlightedyank.enable": true,
   "vim.highlightedyank.color": "rgba(250, 189, 47, 0.5)",
-
   "vim.normalModeKeyBindingsNonRecursive": [
     { "before": [ "<leader>", "f" ], "commands": [ "workbench.action.quickOpen" ] },
     { "before": [ "<leader>", "p" ], "commands": [ "workbench.action.toggleSidebarVisibility" ] },
@@ -58,7 +59,7 @@
     { "before": [ "g", "*" ], "commands": [ "editor.action.addSelectionToNextFindMatch" ] },
     { "before": [ "g", "#" ], "commands": [ "editor.action.addSelectionToPreviousFindMatch" ] },
     { "before": [ "L" ], "commands": [ "workbench.action.nextEditor" ] },
-    { "before": [ "H" ], "commands": [ "workbench.action.previousEditor" ] }
+    { "before": [ "H" ], "commands": [ "workbench.action.previousEditor" ] },
   ],
 
   "vim.visualModeKeyBindingsNonRecursive": [
@@ -71,5 +72,23 @@
   "vim.insertModeKeyBindingsNonRecursive": [
     { "before": [ "j", "k" ], "after": [ "<Esc>" ] },
     { "before": [ "k", "j" ], "after": [ "<Esc>" ] }
-  ]
+  ],
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "cSpell.userWords": [
+    "explainability",
+    "Matplotlib",
+    "Plotly",
+    "tidyverse"
+  ],
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "chat.editing.confirmEditRequestRemoval": false,
+  "git.confirmSync": false,
+  "editor.minimap.maxColumn": 100,
+  "editor.scrollbar.horizontal": "visible",
+  "prettier.experimentalTernaries": true,
+  "prettier.printWidth": 100
 }

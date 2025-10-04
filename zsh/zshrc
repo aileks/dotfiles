@@ -23,17 +23,12 @@ alias la="eza -lah --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
 alias lh="eza -la --color=always --icons --group-directories-first | grep '^\.'"
 alias as="apt search"
-alias rm="trash"
+alias rm="trash-rm"
 alias c="clear"
 alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
 alias ff="fastfetch"
-alias vim="zed"
-alias update="bubu && sketchybar --trigger brew_update"
-
-# Evals
-eval "$(zoxide init zsh)"
-eval "$(mise activate zsh)"
+alias vim="nvim"
 
 # FZF config
 export FZF_CTRL_T_OPTS="
@@ -48,6 +43,13 @@ export FZF_DEFAULT_OPTS="
 --color=fg:#ebdbb2,header:#ebdbb2,info:#b8bb26,pointer:#fb4934
 --color=marker:#fb4934,fg+:#ebdbb2,prompt:#b8bb26,hl+:#fb4934"
 
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Evals
+eval "$(zoxide init zsh)"
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/Users/aileks/.local/bin/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
