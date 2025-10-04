@@ -214,11 +214,8 @@ setup_dotfiles() {
     local symlink_mappings=(
         "zsh/zshrc:$HOME/.zshrc"
         "tmux/tmux.conf:$HOME/.tmux.conf"
-        "aerospace:$HOME/.config/aerospace"
-        "borders:$HOME/.config/borders"
         "fastfetch:$HOME/.config/fastfetch"
         "ghostty:$HOME/.config/ghostty"
-        "sketchybar:$HOME/.config/sketchybar"
         "vscode/settings.json:$HOME/Library/Application Support/Code/User/settings.json"
     )
 
