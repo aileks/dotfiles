@@ -1,5 +1,5 @@
 # Path
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+export PATH="$HOME/.local/bin:$HOME.lmstudio/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 
 # Env variables
 export ZSH="$HOME/.Oh-My-Zsh"
@@ -59,3 +59,8 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:"
+# End of LM Studio CLI section
+
