@@ -147,5 +147,9 @@
     "plaintext": false,
     "markdown": true,
     "scminput": false
-  }
+  },
+  "terminal.integrated.fontSize": 14,
+  "python.defaultInterpreterPath": "/Users/aileks/.local/bin/miniforge3",
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda"
 }
