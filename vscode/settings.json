@@ -1,7 +1,25 @@
 {
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": true,
+    "scminput": false
+  },
+  "workbench.enableExperiments": false,
+  "chat.fontSize": 16,
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "window.restoreWindows": "none",
+  "terminal.integrated.enableImages": true,
+  "terminal.integrated.gpuAcceleration": "on",
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda",
+  "security.allowedUNCHosts": ["wsl.localhost"],
   "github.copilot.nextEditSuggestions.enabled": true,
-  "workbench.colorTheme": "Aura Dark",
-  "editor.fontSize": 14,
   "editor.formatOnSave": true,
   "files.autoSave": "onFocusChange",
   "editor.fontFamily": "BerkeleyMono Nerd Font",
@@ -10,7 +28,6 @@
   "editor.mouseWheelZoom": true,
   "editor.autoIndentOnPaste": true,
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
-  "editor.experimentalGpuAcceleration": "on",
   "editor.minimap.enabled": false,
   "git.enableSmartCommit": true,
   "git.autofetch": true,
@@ -37,119 +54,163 @@
   "editor.scrollbar.horizontal": "visible",
   "prettier.experimentalTernaries": true,
   "prettier.printWidth": 100,
-  "workbench.colorCustomizations": {
-    "[Vira*]": {
-      "statusBar.debuggingBackground": "#F8504433",
-      "statusBar.debuggingForeground": "#F85044",
-      "toolbar.activeBackground": "#F8504426",
-      "button.background": "#F85044",
-      "button.hoverBackground": "#F85044cc",
-      "extensionButton.separator": "#F8504433",
-      "extensionButton.background": "#F8504414",
-      "extensionButton.foreground": "#F85044",
-      "extensionButton.hoverBackground": "#F8504433",
-      "extensionButton.prominentForeground": "#F85044",
-      "extensionButton.prominentBackground": "#F8504414",
-      "extensionButton.prominentHoverBackground": "#F8504433",
-      "activityBarBadge.background": "#F85044",
-      "activityBar.activeBorder": "#F85044",
-      "activityBarTop.activeBorder": "#F85044",
-      "list.inactiveSelectionIconForeground": "#F85044",
-      "list.activeSelectionForeground": "#F85044",
-      "list.inactiveSelectionForeground": "#F85044",
-      "list.highlightForeground": "#F85044",
-      "sash.hoverBorder": "#F8504480",
-      "list.activeSelectionIconForeground": "#F85044",
-      "scrollbarSlider.activeBackground": "#F8504480",
-      "editorSuggestWidget.highlightForeground": "#F85044",
-      "textLink.foreground": "#F85044",
-      "progressBar.background": "#F85044",
-      "pickerGroup.foreground": "#F85044",
-      "tab.activeBorder": "#F85044",
-      "tab.activeBorderTop": "#F8504400",
-      "tab.unfocusedActiveBorder": "#F85044",
-      "tab.unfocusedActiveBorderTop": "#F8504400",
-      "tab.activeModifiedBorder": "#F8504400",
-      "notificationLink.foreground": "#F85044",
-      "editorWidget.resizeBorder": "#F85044",
-      "editorWidget.border": "#F85044",
-      "settings.modifiedItemIndicator": "#F85044",
-      "panelTitle.activeBorder": "#F85044",
-      "breadcrumb.activeSelectionForeground": "#F85044",
-      "menu.selectionForeground": "#F85044",
-      "menubar.selectionForeground": "#F85044",
-      "editor.findMatchBorder": "#F85044",
-      "selection.background": "#F8504440",
-      "statusBarItem.remoteBackground": "#F8504414",
-      "statusBarItem.remoteHoverBackground": "#F85044",
-      "statusBarItem.remoteForeground": "#F85044",
-      "notebook.inactiveFocusedCellBorder": "#F8504480",
-      "commandCenter.activeBorder": "#F8504480",
-      "chat.slashCommandForeground": "#F85044",
-      "chat.avatarForeground": "#F85044",
-      "activityBarBadge.foreground": "#000000",
-      "button.foreground": "#000000",
-      "statusBarItem.remoteHoverForeground": "#000000"
-    }
-  },
-  "workbench.iconTheme": "vira-icons-carbon",
 
   "vim.leader": " ",
   "vim.useSystemClipboard": true,
   "vim.highlightedyank.enable": true,
-
   "vim.normalModeKeyBindingsNonRecursive": [
-    { "before": ["<leader>", "f"], "commands": ["workbench.action.quickOpen"] },
-    { "before": ["<leader>", "p"], "commands": ["workbench.action.toggleSidebarVisibility"] },
-    { "before": ["<leader>", "e"], "commands": ["workbench.action.toggleSidebarVisibility"] },
-    { "before": ["<leader>", "t"], "commands": ["workbench.action.toggleTerminal"] },
-    { "before": ["<leader>", "/"], "commands": ["workbench.action.findInFiles"] },
-    { "before": ["<leader>", "o"], "commands": ["workbench.view.outline"] },
-    { "before": ["<leader>", "s"], "commands": ["workbench.action.gotoSymbol"] },
-    { "before": ["<leader>", "c"], "commands": ["workbench.action.showCommands"] },
-    { "before": ["<leader>", "d"], "commands": ["workbench.actions.view.problems"] },
-    { "before": ["<leader>", "r"], "commands": ["editor.action.rename"] },
-    { "before": ["<leader>", "b"], "commands": ["gitlens.toggleFileBlame"] },
-    { "before": ["<leader>", "g", "a"], "commands": ["git.stageAll"] },
-    { "before": ["<leader>", "g", "c"], "commands": ["git.commit"] },
-    { "before": ["<leader>", "g", "p"], "commands": ["git.push"] },
-    { "before": ["<leader>", "g", "l"], "commands": ["git.pull"] },
-    { "before": ["<leader>", "g", "d"], "commands": ["workbench.action.files.openChanges"] },
-    { "before": ["<leader>", "g", "b"], "commands": ["git.checkout"] },
-    { "before": ["<leader>", "g", "t"], "commands": ["git.stash"] },
-    { "before": ["<leader>", "g", "T"], "commands": ["git.stashPop"] },
-    { "before": ["Y"], "after": ["y$"] },
-    { "before": ["Z", "Z"], "commands": ["workbench.action.save"] },
-    { "before": ["Z", "Q"], "commands": ["workbench.action.closeActiveEditor"] },
-    { "before": ["<C-d>"], "after": ["<C-d>", "zz"] },
-    { "before": ["<C-u>"], "after": ["<C-u>", "zz"] },
-    { "before": ["g", "y", "y"], "commands": ["editor.action.copyLinesDownAction"] },
-    { "before": ["g", "*"], "commands": ["editor.action.addSelectionToNextFindMatch"] },
-    { "before": ["g", "#"], "commands": ["editor.action.addSelectionToPreviousFindMatch"] },
-    { "before": ["L"], "commands": ["workbench.action.nextEditor"] },
-    { "before": ["H"], "commands": ["workbench.action.previousEditor"] }
+    {
+      "before": ["<leader>", "f"],
+      "commands": "workbench.action.quickOpen"
+    },
+    {
+      "before": ["<leader>", "p"],
+      "commands": "workbench.action.toggleSidebarVisibility"
+    },
+    {
+      "before": ["<leader>", "e"],
+      "commands": "workbench.action.toggleSidebarVisibility"
+    },
+    {
+      "before": ["<leader>", "t"],
+      "commands": "workbench.action.toggleTerminal"
+    },
+    {
+      "before": ["<leader>", "/"],
+      "commands": "workbench.action.findInFiles"
+    },
+    {
+      "before": ["<leader>", "o"],
+      "commands": "workbench.view.outline"
+    },
+    {
+      "before": ["<leader>", "s"],
+      "commands": "workbench.action.gotoSymbol"
+    },
+    {
+      "before": ["<leader>", "c"],
+      "commands": "workbench.action.showCommands"
+    },
+    {
+      "before": ["<leader>", "d"],
+      "commands": "workbench.actions.view.problems"
+    },
+    {
+      "before": ["<leader>", "r"],
+      "commands": "editor.action.rename"
+    },
+    {
+      "before": ["<leader>", "b"],
+      "commands": "gitlens.toggleFileBlame"
+    },
+    {
+      "before": ["<leader>", "g", "a"],
+      "commands": "git.stageAll"
+    },
+    {
+      "before": ["<leader>", "g", "c"],
+      "commands": "git.commit"
+    },
+    {
+      "before": ["<leader>", "g", "p"],
+      "commands": "git.push"
+    },
+    {
+      "before": ["<leader>", "g", "l"],
+      "commands": "git.pull"
+    },
+    {
+      "before": ["<leader>", "g", "d"],
+      "commands": "workbench.action.files.openChanges"
+    },
+    {
+      "before": ["<leader>", "g", "b"],
+      "commands": "git.checkout"
+    },
+    {
+      "before": ["<leader>", "g", "t"],
+      "commands": "git.stash"
+    },
+    {
+      "before": ["<leader>", "g", "T"],
+      "commands": "git.stashPop"
+    },
+    {
+      "before": ["Y"],
+      "after": ["y", "$"]
+    },
+    {
+      "before": ["Z", "Z"],
+      "commands": "workbench.action.save"
+    },
+    {
+      "before": ["Z", "Q"],
+      "commands": "workbench.action.closeActiveEditor"
+    },
+    {
+      "before": ["<C-d>"],
+      "after": ["<C-d>", "z", "z"]
+    },
+    {
+      "before": ["<C-u>"],
+      "after": ["<C-u>", "z", "z"]
+    },
+    {
+      "before": ["g", "y", "y"],
+      "commands": "editor.action.copyLinesDownAction"
+    },
+    {
+      "before": ["g", "*"],
+      "commands": "editor.action.addSelectionToNextFindMatch"
+    },
+    {
+      "before": ["g", "#"],
+      "commands": "editor.action.addSelectionToPreviousFindMatch"
+    },
+    {
+      "before": ["L"],
+      "commands": "workbench.action.nextEditor"
+    },
+    {
+      "before": ["H"],
+      "commands": "workbench.action.previousEditor"
+    }
   ],
-
   "vim.visualModeKeyBindingsNonRecursive": [
-    { "before": ["g", "c"], "commands": ["editor.action.commentLine"] },
-    { "before": ["g", "A"], "commands": ["editor.action.insertCursorAtEndOfEachLineSelected"] },
-    { "before": [">"], "after": [">", "g", "v"] },
-    { "before": ["<"], "after": ["<", "g", "v"] }
+    {
+      "before": ["g", "c"],
+      "commands": "editor.action.commentLine"
+    },
+    {
+      "before": ["g", "A"],
+      "commands": "editor.action.insertCursorAtEndOfEachLineSelected"
+    },
+    {
+      "before": [">"],
+      "after": [">", "g", "v"]
+    },
+    {
+      "before": ["<"],
+      "after": ["<", "g", "v"]
+    }
   ],
-
   "vim.insertModeKeyBindingsNonRecursive": [
-    { "before": ["j", "k"], "after": ["<Esc>"] },
-    { "before": ["k", "j"], "after": ["<Esc>"] }
+    {
+      "before": ["j", "k"],
+      "after": ["Esc"]
+    },
+    {
+      "before": ["k", "j"],
+      "after": ["Esc"]
+    }
   ],
-  "viraTheme.accent": "Tomato",
-  "github.copilot.enable": {
-    "*": true,
-    "plaintext": false,
-    "markdown": true,
-    "scminput": false
-  },
-  "terminal.integrated.fontSize": 14,
-  "python.defaultInterpreterPath": "/Users/aileks/.local/bin/miniforge3",
-  "python-envs.defaultEnvManager": "ms-python.python:conda",
-  "python-envs.defaultPackageManager": "ms-python.python:conda"
+  "settingsSync.ignoredExtensions": ["jonathanharty.gruvbox-material-icon-theme"],
+  "workbench.colorTheme": "Min Dark",
+  "telemetry.telemetryLevel": "off",
+  "editor.fontSize": 16,
+  "debug.console.fontSize": 16,
+  "editor.minimap.sectionHeaderFontSize": 12,
+  "terminal.integrated.fontSize": 16,
+  "chat.editor.fontSize": 18,
+  "markdown.preview.fontSize": 16
 }

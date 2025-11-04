@@ -50,7 +50,7 @@ wait_for_user() {
 	read -p "Press Enter to continue..."
 }
 
-TOTAL_STEPS=7
+TOTAL_STEPS=8
 CURRENT_STEP=0
 
 show_progress() {
@@ -107,14 +107,14 @@ install_xcode_tools() {
 	if ! xcode-select -p &>/dev/null; then
 		log_warning "Xcode Command Line Tools not found!"
 		log_info "Installing Xcode Command Line Tools..."
-		xcode-select --install
+		xcode-select --install || true
 
 		log_info "Waiting for Xcode Command Line Tools installation to complete..."
+		
 		until xcode-select -p &>/dev/null; do
-			echo -e "${YELLOW}Please complete the Xcode Command Line Tools installation in the popup window.${NC}"
-			read -p "Press Enter after installation is complete to continue, or Ctrl+C to abort..."
+			echo -e "${YELLOW}Xcode Command Line Tools are still installing... ${NC}"
+			sleep 20
 		done
-		log_success "Xcode Command Line Tools installation detected."
 	fi
 
 	log_success "Xcode Command Line Tools are installed"
@@ -181,10 +181,6 @@ install_oh_my_zsh() {
 		git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git \
 			"$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
 	fi
-
-	if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
-		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-	fi
 }
 
 setup_dotfiles() {
@@ -214,10 +210,9 @@ setup_dotfiles() {
 	log_info "Creating symlinks for dotfiles..."
 	local symlink_mappings=(
 		"zsh/zshrc:$HOME/.zshrc"
-		"tmux/tmux.conf:$HOME/.tmux.conf"
 		"fastfetch:$HOME/.config/fastfetch"
 		"ghostty:$HOME/.config/ghostty"
-		"skhd:$HOME/.config/skhd"
+		"aerospace/aerospace.toml:$HOME/.config/aerospace/aerospace.toml"
 		"vscode/settings.json:$HOME/Library/Application Support/Code/User/settings.json"
 	)
 
@@ -234,35 +229,48 @@ setup_dotfiles() {
 	done
 }
 
-install_miniforge() {
-	show_progress "Setting up conda"
+install_uv_and_node() {
+	show_progress "Setting up uv and Node (via nvm)"
 
-	if ! command_exists conda; then
-		log_info "Installing Miniforge3..."
-
-		local install_dir="$HOME/.local/bin"
-		mkdir -p "$install_dir"
-
-		local conda_url
-		if [[ $(uname -m) == "arm64" ]]; then
-			conda_url="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Darwin-arm64.sh"
+	if ! command_exists uv; then
+		log_info "Installing uv via official installer..."
+		if curl -LsSf https://astral.sh/uv/install.sh | sh; then
+			log_success "uv installed"
 		else
-			conda_url="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Darwin-x86_64.sh"
-		fi
-
-		local installer_path="$HOME/miniforge.sh"
-		if curl -fsSL -o "$installer_path" "$conda_url"; then
-			bash "$installer_path" -b -p "$install_dir/miniforge3"
-			rm "$installer_path"
-
-			"$install_dir/miniforge3/bin/conda" init zsh
-			log_success "Miniforge3 installed successfully"
-		else
-			log_error "Failed to download Miniforge3 installer"
-			return 1
+			log_error "Failed to install uv"
 		fi
 	else
-		log_info "Conda already installed"
+		log_info "uv already installed"
+	fi
+
+	export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+	mkdir -p "$NVM_DIR"
+
+	if ! command -v nvm &>/dev/null; then
+		if command_exists brew; then
+			if ! brew list --formula nvm &>/dev/null; then
+				log_info "Installing nvm via Homebrew..."
+				brew install nvm
+			fi
+			if [[ -s "$(brew --prefix nvm)/nvm.sh" ]]; then
+				source "$(brew --prefix nvm)/nvm.sh"
+			fi
+		fi
+
+		# Fallback to standard location if present
+		if [[ -z "${functions[nvm]-}" && -s "$NVM_DIR/nvm.sh" ]]; then
+			source "$NVM_DIR/nvm.sh"
+		fi
+	fi
+
+	if command -v nvm &>/dev/null; then
+		log_info "Installing Node.js LTS..."
+		nvm install --lts
+		nvm alias default 'lts/*'
+		nvm use --lts
+		log_success "Node.js LTS installed and set as default via nvm"
+	else
+		log_warning "nvm is not available in this shell; skipping Node installation. Ensure your shell loads nvm and run: nvm install --lts"
 	fi
 }
 
@@ -306,15 +314,8 @@ cleanup_and_finish() {
 	fi
 
 	echo
-	log_warning "A REBOOT IS RECOMMENDED TO ENSURE ALL SYSTEM CHANGES TAKE EFFECT PROPERLY."
+	log_warning "No reboot will be performed by this script. A reboot or logout is optional but can help finalize environment changes."
 	echo
-	read -r "Would you like to reboot now? (y/N): "
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
-		log_warning "Rebooting now! (sudo password may be required)"
-		sudo reboot
-	else
-		log_info "Remember to reboot your system when convenient to complete the setup."
-	fi
 }
 
 main() {
@@ -333,7 +334,7 @@ main() {
 		setup_dotfiles
 		install_packages
 		install_oh_my_zsh
-		install_miniforge
+		install_uv_and_node
 		cleanup_and_finish
 		;;
 	2)
