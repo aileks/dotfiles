@@ -1,11 +1,8 @@
 # macOS Setup Script & Dotfiles
 
-Automated setup script for macOS that installs essential software and configures dotfiles.
+Automated setup script for macOS that installs my needed software and sets up dotfiles.
 
 ## Usage
-
-> [!NOTE]
-> If there are any applications you do not want to install, be sure to comment them out in the `install.zsh` script.
 
 ```sh
 zsh -c "$(curl -fsSL https://aileks.dev/mac)"
