@@ -1,7 +1,7 @@
 term = xterm-256color
 shell-integration-features = no-cursor
 shell-integration = zsh
-theme = Flexoki Dark
+theme = Glacier
 font-family = BerkeleyMono Nerd Font
 font-size = 18
 background-opacity = 0.9
