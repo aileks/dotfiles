@@ -66,7 +66,7 @@ cmd-shift-alt-ctrl-0 = 'move-node-to-workspace 10'
 
 cmd-alt-ctrl-t = 'exec-and-forget open -a Ghostty'
 cmd-alt-ctrl-f = 'exec-and-forget open -a Finder'
-cmd-alt-ctrl-w = 'exec-and-forget open -a Zen'
+cmd-alt-ctrl-w = 'exec-and-forget open -a Helium'
 cmd-alt-ctrl-s = 'exec-and-forget open -a Signal'
 cmd-alt-ctrl-m = 'exec-and-forget open -a Cider'
 cmd-alt-ctrl-d = 'exec-and-forget open -a Element'
