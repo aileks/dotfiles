@@ -212,8 +212,8 @@ setup_dotfiles() {
 		"zsh/zshrc:$HOME/.zshrc"
 		"fastfetch:$HOME/.config/fastfetch"
 		"ghostty:$HOME/.config/ghostty"
-		"aerospace/aerospace.toml:$HOME/.config/aerospace/aerospace.toml"
-		"vscode/settings.json:$HOME/Library/Application Support/Code/User/settings.json"
+		"aerospace:$HOME/.config/aerospace"
+		"borders:$HOME/.config/borders"
 	)
 
 	for mapping in "${symlink_mappings[@]}"; do
