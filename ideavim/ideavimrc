@@ -1,0 +1,86 @@
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'vim-matchit'
+Plug 'vim-scripts/argtextobj.vim'
+Plug 'preservim/nerdtree'
+
+let mapleader = " "
+let maplocalleader = " "
+
+set number
+set relativenumber
+set cursorline
+set scrolloff=8
+set sidescrolloff=8
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+set showmatch
+set whichwrap+=<,>,h,l
+set clipboard=unnamed
+set timeout
+set timeoutlen=500
+set ideajoin
+set ideamarks
+set ideawrite
+set which-key
+
+
+" Normal mode mappings
+nnoremap Q <nop>
+nnoremap j gj
+nnoremap k gk
+nnoremap <leader><space> :noh<CR>
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>sv :vsplit<CR>
+nnoremap <leader>sh :split<CR>
+nnoremap <leader>sc :action CloseContent<CR>
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nnoremap ]t :action NextTab<CR>
+nnoremap [t :action PreviousTab<CR>
+nnoremap <leader>tr :action ReopenClosedTab<CR>
+nnoremap <leader>tc :action CloseContent<CR>
+nnoremap <leader>to :action CloseAllEditorsButActive<CR>
+nnoremap <leader>e  :action ActivateProjectToolWindow<CR>
+nnoremap <leader>;  :action RecentFiles<CR>
+nnoremap <leader>p  :action SearchEverywhere<CR>
+nnoremap <leader>ff :action GotoFile<CR>
+nnoremap <leader>fc :action GotoClass<CR>
+nnoremap <leader>fs :action GotoSymbol<CR>
+nnoremap <leader>sf :action FindInPath<CR>
+nnoremap <leader>sr :action ReplaceInPath<CR>
+nnoremap <leader>= :action ReformatCode<CR>
+nnoremap <leader>oi :action OptimizeImports<CR>
+nnoremap <leader>/ :action CommentByLineComment<CR>
+nnoremap <leader>rn :action RenameElement<CR>
+nnoremap <leader>re :action IntroduceVariable<CR>
+nnoremap <leader>rm :action ExtractMethod<CR>
+nnoremap <leader>ri :action Inline<CR>
+nnoremap <leader>rr :action Run<CR>
+nnoremap <leader>rl :action Rerun<CR>
+nnoremap <leader>rd :action Debug<CR>
+nnoremap <leader>rt :action RunContextConfiguration<CR>
+nnoremap <leader>dt :action DebugContextConfiguration<CR>
+nnoremap <leader>gt :action GotoTest<CR>
+nnoremap <leader>ot :action ActivateTerminalToolWindow<CR>
+nnoremap <leader>gs :action Vcs.QuickListPopupAction<CR>
+nnoremap <leader>gh :action Vcs.ShowTabbedFileHistory<CR>
+nnoremap <C-d> :action SelectNextOccurrence<CR>
+nnoremap <leader>ma :action SelectAllOccurrences<CR>
+nnoremap gb :action Back<CR>
+nnoremap gB :action Forward<CR>
+nnoremap <leader>si :action ShowIntentionActions<CR>
+nnoremap <leader>x :action ShowErrorDescription<CR>
+nnoremap <leader>sw :action Switcher<CR>
+
+" Visual mode mappings
+vnoremap <leader>/ :action CommentByLineComment<CR>
+vnoremap <leader>re :action IntroduceVariable<CR>
+vnoremap <leader>rm :action ExtractMethod<CR>
+vnoremap <C-d> :action SelectNextOccurrence<CR>

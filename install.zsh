@@ -210,6 +210,7 @@ setup_dotfiles() {
 	log_info "Creating symlinks for dotfiles..."
 	local symlink_mappings=(
 		"zsh/zshrc:$HOME/.zshrc"
+		"ideavim/ideavimrc:$HOME/.ideavimrc"
 		"fastfetch:$HOME/.config/fastfetch"
 		"ghostty:$HOME/.config/ghostty"
 		"aerospace:$HOME/.config/aerospace"
