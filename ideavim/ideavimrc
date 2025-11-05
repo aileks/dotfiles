@@ -19,14 +19,13 @@ set incsearch
 set hlsearch
 set showmatch
 set whichwrap+=<,>,h,l
-set clipboard=unnamed
+set clipboard+=ideaput
 set timeout
 set timeoutlen=500
 set ideajoin
 set ideamarks
 set ideawrite
 set which-key
-
 
 " Normal mode mappings
 nnoremap Q <nop>
@@ -42,11 +41,9 @@ nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
-nnoremap ]t :action NextTab<CR>
-nnoremap [t :action PreviousTab<CR>
-nnoremap <leader>tr :action ReopenClosedTab<CR>
-nnoremap <leader>tc :action CloseContent<CR>
-nnoremap <leader>to :action CloseAllEditorsButActive<CR>
+nnoremap H :action NextTab<CR>
+nnoremap L :action PreviousTab<CR>
+nnoremap <leader>t :action ActivateTerminalToolWindow<CR>
 nnoremap <leader>e  :action ActivateProjectToolWindow<CR>
 nnoremap <leader>;  :action RecentFiles<CR>
 nnoremap <leader>p  :action SearchEverywhere<CR>
@@ -84,3 +81,6 @@ vnoremap <leader>/ :action CommentByLineComment<CR>
 vnoremap <leader>re :action IntroduceVariable<CR>
 vnoremap <leader>rm :action ExtractMethod<CR>
 vnoremap <C-d> :action SelectNextOccurrence<CR>
+
+" Insert mode mappings
+inoremap jk <Esc>
