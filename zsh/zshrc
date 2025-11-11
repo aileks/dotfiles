@@ -27,6 +27,7 @@ alias rm="trash-put"
 alias c="clear"
 alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
+alias vim="nvim"
 alias ff="fastfetch"
 
 # FZF config
