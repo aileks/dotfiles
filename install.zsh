@@ -50,7 +50,7 @@ wait_for_user() {
 	read -p "Press Enter to continue..."
 }
 
-TOTAL_STEPS=8
+TOTAL_STEPS=9
 CURRENT_STEP=0
 
 show_progress() {
@@ -207,10 +207,20 @@ setup_dotfiles() {
 		fi
 	fi
 
+	log_info "Initializing git submodules..."
+	cd "$DOTFILES_DIR"
+	if git submodule update --init --recursive &>/dev/null; then
+		log_success "Git submodules initialized successfully"
+	else
+		log_warning "Failed to initialize git submodules, continuing anyway"
+	fi
+	cd - &>/dev/null
+
 	log_info "Creating symlinks for dotfiles..."
 	local symlink_mappings=(
 		"zsh/zshrc:$HOME/.zshrc"
 		"ideavim/ideavimrc:$HOME/.ideavimrc"
+		"nvim:$HOME/.config/nvim"
 		"fastfetch:$HOME/.config/fastfetch"
 		"ghostty:$HOME/.config/ghostty"
 		"aerospace:$HOME/.config/aerospace"
@@ -230,19 +240,8 @@ setup_dotfiles() {
 	done
 }
 
-install_uv_and_node() {
-	show_progress "Setting up uv and Node (via nvm)"
-
-	if ! command_exists uv; then
-		log_info "Installing uv via official installer..."
-		if curl -LsSf https://astral.sh/uv/install.sh | sh; then
-			log_success "uv installed"
-		else
-			log_error "Failed to install uv"
-		fi
-	else
-		log_info "uv already installed"
-	fi
+install_node() {
+	show_progress "Setting up Node.js"
 
 	export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 	mkdir -p "$NVM_DIR"
@@ -269,9 +268,41 @@ install_uv_and_node() {
 		nvm install --lts
 		nvm alias default 'lts/*'
 		nvm use --lts
-		log_success "Node.js LTS installed and set as default via nvm"
+		log_success "Node.js 21 LTS installed and set as default"
 	else
 		log_warning "nvm is not available in this shell; skipping Node installation. Ensure your shell loads nvm and run: nvm install --lts"
+	fi
+}
+
+install_sdkman() {
+	show_progress "Setting up SDKMAN! and Java"
+
+	if [[ ! -d "$HOME/.sdkman" ]]; then
+		log_info "Installing SDKMAN!..."
+		if curl -s "https://get.sdkman.io" | bash; then
+			log_success "SDKMAN! installed successfully"
+		else
+			log_error "Failed to install SDKMAN!"
+			return 1
+		fi
+	else
+		log_info "SDKMAN! already installed"
+	fi
+
+	if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
+		source "$HOME/.sdkman/bin/sdkman-init.sh"
+	fi
+
+	if command -v sdk &>/dev/null; then
+		log_info "Installing Java JDK..."
+		if sdk install java 25.0.1-tem; then
+			sdk default java 25.0.1-tem
+			log_success "Java 25 Temurin JDK installed and set as default"
+		else
+			log_warning "Failed to install Java SDK. You can install it manually with: sdk install java 25.0.1-tem"
+		fi
+	else
+		log_warning "SDKMAN! is not available in this shell; skipping Java installation. Ensure your shell loads SDKMAN! and run: sdk install java 25.0.1-tem"
 	fi
 }
 
@@ -335,7 +366,8 @@ main() {
 		setup_dotfiles
 		install_packages
 		install_oh_my_zsh
-		install_uv_and_node
+		install_node
+		install_sdkman
 		cleanup_and_finish
 		;;
 	2)
