@@ -1,3 +1,4 @@
+theme "iceberg-dark"
 keybinds {
     normal {
         // uncomment this and adjust key if using copy_on_select=false
