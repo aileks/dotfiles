@@ -8,3 +8,4 @@ background-opacity = 0.9
 background-blur = true
 cursor-style = block
 confirm-close-surface = false
+macos-titlebar-style = hidden
