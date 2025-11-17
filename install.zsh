@@ -238,6 +238,10 @@ setup_dotfiles() {
             log_warning "Source file/directory not found: $full_src_path - skipping symlink creation"
         fi
     done
+
+    if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+        git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    fi
 }
 
 install_node() {
