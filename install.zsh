@@ -273,40 +273,14 @@ install_node() {
         nvm alias default 'lts/*'
         nvm use --lts
         log_success "Node.js 21 LTS installed and set as default"
+
+        log_info "Installing pnpm..."
+        npm install --global corepack@latest
+        corepack enable pnpm
+        corepack use pnpm@latest-10
+        log_success "pnpm installed successfully!"
     else
         log_warning "nvm is not available in this shell; skipping Node installation. Ensure your shell loads nvm and run: nvm install --lts"
-    fi
-}
-
-install_sdkman() {
-    show_progress "Setting up SDKMAN! and Java"
-
-    if [[ ! -d "$HOME/.sdkman" ]]; then
-        log_info "Installing SDKMAN!..."
-        if curl -s "https://get.sdkman.io" | bash; then
-            log_success "SDKMAN! installed successfully"
-        else
-            log_error "Failed to install SDKMAN!"
-            return 1
-        fi
-    else
-        log_info "SDKMAN! already installed"
-    fi
-
-    if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
-        source "$HOME/.sdkman/bin/sdkman-init.sh"
-    fi
-
-    if command -v sdk &>/dev/null; then
-        log_info "Installing Java JDK..."
-        if sdk install java 25.0.1-tem; then
-            sdk default java 25.0.1-tem
-            log_success "Java 25 Temurin JDK installed and set as default"
-        else
-            log_warning "Failed to install Java SDK. You can install it manually with: sdk install java 25.0.1-tem"
-        fi
-    else
-        log_warning "SDKMAN! is not available in this shell; skipping Java installation. Ensure your shell loads SDKMAN! and run: sdk install java 25.0.1-tem"
     fi
 }
 
@@ -371,7 +345,6 @@ main() {
         install_packages
         install_oh_my_zsh
         install_node
-        install_sdkman
         cleanup_and_finish
         ;;
     2)
