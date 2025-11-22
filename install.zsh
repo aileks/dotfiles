@@ -270,9 +270,8 @@ install_node() {
     if command -v nvm &>/dev/null; then
         log_info "Installing Node.js LTS..."
         nvm install --lts
-        nvm alias default 'lts/*'
         nvm use --lts
-        log_success "Node.js 21 LTS installed and set as default"
+        log_success "Node.js LTS installed and set as default"
 
         log_info "Installing pnpm..."
         npm install --global corepack@latest
@@ -314,7 +313,7 @@ cleanup_and_finish() {
     echo
     echo "Next steps:"
     echo "  1. Run 'brew doctor' to check for any issues"
-    echo "  2. Restart your terminal or run 'source ~/.zshrc' to apply changes"
+    echo "  2. Restart your Mac"
     echo "  3. Configure any installed applications as needed"
 
     local backup_zshrc
@@ -322,10 +321,6 @@ cleanup_and_finish() {
     if [[ -n "$backup_zshrc" ]]; then
         echo "  4. Your old .zshrc was backed up to: $backup_zshrc"
     fi
-
-    echo
-    log_warning "No reboot will be performed by this script. A reboot or logout is optional but can help finalize environment changes."
-    echo
 }
 
 main() {
