@@ -43,5 +43,3 @@ export NVM_DIR="$HOME/.nvm"
 
 # Evals
 eval "$(zoxide init zsh)"
-
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
