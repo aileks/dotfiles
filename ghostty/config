@@ -1,8 +1,8 @@
 term = xterm-256color
 shell-integration-features = no-cursor
 shell-integration = zsh
-theme = Glacier
-font-family = BerkeleyMono Nerd Font
+theme = Mellow
+font-family = BerkeleyMono Nerd Font Mono
 font-size = 16
 background-opacity = 0.9
 background-blur = true
