@@ -50,27 +50,27 @@ export FZF_ALT_C_OPTS="
 export FZF_DEFAULT_OPTS="
   --multi
   --border=top
-  --color=bg+:#1B1B1D
   --color=bg:-1
-  --color=border:#2A2A2D
+  --color=bg+:#18181b
+  --color=border:#2a2a2d
   --color=gutter:-1
-  --color=header:#90B99F
-  --color=hl+:#EA83A5
-  --color=hl:#EA83A5:bold
-  --color=info:#F5A191
-  --color=marker:#F0C5A9
-  --color=pointer:#ACA1CF
-  --color=preview-scrollbar:#57575F
-  --color=prompt:#E29ECA
-  --color=query:#ACA1CF:bold
-  --color=scrollbar:#57575F
-  --color=spinner:#F0C5A9:bold
+  --color=header:#8a8fa3
+  --color=hl:#d4c4ff
+  --color=hl+:#f0e1ff
+  --color=info:#b0b3be
+  --color=marker:#e3d7b0
+  --color=pointer:#f0e1ff
+  --color=preview-scrollbar:#3a3a40
+  --color=prompt:#c9b8ff
+  --color=query:#e5e1ff:bold
+  --color=scrollbar:#3a3a40
+  --color=spinner:#e3d7b0
   --highlight-line
   --info=inline-right
   --layout=reverse
   --pointer='█'
   --scrollbar='▌'
-  "
+"
 export _ZO_FZF_OPTS="
   $FZF_DEFAULT_OPTS
   --height=50%
