@@ -1,5 +1,5 @@
 # Path
-export PATH="$PATH:$HOME/.local/bin:$HOME/.local/share/bob/nvim-bin:/usr/local/go/bin:$HOME/go/bin"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.local/share/bob/nvim-bin:/usr/local/go/bin:$HOME/go/bin:$HOME/.opencode/bin"
 
 # Env variables
 export ZSH="$HOME/.oh-my-zsh"
