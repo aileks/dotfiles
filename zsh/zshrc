@@ -12,10 +12,11 @@ export GPG_TTY=$(tty)
 ZSH_THEME="refined"
 
 # Plugins
-plugins=(brew fast-syntax-highlighting fzf git gh zsh-autosuggestions)
+plugins=(brew fzf git gh zsh-autosuggestions zsh-syntax-highlighting)
 
 # Startup
 source $ZSH/oh-my-zsh.sh
+source $ZSH/custom/plugins/ashen_zsh_syntax_highlighting.zsh
 eval "$(zoxide init zsh)"
 
 # Aliases
@@ -78,11 +79,4 @@ export _ZO_FZF_OPTS="
   --preview-window=down,border-top
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
-
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/aileks/.lmstudio/bin"
-# End of LM Studio CLI section
 
