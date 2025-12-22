@@ -1,0 +1,147 @@
+{
+  "restore_on_startup": "none",
+  "unnecessary_code_fade": 0.3,
+  "lsp_document_colors": "inlay",
+  "agent": {
+    "enabled": false,
+    "button": false,
+  },
+  "tab_bar": {
+    "show_tab_bar_buttons": false,
+    "show_nav_history_buttons": false,
+  },
+  "tabs": {
+    "show_diagnostics": "errors",
+    "file_icons": true,
+    "git_status": true,
+  },
+  "title_bar": {
+    "show_branch_icon": true,
+  },
+  "search": {
+    "center_on_match": true,
+    "regex": true,
+  },
+  "use_smartcase_search": true,
+  "diagnostics": {
+    "inline": {
+      "enabled": true,
+    },
+  },
+  "prettier": {
+    "allowed": true,
+  },
+  "colorize_brackets": true,
+  "inlay_hints": {
+    "edit_debounce_ms": 600,
+    "show_background": true,
+    "enabled": true,
+  },
+  "always_treat_brackets_as_autoclosed": true,
+  "toolbar": {
+    "quick_actions": false,
+    "selections_menu": false,
+    "agent_review": false,
+  },
+  "relative_line_numbers": "enabled",
+  "snippet_sort_order": "top",
+  "ui_font_family": "Google Sans",
+  "buffer_line_height": "comfortable",
+  "icon_theme": "Colored Zed Icons Theme Dark",
+  "terminal": {
+    "font_size": 14.0,
+    "font_family": "GoogleSansCode Nerd Font Mono",
+  },
+  "base_keymap": "VSCode",
+  "minimap": {
+    "show": "never",
+    "max_width_columns": 100,
+  },
+  "scrollbar": {
+    "diagnostics": "warning",
+    "axes": {
+      "vertical": false,
+      "horizontal": false,
+    },
+  },
+  "autosave": "on_focus_change",
+  "buffer_font_family": "GoogleSansCode Nerd Font Mono",
+  "auto_indent_on_paste": true,
+  "show_whitespaces": "trailing",
+  "wrap_guides": [80, 120],
+  "preferred_line_length": 100,
+  "soft_wrap": "preferred_line_length",
+  "tab_size": 2,
+  "vim_mode": true,
+  "vim": {
+    "use_system_clipboard": "always",
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+  "ui_font_size": 16,
+  "buffer_font_size": 16.0,
+  "theme": "Ashen",
+  "git": {
+    "inline_blame": {
+      "delay_ms": 1000,
+    },
+  },
+
+  // language config
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "javascript": {
+          "inlayHints": {
+            "parameterNames": {
+              "enabled": "all",
+              "suppressWhenArgumentMatchesName": false,
+            },
+            "parameterTypes": {
+              "enabled": true,
+            },
+            "variableTypes": {
+              "enabled": true,
+              "suppressWhenTypeMatchesName": true,
+            },
+            "propertyDeclarationTypes": {
+              "enabled": true,
+            },
+            "functionLikeReturnTypes": {
+              "enabled": true,
+            },
+            "enumMemberValues": {
+              "enabled": true,
+            },
+          },
+        },
+        "typescript": {
+          "inlayHints": {
+            "parameterNames": {
+              "enabled": "all",
+              "suppressWhenArgumentMatchesName": false,
+            },
+            "parameterTypes": {
+              "enabled": true,
+            },
+            "variableTypes": {
+              "enabled": true,
+              "suppressWhenTypeMatchesName": true,
+            },
+            "propertyDeclarationTypes": {
+              "enabled": true,
+            },
+            "functionLikeReturnTypes": {
+              "enabled": true,
+            },
+            "enumMemberValues": {
+              "enabled": true,
+            },
+          },
+        },
+      },
+    },
+  },
+}

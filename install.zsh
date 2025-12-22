@@ -217,7 +217,14 @@ setup_dotfiles() {
     cd - &>/dev/null
 
     log_info "Creating symlinks for dotfiles..."
+
+    # Ensure zed config directory exists
+    mkdir -p "$HOME/.config/zed"
+
     local symlink_mappings=(
+        "zed/settings.json:$HOME/.config/zed/settings.json"
+        "zed/keymap.json:$HOME/.config/zed/keymap.json"
+        "zed/themes:$HOME/.config/zed/themes"
         "zsh/zshrc:$HOME/.zshrc"
         "nvim:$HOME/.config/nvim"
         "fastfetch:$HOME/.config/fastfetch"
