@@ -28,7 +28,6 @@ alias fzf="fzf --style full"
 alias dir="cd ~ && cd \$(find * -type d | fzf)"
 alias vim="nvim"
 alias ff="fastfetch"
-alias psql="psql-18"
 
 # NVM
 export NVM_DIR="$HOME/.nvm"
@@ -79,3 +78,15 @@ export _ZO_FZF_OPTS="
   --preview-window=down,border-top
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
+
+# ami
+export AMI_INSTALL="$HOME/.ami"
+export PATH="$AMI_INSTALL/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="/Users/aileks/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

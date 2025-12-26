@@ -66,3 +66,9 @@ cmd-alt-ctrl-s = 'exec-and-forget open -a Signal'
 cmd-alt-ctrl-m = 'exec-and-forget open -a Cider'
 cmd-alt-ctrl-d = 'exec-and-forget open -a Element'
 cmd-alt-ctrl-o = 'exec-and-forget open -a Notesnook'
+
+# Aerospace workaround
+[[on-window-detected]]
+if.app-id = "com.mitchellh.ghostty"
+run = ["layout floating"]
+
