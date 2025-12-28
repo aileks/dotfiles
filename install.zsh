@@ -3,7 +3,23 @@
 set -euo pipefail
 
 readonly SCRIPT_NAME="${(%):-%N}"
-readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$SCRIPT_NAME" || echo "$SCRIPT_NAME")")" && pwd -P)"
+
+get_script_dir() {
+    local script_path="$1"
+    local dir
+
+    if command -v greadlink &>/dev/null; then
+        dir=$(greadlink -f "$script_path" 2>/dev/null)
+    elif [[ -L "$script_path" ]]; then
+        dir=$(stat -f "%Y" "$script_path" 2>/dev/null || stat -L -f "%N" "$script_path" 2>/dev/null || echo "$script_path")
+    else
+        dir="$script_path"
+    fi
+
+    dirname "$dir"
+}
+
+readonly SCRIPT_DIR="$(cd "$(get_script_dir "$SCRIPT_NAME")" && pwd -P)"
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="$HOME/.dotfiles"
 readonly BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"

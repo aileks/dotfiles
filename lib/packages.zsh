@@ -64,6 +64,14 @@ install_homebrew() {
             return 1
         fi
 
+        local script_size
+        script_size=$(wc -c < "$install_script" 2>/dev/null || echo "0")
+        if [[ "$script_size" -lt 5000 ]]; then
+            log_error "Install script too small ($script_size bytes), may be invalid"
+            rm -f "$install_script"
+            return 1
+        fi
+
         log_debug "Executing Homebrew install script..."
         if ! bash "$install_script"; then
             log_error "Failed to execute Homebrew install script"

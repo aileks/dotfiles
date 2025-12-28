@@ -53,14 +53,14 @@ log_step() {
 
 dry_run_or_execute() {
     local cmd="$1"
-    
+
     if [[ "$DRY_RUN" == true ]]; then
         log_debug "[DRY-RUN] Would execute: $cmd"
         return 0
     fi
-    
+
     log_debug "[EXEC] $cmd"
-    sh -c -- "$cmd"
+    eval "$cmd"
 }
 
 dry_run_log() {

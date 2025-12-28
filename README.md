@@ -5,10 +5,11 @@ Automated setup script for macOS that installs my needed software and sets up do
 ## Usage
 
 ```sh
-zsh -c "$(curl -fsSL https://aileks.dev/mac)"
+# One-command install (recommended)
+zsh -c "$(https://aileks.dev/mac)"
 
-# Or clone the repo
-git clone https://github.com/aileks/dotfiles.github.git
+# Or clone and run manually
+git clone https://github.com/aileks/dotfiles.git
 cd dotfiles
 git submodule update --init --recursive
 ./install.zsh

@@ -60,7 +60,7 @@ _update_dotfiles_repo() {
             default_branch="main"
         fi
 
-        if ! dry_run_or_execute "cd '$DOTFILES_DIR' && git pull origin $default_branch"; then
+        if ! dry_run_or_execute "cd '$DOTFILES_DIR' && git pull origin '$default_branch'"; then
             log_warning "Failed to update dotfiles, continuing with existing version"
             return 0
         fi
