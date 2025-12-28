@@ -10,6 +10,7 @@
       "space e": "project_panel::ToggleFocus",
       "space r": "editor::Rename",
       "space b": "git::Blame",
+      "space i h": "editor::ToggleInlayHints",
       "space g a": "git::StageAll",
       "space g c": "git::Commit",
       "space g p": "git::Push",

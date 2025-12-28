@@ -1,11 +1,5 @@
 {
   "restore_on_startup": "none",
-  "unnecessary_code_fade": 0.3,
-  "lsp_document_colors": "inlay",
-  "agent": {
-    "enabled": false,
-    "button": false,
-  },
   "tab_bar": {
     "show_tab_bar_buttons": false,
     "show_nav_history_buttons": false,
@@ -35,7 +29,7 @@
   "inlay_hints": {
     "edit_debounce_ms": 600,
     "show_background": true,
-    "enabled": true,
+    "enabled": false,
   },
   "always_treat_brackets_as_autoclosed": true,
   "toolbar": {
@@ -49,7 +43,7 @@
   "buffer_line_height": "comfortable",
   "icon_theme": "Colored Zed Icons Theme Dark",
   "terminal": {
-    "font_size": 14.0,
+    "font_size": 16.0,
     "font_family": "GoogleSansCode Nerd Font Mono",
   },
   "base_keymap": "VSCode",
@@ -69,7 +63,7 @@
   "auto_indent_on_paste": true,
   "show_whitespaces": "trailing",
   "wrap_guides": [80, 120],
-  "preferred_line_length": 100,
+  "preferred_line_length": 120,
   "soft_wrap": "preferred_line_length",
   "tab_size": 2,
   "vim_mode": true,
@@ -80,8 +74,10 @@
     "diagnostics": false,
     "metrics": false,
   },
-  "ui_font_size": 16,
-  "buffer_font_size": 16.0,
+  "ui_font_size": 17,
+  "buffer_font_size": 16,
+  "agent_buffer_font_size": 16,
+  "agent_ui_font_size": 18,
   "theme": "Ashen",
   "git": {
     "inline_blame": {
@@ -90,6 +86,24 @@
   },
 
   // language config
+  "languages": {
+    "TypeScript": {
+      "format_on_save": "on",
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true,
+      },
+    },
+    "TSX": {
+      "format_on_save": "on",
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true,
+      },
+    },
+    "CSS": {
+      "format_on_save": "on",
+      "language_servers": ["tailwindcss-language-server"],
+    },
+  },
   "lsp": {
     "vtsls": {
       "settings": {
@@ -138,6 +152,17 @@
             },
             "enumMemberValues": {
               "enabled": true,
+            },
+          },
+        },
+        "oxlint": {
+          "initialization_options": {
+            "settings": {
+              "disableNestedConfig": false,
+              "fixKind": "safe_fix",
+              "run": "onType",
+              "typeAware": true,
+              "unusedDisableDirectives": "deny",
             },
           },
         },
