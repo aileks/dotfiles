@@ -12,3 +12,4 @@ background-blur = true
 cursor-style = block
 confirm-close-surface = false
 # macos-titlebar-style = hidden
+keybind = shift+enter=text:\x1b\r
