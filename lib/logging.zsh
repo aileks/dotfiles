@@ -21,28 +21,34 @@ set_debug_mode() {
 
 log_debug() {
     if [[ "$DEBUG_MODE" == true ]]; then
-        echo -e "${LOG_BLUE}[DEBUG]${LOG_NC} $1"
+        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        echo -e "${LOG_BLUE}[DEBUG]${LOG_NC} [$timestamp] $1"
     fi
 }
 
 log_info() {
-    echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${LOG_BLUE}[INFO]${LOG_NC} [$timestamp] $1"
 }
 
 log_success() {
-    echo -e "${LOG_GREEN}[SUCCESS]${LOG_NC} $1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${LOG_GREEN}[SUCCESS]${LOG_NC} [$timestamp] $1"
 }
 
 log_warning() {
-    echo -e "${LOG_YELLOW}[WARN]${LOG_NC} $1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${LOG_YELLOW}[WARN]${LOG_NC} [$timestamp] $1"
 }
 
 log_error() {
-    echo -e "${LOG_RED}[ERROR]${LOG_NC} $1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${LOG_RED}[ERROR]${LOG_NC} [$timestamp] $1"
 }
 
 log_step() {
-    echo -e "${LOG_PURPLE}[STEP]${LOG_NC} $1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${LOG_PURPLE}[STEP]${LOG_NC} [$timestamp] $1"
 }
 
 dry_run_or_execute() {
@@ -54,7 +60,7 @@ dry_run_or_execute() {
     fi
     
     log_debug "[EXEC] $cmd"
-    sh -c "$cmd"
+    sh -c -- "$cmd"
 }
 
 dry_run_log() {

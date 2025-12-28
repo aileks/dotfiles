@@ -52,7 +52,15 @@ create_symlink() {
 _update_dotfiles_repo() {
     if [[ -d "$DOTFILES_DIR" ]]; then
         log_info "Dotfiles directory already exists, updating..."
-        if ! dry_run_or_execute "cd '$DOTFILES_DIR' && git pull origin main"; then
+
+        local default_branch
+        default_branch=$(cd "$DOTFILES_DIR" && git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+        if [[ -z "$default_branch" ]]; then
+            default_branch="main"
+        fi
+
+        if ! dry_run_or_execute "cd '$DOTFILES_DIR' && git pull origin $default_branch"; then
             log_warning "Failed to update dotfiles, continuing with existing version"
             return 0
         fi

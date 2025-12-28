@@ -10,9 +10,34 @@ install_oh_my_zsh() {
     if [[ ! -d "$omz_dir" ]]; then
         log_info "Installing Oh-My-Zsh..."
         local install_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-        if ! dry_run_or_execute "RUNZSH=no CHSH=no sh -c \"\$(curl -fsSL $install_url)\""; then
-            log_error "Failed to install Oh-My-Zsh"
-            return 1
+        local install_script
+        install_script=$(mktemp)
+
+        if [[ "$DRY_RUN" == true ]]; then
+            log_info "[DRY-RUN] Would download and execute Oh-My-Zsh install script from $install_url"
+        else
+            log_debug "Downloading Oh-My-Zsh install script..."
+            if ! curl -fsSL "$install_url" -o "$install_script"; then
+                log_error "Failed to download Oh-My-Zsh install script"
+                rm -f "$install_script"
+                return 1
+            fi
+
+            log_debug "Verifying install script..."
+            if ! grep -q "oh-my-zsh" "$install_script" 2>/dev/null; then
+                log_error "Install script verification failed: invalid content"
+                rm -f "$install_script"
+                return 1
+            fi
+
+            log_debug "Executing Oh-My-Zsh install script..."
+            if ! RUNZSH=no CHSH=no sh "$install_script"; then
+                log_error "Failed to execute Oh-My-Zsh install script"
+                rm -f "$install_script"
+                return 1
+            fi
+
+            rm -f "$install_script"
         fi
         log_success "Oh-My-Zsh installed successfully"
     else

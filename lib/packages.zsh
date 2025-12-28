@@ -44,17 +44,46 @@ install_homebrew() {
     
     log_info "Installing Homebrew..."
     local install_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-    if ! dry_run_or_execute "bash -c \"\$(curl -fsSL $install_url)\""; then
-        log_error "Homebrew installation failed"
-        return 1
+    local install_script
+    install_script=$(mktemp)
+
+    if [[ "$DRY_RUN" == true ]]; then
+        log_info "[DRY-RUN] Would download and execute Homebrew install script from $install_url"
+    else
+        log_debug "Downloading Homebrew install script..."
+        if ! curl -fsSL "$install_url" -o "$install_script"; then
+            log_error "Failed to download Homebrew install script"
+            rm -f "$install_script"
+            return 1
+        fi
+
+        log_debug "Verifying install script..."
+        if ! grep -q "Homebrew" "$install_script" 2>/dev/null; then
+            log_error "Install script verification failed: invalid content"
+            rm -f "$install_script"
+            return 1
+        fi
+
+        log_debug "Executing Homebrew install script..."
+        if ! bash "$install_script"; then
+            log_error "Failed to execute Homebrew install script"
+            rm -f "$install_script"
+            return 1
+        fi
+
+        rm -f "$install_script"
     fi
     
     if command_exists brew; then
         local brew_prefix
         brew_prefix=$(brew --prefix 2>/dev/null)
-        
+
         if [[ -n "$brew_prefix" ]]; then
-            if ! grep -q "$brew_prefix/bin/brew" "$HOME/.zprofile" 2>/dev/null; then
+            if [[ -f "$HOME/.zprofile" ]]; then
+                if ! grep -q "$brew_prefix/bin/brew" "$HOME/.zprofile" 2>/dev/null; then
+                    dry_run_or_execute "echo 'eval \"\$($brew_prefix/bin/brew shellenv)\"' >> '$HOME/.zprofile'"
+                fi
+            else
                 dry_run_or_execute "echo 'eval \"\$($brew_prefix/bin/brew shellenv)\"' >> '$HOME/.zprofile'"
             fi
             dry_run_or_execute "eval \"\$($brew_prefix/bin/brew shellenv)\""
@@ -117,13 +146,14 @@ install_node() {
     fi
     
     if [[ "$DRY_RUN" != true ]]; then
-        log_info "Installing Node.js LTS..."
-        if ! nvm install --lts 2>&1; then
-            log_error "Failed to install Node.js LTS"
+        local NODE_VERSION="22"
+        log_info "Installing Node.js $NODE_VERSION..."
+        if ! nvm install "$NODE_VERSION" 2>&1; then
+            log_error "Failed to install Node.js $NODE_VERSION"
             return 1
         fi
-        
-        nvm use --lts
+
+        nvm use "$NODE_VERSION"
         
         log_info "Installing pnpm..."
         if ! npm install --global corepack@latest 2>&1; then

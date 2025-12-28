@@ -3,7 +3,7 @@
 set -euo pipefail
 
 readonly SCRIPT_NAME="${(%):-%N}"
-readonly SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_NAME")" && pwd)"
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$SCRIPT_NAME" || echo "$SCRIPT_NAME")")" && pwd -P)"
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="$HOME/.dotfiles"
 readonly BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
