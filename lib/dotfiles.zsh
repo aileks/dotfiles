@@ -2,9 +2,6 @@ source "$SCRIPT_DIR/lib/logging.zsh"
 source "$SCRIPT_DIR/lib/utils.zsh"
 
 SYMLINK_MAPPINGS=(
-    "zed/settings.json:$HOME/.config/zed/settings.json"
-    "zed/keymap.json:$HOME/.config/zed/keymap.json"
-    "zed/themes:$HOME/.config/zed/themes"
     "zsh/zshrc:$HOME/.zshrc"
     "nvim:$HOME/.config/nvim"
     "fastfetch:$HOME/.config/fastfetch"
@@ -88,8 +85,6 @@ _init_submodules() {
 
 _create_symlinks() {
     log_info "Creating symlinks..."
-    
-    dry_run_or_execute "mkdir -p '$HOME/.config/zed'"
     
     local mapping src dest full_src
     for mapping in "${SYMLINK_MAPPINGS[@]}"; do
