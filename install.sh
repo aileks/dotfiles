@@ -120,6 +120,7 @@ PACMAN_PACKAGES=(
     pcmanfm
     
     # Applications
+    wezterm
     zathura
     zathura-pdf-mupdf
     nsxiv
@@ -140,7 +141,6 @@ PACMAN_PACKAGES=(
 )
 
 AUR_PACKAGES=(
-    wezterm
     betterlockscreen
     ttf-adwaita-mono-nerd
 )
