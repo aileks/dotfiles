@@ -131,7 +131,6 @@ PACMAN_PACKAGES=(
     calcurse
     
     # Fonts
-    # ttf-jetbrains-mono-nerd
     ttf-font-awesome
     noto-fonts
     noto-fonts-emoji
