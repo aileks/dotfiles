@@ -18,17 +18,17 @@ cd ~/.dotfiles
 
 ## What's Included
 
-| Component     | Tool                      |
-| ------------- | ------------------------- |
-| WM            | dwm-flexipatch            |
-| Status bar    | dwmblocks                 |
-| Terminal      | WezTerm                   |
-| Launcher      | Rofi                      |
-| Compositor    | Picom                     |
-| Notifications | Dunst                     |
-| Locker        | Betterlockscreen          |
-| Shell         | Zsh                       |
-| File manager  | Yazi (TUI), pcmanfm (GUI) |
+| Component     | Tool             |
+| ------------- | ---------------- |
+| WM            | dwm-flexipatch   |
+| Status bar    | dwmblocks        |
+| Terminal      | WezTerm          |
+| Launcher      | Rofi             |
+| Compositor    | Picom            |
+| Notifications | Dunst            |
+| Locker        | Betterlockscreen |
+| Shell         | Zsh              |
+| File manager  | Yazi, pcmanfm    |
 
 ## Usage
 
@@ -49,6 +49,7 @@ After install: log out, then `startx`.
 | `Mod+d`        | Rofi (apps)        |
 | `Mod+hjkl`     | Focus by direction |
 | `Mod+Shift+jk` | Move in stack      |
+| `Mod+Tab`      | Rotate stack       |
 | `Mod+Shift+q`  | Close window       |
 | `Mod+x`        | Lock screen        |
 | `Mod+1-9`      | Switch tag         |
