@@ -36,11 +36,11 @@ static int tiledindicatortype            = INDICATOR_NONE;
 static int floatindicatortype            = INDICATOR_TOP_LEFT_SQUARE;
 
 #if BAR_PANGO_PATCH
-static const char font[]                 = "JetBrainsMono Nerd Font 11";
+static const char font[]                 = "BerkeleyMono Nerd Font Mono 12";
 #else
-static const char *fonts[]               = { "JetBrainsMono Nerd Font:size=11" };
+static const char *fonts[]               = { "BerkeleyMono Nerd Font Mono:size=12" };
 #endif
-static const char dmenufont[]            = "JetBrainsMono Nerd Font:size=11";
+static const char dmenufont[]            = "BerkeleyMono Nerd Font Mono:size=12";
 
 static char c000000[]                    = "#L000000";
 
