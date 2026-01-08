@@ -149,6 +149,32 @@ AUR_PACKAGES=(
 # Package Installation
 # ============================================================
 
+setup_chaotic_aur() {
+    if pacman -Qq chaotic-keyring &>/dev/null; then
+        log_success "Chaotic AUR already configured"
+        return 0
+    fi
+
+    log_info "Setting up Chaotic AUR..."
+
+    if log_dry "Setup Chaotic AUR keyring and mirrorlist"; then
+        return 0
+    fi
+
+    sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+    sudo pacman-key --lsign-key 3056513887B78AEB
+    sudo pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
+    sudo pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+
+    if ! grep -q "\[chaotic-aur\]" /etc/pacman.conf; then
+        echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' | sudo tee -a /etc/pacman.conf > /dev/null
+    fi
+
+    sudo pacman -Sy
+
+    log_success "Chaotic AUR configured"
+}
+
 install_pacman_packages() {
     log_info "Installing pacman packages..."
     
@@ -472,6 +498,7 @@ show_menu() {
             exit 0
             ;;
         4)
+            setup_chaotic_aur
             install_pacman_packages
             install_aur_packages
             exit 0
@@ -570,6 +597,7 @@ main() {
     if [[ "$SYMLINK_ONLY" == true ]]; then
         symlink_configs
     else
+        setup_chaotic_aur
         install_pacman_packages
         install_aur_packages
         symlink_configs
