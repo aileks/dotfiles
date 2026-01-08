@@ -1,0 +1,10 @@
+#!/bin/sh
+
+icon="󰃰"
+date_fmt="%a %b %d"
+time_fmt="%I:%M %p"
+
+date_str=$(date +"$date_fmt")
+time_str=$(date +"$time_fmt")
+
+printf "^c#E49A44^%s^d^ %s  ^c#C4693D^%s^d^" "$icon" "$date_str" "$time_str"

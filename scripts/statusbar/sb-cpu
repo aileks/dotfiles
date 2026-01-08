@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
+
+if [ "$cpu" -ge 80 ]; then
+    color="#B14242"
+elif [ "$cpu" -ge 50 ]; then
+    color="#E49A44"
+else
+    color="#a7a7a7"
+fi
+
+printf "^c%s^󰻠 %s%%^d^" "$color" "$cpu"
