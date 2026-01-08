@@ -5,7 +5,7 @@ DWM-Flexipatch + Ashen colorscheme. Keyboard-driven, minimal, no green.
 ## Quick Start
 
 ```bash
-curl -fsSL https://aileks.dev/arch | bash
+curl -fsSL https://aileks.dev/linux | bash
 ```
 
 Or manually:
@@ -18,17 +18,17 @@ cd ~/.dotfiles
 
 ## What's Included
 
-| Component | Tool |
-|-----------|------|
-| WM | dwm-flexipatch |
-| Status bar | dwmblocks |
-| Terminal | WezTerm |
-| Launcher | Rofi |
-| Compositor | Picom |
-| Notifications | Dunst |
-| Locker | Betterlockscreen |
-| Shell | Zsh |
-| File manager | Yazi (TUI), pcmanfm (GUI) |
+| Component     | Tool                      |
+| ------------- | ------------------------- |
+| WM            | dwm-flexipatch            |
+| Status bar    | dwmblocks                 |
+| Terminal      | WezTerm                   |
+| Launcher      | Rofi                      |
+| Compositor    | Picom                     |
+| Notifications | Dunst                     |
+| Locker        | Betterlockscreen          |
+| Shell         | Zsh                       |
+| File manager  | Yazi (TUI), pcmanfm (GUI) |
 
 ## Usage
 
@@ -43,28 +43,28 @@ After install: log out, then `startx`.
 
 ## Key Bindings
 
-| Key | Action |
-|-----|--------|
-| `Mod+Return` | Terminal |
-| `Mod+d` | Rofi (apps) |
-| `Mod+hjkl` | Focus by direction |
-| `Mod+Shift+jk` | Move in stack |
-| `Mod+Shift+q` | Close window |
-| `Mod+x` | Lock screen |
-| `Mod+1-9` | Switch tag |
-| `Print` | Screenshot |
+| Key            | Action             |
+| -------------- | ------------------ |
+| `Mod+Return`   | Terminal           |
+| `Mod+d`        | Rofi (apps)        |
+| `Mod+hjkl`     | Focus by direction |
+| `Mod+Shift+jk` | Move in stack      |
+| `Mod+Shift+q`  | Close window       |
+| `Mod+x`        | Lock screen        |
+| `Mod+1-9`      | Switch tag         |
+| `Print`        | Screenshot         |
 
 ## Ashen Palette
 
 No green. Orange substitutes.
 
-| Color | Hex | Use |
-|-------|-----|-----|
-| Background | `#121212` | Base |
-| Foreground | `#d5d5d5` | Text |
+| Color        | Hex       | Use            |
+| ------------ | --------- | -------------- |
+| Background   | `#121212` | Base           |
+| Foreground   | `#d5d5d5` | Text           |
 | Orange Blaze | `#C4693D` | Borders, focus |
-| Red Ember | `#B14242` | Errors, urgent |
-| Blue | `#4A8B8B` | Info, links |
+| Red Ember    | `#B14242` | Errors, urgent |
+| Blue         | `#4A8B8B` | Info, links    |
 
 ## Structure
 
