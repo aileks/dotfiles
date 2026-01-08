@@ -170,7 +170,9 @@ setup_chaotic_aur() {
         echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' | sudo tee -a /etc/pacman.conf > /dev/null
     fi
 
-    sudo pacman -Sy
+    if ! sudo pacman -Sy; then
+        log_warning "Chaotic AUR sync failed (mirrors may be updating). Continuing anyway..."
+    fi
 
     log_success "Chaotic AUR configured"
 }
