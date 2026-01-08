@@ -4,7 +4,7 @@ connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -
 
 if [ -z "$connection" ]; then
     icon="󰤭"
-    color="#L535353"
+    color="#535353"
     printf "^c%s^%s^d^" "$color" "$icon"
     exit 0
 fi
@@ -15,17 +15,17 @@ if [ "$type" = "802-11-wireless" ]; then
     signal=$(nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | grep '^\*' | cut -d: -f2)
     if [ -n "$signal" ] && [ "$signal" -ge 70 ]; then
         icon="󰤨"
-        color="#L4A8B8B"
+        color="#4a8b8b"
     elif [ -n "$signal" ] && [ "$signal" -ge 40 ]; then
         icon="󰤥"
-        color="#La7a7a7"
+        color="#a7a7a7"
     else
         icon="󰤟"
-        color="#LE49A44"
+        color="#e49a44"
     fi
 else
     icon="󰈀"
-    color="#L4A8B8B"
+    color="#4a8b8b"
 fi
 
 printf "^c%s^%s^d^" "$color" "$icon"
