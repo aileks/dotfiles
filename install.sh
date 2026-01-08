@@ -130,7 +130,7 @@ PACMAN_PACKAGES=(
     calcurse
     
     # Fonts
-    ttf-jetbrains-mono-nerd
+    # ttf-jetbrains-mono-nerd
     ttf-font-awesome
     noto-fonts
     noto-fonts-emoji
@@ -142,6 +142,7 @@ PACMAN_PACKAGES=(
 AUR_PACKAGES=(
     wezterm-bin
     betterlockscreen
+    ttf-adwaita-mono-nerd
 )
 
 # ============================================================
@@ -459,7 +460,7 @@ show_menu() {
     echo "  q) Quit"
     echo
     
-    read -rp "Choose an option [1]: " choice
+    read -rp "Choose an option [1]: " choice </dev/tty
     choice=${choice:-1}
     
     case "$choice" in

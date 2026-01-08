@@ -1,0 +1,31 @@
+#!/bin/sh
+# Statusbar module: pacman + AUR updates
+# Left click: show notification with update details
+
+case $BUTTON in
+    1)
+        updates=$(checkupdates 2>/dev/null)
+        aur_updates=$(paru -Qua 2>/dev/null || yay -Qua 2>/dev/null)
+
+        if [ -n "$updates" ] || [ -n "$aur_updates" ]; then
+            notify-send "󰏔 Available Updates" "$(printf "Pacman:\n%s\n\nAUR:\n%s" "$updates" "$aur_updates" | head -20)"
+        else
+            notify-send "󰏔 System Up-to-date" "No updates available"
+        fi
+        ;;
+esac
+
+# Count updates
+pacman_count=$(checkupdates 2>/dev/null | wc -l)
+aur_count=$(paru -Qua 2>/dev/null | wc -l || yay -Qua 2>/dev/null | wc -l)
+total=$((pacman_count + aur_count))
+
+if [ "$total" -eq 0 ]; then
+    exit 0  # Hide when no updates
+elif [ "$total" -lt 10 ]; then
+    color="#e49a44"
+else
+    color="#b14242"
+fi
+
+printf "^c%s^󰏔 %s^d^" "$color" "$total"
