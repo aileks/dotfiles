@@ -69,7 +69,7 @@ command_exists() {
 
 PACMAN_PACKAGES=(
     # Core WM & X11
-    xorg
+    xorg-server
     xorg-xinit
     xorg-xsetroot
     xorg-xrandr
