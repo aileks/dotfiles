@@ -1,7 +1,5 @@
 # Arch Linux Dotfiles
 
-DWM-Flexipatch + Ashen colorscheme. Keyboard-driven, minimal, no green.
-
 ## Quick Start
 
 ```bash
