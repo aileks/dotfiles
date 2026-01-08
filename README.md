@@ -14,20 +14,6 @@ cd ~/.dotfiles
 ./setup.sh
 ```
 
-## What's Included
-
-| Component     | Tool             |
-| ------------- | ---------------- |
-| WM            | dwm-flexipatch   |
-| Status bar    | dwmblocks        |
-| Terminal      | WezTerm          |
-| Launcher      | Rofi             |
-| Compositor    | Picom            |
-| Notifications | Dunst            |
-| Locker        | Betterlockscreen |
-| Shell         | Zsh              |
-| File manager  | Yazi, pcmanfm    |
-
 ## Usage
 
 ```bash
