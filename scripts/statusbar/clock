@@ -7,4 +7,4 @@ time_fmt="%I:%M %p"
 date_str=$(date +"$date_fmt")
 time_str=$(date +"$time_fmt")
 
-printf "^c#E49A44^%s^d^ %s  ^c#C4693D^%s^d^" "$icon" "$date_str" "$time_str"
+printf "^c#LE49A44^%s^d^ %s  ^c#LC4693D^%s^d^" "$icon" "$date_str" "$time_str"

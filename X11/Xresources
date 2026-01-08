@@ -1,0 +1,29 @@
+Xft.dpi: 144
+Xft.antialias: true
+Xft.hinting: true
+Xft.hintstyle: hintslight
+Xft.rgba: rgb
+Xft.lcdfilter: lcddefault
+
+*foreground: #Ld5d5d5
+*background: #L121212
+*cursorColor: #Ld5d5d5
+*fadeColor: #L121212
+
+*color0: #L121212
+*color1: #LB14242
+*color2: #LD87C4A
+*color3: #LE49A44
+*color4: #L4A8B8B
+*color5: #La7a7a7
+*color6: #Lb4b4b4
+*color7: #Ld5d5d5
+
+*color8: #L949494
+*color9: #LB14242
+*color10: #LD87C4A
+*color11: #LE49A44
+*color12: #L4A8B8B
+*color13: #La7a7a7
+*color14: #Lb4b4b4
+*color15: #Ld5d5d5

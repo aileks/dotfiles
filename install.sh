@@ -293,7 +293,6 @@ symlink_configs() {
     
     # Single file symlinks
     create_symlink "$SCRIPT_DIR/betterlockscreen/betterlockscreenrc" ~/.config/betterlockscreen/betterlockscreenrc
-    create_symlink "$SCRIPT_DIR/X11/xinitrc" ~/.xinitrc
     create_symlink "$SCRIPT_DIR/X11/Xresources" ~/.Xresources
     create_symlink "$SCRIPT_DIR/zsh/zshrc" ~/.zshrc
     create_symlink "$SCRIPT_DIR/tmux/tmux.conf" ~/.tmux.conf
@@ -363,6 +362,17 @@ build_dwmblocks() {
     
     popd &>/dev/null
     log_success "dwmblocks installed"
+}
+
+install_desktop_entry() {
+    log_info "Installing dwm desktop entry..."
+    
+    if log_dry "sudo cp $SCRIPT_DIR/X11/dwm.desktop /usr/share/xsessions/dwm.desktop"; then
+        return 0
+    fi
+    
+    sudo cp "$SCRIPT_DIR/X11/dwm.desktop" /usr/share/xsessions/dwm.desktop
+    log_success "Desktop entry installed"
 }
 
 # ============================================================
@@ -564,6 +574,7 @@ main() {
         symlink_configs
         build_dwm
         build_dwmblocks
+        install_desktop_entry
         setup_shell
         enable_services
         cache_lockscreen
