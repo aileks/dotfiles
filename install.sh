@@ -117,7 +117,7 @@ PACMAN_PACKAGES=(
     
     # File Managers
     yazi
-    pcmanfm-gtk3
+    pcmanfm
     
     # Applications
     zathura
