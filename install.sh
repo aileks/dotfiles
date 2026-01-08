@@ -140,7 +140,7 @@ PACMAN_PACKAGES=(
 )
 
 AUR_PACKAGES=(
-    wezterm-bin
+    wezterm
     betterlockscreen
     ttf-adwaita-mono-nerd
 )
