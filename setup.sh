@@ -111,7 +111,7 @@ install_aur_helper() {
   local paru_dir
   paru_dir=$(mktemp -d)
 
-  if ! git clone https://aur.archlinux.org/paru-bin.git "$paru_dir"; then
+  if ! git clone https://aur.archlinux.org/paru.git "$paru_dir"; then
     log_error "Failed to clone paru"
     rm -rf "$paru_dir"
     exit 1
