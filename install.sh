@@ -77,6 +77,7 @@ PACMAN_PACKAGES=(
   libxft
   libxinerama
   imlib2
+  neovim
   zsh
   zsh-autosuggestions
   zsh-syntax-highlighting
