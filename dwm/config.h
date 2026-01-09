@@ -252,9 +252,7 @@ static const Layout layouts[] = {
 #define MODKEY (ControlMask|Mod1Mask|Mod4Mask)
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} },
 
 #if !NODMENU_PATCH
 static char dmenumon[2] = "0";
@@ -286,10 +284,10 @@ static const char *lockcmd[]  = { "betterlockscreen", "-l", NULL };
 
 static const Key keys[] = {
 	{ MODKEY,                       XK_d,          spawn,                  {.v = roficmd } },
-	{ MODKEY|ControlMask,           XK_space,      spawn,                  {.v = emojicmd } },
+	{ MODKEY,                       XK_semicolon,  spawn,                  {.v = emojicmd } },
 	{ MODKEY,                       XK_Return,     spawn,                  {.v = termcmd } },
 	{ MODKEY,                       XK_e,          spawn,                  {.v = filecmd } },
-	{ MODKEY|ControlMask,           XK_l,          spawn,                  {.v = lockcmd } },
+	{ MODKEY,                       XK_x,          spawn,                  {.v = lockcmd } },
 	{ MODKEY,                       XK_b,          togglebar,              {0} },
 	{ MODKEY,                       XK_j,          focusstack,             {.i = +1 } },
 	{ MODKEY,                       XK_k,          focusstack,             {.i = -1 } },
@@ -308,27 +306,21 @@ static const Key keys[] = {
 	#endif
 	{ MODKEY|ShiftMask,             XK_Return,     zoom,                   {0} },
 	#if VANITYGAPS_PATCH
-	{ MODKEY|Mod1Mask,              XK_equal,      incrgaps,               {.i = +2 } },
-	{ MODKEY|Mod1Mask,              XK_minus,      incrgaps,               {.i = -2 } },
-	{ MODKEY|Mod1Mask,              XK_0,          togglegaps,             {0} },
-	{ MODKEY|Mod1Mask|ShiftMask,    XK_0,          defaultgaps,            {0} },
+	{ MODKEY,                       XK_equal,      incrgaps,               {.i = +2 } },
+	{ MODKEY,                       XK_minus,      incrgaps,               {.i = -2 } },
+	{ MODKEY,                       XK_g,          togglegaps,             {0} },
+	{ MODKEY|ShiftMask,             XK_g,          defaultgaps,            {0} },
 	#endif
 	{ MODKEY,                       XK_Tab,        view,                   {0} },
 	{ MODKEY,                       XK_q,          killclient,             {0} },
-	{ MODKEY,                       XK_t,          setlayout,              {.v = &layouts[0]} },
-	{ MODKEY,                       XK_f,          setlayout,              {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,          setlayout,              {.v = &layouts[2]} },
 	#if CYCLELAYOUTS_PATCH
-	{ MODKEY|ControlMask,           XK_comma,      cyclelayout,            {.i = -1 } },
-	{ MODKEY|ControlMask,           XK_period,     cyclelayout,            {.i = +1 } },
+	{ MODKEY,                       XK_bracketleft,  cyclelayout,          {.i = -1 } },
+	{ MODKEY,                       XK_bracketright, cyclelayout,          {.i = +1 } },
 	#endif
-	{ MODKEY,                       XK_space,      setlayout,              {0} },
-	{ MODKEY|ShiftMask,             XK_space,      togglefloating,         {0} },
+	{ MODKEY,                       XK_space,      togglefloating,         {0} },
 	#if TOGGLEFULLSCREEN_PATCH
-	{ MODKEY|ShiftMask,             XK_f,          togglefullscreen,       {0} },
-	#endif
-	#if FULLSCREEN_PATCH
-	{ MODKEY|ControlMask|ShiftMask, XK_f,          fullscreen,             {0} },
+	{ MODKEY,                       XK_f,          togglefullscreen,       {0} },
 	#endif
 	#if STICKY_PATCH
 	{ MODKEY|ShiftMask,             XK_s,          togglesticky,           {0} },
@@ -357,9 +349,6 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_r,          self_restart,           {0} },
 	#endif
 	{ MODKEY|ShiftMask,             XK_q,          quit,                   {0} },
-	#if RESTARTSIG_PATCH
-	{ MODKEY|ControlMask|ShiftMask, XK_q,          quit,                   {1} },
-	#endif
 	TAGKEYS(                        XK_1,                                  0)
 	TAGKEYS(                        XK_2,                                  1)
 	TAGKEYS(                        XK_3,                                  2)
