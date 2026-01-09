@@ -116,7 +116,19 @@ PACMAN_PACKAGES=(
   noto-fonts
   noto-fonts-cjk
   noto-fonts-emoji
+  ttf-libertinus
   papirus-icon-theme
+  qalculate-gtk
+  mpv
+  gst-plugins-good
+  gst-plugins-bad
+  gst-plugins-ugly
+  gst-libav
+  bluez
+  bluez-utils
+  blueman
+  cups
+  system-config-printer
 )
 
 AUR_PACKAGES=(
@@ -124,6 +136,7 @@ AUR_PACKAGES=(
   betterlockscreen
   ttf-adwaita-mono-nerd
   pwvucontrol
+  onlyoffice-bin
 )
 
 # ============================================================
@@ -446,7 +459,7 @@ cache_lockscreen() {
 enable_services() {
   log_info "Enabling system services..."
 
-  if log_dry "sudo systemctl enable NetworkManager"; then
+  if log_dry "sudo systemctl enable NetworkManager bluetooth cups"; then
     return 0
   fi
 
@@ -455,6 +468,20 @@ enable_services() {
     log_success "NetworkManager enabled"
   else
     log_success "NetworkManager already enabled"
+  fi
+
+  if ! systemctl is-enabled bluetooth &>/dev/null; then
+    sudo systemctl enable --now bluetooth
+    log_success "Bluetooth enabled"
+  else
+    log_success "Bluetooth already enabled"
+  fi
+
+  if ! systemctl is-enabled cups &>/dev/null; then
+    sudo systemctl enable --now cups
+    log_success "CUPS enabled"
+  else
+    log_success "CUPS already enabled"
   fi
 }
 

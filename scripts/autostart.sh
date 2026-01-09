@@ -10,4 +10,6 @@ picom -b &
 
 dunst &
 
+blueman-applet &
+
 dwmblocks &
