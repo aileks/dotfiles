@@ -86,6 +86,8 @@ PACMAN_PACKAGES=(
   libnotify
   rofi
   maim
+  slop
+  ffmpeg
   xclip
   xdotool
   pamixer
@@ -121,6 +123,7 @@ AUR_PACKAGES=(
   helium-browser-bin
   betterlockscreen
   ttf-adwaita-mono-nerd
+  pwvucontrol
 )
 
 # ============================================================
@@ -318,6 +321,10 @@ symlink_configs() {
       chmod +x "$script" 2>/dev/null || true
     done
   fi
+
+  # Utility scripts
+  create_symlink "$SCRIPT_DIR/scripts/screenshot" "$HOME/.local/bin/screenshot"
+  create_symlink "$SCRIPT_DIR/scripts/screenrecord" "$HOME/.local/bin/screenrecord"
 
   log_success "Config symlinks created"
 }

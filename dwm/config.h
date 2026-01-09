@@ -373,8 +373,19 @@ static const Key keys[] = {
 	{ 0, XF86XK_AudioPrev,          spawn,         SHCMD("playerctl previous") },
 	{ 0, XF86XK_MonBrightnessUp,    spawn,         SHCMD("brightnessctl set +5%") },
 	{ 0, XF86XK_MonBrightnessDown,  spawn,         SHCMD("brightnessctl set 5%-") },
-	{ 0,                            XK_Print,      spawn,         SHCMD("maim -s | xclip -selection clipboard -t image/png") },
-	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("mkdir -p ~/Pictures/screenshots && maim ~/Pictures/screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png") },
+
+	/* Screenshots */
+	{ 0,                            XK_Print,      spawn,         SHCMD("screenshot area clipboard") },
+	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("screenshot area file") },
+	{ ControlMask,                  XK_Print,      spawn,         SHCMD("screenshot window clipboard") },
+	{ ControlMask|ShiftMask,        XK_Print,      spawn,         SHCMD("screenshot window file") },
+	{ MODKEY,                       XK_Print,      spawn,         SHCMD("screenshot fullscreen clipboard") },
+	{ MODKEY|ShiftMask,             XK_Print,      spawn,         SHCMD("screenshot fullscreen file") },
+
+	/* Screen recording */
+	{ 0,                            XK_F9,         spawn,         SHCMD("screenrecord area") },
+	{ ShiftMask,                    XK_F9,         spawn,         SHCMD("screenrecord window") },
+	{ ControlMask,                  XK_F9,         spawn,         SHCMD("screenrecord fullscreen") },
 };
 
 static const Button buttons[] = {

@@ -2,9 +2,9 @@
 
 xrdb -merge ~/.Xresources &
 
-xset r rate 300 50 &
+xset r rate 250 45 &
 
-feh --bg-fill ~/wallpaper.jpg &
+feh --bg-fill ~/Pictures/wallpaper.jpg &
 
 picom -b &
 
