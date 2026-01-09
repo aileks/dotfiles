@@ -233,7 +233,12 @@ install_pacman_packages() {
 
 install_aur_packages() {
   log_info "Installing AUR packages..."
-  gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys BE677C1989D35EAB2C5F26C9351601AD01D6378E
+
+  local helium_key="BE677C1989D35EAB2C5F26C9351601AD01D6378E"
+  if ! gpg --list-keys "$helium_key" &>/dev/null; then
+    log_info "Importing Helium browser GPG key..."
+    gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "$helium_key"
+  fi
 
   local aur_helper=""
   if command_exists paru; then
@@ -622,11 +627,21 @@ setup_display_manager() {
 
   log_info "Enabling $dm_service service..."
 
-  if ! systemctl is-enabled "$dm_service" &>/dev/null; then
-    sudo systemctl enable "$dm_service"
-    log_success "$dm_service enabled"
+  if [[ "$dm_pkg" == "ly" ]]; then
+    if ! systemctl is-enabled ly@tty1 &>/dev/null; then
+      sudo systemctl disable getty@tty1.service 2>/dev/null || true
+      sudo systemctl enable ly@tty1.service
+      log_success "ly@tty1 enabled, getty@tty1 disabled"
+    else
+      log_success "ly@tty1 already enabled"
+    fi
   else
-    log_success "$dm_service already enabled"
+    if ! systemctl is-enabled "$dm_service" &>/dev/null; then
+      sudo systemctl enable "$dm_service"
+      log_success "$dm_service enabled"
+    else
+      log_success "$dm_service already enabled"
+    fi
   fi
 }
 
