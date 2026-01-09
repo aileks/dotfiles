@@ -77,14 +77,41 @@ PACMAN_PACKAGES=(
   libxft
   libxinerama
   imlib2
-  xdg-user-dirs
   zsh
   zsh-autosuggestions
   zsh-syntax-highlighting
+  wezterm
+  tmux
+  git
+  man-db
+  man-pages
+  wget
+  jq
+  tree
+  bc
+  zip
+  unzip
+  unrar
+  7zip
+  xdg-user-dirs
+  xdg-utils
+  perl-file-mimeinfo
+  polkit-gnome
+  yazi
+  pcmanfm
+  gvfs
+  gvfs-afc
+  udisks2
+  ntfs-3g
+  dosfstools
+  exfat-utils
+  libimobiledevice
+  ifuse
   picom
   dunst
   libnotify
   rofi
+  feh
   maim
   slop
   ffmpeg
@@ -101,23 +128,13 @@ PACMAN_PACKAGES=(
   fd
   ripgrep
   trash-cli
-  bc
-  yazi
-  pcmanfm
-  wezterm
+  imagemagick
   zathura
   zathura-pdf-mupdf
   nsxiv
-  feh
   fastfetch
-  tmux
   btop
   calcurse
-  noto-fonts
-  noto-fonts-cjk
-  noto-fonts-emoji
-  ttf-libertinus
-  papirus-icon-theme
   qalculate-gtk
   mpv
   gst-plugins-good
@@ -129,12 +146,18 @@ PACMAN_PACKAGES=(
   blueman
   cups
   system-config-printer
+  noto-fonts
+  noto-fonts-cjk
+  noto-fonts-emoji
+  ttf-libertinus
+  papirus-icon-theme
 )
 
 AUR_PACKAGES=(
   helium-browser-bin
   betterlockscreen
   ttf-adwaita-mono-nerd
+  ttf-ms-win11-auto
   pwvucontrol
   onlyoffice-bin
 )
