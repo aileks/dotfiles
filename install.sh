@@ -367,7 +367,6 @@ symlink_configs() {
     for script in "$SCRIPT_DIR/scripts/statusbar/"*; do
       [[ -f "$script" ]] || continue
       create_symlink "$script" "$HOME/.local/bin/$(basename "$script")"
-      chmod +x "$script" 2>/dev/null || true
     done
   fi
 
@@ -375,8 +374,6 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/scripts/screenshot" "$HOME/.local/bin/screenshot"
   create_symlink "$SCRIPT_DIR/scripts/screenrecord" "$HOME/.local/bin/screenrecord"
   create_symlink "$SCRIPT_DIR/scripts/rofi-power" "$HOME/.local/bin/rofi-power"
-
-  chmod +x "$SCRIPT_DIR/scripts/screenshot" "$SCRIPT_DIR/scripts/screenrecord" "$SCRIPT_DIR/scripts/rofi-power" 2>/dev/null || true
 
   log_success "Config symlinks created"
 }
