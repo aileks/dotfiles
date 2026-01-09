@@ -111,6 +111,7 @@ PACMAN_PACKAGES=(
   dunst
   libnotify
   rofi
+  rofimoji
   feh
   maim
   slop
@@ -337,6 +338,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/rofi" "$HOME/.config/rofi"
+  create_symlink "$SCRIPT_DIR/rofimoji/rofimoji.rc" "$HOME/.config/rofimoji.rc"
   create_symlink "$SCRIPT_DIR/yazi" "$HOME/.config/yazi"
   create_symlink "$SCRIPT_DIR/betterlockscreen" "$HOME/.config/betterlockscreen"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"

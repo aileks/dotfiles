@@ -274,6 +274,7 @@ static const char *dmenucmd[] = {
 };
 static const char *termcmd[]  = { "wezterm", NULL };
 static const char *roficmd[]  = { "rofi", "-show", "drun", NULL };
+static const char *emojicmd[] = { "rofimoji", "--action", "copy", NULL };
 static const char *filecmd[]  = { "pcmanfm", NULL };
 static const char *lockcmd[]  = { "betterlockscreen", "-l", NULL };
 
@@ -283,6 +284,7 @@ static const char *lockcmd[]  = { "betterlockscreen", "-l", NULL };
 
 static const Key keys[] = {
 	{ MODKEY,                       XK_d,          spawn,                  {.v = roficmd } },
+	{ MODKEY|ControlMask,           XK_space,      spawn,                  {.v = emojicmd } },
 	{ MODKEY,                       XK_Return,     spawn,                  {.v = termcmd } },
 	{ MODKEY,                       XK_e,          spawn,                  {.v = filecmd } },
 	{ MODKEY|ControlMask,           XK_l,          spawn,                  {.v = lockcmd } },
