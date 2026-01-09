@@ -78,6 +78,8 @@ PACMAN_PACKAGES=(
   libxft
   libxinerama
   libxrender
+  freetype2
+  fontconfig
   imlib2
   neovim
   zsh
