@@ -77,6 +77,7 @@ PACMAN_PACKAGES=(
   libxft
   libxinerama
   imlib2
+  xdg-user-dirs
   zsh
   zsh-autosuggestions
   zsh-syntax-highlighting
@@ -411,11 +412,11 @@ setup_shell() {
 cache_lockscreen() {
   log_info "Caching lockscreen wallpaper..."
 
-  local wallpaper="$SCRIPT_DIR/wallpaper.jpg"
+  local wallpaper="$HOME/Pictures/wallpaper.jpg"
 
   if [[ ! -f "$wallpaper" ]]; then
     log_warning "Wallpaper not found: $wallpaper"
-    log_info "Add a wallpaper.jpg to your dotfiles and run: betterlockscreen -u wallpaper.jpg"
+    log_info "Add a wallpaper.jpg to ~/Pictures and run: betterlockscreen -u ~/Pictures/wallpaper.jpg"
     return 0
   fi
 
@@ -448,6 +449,22 @@ enable_services() {
   else
     log_success "NetworkManager already enabled"
   fi
+}
+
+setup_xdg_dirs() {
+  log_info "Setting up XDG user directories..."
+
+  if ! command_exists xdg-user-dirs-update; then
+    log_warning "xdg-user-dirs-update not found, skipping"
+    return 0
+  fi
+
+  if log_dry "xdg-user-dirs-update"; then
+    return 0
+  fi
+
+  xdg-user-dirs-update
+  log_success "XDG user directories created"
 }
 
 # ============================================================
@@ -582,6 +599,7 @@ main() {
     setup_chaotic_aur
     install_pacman_packages
     install_aur_packages
+    setup_xdg_dirs
     symlink_configs
     build_dwm
     build_dwmblocks

@@ -374,7 +374,7 @@ static const Key keys[] = {
 	{ 0, XF86XK_MonBrightnessUp,    spawn,         SHCMD("brightnessctl set +5%") },
 	{ 0, XF86XK_MonBrightnessDown,  spawn,         SHCMD("brightnessctl set 5%-") },
 	{ 0,                            XK_Print,      spawn,         SHCMD("maim -s | xclip -selection clipboard -t image/png") },
-	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("maim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png") },
+	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("mkdir -p ~/Pictures/screenshots && maim ~/Pictures/screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png") },
 };
 
 static const Button buttons[] = {
