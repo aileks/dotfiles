@@ -556,6 +556,80 @@ setup_xdg_dirs() {
   log_success "XDG user directories created"
 }
 
+setup_display_manager() {
+  echo
+  echo -e "${LOG_BLUE}╔════════════════════════════════════════╗${LOG_NC}"
+  echo -e "${LOG_BLUE}║${LOG_NC}       Display Manager Selection        ${LOG_BLUE}║${LOG_NC}"
+  echo -e "${LOG_BLUE}╚════════════════════════════════════════╝${LOG_NC}"
+  echo
+  echo "  1) ly       - ncurses-like display manager written in Zig"
+  echo "  2) sddm     - Simple Desktop Display Manager"
+  echo "  3) gdm      - GNOME Display Manager"
+  echo "  4) lightdm  - Lightweight display manager"
+  echo "  5) lemurs   - TUI display manager written in Rust"
+  echo "  6) none     - Skip display manager setup"
+  echo
+
+  read -rp "Choose a display manager [1]: " dm_choice </dev/tty
+  dm_choice=${dm_choice:-1}
+
+  local dm_pkg=""
+  local dm_service=""
+
+  case "$dm_choice" in
+  1)
+    dm_pkg="ly"
+    dm_service="ly"
+    ;;
+  2)
+    dm_pkg="sddm"
+    dm_service="sddm"
+    ;;
+  3)
+    dm_pkg="gdm"
+    dm_service="gdm"
+    ;;
+  4)
+    dm_pkg="lightdm"
+    dm_service="lightdm"
+    ;;
+  5)
+    dm_pkg="lemurs"
+    dm_service="lemurs"
+    ;;
+  6)
+    log_info "Skipping display manager setup"
+    return 0
+    ;;
+  *)
+    log_warning "Invalid choice, skipping display manager setup"
+    return 0
+    ;;
+  esac
+
+  log_info "Installing $dm_pkg..."
+
+  if log_dry "sudo pacman -S --needed --noconfirm $dm_pkg"; then
+    return 0
+  fi
+
+  if ! sudo pacman -S --needed --noconfirm "$dm_pkg"; then
+    log_error "Failed to install $dm_pkg"
+    return 1
+  fi
+
+  log_success "$dm_pkg installed"
+
+  log_info "Enabling $dm_service service..."
+
+  if ! systemctl is-enabled "$dm_service" &>/dev/null; then
+    sudo systemctl enable "$dm_service"
+    log_success "$dm_service enabled"
+  else
+    log_success "$dm_service already enabled"
+  fi
+}
+
 # ============================================================
 # Interactive Menu
 # ============================================================
@@ -696,6 +770,7 @@ main() {
     install_desktop_entry
     setup_shell
     enable_services
+    setup_display_manager
     cache_lockscreen
   fi
 
