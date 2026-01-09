@@ -76,6 +76,7 @@ PACMAN_PACKAGES=(
   libx11
   libxft
   libxinerama
+  libxrender
   imlib2
   neovim
   zsh
@@ -159,7 +160,7 @@ AUR_PACKAGES=(
   helium-browser-bin
   betterlockscreen
   ttf-adwaita-mono-nerd
-  ttf-ms-win11-auto
+  # ttf-ms-win11-auto
   pwvucontrol
   onlyoffice-bin
   keyd
