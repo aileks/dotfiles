@@ -13,32 +13,32 @@ FILENAME="screenshot-$(date +%Y%m%d-%H%M%S).png"
 mkdir -p "$SCREENSHOT_DIR"
 
 case "$MODE" in
-  area)
-    if [[ "$OUTPUT" == "clipboard" ]]; then
-      maim -s | xclip -selection clipboard -t image/png
-    else
-      maim -s "$SCREENSHOT_DIR/$FILENAME"
-      notify-send "Screenshot saved" "$FILENAME"
-    fi
-    ;;
-  window)
-    if [[ "$OUTPUT" == "clipboard" ]]; then
-      maim -i "$(xdotool getactivewindow)" | xclip -selection clipboard -t image/png
-    else
-      maim -i "$(xdotool getactivewindow)" "$SCREENSHOT_DIR/$FILENAME"
-      notify-send "Screenshot saved" "$FILENAME"
-    fi
-    ;;
-  fullscreen)
-    if [[ "$OUTPUT" == "clipboard" ]]; then
-      maim | xclip -selection clipboard -t image/png
-    else
-      maim "$SCREENSHOT_DIR/$FILENAME"
-      notify-send "Screenshot saved" "$FILENAME"
-    fi
-    ;;
-  *)
-    echo "Usage: screenshot <area|window|fullscreen> <clipboard|file>"
-    exit 1
-    ;;
+area)
+	if [[ "$OUTPUT" == "clipboard" ]]; then
+		maim -s | xclip -selection clipboard -t image/png
+	else
+		maim -s "$SCREENSHOT_DIR/$FILENAME"
+		notify-send "Screenshot saved" "$FILENAME"
+	fi
+	;;
+window)
+	if [[ "$OUTPUT" == "clipboard" ]]; then
+		maim -i "$(xdotool getactivewindow)" | xclip -selection clipboard -t image/png
+	else
+		maim -i "$(xdotool getactivewindow)" "$SCREENSHOT_DIR/$FILENAME"
+		notify-send "Screenshot saved" "$FILENAME"
+	fi
+	;;
+fullscreen)
+	if [[ "$OUTPUT" == "clipboard" ]]; then
+		maim | xclip -selection clipboard -t image/png
+	else
+		maim "$SCREENSHOT_DIR/$FILENAME"
+		notify-send "Screenshot saved" "$FILENAME"
+	fi
+	;;
+*)
+	echo "Usage: screenshot <area|window|fullscreen> <clipboard|file>"
+	exit 1
+	;;
 esac

@@ -1,31 +1,31 @@
-#!/bin/sh
+#!/bin/bash
 
 connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f1)
 
 if [ -z "$connection" ]; then
-    icon="󰤭"
-    color="#535353"
-    printf "^c%s^%s^d^" "$color" "$icon"
-    exit 0
+  icon="󰤭"
+  color="#535353"
+  printf "^c%s^%s^d^" "$color" "$icon"
+  exit 0
 fi
 
 type=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f2)
 
 if [ "$type" = "802-11-wireless" ]; then
-    signal=$(nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | grep '^\*' | cut -d: -f2)
-    if [ -n "$signal" ] && [ "$signal" -ge 70 ]; then
-        icon="󰤨"
-        color="#4a8b8b"
-    elif [ -n "$signal" ] && [ "$signal" -ge 40 ]; then
-        icon="󰤥"
-        color="#a7a7a7"
-    else
-        icon="󰤟"
-        color="#e49a44"
-    fi
-else
-    icon="󰈀"
+  signal=$(nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | grep '^\*' | cut -d: -f2)
+  if [ -n "$signal" ] && [ "$signal" -ge 70 ]; then
+    icon="󰤨"
     color="#4a8b8b"
+  elif [ -n "$signal" ] && [ "$signal" -ge 40 ]; then
+    icon="󰤥"
+    color="#a7a7a7"
+  else
+    icon="󰤟"
+    color="#e49a44"
+  fi
+else
+  icon="󰈀"
+  color="#4a8b8b"
 fi
 
 printf "^c%s^%s^d^" "$color" "$icon"

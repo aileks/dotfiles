@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 icon="󰃰"
 date_fmt="%a %b %d"

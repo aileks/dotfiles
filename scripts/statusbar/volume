@@ -1,26 +1,30 @@
-#!/bin/sh
+#!/bin/bash
 
 vol=$(pamixer --get-volume 2>/dev/null)
 muted=$(pamixer --get-mute 2>/dev/null)
 
 if [ "$muted" = "true" ]; then
-    icon="󰝟"
-    color="#535353"
-    printf "^c%s^%s^d^" "$color" "$icon"
+  icon="󰝟"
+  color="#535353"
+  printf "^c%s^%s^d^" "$color" "$icon"
 elif [ -z "$vol" ]; then
-    exit 0
+  exit 0
 elif [ "$vol" -eq 0 ]; then
-    icon="󰕿"
-    color="#535353"
+  icon="󰕿"
+  color="#535353"
+
 elif [ "$vol" -lt 30 ]; then
-    icon="󰕿"
-    color="#a7a7a7"
+  icon="󰕿"
+  color="#a7a7a7"
+
 elif [ "$vol" -lt 70 ]; then
-    icon="󰖀"
-    color="#a7a7a7"
+  icon="󰖀"
+  color="#a7a7a7"
+
 else
-    icon="󰕾"
-    color="#d87c4a"
+  icon="󰕾"
+  color="#d87c4a"
+
 fi
 
 printf "^c%s^%s %s%%^d^" "$color" "$icon" "$vol"

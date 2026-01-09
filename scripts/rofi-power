@@ -9,116 +9,116 @@ ROFI_ARGS="${ROFI_ARGS:-}"
 ROFI_ARGS_STR="${ROFI_ARGS:-}"
 
 cmd_exists() {
-  command -v "$1" >/dev/null 2>&1
+	command -v "$1" >/dev/null 2>&1
 }
 
 die() {
-  local msg="$1"
+	local msg="$1"
 
-  if cmd_exists "$ROFI_BIN"; then
-    "$ROFI_BIN" -e "$msg" || true
-  else
-    printf '%s\n' "$msg" >&2
-  fi
+	if cmd_exists "$ROFI_BIN"; then
+		"$ROFI_BIN" -e "$msg" || true
+	else
+		printf '%s\n' "$msg" >&2
+	fi
 
-  exit 1
+	exit 1
 }
 
 rofi_dmenu() {
-  local prompt="$1"
+	local prompt="$1"
 
-  if ! cmd_exists "$ROFI_BIN"; then
-    die "rofi not found"
-  fi
+	if ! cmd_exists "$ROFI_BIN"; then
+		die "rofi not found"
+	fi
 
-  if [[ -f "$ROFI_CONFIG" ]]; then
-    "$ROFI_BIN" -dmenu -i -p "$prompt" -config "$ROFI_CONFIG" ${ROFI_ARGS:-}
-  else
-    "$ROFI_BIN" -dmenu -i -p "$prompt" ${ROFI_ARGS:-}
-  fi
+	if [[ -f "$ROFI_CONFIG" ]]; then
+		"$ROFI_BIN" -dmenu -i -p "$prompt" -config "$ROFI_CONFIG" ${ROFI_ARGS:-}
+	else
+		"$ROFI_BIN" -dmenu -i -p "$prompt" ${ROFI_ARGS:-}
+	fi
 }
 
 confirm() {
-  local action="$1"
+	local action="$1"
 
-  local choice
-  choice=$(printf 'No\nYes\n' | rofi_dmenu "Confirm ${action}?")
-  [[ "$choice" == "Yes" ]]
+	local choice
+	choice=$(printf 'No\nYes\n' | rofi_dmenu "Confirm ${action}?")
+	[[ "$choice" == "Yes" ]]
 }
 
 do_lock() {
-  if cmd_exists betterlockscreen; then
-    exec betterlockscreen -l "${BETTERLOCKSCREEN_MODE:-blur}"
-  fi
+	if cmd_exists betterlockscreen; then
+		exec betterlockscreen -l "${BETTERLOCKSCREEN_MODE:-blur}"
+	fi
 
-  if cmd_exists i3lock; then
-    exec i3lock
-  fi
+	if cmd_exists i3lock; then
+		exec i3lock
+	fi
 
-  if cmd_exists slock; then
-    exec slock
-  fi
+	if cmd_exists slock; then
+		exec slock
+	fi
 
-  if cmd_exists loginctl; then
-    if [[ -n "${XDG_SESSION_ID:-}" ]]; then
-      exec loginctl lock-session "$XDG_SESSION_ID"
-    fi
-    exec loginctl lock-sessions
-  fi
+	if cmd_exists loginctl; then
+		if [[ -n "${XDG_SESSION_ID:-}" ]]; then
+			exec loginctl lock-session "$XDG_SESSION_ID"
+		fi
+		exec loginctl lock-sessions
+	fi
 
-  die "No lock backend found (betterlockscreen/i3lock/slock/loginctl)"
+	die "No lock backend found (betterlockscreen/i3lock/slock/loginctl)"
 }
 
 do_logout() {
-  if cmd_exists loginctl && [[ -n "${XDG_SESSION_ID:-}" ]]; then
-    exec loginctl terminate-session "$XDG_SESSION_ID"
-  fi
+	if cmd_exists loginctl && [[ -n "${XDG_SESSION_ID:-}" ]]; then
+		exec loginctl terminate-session "$XDG_SESSION_ID"
+	fi
 
-  if cmd_exists pkill; then
-    exec pkill -TERM -x dwm
-  fi
+	if cmd_exists pkill; then
+		exec pkill -TERM -x dwm
+	fi
 
-  if cmd_exists killall; then
-    exec killall -TERM dwm
-  fi
+	if cmd_exists killall; then
+		exec killall -TERM dwm
+	fi
 
-  die "No logout backend found (loginctl/pkill/killall)"
+	die "No logout backend found (loginctl/pkill/killall)"
 }
 
 do_reboot() {
-  if cmd_exists systemctl; then
-    exec systemctl reboot
-  fi
+	if cmd_exists systemctl; then
+		exec systemctl reboot
+	fi
 
-  if cmd_exists loginctl; then
-    exec loginctl reboot
-  fi
+	if cmd_exists loginctl; then
+		exec loginctl reboot
+	fi
 
-  if cmd_exists reboot; then
-    exec reboot
-  fi
+	if cmd_exists reboot; then
+		exec reboot
+	fi
 
-  die "No reboot backend found (systemctl/loginctl/reboot)"
+	die "No reboot backend found (systemctl/loginctl/reboot)"
 }
 
 do_shutdown() {
-  if cmd_exists systemctl; then
-    exec systemctl poweroff
-  fi
+	if cmd_exists systemctl; then
+		exec systemctl poweroff
+	fi
 
-  if cmd_exists loginctl; then
-    exec loginctl poweroff
-  fi
+	if cmd_exists loginctl; then
+		exec loginctl poweroff
+	fi
 
-  if cmd_exists shutdown; then
-    exec shutdown -h now
-  fi
+	if cmd_exists shutdown; then
+		exec shutdown -h now
+	fi
 
-  if cmd_exists poweroff; then
-    exec poweroff
-  fi
+	if cmd_exists poweroff; then
+		exec poweroff
+	fi
 
-  die "No shutdown backend found (systemctl/loginctl/shutdown/poweroff)"
+	die "No shutdown backend found (systemctl/loginctl/shutdown/poweroff)"
 }
 
 LOCK=$'\uf023  Lock'
@@ -130,21 +130,21 @@ choice=$(printf '%s\n%s\n%s\n%s\n' "$LOCK" "$LOGOUT" "$REBOOT" "$SHUTDOWN" | rof
 
 case "$choice" in
 "$LOCK")
-  do_lock
-  ;;
+	do_lock
+	;;
 "$LOGOUT")
-  confirm "logout" && do_logout
-  ;;
+	confirm "logout" && do_logout
+	;;
 "$REBOOT")
-  confirm "reboot" && do_reboot
-  ;;
+	confirm "reboot" && do_reboot
+	;;
 "$SHUTDOWN")
-  confirm "shutdown" && do_shutdown
-  ;;
+	confirm "shutdown" && do_shutdown
+	;;
 "")
-  exit 0
-  ;;
+	exit 0
+	;;
 *)
-  exit 0
-  ;;
+	exit 0
+	;;
 esac
