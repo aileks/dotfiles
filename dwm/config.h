@@ -247,7 +247,9 @@ static const Layout layouts[] = {
 };
 #endif
 
-#define MODKEY Mod4Mask
+/* Hyperkey: Ctrl+Alt+Super (via keyd: capslock -> hyper)
+ * Shift intentionally omitted for additional modifier flexibility */
+#define MODKEY (ControlMask|Mod1Mask|Mod4Mask)
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \

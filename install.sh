@@ -161,6 +161,7 @@ AUR_PACKAGES=(
   ttf-ms-win11-auto
   pwvucontrol
   onlyoffice-bin
+  keyd
 )
 
 # ============================================================
@@ -430,6 +431,23 @@ install_desktop_entry() {
   log_success "Desktop entry installed"
 }
 
+setup_keyd() {
+  log_info "Setting up keyd (hyperkey)..."
+
+  if [[ ! -f "$SCRIPT_DIR/keyd/default.conf" ]]; then
+    log_warning "keyd config not found: $SCRIPT_DIR/keyd/default.conf"
+    return 1
+  fi
+
+  if log_dry "sudo mkdir -p /etc/keyd && sudo cp $SCRIPT_DIR/keyd/default.conf /etc/keyd/default.conf"; then
+    return 0
+  fi
+
+  sudo mkdir -p /etc/keyd
+  sudo cp "$SCRIPT_DIR/keyd/default.conf" /etc/keyd/default.conf
+  log_success "keyd config installed"
+}
+
 # ============================================================
 # Post-Install Tasks
 # ============================================================
@@ -484,7 +502,7 @@ cache_lockscreen() {
 enable_services() {
   log_info "Enabling system services..."
 
-  if log_dry "sudo systemctl enable NetworkManager bluetooth cups"; then
+  if log_dry "sudo systemctl enable NetworkManager bluetooth cups keyd"; then
     return 0
   fi
 
@@ -507,6 +525,13 @@ enable_services() {
     log_success "CUPS enabled"
   else
     log_success "CUPS already enabled"
+  fi
+
+  if ! systemctl is-enabled keyd &>/dev/null; then
+    sudo systemctl enable --now keyd
+    log_success "keyd enabled"
+  else
+    log_success "keyd already enabled"
   fi
 }
 
@@ -660,6 +685,7 @@ main() {
     install_aur_packages
     setup_xdg_dirs
     symlink_configs
+    setup_keyd
     build_dwm
     build_dwmblocks
     install_desktop_entry
