@@ -801,10 +801,15 @@ main() {
 
   if [[ "$DRY_RUN" == false ]]; then
     echo
-    log_info "Next steps:"
-    echo "  1. Log out and log back in (or reboot)"
-    echo "  2. Start X with: startx"
-    echo
+    read -rp "Reboot now? [Y/n]: " reboot_choice </dev/tty
+    reboot_choice=${reboot_choice:-Y}
+
+    if [[ "$reboot_choice" =~ ^[Yy]$ ]]; then
+      log_info "Rebooting..."
+      sudo reboot
+    else
+      log_info "Reboot skipped. Please reboot manually to apply all changes."
+    fi
   fi
 }
 
