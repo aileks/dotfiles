@@ -284,35 +284,36 @@ create_symlink() {
 symlink_configs() {
   log_info "Creating config symlinks..."
 
-  mkdir -p ~/.config
-  mkdir -p ~/.local/bin
-  mkdir -p ~/.local/share/dwm
+  mkdir -p "$HOME/.config"
+  mkdir -p "$HOME/.local/bin"
+  mkdir -p "$HOME/.local/share/dwm"
 
   # Direct directory symlinks
-  create_symlink "$SCRIPT_DIR/btop" ~/.config/btop
-  create_symlink "$SCRIPT_DIR/wezterm" ~/.config/wezterm
-  create_symlink "$SCRIPT_DIR/nvim" ~/.config/nvim
-  create_symlink "$SCRIPT_DIR/picom" ~/.config/picom
-  create_symlink "$SCRIPT_DIR/dunst" ~/.config/dunst
-  create_symlink "$SCRIPT_DIR/zathura" ~/.config/zathura
-  create_symlink "$SCRIPT_DIR/fastfetch" ~/.config/fastfetch
-  create_symlink "$SCRIPT_DIR/rofi" ~/.config/rofi
-  create_symlink "$SCRIPT_DIR/yazi" ~/.config/yazi
+  create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
+  create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
+  create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
+  create_symlink "$SCRIPT_DIR/picom" "$HOME/.config/picom"
+  create_symlink "$SCRIPT_DIR/dunst" "$HOME/.config/dunst"
+  create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
+  create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
+  create_symlink "$SCRIPT_DIR/rofi" "$HOME/.config/rofi"
+  create_symlink "$SCRIPT_DIR/yazi" "$HOME/.config/yazi"
+  create_symlink "$SCRIPT_DIR/betterlockscreen" "$HOME/.config/betterlockscreen"
+  create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
 
   # Single file symlinks
-  create_symlink "$SCRIPT_DIR/betterlockscreen/betterlockscreenrc" ~/.config/betterlockscreen/betterlockscreenrc
-  create_symlink "$SCRIPT_DIR/X11/Xresources" ~/.Xresources
-  create_symlink "$SCRIPT_DIR/zsh/zshrc" ~/.zshrc
-  create_symlink "$SCRIPT_DIR/tmux/tmux.conf" ~/.tmux.conf
+  create_symlink "$SCRIPT_DIR/X11/Xresources" "$HOME/.Xresources"
+  create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+  create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 
   # Autostart script
-  create_symlink "$SCRIPT_DIR/scripts/autostart.sh" ~/.local/share/dwm/autostart.sh
+  create_symlink "$SCRIPT_DIR/scripts/autostart.sh" "$HOME/.local/share/dwm/autostart.sh"
 
   # Status bar scripts
   if [[ -d "$SCRIPT_DIR/scripts/statusbar" ]]; then
     for script in "$SCRIPT_DIR/scripts/statusbar/"*; do
       [[ -f "$script" ]] || continue
-      create_symlink "$script" ~/.local/bin/"$(basename "$script")"
+      create_symlink "$script" "$HOME/.local/bin/$(basename "$script")"
       chmod +x "$script" 2>/dev/null || true
     done
   fi
