@@ -64,6 +64,7 @@ sudo systemctl enable betterlockscreen@$USER
 
 ## Resources
 
+- [Keybinds](https://github.com/aileks/dotfiles/wiki#keybinds)
 - [DWM-Flexipatch](https://github.com/bakkeby/dwm-flexipatch)
 - [dwmblocks](https://github.com/torrinfail/dwmblocks)
 - [Arch Wiki - DWM](https://wiki.archlinux.org/title/dwm)
