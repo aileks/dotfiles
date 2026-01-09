@@ -32,6 +32,10 @@ static const int bar_height              = 28;
 static const int horizpadbar             = 4;
 static const int vertpadbar              = 6;
 #endif
+#if BAR_SYSTRAY_PATCH
+static const unsigned int systrayspacing = 2;   /* systray spacing */
+static const int showsystray             = 1;   /* 0 means no systray */
+#endif
 
 /* Status is to be shown on: -1 (all monitors), 0 (a specific monitor by index), 'A' (active monitor) */
 #if BAR_STATUSALLMONS_PATCH
@@ -166,6 +170,9 @@ static const BarRule barrules[] = {
 	#endif
 	#if BAR_LTSYMBOL_PATCH
 	{ -1,        0,     BAR_ALIGN_LEFT,   width_ltsymbol,           draw_ltsymbol,          click_ltsymbol,          NULL,                    "layout" },
+	#endif
+	#if BAR_SYSTRAY_PATCH
+	{  0,        0,     BAR_ALIGN_RIGHT,  width_systray,            draw_systray,           click_systray,           NULL,                    "systray" },
 	#endif
 	#if BAR_STATUS2D_PATCH && BAR_STATUSCMD_PATCH
 	{ statusmon, 0,     BAR_ALIGN_RIGHT,  width_status2d,           draw_status2d,          click_statuscmd,         NULL,                    "status2d" },
