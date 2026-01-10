@@ -3,11 +3,11 @@
 mem=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
 
 if [ "$mem" -ge 80 ]; then
-  color="#b14242"
+	color="#b14242"
 elif [ "$mem" -ge 50 ]; then
-  color="#e49a44"
+	color="#e49a44"
 else
-  color="#a7a7a7"
+	color="#a7a7a7"
 fi
 
 printf "^c%s^󰍛 %s%%^d^" "$color" "$mem"

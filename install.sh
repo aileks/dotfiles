@@ -142,6 +142,7 @@ PACMAN_PACKAGES=(
 	btop
 	calcurse
 	qalculate-gtk
+	mypaint
 	mpv
 	gst-plugins-good
 	gst-plugins-bad
