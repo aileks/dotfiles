@@ -242,6 +242,12 @@ clone_repo() {
 	while [[ $i -le $retries ]]; do
 		if git clone "$DOTFILES_REPO" "$DOTFILES_DIR"; then
 			log_success "Repository cloned successfully"
+			log_info "Initializing git submodules..."
+			if git -C "$DOTFILES_DIR" submodule update --init --recursive; then
+				log_success "Git submodules initialized"
+			else
+				log_warning "Failed to initialize git submodules (continuing anyway)"
+			fi
 			return 0
 		fi
 		log_warning "Clone failed (attempt $i/$retries)"
