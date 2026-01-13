@@ -83,8 +83,7 @@ PACMAN_PACKAGES=(
 	imlib2
 	neovim
 	zsh
-	zsh-autosuggestions
-	zsh-syntax-highlighting
+	github-cli
 	wezterm
 	tmux
 	git
@@ -311,6 +310,51 @@ install_oh_my_zsh() {
 
 	rm -f "$omz_installer"
 	log_success "Oh-My-Zsh installed"
+}
+
+install_zsh_plugins() {
+	log_info "Installing zsh plugins..."
+
+	local plugins_dir="$HOME/.oh-my-zsh/custom/plugins"
+	mkdir -p "$plugins_dir"
+
+	if [[ -d "$plugins_dir/zsh-autosuggestions" ]]; then
+		log_success "zsh-autosuggestions already installed"
+	else
+		if log_dry "Clone zsh-autosuggestions"; then
+			:
+		elif ! git clone https://github.com/zsh-users/zsh-autosuggestions "$plugins_dir/zsh-autosuggestions"; then
+			log_warning "Failed to clone zsh-autosuggestions"
+		else
+			log_success "zsh-autosuggestions installed"
+		fi
+	fi
+
+	if [[ -d "$plugins_dir/zsh-syntax-highlighting" ]]; then
+		log_success "zsh-syntax-highlighting already installed"
+	else
+		if log_dry "Clone zsh-syntax-highlighting"; then
+			:
+		elif ! git clone https://github.com/zsh-users/zsh-syntax-highlighting "$plugins_dir/zsh-syntax-highlighting"; then
+			log_warning "Failed to clone zsh-syntax-highlighting"
+		else
+			log_success "zsh-syntax-highlighting installed"
+		fi
+	fi
+
+	if [[ -f "$plugins_dir/ashen_zsh_syntax_highlighting.zsh" ]]; then
+		log_success "ashen_zsh_syntax_highlighting already installed"
+	else
+		if log_dry "Download ashen_zsh_syntax_highlighting"; then
+			:
+		elif ! curl -fsSL "https://codeberg.org/ficd/ashen/raw/branch/main/ports/zsh-syntax-highlighting/ashen_zsh_syntax_highlighting.zsh" -o "$plugins_dir/ashen_zsh_syntax_highlighting.zsh"; then
+			log_warning "Failed to download ashen_zsh_syntax_highlighting"
+		else
+			log_success "ashen_zsh_syntax_highlighting installed"
+		fi
+	fi
+
+	log_success "Zsh plugins installed"
 }
 
 # ============================================================
@@ -841,6 +885,7 @@ main() {
 
 	if [[ "$SYMLINK_ONLY" == true ]]; then
 		install_oh_my_zsh
+		install_zsh_plugins
 		symlink_configs
 	else
 		setup_chaotic_aur
@@ -848,6 +893,7 @@ main() {
 		install_aur_packages
 		setup_xdg_dirs
 		install_oh_my_zsh
+		install_zsh_plugins
 		symlink_configs
 		setup_keyd
 		build_dwm

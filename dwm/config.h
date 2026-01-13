@@ -284,6 +284,7 @@ static const char *roficmd[]  = { "rofi", "-show", "drun", NULL };
 static const char *emojicmd[] = { "rofimoji", "--action", "copy", NULL };
 static const char *filecmd[]  = { "pcmanfm", NULL };
 static const char *lockcmd[]  = { "betterlockscreen", "-l", NULL };
+static const char *browsercmd[] = { "helium", NULL };
 
 #if BAR_STATUSCMD_PATCH && BAR_DWMBLOCKS_PATCH
 #define STATUSBAR "dwmblocks"
@@ -294,6 +295,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_semicolon,  spawn,                  {.v = emojicmd } },
 	{ MODKEY,                       XK_Return,     spawn,                  {.v = termcmd } },
 	{ MODKEY,                       XK_e,          spawn,                  {.v = filecmd } },
+	{ MODKEY,                       XK_w,          spawn,                  {.v = browsercmd } },
 	{ MODKEY,                       XK_x,          spawn,                  {.v = lockcmd } },
 	{ MODKEY,                       XK_b,          togglebar,              {0} },
 	{ MODKEY,                       XK_j,          focusstack,             {.i = +1 } },
