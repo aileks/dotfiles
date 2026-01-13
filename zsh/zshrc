@@ -12,7 +12,7 @@ export GPG_TTY=$(tty)
 ZSH_THEME="refined"
 
 # Plugins
-plugins=(fzf git gh zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(archlinux fzf git gh zsh-autosuggestions zsh-syntax-highlighting)
 
 # Startup
 source "$ZSH/oh-my-zsh.sh"
