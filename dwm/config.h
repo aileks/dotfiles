@@ -186,7 +186,7 @@ static const BarRule barrules[] = {
 	#endif
 };
 
-static const float mfact     = 0.55;
+static const float mfact     = 0.50;
 static const int nmaster     = 1;
 #if FLEXTILE_DELUXE_LAYOUT
 static const int nstack      = 0;
