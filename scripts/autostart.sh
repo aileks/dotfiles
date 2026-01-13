@@ -2,7 +2,7 @@
 
 xrdb -merge ~/.Xresources &
 
-xset r rate 250 45 &
+xset r rate 250 50 &
 
 feh --bg-fill ~/Pictures/wallpaper.jpg &
 
