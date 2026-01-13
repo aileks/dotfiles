@@ -47,7 +47,7 @@ log_dry() {
 		echo -e "${LOG_YELLOW}[DRY-RUN]${LOG_NC} Would: $1"
 		return 0
 	fi
-	exit 1
+	return 1
 }
 
 run_cmd() {
