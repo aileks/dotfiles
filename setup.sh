@@ -246,7 +246,16 @@ clone_repo() {
 			if git -C "$DOTFILES_DIR" submodule update --init --recursive; then
 				log_success "Git submodules initialized"
 			else
-				log_warning "Failed to initialize git submodules (continuing anyway)"
+				log_warning "Submodule init failed (SSH key may not be configured)"
+				log_info "Falling back to HTTPS clone for nvim config..."
+				if [[ -d "$DOTFILES_DIR/nvim" ]]; then
+					rm -rf "$DOTFILES_DIR/nvim"
+				fi
+				if git clone https://github.com/aileks/nvim-config.git "$DOTFILES_DIR/nvim"; then
+					log_success "nvim config cloned via HTTPS"
+				else
+					log_warning "Failed to clone nvim config"
+				fi
 			fi
 			return 0
 		fi
