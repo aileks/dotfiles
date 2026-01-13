@@ -279,6 +279,41 @@ install_aur_packages() {
 }
 
 # ============================================================
+# Oh-My-Zsh Installation
+# ============================================================
+
+install_oh_my_zsh() {
+	log_info "Setting up Oh-My-Zsh..."
+
+	if [[ -d "$HOME/.oh-my-zsh" ]]; then
+		log_success "Oh-My-Zsh already installed"
+		return 0
+	fi
+
+	if log_dry "Install Oh-My-Zsh (unattended, keep zshrc)"; then
+		return 0
+	fi
+
+	local omz_installer
+	omz_installer=$(mktemp)
+
+	if ! curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o "$omz_installer"; then
+		log_error "Failed to download Oh-My-Zsh installer"
+		rm -f "$omz_installer"
+		exit 1
+	fi
+
+	if ! RUNZSH=no KEEP_ZSHRC=yes sh "$omz_installer" --unattended; then
+		log_error "Failed to install Oh-My-Zsh"
+		rm -f "$omz_installer"
+		exit 1
+	fi
+
+	rm -f "$omz_installer"
+	log_success "Oh-My-Zsh installed"
+}
+
+# ============================================================
 # Symlink Management
 # ============================================================
 
@@ -805,12 +840,14 @@ main() {
 	echo
 
 	if [[ "$SYMLINK_ONLY" == true ]]; then
+		install_oh_my_zsh
 		symlink_configs
 	else
 		setup_chaotic_aur
 		install_pacman_packages
 		install_aur_packages
 		setup_xdg_dirs
+		install_oh_my_zsh
 		symlink_configs
 		setup_keyd
 		build_dwm

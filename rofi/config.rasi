@@ -1,9 +1,8 @@
 configuration {
-    modi: "drun,run,window,emoji";
+    modi: "drun,run,window";
     show-icons: true;
     icon-theme: "Papirus-Dark";
     font: "BerkeleyMono Nerd Font Mono 12";
-    /* Alternative: font: "AdwaitaMono Nerd Font Mono 12"; */
     display-drun: " ";
     display-run: " ";
     display-window: " ";
