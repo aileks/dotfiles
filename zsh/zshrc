@@ -106,3 +106,6 @@ else
   compdef _opencode_yargs_completions opencode
 fi
 ###-end-opencode-completions-###
+
+# bun completions
+[ -s "/home/aileks/.bun/_bun" ] && source "/home/aileks/.bun/_bun"

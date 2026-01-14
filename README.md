@@ -17,12 +17,6 @@ Desktop environment built on DWM-Flexipatch with the [Ashen](https://codeberg.or
 - **PDF viewer**: Zathura
 - **Hyperkey**: Caps Lock → Ctrl+Alt+Super (via keyd)
 
-## Requirements
-
-- Arch Linux (or Arch-based distro)
-- Display manager: [ly](https://github.com/fairyglade/ly)
-- 4K monitor recommended (tweak DPI otherwise)
-
 ### Dependencies
 
 ```bash
@@ -42,12 +36,12 @@ curl -fsSL https://aileks.dev/linux | bash
 Or manually:
 
 ```bash
-git clone --recursive https://github.com/aileks/arch-config.git ~/dotfiles
-cd ~/dotfiles
+git clone --recursive https://github.com/aileks/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
 ./install.sh
 ```
 
-## Usage
+## Flags
 
 ```bash
 ./install.sh              # Interactive menu

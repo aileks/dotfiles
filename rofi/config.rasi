@@ -2,7 +2,7 @@ configuration {
     modi: "drun,run,window";
     show-icons: true;
     icon-theme: "Papirus-Dark";
-    font: "BerkeleyMono Nerd Font Mono 12";
+    font: "BerkeleyMono Nerd Font Mono 16";
     display-drun: " ";
     display-run: " ";
     display-window: " ";
@@ -24,7 +24,7 @@ configuration {
 }
 
 window {
-    width: 600px;
+    width: 800px;
     transparency: "real";
     background-color: @bg;
     border: 2px;
@@ -93,7 +93,7 @@ element selected.normal {
 }
 
 element-icon {
-    size: 24px;
+    size: 32px;
     background-color: transparent;
 }
 

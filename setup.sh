@@ -248,9 +248,7 @@ clone_repo() {
 			else
 				log_warning "Submodule init failed (SSH key may not be configured)"
 				log_info "Falling back to HTTPS clone for nvim config..."
-				if [[ -d "$DOTFILES_DIR/nvim" ]]; then
-					rm -rf "$DOTFILES_DIR/nvim"
-				fi
+				rm -rf "$DOTFILES_DIR/nvim"
 				if git clone https://github.com/aileks/nvim-config.git "$DOTFILES_DIR/nvim"; then
 					log_success "nvim config cloned via HTTPS"
 				else

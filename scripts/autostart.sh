@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export XCURSOR_SIZE=48
+
 xrdb -merge ~/.Xresources &
 
 xset r rate 250 50 &
