@@ -12,7 +12,5 @@ picom -b &
 dunst &
 feh --bg-fill ~/Pictures/wallpaper.jpg &
 
-dwmblocks &
+/usr/local/bin/dwmblocks &
 blueman-applet &
-
-sleep 5 && nm-applet &
