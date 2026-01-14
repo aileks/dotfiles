@@ -17,7 +17,6 @@ case $BUTTON in
 		;;
 	3)
 		notify-send "󰕿 Volume Control" "Left click: Toggle mute\nScroll up/down: Adjust volume"
-		exit 0
 		;;
 esac
 

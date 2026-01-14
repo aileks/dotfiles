@@ -1,16 +1,34 @@
 #!/bin/bash
 # Statusbar module: clock/date
-# Left click: open calendar
-# Right click: show date/time notification
+# Left click: toggle between time/date
+# Right click: launch calcurse
+
+state_file="/tmp/dwmblocks_clock_state"
+
+# Initialize state file if it doesn't exist
+if [ ! -f "$state_file" ]; then
+	echo "time" > "$state_file"
+fi
 
 case $BUTTON in
 	1)
-		wezterm start --class calendar-floating -- cal -3
+		# Toggle between time and date
+		current_state=$(cat "$state_file")
+		if [ "$current_state" = "time" ]; then
+			echo "date" > "$state_file"
+		else
+			echo "time" > "$state_file"
+		fi
+		# Trigger dwmblocks update
+		pkill -RTMIN+1 dwmblocks
+		# Update current_state for output
+		current_state=$(cat "$state_file")
 		;;
 	3)
-		full_date=$(date "+%A, %B %d, %Y")
-		full_time=$(date "+%I:%M:%S %p")
-		notify-send "󰃰 Date & Time" "$full_date\n$full_time"
+		# Launch calcurse in floating terminal
+		# Background and disown to prevent closing parent script
+		wezterm start --class calendar-floating -- calcurse >/dev/null 2>&1 &
+		disown $!
 		;;
 esac
 
@@ -21,4 +39,13 @@ time_fmt="%I:%M %p"
 date_str=$(date +"$date_fmt")
 time_str=$(date +"$time_fmt")
 
-printf "^c#e49a44^%s^d^ %s  ^c#c4693d^%s^d^" "$icon" "$date_str" "$time_str"
+# Get current display mode
+current_state=$(cat "$state_file")
+
+if [ "$current_state" = "time" ]; then
+	# Show only time
+	printf "^c#e49a44^%s^d^ %s" "$icon" "$time_str"
+else
+	# Show only date
+	printf "^c#e49a44^%s^d^ %s" "$icon" "$date_str"
+fi

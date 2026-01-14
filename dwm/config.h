@@ -384,8 +384,8 @@ static const Key keys[] = {
 	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("screenshot area file") },
 	{ ControlMask,                  XK_Print,      spawn,         SHCMD("screenshot window clipboard") },
 	{ ControlMask|ShiftMask,        XK_Print,      spawn,         SHCMD("screenshot window file") },
-	{ MODKEY,                       XK_Print,      spawn,         SHCMD("screenshot fullscreen clipboard") },
-	{ MODKEY|ShiftMask,             XK_Print,      spawn,         SHCMD("screenshot fullscreen file") },
+	{ Mod4Mask,                       XK_Print,      spawn,         SHCMD("screenshot fullscreen clipboard") },
+	{ Mod4Mask|ShiftMask,             XK_Print,      spawn,         SHCMD("screenshot fullscreen file") },
 
 	/* Screen recording */
 	{ 0,                            XK_F9,         spawn,         SHCMD("screenrecord area") },
