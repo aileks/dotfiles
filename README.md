@@ -22,6 +22,12 @@ List of keybinds here [here](https://github.com/aileks/dotfiles/wiki)
 ## Quick Start
 
 ```bash
+curl -fsSL https://aileks.dev/linux | bash
+```
+
+Or manually:
+
+```bash
 git clone --recursive https://github.com/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
