@@ -546,33 +546,26 @@ setup_keyd() {
 install_tpm() {
   log_info "Installing tpm (Tmux Plugin Manager)..."
 
-  if command_exists tpm; then
+  local tpm_dir="$HOME/.tmux/plugins/tpm"
+
+  if [[ -d "$tpm_dir" ]]; then
     log_success "tpm already installed"
     return 0
   fi
 
-  local tpm_dir
-  tpm_dir=$(mktemp -d)
-
-  if ! git clone https://github.com/tmux-plugins/tpm.git "$tpm_dir"; then
-    log_error "Failed to clone tpm"
-    rm -rf "$tpm_dir"
-    exit 1
+  if log_dry "git clone https://github.com/tmux-plugins/tpm $tpm_dir"; then
+    return 0
   fi
 
-  pushd "$tpm_dir" &>/dev/null || exit 1
+  mkdir -p "$HOME/.tmux/plugins"
 
-  if ! make install; then
-    log_error "Failed to build tpm"
-    popd &>/dev/null || true
-    rm -rf "$tpm_dir"
-    exit 1
+  if ! git clone https://github.com/tmux-plugins/tpm "$tpm_dir"; then
+    log_warning "Failed to clone tpm"
+    return 1
   fi
-
-  popd &>/dev/null || true
-  rm -rf "$tpm_dir"
 
   log_success "tpm installed successfully"
+  log_info "Run 'prefix + I' in tmux to install plugins"
 }
 
 setup_shell() {
@@ -895,6 +888,7 @@ main() {
     install_oh_my_zsh
     install_zsh_plugins
     symlink_configs
+    install_tpm
   else
     setup_chaotic_aur
     install_pacman_packages
@@ -903,6 +897,7 @@ main() {
     install_oh_my_zsh
     install_zsh_plugins
     symlink_configs
+    install_tpm
     setup_keyd
     build_dwm
     build_dwmblocks
