@@ -17,6 +17,8 @@ Desktop environment built on DWM-Flexipatch with the [Ashen](https://codeberg.or
 - **PDF viewer**: Zathura
 - **Hyperkey**: Caps Lock → Ctrl+Alt+Super (via keyd)
 
+List of keybinds here [here](https://github.com/aileks/dotfiles/wiki)
+
 ### Dependencies
 
 ```bash
