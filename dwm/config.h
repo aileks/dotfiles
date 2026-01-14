@@ -51,11 +51,11 @@ static int tiledindicatortype            = INDICATOR_NONE;
 static int floatindicatortype            = INDICATOR_TOP_LEFT_SQUARE;
 
 #if BAR_PANGO_PATCH
-static const char font[]                 = "BerkeleyMono Nerd Font Mono 12";
+static const char font[]                 = "BerkeleyMono Nerd Font Mono 14";
 #else
-static const char *fonts[]               = { "BerkeleyMono Nerd Font Mono:size=12" };
+static const char *fonts[]               = { "BerkeleyMono Nerd Font Mono:size=14" };
 #endif
-static const char dmenufont[]            = "BerkeleyMono Nerd Font Mono:size=12";
+static const char dmenufont[]            = "BerkeleyMono Nerd Font Mono:size=14";
 
 static char c000000[]                    = "#000000";
 
@@ -280,12 +280,12 @@ static const char *dmenucmd[] = {
 	NULL
 };
 static const char *termcmd[]  = { "wezterm", NULL };
-static const char *roficmd[]  = { "rofi", "-show", "drun", NULL };
+static const char *roficmd[]  = { "rofi", "-show", "drun,run,window", NULL };
 static const char *emojicmd[] = { "rofimoji", "--action", "copy", NULL };
 static const char *filecmd[]  = { "pcmanfm", NULL };
 static const char *lockcmd[]  = { "betterlockscreen", "-l", "--blur", "0.5", "-w", NULL };
 static const char *powercmd[] = { "rofi-power", NULL };
-static const char *browsercmd[] = { "helium", NULL };
+static const char *browsercmd[] = { "helium-browser", NULL };
 
 #if BAR_STATUSCMD_PATCH && BAR_DWMBLOCKS_PATCH
 #define STATUSBAR "dwmblocks"
