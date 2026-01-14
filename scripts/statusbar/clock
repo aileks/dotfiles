@@ -34,7 +34,7 @@ esac
 
 icon="󰃰"
 date_fmt="%a %b %d"
-time_fmt="%I:%M %p"
+time_fmt="%H:%M"
 
 date_str=$(date +"$date_fmt")
 time_str=$(date +"$time_fmt")
