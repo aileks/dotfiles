@@ -90,6 +90,9 @@ PACMAN_PACKAGES=(
   git
   man-db
   man-pages
+  words
+  hunspell
+  hunspell-en_us
   wget
   jq
   tree
@@ -164,7 +167,9 @@ AUR_PACKAGES=(
   helium-browser-bin
   betterlockscreen
   ttf-adwaita-mono-nerd
-  # ttf-ms-win11-auto
+  apple-fonts
+  1password
+  1password-cli
   pwvucontrol
   onlyoffice-bin
   keyd
