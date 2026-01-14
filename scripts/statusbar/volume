@@ -8,15 +8,12 @@
 case $BUTTON in
 	1)
 		pamixer -t
-		exit 0
 		;;
 	4)
 		pamixer -i 5
-		exit 0
 		;;
 	5)
 		pamixer -d 5
-		exit 0
 		;;
 	3)
 		notify-send "󰕿 Volume Control" "Left click: Toggle mute\nScroll up/down: Adjust volume"
