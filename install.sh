@@ -169,10 +169,10 @@ AUR_PACKAGES=(
   helium-browser-bin
   betterlockscreen
   ttf-adwaita-mono-nerd
-  apple-fonts
+  # apple-fonts
   1password
   1password-cli
-  pwvucontrol
+  # pwvucontrol
   onlyoffice-bin
   keyd
 )
