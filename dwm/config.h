@@ -173,17 +173,14 @@ static const Rule rules[] = {
 	RULE(.class = "htop-floating", .isfloating = 1),
 	RULE(.class = "calendar-floating", .isfloating = 1),
 	RULE(.class = "network-floating", .isfloating = 1),
-	RULE(.instance = "spterm", .tags = SPTAG(0), .isfloating = 1),
 #if BAR_PADDING_PATCH
 	RULE(.class = "bar", .isfloating = 1),
 #endif
 #if SWALLOW_PATCH
-	RULE(.class = "org.wezfurlong.wezterm",
-		.isterminal = 1)
+	RULE(.class = "org.wezfurlong.wezterm", .isterminal = 1),
 #endif
 #if SCRATCHPADS_PATCH
-	RULE(.instance = "spterm",
-		.tags = SPTAG(0), .isfloating = 1)
+	RULE(.instance = "spterm", .tags = SPTAG(0), .isfloating = 1)
 #endif
 };
 
