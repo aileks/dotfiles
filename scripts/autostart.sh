@@ -16,4 +16,6 @@ dunst &
 
 blueman-applet &
 
+nm-applet &
+
 dwmblocks &

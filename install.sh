@@ -129,6 +129,7 @@ PACMAN_PACKAGES=(
   pamixer
   playerctl
   networkmanager
+  network-manager-applet
   nm-connection-editor
   fzf
   zoxide
