@@ -157,21 +157,11 @@ static char *tagicons[][NUMTAGS] =
         [ALT_TAGS_DECORATION] = {"<1>", "<2>", "<3>", "<4>", "<5>", "<6>",
                                  "<7>", "<8>", "<9>"},
     };
-
 static const Rule rules[] = {
 	/* xprop(1) */
 	/* class      instance  title  wintype  tags mask  isfloating  monitor */
-#if ALWAYSONTOP_PATCH
-	RULE(.wintype = WTYPE "NOTIFICATION", .isfloating = 1, .ontop = 1),
-#endif
-	RULE(.class = "Gimp", .tags = 1 << 4),
-#if BAR_STATUSCOLORS_PATCH
-	RULE(.class = "Gimp", .bw = 0),
-#endif
-	RULE(.class = "Firefox", .tags = 1 << 7),
-	/* Status bar popup windows */
-	RULE(.class = "htop-floating", .isfloating = 1),
-	RULE(.class = "calendar-floating", .isfloating = 1),
+	RULE(.class = "Firefox", .tags = 128),
+	RULE(.class = "Pcmanfm"),
 	RULE(.class = "network-floating", .isfloating = 1),
 #if BAR_PADDING_PATCH
 	RULE(.class = "bar", .isfloating = 1),
