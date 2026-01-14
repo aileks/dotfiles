@@ -27,9 +27,6 @@ window {
     width: 800px;
     transparency: "real";
     background-color: @bg;
-    border: 2px;
-    border-color: @border;
-    border-radius: 8px;
     padding: 20px;
 }
 
@@ -41,7 +38,6 @@ mainbox {
 
 inputbar {
     background-color: @bg-alt;
-    border-radius: 6px;
     padding: 12px;
     children: [prompt, entry];
     spacing: 10px;
@@ -73,7 +69,6 @@ listview {
 element {
     background-color: transparent;
     padding: 10px;
-    border-radius: 6px;
     spacing: 10px;
 }
 

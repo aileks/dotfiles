@@ -69,6 +69,7 @@ command_exists() {
 
 PACMAN_PACKAGES=(
   base-devel
+  pacman-contrib
   xorg-server
   xorg-xinit
   xorg-xsetroot

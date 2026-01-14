@@ -19,23 +19,7 @@ Desktop environment built on DWM-Flexipatch with the [Ashen](https://codeberg.or
 
 List of keybinds here [here](https://github.com/aileks/dotfiles/wiki)
 
-### Dependencies
-
-```bash
-sudo pacman -S base-devel git xorg xorg-xinit picom dunst rofi feh \
-    pamixer playerctl maim xclip xdotool networkmanager wezterm \
-    zathura zathura-pdf-mupdf ly
-
-paru -S betterlockscreen ttf-adwaita-mono-nerd keyd
-```
-
 ## Quick Start
-
-```bash
-curl -fsSL https://aileks.dev/linux | bash
-```
-
-Or manually:
 
 ```bash
 git clone --recursive https://github.com/aileks/dotfiles.git ~/.dotfiles
