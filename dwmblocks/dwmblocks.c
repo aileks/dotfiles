@@ -3,6 +3,8 @@
 #include<string.h>
 #include<unistd.h>
 #include<signal.h>
+#include<errno.h>
+#include<time.h>
 #ifndef NO_X
 #include<X11/Xlib.h>
 #endif
@@ -56,9 +58,10 @@ static char statusstr[2][STATUSLENGTH];
 static char button[] = "\0";
 static int statusContinue = 1;
 static int returnStatus = 0;
+static char *last_updates[LENGTH(blocks)] = {0};
 
 //opens process *cmd and stores output in *output
-void getcmd(const Block *block, char *output)
+void getcmd(const Block *block, char *output, unsigned int index)
 {
 	if (block->signal)
 	{
@@ -83,7 +86,12 @@ void getcmd(const Block *block, char *output)
 		return;
 	int i = strlen(block->icon);
 
-	fgets(tempstatus+i, CMDLENGTH-i-delimLen, cmdf);
+	char *s;
+	int e;
+	do {
+		s = fgets(tempstatus+i, CMDLENGTH-i-delimLen, cmdf);
+		e = errno;
+	} while (!s && e == EINTR);
 	i = strlen(tempstatus);
 	//if block and command output are both not empty
 	if (i != 0) {
@@ -97,6 +105,19 @@ void getcmd(const Block *block, char *output)
 	}
 	strcpy(output, tempstatus);
 	pclose(cmdf);
+
+	// Cache the output to prevent empty displays on race conditions
+	if (tempstatus[0] != '\0') {
+		if (!last_updates[index]) {
+			last_updates[index] = malloc(CMDLENGTH);
+		}
+		if (last_updates[index]) {
+			strncpy(last_updates[index], tempstatus, CMDLENGTH);
+		}
+	} else if (last_updates[index]) {
+		// Use cached value if we got empty output
+		strcpy(output, last_updates[index]);
+	}
 }
 
 void getcmds(int time)
@@ -105,7 +126,7 @@ void getcmds(int time)
 	for (unsigned int i = 0; i < LENGTH(blocks); i++) {
 		current = blocks + i;
 		if ((current->interval != 0 && time % current->interval == 0) || time == -1)
-			getcmd(current,statusbar[i]);
+			getcmd(current,statusbar[i], i);
 	}
 }
 
@@ -115,7 +136,7 @@ void getsigcmds(unsigned int signal)
 	for (unsigned int i = 0; i < LENGTH(blocks); i++) {
 		current = blocks + i;
 		if (current->signal == signal)
-			getcmd(current,statusbar[i]);
+			getcmd(current,statusbar[i], i);
 	}
 }
 
@@ -192,7 +213,11 @@ void statusloop()
 		writestatus();
 		if (!statusContinue)
 			break;
-		sleep(1.0);
+		struct timespec sleeptime = {1, 0};
+		struct timespec left;
+		if (nanosleep(&sleeptime, &left) == -1 && errno == EINTR) {
+			continue;
+		}
 	}
 }
 
