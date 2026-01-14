@@ -282,8 +282,8 @@ static const char *termcmd[]  = { "wezterm", NULL };
 static const char *roficmd[]  = { "rofi", "-show", "drun", NULL };
 static const char *emojicmd[] = { "rofimoji", "--action", "copy", NULL };
 static const char *filecmd[]  = { "pcmanfm", NULL };
-static const char *lockcmd[]  = { "betterlockscreen", "-l", "blur", NULL };
-static const char *powercmd[] = { "rofi-power", NULL };
+static const char *lockcmd[]  = { "betterlockscreen", "-l", "dimpixel", NULL };
+static const char *powercmd[] = { "bash", "-c", "rofi-power", NULL };
 static const char *browsercmd[] = { "helium-browser", NULL };
 static const char *messengercmd[] = { "signal", NULL };
 
