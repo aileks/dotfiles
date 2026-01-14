@@ -151,6 +151,7 @@ PACMAN_PACKAGES=(
   gst-plugins-bad
   gst-plugins-ugly
   gst-libav
+  usbutils
   bluez
   bluez-utils
   blueman
