@@ -28,6 +28,7 @@ if [ "$muted" = "true" ]; then
 	icon="󰝟"
 	color="#535353"
 	printf "^c%s^%s^d^" "$color" "$icon"
+	exit 0
 elif [ -z "$vol" ]; then
 	exit 0
 elif [ "$vol" -eq 0 ]; then

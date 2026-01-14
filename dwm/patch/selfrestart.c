@@ -3,12 +3,15 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * Magically finds the current's executable path
  *
  * I'm doing the do{}while(); trick because Linux (what I'm running) is not
  * POSIX compilant and so lstat() cannot be trusted on /proc entries
+ *
+ * Fixed: Handle " (deleted)" suffix when binary was replaced during make install
  *
  * @return char* the path of the current executable
  */
@@ -17,6 +20,7 @@ char *get_dwm_path()
     struct stat s;
     int r, length, rate = 42;
     char *path = NULL;
+    char *deleted_suffix;
 
     if (lstat("/proc/self/exe", &s) == -1) {
         perror("lstat:");
@@ -46,6 +50,12 @@ char *get_dwm_path()
     } while (r >= length);
 
     path[r] = '\0';
+
+    /* Handle " (deleted)" suffix when binary was replaced */
+    deleted_suffix = strstr(path, " (deleted)");
+    if (deleted_suffix != NULL) {
+        *deleted_suffix = '\0';
+    }
 
     return path;
 }

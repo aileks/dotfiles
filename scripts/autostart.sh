@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export XCURSOR_SIZE=48
+export XCURSOR_SIZE=48 &
 dbus-update-activation-environment --systemd DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS &
 systemctl --user import-environment DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS &
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
@@ -12,6 +12,7 @@ picom -b &
 dunst &
 feh --bg-fill ~/Pictures/wallpaper.jpg &
 
+dwmblocks &
 blueman-applet &
-nm-applet 2>&1 >/dev/null &
-dwmblocks 2>&1 >/dev/null &
+
+sleep 5 && nm-applet &
