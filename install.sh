@@ -589,7 +589,6 @@ setup_shell() {
   fi
 }
 
-
 enable_services() {
   log_info "Enabling system services..."
 
@@ -865,7 +864,7 @@ main() {
     symlink_configs
     install_tpm
   else
-    setup_chaotic_aur
+    # setup_chaotic_aur
     install_pacman_packages
     install_aur_packages
     setup_xdg_dirs
