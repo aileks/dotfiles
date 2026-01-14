@@ -448,7 +448,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 
   # Autostart script
-  create_symlink "$SCRIPT_DIR/scripts/autostart.sh" "$HOME/.local/share/dwm/autostart.sh"
+  create_symlink "$SCRIPT_DIR/X11/xinitrc" "$HOME/.xinitrc"
 
   # Status bar scripts
   if [[ -d "$SCRIPT_DIR/scripts/statusbar" ]]; then

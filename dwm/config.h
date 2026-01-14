@@ -380,17 +380,17 @@ static const Key keys[] = {
 	{ 0, XF86XK_MonBrightnessDown,  spawn,         SHCMD("brightnessctl set 5%-") },
 
 	/* Screenshots */
-	{ 0,                            XK_Print,      spawn,         SHCMD("$HOME/.local/bin/screenshot area clipboard") },
-	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("$HOME/.local/bin/screenshot area file") },
-	{ ControlMask,                  XK_Print,      spawn,         SHCMD("$HOME/.local/bin/screenshot window clipboard") },
-	{ ControlMask|ShiftMask,        XK_Print,      spawn,         SHCMD("$HOME/.local/bin/screenshot window file") },
-	{ MODKEY,                       XK_Print,      spawn,         SHCMD("$HOME/.local/bin/screenshot fullscreen clipboard") },
-	{ MODKEY|ShiftMask,             XK_Print,      spawn,         SHCMD("$HOME/.local/bin/screenshot fullscreen file") },
+	{ 0,                            XK_Print,      spawn,         SHCMD("screenshot area clipboard") },
+	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("screenshot area file") },
+	{ ControlMask,                  XK_Print,      spawn,         SHCMD("screenshot window clipboard") },
+	{ ControlMask|ShiftMask,        XK_Print,      spawn,         SHCMD("screenshot window file") },
+	{ MODKEY,                       XK_Print,      spawn,         SHCMD("screenshot fullscreen clipboard") },
+	{ MODKEY|ShiftMask,             XK_Print,      spawn,         SHCMD("screenshot fullscreen file") },
 
 	/* Screen recording */
-	{ 0,                            XK_F9,         spawn,         SHCMD("$HOME/.local/bin/screenrecord area") },
-	{ ShiftMask,                    XK_F9,         spawn,         SHCMD("$HOME/.local/bin/screenrecord window") },
-	{ ControlMask,                  XK_F9,         spawn,         SHCMD("$HOME/.local/bin/screenrecord fullscreen") },
+	{ 0,                            XK_F9,         spawn,         SHCMD("screenrecord area") },
+	{ ShiftMask,                    XK_F9,         spawn,         SHCMD("screenrecord window") },
+	{ ControlMask,                  XK_F9,         spawn,         SHCMD("screenrecord fullscreen") },
 };
 
 static const Button buttons[] = {
