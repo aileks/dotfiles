@@ -280,13 +280,13 @@ static const char *dmenucmd[] = {
 	NULL
 };
 static const char *termcmd[]  = { "wezterm", NULL };
-static const char *roficmd[]  = { "rofi", "-show", "drun,run,window", NULL };
+static const char *roficmd[]  = { "rofi", "-show", "drun", NULL };
 static const char *emojicmd[] = { "rofimoji", "--action", "copy", NULL };
 static const char *filecmd[]  = { "pcmanfm", NULL };
 static const char *lockcmd[]  = { "betterlockscreen", "-l", "--blur", "0.5", "-w", NULL };
 static const char *powercmd[] = { "rofi-power", NULL };
 static const char *browsercmd[] = { "helium-browser", NULL };
-static const char *messengercmd[] = { "signal", NULL };
+static const char *messengercmd[] = { "signal-desktop", NULL };
 
 #if BAR_STATUSCMD_PATCH && BAR_DWMBLOCKS_PATCH
 #define STATUSBAR "dwmblocks"
