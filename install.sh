@@ -158,6 +158,8 @@ PACMAN_PACKAGES=(
   blueman
   cups
   system-config-printer
+  ffmpegthumbnailer
+  webp-pixbuf-loader
   noto-fonts
   noto-fonts-cjk
   noto-fonts-emoji
