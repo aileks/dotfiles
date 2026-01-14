@@ -23,13 +23,12 @@ esac
 vol=$(pamixer --get-volume 2>/dev/null)
 muted=$(pamixer --get-mute 2>/dev/null)
 
-if [ "$muted" = "true" ]; then
+ if [ "$muted" = "true" ]; then
 	icon="󰝟"
 	color="#535353"
 	printf "^c%s^%s^d^" "$color" "$icon"
-	exit 0
-elif [ -z "$vol" ]; then
-	exit 0
+	elif [ -z "$vol" ]; then
+	:
 elif [ "$vol" -eq 0 ]; then
 	icon="󰕿"
 	color="#535353"
