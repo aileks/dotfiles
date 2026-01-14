@@ -48,7 +48,7 @@ confirm() {
 
 do_lock() {
 	if cmd_exists betterlockscreen; then
-		exec betterlockscreen -l "${BETTERLOCKSCREEN_MODE:-blur}"
+		exec betterlockscreen -l --blur 0.5 -w
 	fi
 
 	if cmd_exists i3lock; then

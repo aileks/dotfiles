@@ -283,7 +283,8 @@ static const char *termcmd[]  = { "wezterm", NULL };
 static const char *roficmd[]  = { "rofi", "-show", "drun", NULL };
 static const char *emojicmd[] = { "rofimoji", "--action", "copy", NULL };
 static const char *filecmd[]  = { "pcmanfm", NULL };
-static const char *lockcmd[]  = { "betterlockscreen", "-l", NULL };
+static const char *lockcmd[]  = { "betterlockscreen", "-l", "--blur", "0.5", "-w", NULL };
+static const char *powercmd[] = { "rofi-power", NULL };
 static const char *browsercmd[] = { "helium", NULL };
 
 #if BAR_STATUSCMD_PATCH && BAR_DWMBLOCKS_PATCH
@@ -297,6 +298,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_e,          spawn,                  {.v = filecmd } },
 	{ MODKEY,                       XK_w,          spawn,                  {.v = browsercmd } },
 	{ MODKEY,                       XK_x,          spawn,                  {.v = lockcmd } },
+	{ MODKEY|ShiftMask,             XK_p,          spawn,                  {.v = powercmd } },
 	{ MODKEY,                       XK_b,          togglebar,              {0} },
 	{ MODKEY,                       XK_j,          focusstack,             {.i = +1 } },
 	{ MODKEY,                       XK_k,          focusstack,             {.i = -1 } },

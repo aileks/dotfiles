@@ -589,32 +589,6 @@ setup_shell() {
   fi
 }
 
-cache_lockscreen() {
-  log_info "Caching lockscreen wallpaper..."
-
-  local wallpaper="$HOME/Pictures/wallpaper.jpg"
-
-  if [[ ! -f "$wallpaper" ]]; then
-    log_warning "Wallpaper not found: $wallpaper"
-    log_info "Add a wallpaper.jpg to ~/Pictures and run: betterlockscreen -u ~/Pictures/wallpaper.jpg"
-    return 0
-  fi
-
-  if ! command_exists betterlockscreen; then
-    log_warning "betterlockscreen not installed, skipping"
-    return 0
-  fi
-
-  if log_dry "betterlockscreen -u $wallpaper --blur 0.5"; then
-    return 0
-  fi
-
-  if ! betterlockscreen -u "$wallpaper" --blur 0.5; then
-    log_warning "Failed to cache lockscreen wallpaper"
-  else
-    log_success "Lockscreen wallpaper cached"
-  fi
-}
 
 enable_services() {
   log_info "Enabling system services..."
@@ -906,7 +880,6 @@ main() {
     setup_shell
     enable_services
     setup_display_manager
-    cache_lockscreen
   fi
 
   echo
