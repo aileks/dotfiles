@@ -1,5 +1,5 @@
 # Path
-export PATH="$PATH:$HOME/.local/bin:$HOME/.opencode/bin"
+export PATH="$PATH:$HOME/.opencode/bin"
 
 # Env variables
 export ZSH="$HOME/.oh-my-zsh"
