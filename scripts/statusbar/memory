@@ -1,4 +1,18 @@
 #!/bin/bash
+# Statusbar module: memory usage
+# Left click: open btop
+# Right click: show memory details notification
+
+case $BUTTON in
+	1)
+		wezterm start --class btop-floating -- btop
+		;;
+	3)
+		mem=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+		swap=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
+		notify-send "󰍛 Memory Usage" "RAM: $mem\nSwap: $swap"
+		;;
+esac
 
 mem=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
 

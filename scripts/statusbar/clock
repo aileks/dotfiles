@@ -1,4 +1,18 @@
 #!/bin/bash
+# Statusbar module: clock/date
+# Left click: open calendar
+# Right click: show date/time notification
+
+case $BUTTON in
+	1)
+		wezterm start --class calendar-floating -- cal -3
+		;;
+	3)
+		full_date=$(date "+%A, %B %d, %Y")
+		full_time=$(date "+%I:%M:%S %p")
+		notify-send "󰃰 Date & Time" "$full_date\n$full_time"
+		;;
+esac
 
 icon="󰃰"
 date_fmt="%a %b %d"

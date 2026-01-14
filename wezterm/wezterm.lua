@@ -16,6 +16,12 @@ config.window_padding = {
   right = 10,
   top = 10,
   bottom = 10,
+  }
+-- Disable xdg-desktop-portal to prevent warnings
+config.unix_domains = {
+  xdg = {
+    enable_portal = false,
+  },
 }
 
 return config

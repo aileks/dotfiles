@@ -1,4 +1,17 @@
 #!/bin/bash
+# Statusbar module: CPU usage
+# Left click: open btop
+# Right click: show CPU details notification
+
+case $BUTTON in
+	1)
+		wezterm start --class btop-floating -- btop
+		;;
+	3)
+		cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
+		notify-send "󰻠 CPU Usage" "Current CPU: $cpu%"
+		;;
+esac
 
 cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
 

@@ -159,22 +159,31 @@ static char *tagicons[][NUMTAGS] =
     };
 
 static const Rule rules[] = {
-    RULE(.wintype = WTYPE "DIALOG",
-         .isfloating = 1) RULE(.wintype = WTYPE "UTILITY", .isfloating = 1)
-        RULE(.wintype = WTYPE "TOOLBAR", .isfloating = 1)
-            RULE(.wintype = WTYPE "SPLASH", .isfloating = 1)
-                RULE(.class = "firefox", .tags = 1 << 1)
-                    RULE(.class = "Pcmanfm", .isfloating = 1)
-                        RULE(.class = "Nsxiv", .isfloating = 1)
-                            RULE(.class = "feh", .isfloating = 1)
-                                RULE(.title = "Event Tester", .isfloating = 1)
+	/* xprop(1) */
+	/* class      instance  title  wintype  tags mask  isfloating  monitor */
+#if ALWAYSONTOP_PATCH
+	RULE(.wintype = WTYPE "NOTIFICATION", .isfloating = 1, .ontop = 1),
+#endif
+	RULE(.class = "Gimp", .tags = 1 << 4),
+#if BAR_STATUSCOLORS_PATCH
+	RULE(.class = "Gimp", .bw = 0),
+#endif
+	RULE(.class = "Firefox", .tags = 1 << 7),
+	/* Status bar popup windows */
+	RULE(.class = "htop-floating", .isfloating = 1),
+	RULE(.class = "calendar-floating", .isfloating = 1),
+	RULE(.class = "network-floating", .isfloating = 1),
+	RULE(.instance = "spterm", .tags = SPTAG(0), .isfloating = 1),
+#if BAR_PADDING_PATCH
+	RULE(.class = "bar", .isfloating = 1),
+#endif
 #if SWALLOW_PATCH
-                                    RULE(.class = "org.wezfurlong.wezterm",
-                                         .isterminal = 1)
+	RULE(.class = "org.wezfurlong.wezterm",
+		.isterminal = 1)
 #endif
 #if SCRATCHPADS_PATCH
-                                        RULE(.instance = "spterm",
-                                             .tags = SPTAG(0), .isfloating = 1)
+	RULE(.instance = "spterm",
+		.tags = SPTAG(0), .isfloating = 1)
 #endif
 };
 
