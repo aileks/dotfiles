@@ -13,5 +13,5 @@ dunst &
 feh --bg-fill ~/Pictures/wallpaper.jpg &
 
 blueman-applet &
-nm-applet &
-dwmblocks &
+nm-applet 2>&1 >/dev/null &
+dwmblocks 2>&1 >/dev/null &

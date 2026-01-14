@@ -32,5 +32,5 @@ set pages-per-row 1
 set scroll-page-aware "true"
 set smooth-scroll "true"
 set selection-clipboard clipboard
-set font "BerkeleyMono Nerd Font Mono 12"
+set font "BerkeleyMono Nerd Font Mono 16"
 # Alternative: set font "AdwaitaMono Nerd Font Mono 12"

@@ -3,9 +3,9 @@ monitor = 0
 follow = mouse
 
 width = 350
-height = 100
+height = (0, 100)
 origin = top-right
-offset = 20x50
+offset = (20, 50)
 
 progress_bar = true
 progress_bar_height = 10
@@ -26,7 +26,7 @@ separator_color = frame
 sort = yes
 idle_threshold = 120
 
-font = BerkeleyMono Nerd Font Mono 12
+font = BerkeleyMono Nerd Font Mono 14
 # Alternative: font = AdwaitaMono Nerd Font Mono 12
 line_height = 0
 markup = full

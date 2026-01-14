@@ -51,11 +51,11 @@ static int tiledindicatortype            = INDICATOR_NONE;
 static int floatindicatortype            = INDICATOR_TOP_LEFT_SQUARE;
 
 #if BAR_PANGO_PATCH
-static const char font[]                 = "BerkeleyMono Nerd Font Mono 14";
+static const char font[]                 = "BerkeleyMono Nerd Font Mono 16";
 #else
-static const char *fonts[]               = { "BerkeleyMono Nerd Font Mono:size=14" };
+static const char *fonts[]               = { "BerkeleyMono Nerd Font Mono:size=16" };
 #endif
-static const char dmenufont[]            = "BerkeleyMono Nerd Font Mono:size=14";
+static const char dmenufont[]            = "BerkeleyMono Nerd Font Mono:size=16";
 
 static char c000000[]                    = "#000000";
 
@@ -279,10 +279,10 @@ static const char *dmenucmd[] = {
 	NULL
 };
 static const char *termcmd[]  = { "wezterm", NULL };
-static const char *roficmd[]  = { "rofi", "-show", "drun,run,window", NULL };
+static const char *roficmd[]  = { "rofi", "-show", "drun", NULL };
 static const char *emojicmd[] = { "rofimoji", "--action", "copy", NULL };
 static const char *filecmd[]  = { "pcmanfm", NULL };
-static const char *lockcmd[]  = { "betterlockscreen", "-l", "--blur", "0.5", "-w", NULL };
+static const char *lockcmd[]  = { "betterlockscreen", "-l", "blur", NULL };
 static const char *powercmd[] = { "rofi-power", NULL };
 static const char *browsercmd[] = { "helium-browser", NULL };
 static const char *messengercmd[] = { "signal", NULL };
