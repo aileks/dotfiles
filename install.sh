@@ -166,6 +166,7 @@ PACMAN_PACKAGES=(
   noto-fonts-emoji
   ttf-libertinus
   papirus-icon-theme
+  wiremix
 )
 
 AUR_PACKAGES=(
@@ -175,7 +176,6 @@ AUR_PACKAGES=(
   ttf-mac-fonts
   1password
   1password-cli
-  pwvucontrol
   onlyoffice-bin
   keyd
 )
