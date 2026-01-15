@@ -75,6 +75,7 @@ PACMAN_PACKAGES=(
   xorg-xsetroot
   xorg-xrandr
   xorg-xset
+  xarchiver
   libx11
   libxft
   libxinerama
