@@ -4,13 +4,13 @@
 # Right click: open btop
 
 case $BUTTON in
-	1)
-		cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
-		notify-send "󰻠 CPU Usage" "Current CPU: $cpu%"
-		;;
-	3)
-		wezterm start --class btop-floating -- btop
-		;;
+1)
+	cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
+	notify-send "󰻠 CPU Usage" "Current CPU: $cpu%"
+	;;
+3)
+	wezterm start --class btop-floating -- btop
+	;;
 esac
 
 cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
