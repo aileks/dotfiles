@@ -5,31 +5,25 @@
 
 state_file="/tmp/dwmblocks_clock_state"
 
-# Initialize state file if it doesn't exist
 if [ ! -f "$state_file" ]; then
-	echo "time" >"$state_file"
+  echo "time" >"$state_file"
 fi
 
 case $BUTTON in
 1)
-	# Toggle between time and date
-	current_state=$(cat "$state_file")
-	if [ "$current_state" = "time" ]; then
-		echo "date" >"$state_file"
-	else
-		echo "time" >"$state_file"
-	fi
-	# Trigger dwmblocks update
-	pkill -RTMIN+1 dwmblocks
-	# Update current_state for output
-	current_state=$(cat "$state_file")
-	;;
+  current_state=$(cat "$state_file")
+  if [ "$current_state" = "time" ]; then
+    echo "date" >"$state_file"
+  else
+    echo "time" >"$state_file"
+  fi
+  pkill -RTMIN+1 dwmblocks
+  current_state=$(cat "$state_file")
+  ;;
 3)
-	# Launch calcurse in floating terminal
-	# Background and disown to prevent closing parent script
-	wezterm start --class calendar-floating -- calcurse >/dev/null 2>&1 &
-	disown $!
-	;;
+  wezterm start --class calendar-floating -- calcurse >/dev/null 2>&1 &
+  disown $!
+  ;;
 esac
 
 icon="󰃰"
@@ -39,13 +33,12 @@ time_fmt="%H:%M"
 date_str=$(date +"$date_fmt")
 time_str=$(date +"$time_fmt")
 
-# Get current display mode
 current_state=$(cat "$state_file")
 
 if [ "$current_state" = "time" ]; then
-	# Show only time
-	printf "^c#e49a44^%s^d^ %s" "$icon" "$time_str"
+  # Show only time
+  printf "^c#e49a44^%s^d^ %s" "$icon" "$time_str"
 else
-	# Show only date
-	printf "^c#e49a44^%s^d^ %s" "$icon" "$date_str"
+  # Show only date
+  printf "^c#e49a44^%s^d^ %s" "$icon" "$date_str"
 fi
