@@ -16,8 +16,6 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-;; Speed up packages
-(setq package-quickstart t)
 
 ;; Load modules
 (let ((module-dir (expand-file-name "modules" user-emacs-directory)))
