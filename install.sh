@@ -84,6 +84,7 @@ PACMAN_PACKAGES=(
   fontconfig
   imlib2
   neovim
+  emacs
   zsh
   github-cli
   wezterm
@@ -435,6 +436,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
   create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
+  create_symlink "$SCRIPT_DIR/emacs" "$HOME/.config/emacs"
   create_symlink "$SCRIPT_DIR/picom" "$HOME/.config/picom"
   create_symlink "$SCRIPT_DIR/dunst" "$HOME/.config/dunst"
   create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
