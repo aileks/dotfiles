@@ -430,6 +430,7 @@ symlink_configs() {
 	log_info "Creating config symlinks..."
 
 	mkdir -p "$HOME/.config"
+	mkdir -p "$HOME/.emacs.d"
 	mkdir -p "$HOME/.local/bin"
 	mkdir -p "$HOME/.local/share/dwm"
 
@@ -437,7 +438,6 @@ symlink_configs() {
 	create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
 	create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
 	create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
-	create_symlink "$SCRIPT_DIR/emacs" "$HOME/.config/emacs"
 	create_symlink "$SCRIPT_DIR/picom" "$HOME/.config/picom"
 	create_symlink "$SCRIPT_DIR/dunst" "$HOME/.config/dunst"
 	create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
@@ -447,22 +447,13 @@ symlink_configs() {
 	create_symlink "$SCRIPT_DIR/yazi" "$HOME/.config/yazi"
 	create_symlink "$SCRIPT_DIR/betterlockscreen" "$HOME/.config/betterlockscreen"
 	create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
+	create_symlink "$SCRIPT_DIR/emacs" "$HOME/.emacs.d"
 
 	# Single file symlinks
 	create_symlink "$SCRIPT_DIR/X11/Xresources" "$HOME/.Xresources"
 	create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
 	create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
-
-	# Autostart script
 	create_symlink "$SCRIPT_DIR/X11/xinitrc" "$HOME/.xinitrc"
-
-	# Emacs: create ~/.emacs.d with symlinked config files
-	log_info "Setting up Emacs configuration..."
-	mkdir -p "$HOME/.emacs.d"
-	ln -sf "$SCRIPT_DIR/emacs/early-init.el" "$HOME/.emacs.d/early-init.el"
-	ln -sf "$SCRIPT_DIR/emacs/init.el" "$HOME/.emacs.d/init.el"
-	ln -sf "$SCRIPT_DIR/emacs/modules" "$HOME/.emacs.d/modules"
-	log_success "Emacs configuration linked"
 
 	# Status bar scripts
 	if [[ -d "$SCRIPT_DIR/scripts/statusbar" ]]; then
@@ -912,7 +903,7 @@ main() {
 		log_info "Backups saved to: $BACKUP_DIR"
 	fi
 
-	if [[ "$DRY_RUN" == false ]]; then
+	if [[ "$DRY_RUN" == false && "$SYMLINK_ONLY" == false ]]; then
 		echo
 		read -rp "Reboot now? [Y/n]: " reboot_choice </dev/tty
 		reboot_choice=${reboot_choice:-Y}
@@ -920,8 +911,6 @@ main() {
 		if [[ "$reboot_choice" =~ ^[Yy]$ ]]; then
 			log_info "Rebooting..."
 			sudo reboot
-		else
-			log_info "Reboot skipped. Please reboot manually to apply all changes."
 		fi
 	fi
 }
