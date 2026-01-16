@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
-(setq initial-frame-alist '((width . 100) (height . 40))
-      default-frame-alist '((width . 100) (height . 40)))
+(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
