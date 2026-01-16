@@ -253,9 +253,7 @@ static const Layout layouts[] = {
 };
 #endif
 
-/* Hyperkey: Ctrl+Alt+Super (via keyd: capslock -> hyper)
- * Shift intentionally omitted for additional modifier flexibility */
-#define MODKEY (ControlMask|Mod1Mask|Mod4Mask)
+#define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} },
@@ -384,8 +382,8 @@ static const Key keys[] = {
 	{ ShiftMask,                    XK_Print,      spawn,         SHCMD("screenshot area file") },
 	{ ControlMask,                  XK_Print,      spawn,         SHCMD("screenshot window clipboard") },
 	{ ControlMask|ShiftMask,        XK_Print,      spawn,         SHCMD("screenshot window file") },
-	{ Mod4Mask,                       XK_Print,      spawn,         SHCMD("screenshot fullscreen clipboard") },
-	{ Mod4Mask|ShiftMask,             XK_Print,      spawn,         SHCMD("screenshot fullscreen file") },
+	{ MODKEY,                        XK_Print,      spawn,         SHCMD("screenshot fullscreen clipboard") },
+	{ MODKEY|ShiftMask,              XK_Print,      spawn,         SHCMD("screenshot fullscreen file") },
 
 	/* Screen recording */
 	{ 0,                            XK_F9,         spawn,         SHCMD("screenrecord area") },
@@ -403,9 +401,9 @@ static const Button buttons[] = {
 	{ ClkStatusText,        0,                   Button3,        sigstatusbar,   {.i = 3 } },
 	{ ClkStatusText,        ShiftMask,           Button1,        sigstatusbar,   {.i = 6 } },
 	#endif
-	{ ClkClientWin,         MODKEY,              Button1,        movemouse,      {0} },
-	{ ClkClientWin,         MODKEY,              Button2,        togglefloating, {0} },
-	{ ClkClientWin,         MODKEY,              Button3,        resizemouse,    {0} },
+	{ ClkClientWin,         Mod1Mask,            Button1,        movemouse,      {0} },
+	{ ClkClientWin,         Mod1Mask,            Button2,        togglefloating, {0} },
+	{ ClkClientWin,         Mod1Mask,            Button3,        resizemouse,    {0} },
 	{ ClkTagBar,            0,                   Button1,        view,           {0} },
 	{ ClkTagBar,            0,                   Button3,        toggleview,     {0} },
 	{ ClkTagBar,            MODKEY,              Button1,        tag,            {0} },
