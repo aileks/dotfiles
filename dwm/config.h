@@ -284,7 +284,7 @@ static const char *lockcmd[]  = { "betterlockscreen", "-l", "dimpixel", NULL };
 static const char *powercmd[] = { "rofi-power", NULL };
 static const char *browsercmd[] = { "helium-browser", NULL };
 static const char *messengercmd[] = { "signal-desktop", NULL };
-static const char *editorcmd[] = { "emacsclient -c -a", "", NULL };
+static const char *editorcmd[] = { "emacsclient", "-c", "-a", "", NULL };
 
 #if BAR_STATUSCMD_PATCH && BAR_DWMBLOCKS_PATCH
 #define STATUSBAR "dwmblocks"
@@ -341,7 +341,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_u,          focusurgent,            {0} },
 	#endif
 	#if SCRATCHPADS_PATCH
-	{ MODKEY,                       XK_grave,      togglescratch,          {.ui = 0 } },
+	{ MODKEY|ShiftMask,                       XK_grave,      togglescratch,          {.ui = 0 } },
 	#endif
 	#if SCRATCHPADS_PATCH && !RENAMED_SCRATCHPADS_PATCH
 	{ MODKEY,                       XK_0,          view,                   {.ui = ~SPTAGMASK } },
