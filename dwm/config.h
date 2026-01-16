@@ -284,6 +284,7 @@ static const char *lockcmd[]  = { "betterlockscreen", "-l", "dimpixel", NULL };
 static const char *powercmd[] = { "rofi-power", NULL };
 static const char *browsercmd[] = { "helium-browser", NULL };
 static const char *messengercmd[] = { "signal-desktop", NULL };
+static const char *editorcmd[] = { "emacsclient -c -a", "", NULL };
 
 #if BAR_STATUSCMD_PATCH && BAR_DWMBLOCKS_PATCH
 #define STATUSBAR "dwmblocks"
@@ -298,11 +299,9 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_x,          spawn,                  { .v = lockcmd} },
 	{ MODKEY|ShiftMask,             XK_p,          spawn,                  { .v = powercmd} },
 	{ MODKEY,                       XK_s,          spawn,                  { .v = messengercmd} },
-	{ MODKEY,                       XK_b,          togglebar,              {0} },
+	{ MODKEY,                       XK_b,          spawn,                  { .v = editorcmd} },
 	{ MODKEY,                       XK_j,          focusstack,             {.i = +1} },
 	{ MODKEY,                       XK_k,          focusstack,             {.i = -1} },
-	{ MODKEY,                       XK_i,          incnmaster,             {.i = +1} },
-	{ MODKEY|ShiftMask,             XK_i,          incnmaster,             {.i = -1} },
 	{ MODKEY,                       XK_h,          setmfact,               {.f = -0.05} },
 	{ MODKEY,                       XK_l,          setmfact,               {.f = +0.05} },
 	#if CFACTS_PATCH
