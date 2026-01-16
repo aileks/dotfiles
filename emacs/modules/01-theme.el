@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Define base16 Ashen theme
-(deftheme base16-ashen "Base16 Ashen color scheme")
+;; Define Ashen theme
+(deftheme ashen "Ashen color scheme")
 
 (let ((dark-background "#121212")
       (dark-gray "#191919")
@@ -20,7 +20,7 @@
       (brown "#89492a"))
 
   (custom-theme-set-faces
-   'base16-ashen
+   'ashen
    `(default ((t (:foreground ,foreground :background ,dark-background))))
    `(cursor ((t (:background ,red-ember))))
    `(fringe ((t (:background ,dark-gray))))
@@ -54,4 +54,4 @@
    `(link ((t (:foreground ,orange-glow :underline t))))
    `(link-visited ((t (:foreground ,red-ember :underline t))))))
 
-(provide-theme 'base16-ashen)
+(provide-theme 'ashen)

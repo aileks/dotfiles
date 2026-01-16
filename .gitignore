@@ -1,0 +1,9 @@
+emacs/history
+emacs/recentf
+emacs/elpa/
+emacs/eln-cache/
+emacs/auto-save-list/
+emacs/snippets/
+emacs/tutorial/
+emacs/package-quickstart.el
+emacs/package-quickstart.elc

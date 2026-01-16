@@ -17,6 +17,3 @@
 (let ((module-dir (expand-file-name "modules" user-emacs-directory)))
   (dolist (file (directory-files module-dir t "^[0-9].*\\.el$"))
     (load file)))
-
-;; Load theme
-(load-theme 'base16-ashen t)

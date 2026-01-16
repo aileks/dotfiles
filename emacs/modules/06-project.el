@@ -1,7 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
 ;; Project management (built-in)
-(project-mode 1)
 (setq project-mode-line t)
 
 ;; Dired + extensions

@@ -456,6 +456,14 @@ symlink_configs() {
 	# Autostart script
 	create_symlink "$SCRIPT_DIR/X11/xinitrc" "$HOME/.xinitrc"
 
+	# Emacs: create ~/.emacs.d with symlinked config files
+	log_info "Setting up Emacs configuration..."
+	mkdir -p "$HOME/.emacs.d"
+	ln -sf "$SCRIPT_DIR/emacs/early-init.el" "$HOME/.emacs.d/early-init.el"
+	ln -sf "$SCRIPT_DIR/emacs/init.el" "$HOME/.emacs.d/init.el"
+	ln -sf "$SCRIPT_DIR/emacs/modules" "$HOME/.emacs.d/modules"
+	log_success "Emacs configuration linked"
+
 	# Status bar scripts
 	if [[ -d "$SCRIPT_DIR/scripts/statusbar" ]]; then
 		for script in "$SCRIPT_DIR/scripts/statusbar/"*; do
