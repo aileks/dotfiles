@@ -2,6 +2,7 @@
 
 (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
 (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+(add-to-list 'default-frame-alist '(font . "BerkeleyMono Nerd Font Mono-14"))
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
