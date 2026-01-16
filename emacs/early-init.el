@@ -25,4 +25,4 @@
 
 ;; Misc
 (setq native-comp-async-report-warnings-errors 'silent)
-(setq package-quickstart t)
+(setq package-enable-at-startup nil)

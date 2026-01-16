@@ -12,10 +12,9 @@ Desktop environment built on DWM-Flexipatch with the [Ashen](https://codeberg.or
 - **Notifications**: Dunst
 - **Lockscreen**: Betterlockscreen
 - **Shell**: Zsh
-- **Editor**: Neovim
+- **Editor**: Emacs
 - **File manager**: Yazi
 - **PDF viewer**: Zathura
-- **Hyperkey**: Caps Lock → Ctrl+Alt+Super (via keyd)
 
 List of keybinds here [here](https://github.com/aileks/dotfiles/wiki)
 
