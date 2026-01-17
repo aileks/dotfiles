@@ -173,6 +173,7 @@ PACMAN_PACKAGES=(
 AUR_PACKAGES=(
 	helium-browser-bin
 	betterlockscreen
+	ttf-adwaita-mono-nerd
 	ttf-mac-fonts
 	1password-beta
 	1password-cli

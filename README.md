@@ -1,6 +1,6 @@
 # Arch Linux Dotfiles
 
-Desktop environment built on DWM-Flexipatch with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+Arch setup built on DWM-Flexipatch with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 
 ## Features
 
