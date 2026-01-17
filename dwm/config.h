@@ -151,7 +151,7 @@ static const Rule rules[] = {
 	RULE(.wintype = WTYPE "UTILITY", .isfloating = 1)
 	RULE(.wintype = WTYPE "TOOLBAR", .isfloating = 1)
 	RULE(.wintype = WTYPE "SPLASH", .isfloating = 1)
-	RULE(.class = "qalculate-gtk", .isfloating = 1)
+	RULE(.class = "Qalculate-gtk", .isfloating = 1)
 	RULE(.class = "Nsxiv", .isfloating = 1)
 	RULE(.class = "feh", .isfloating = 1)
 	RULE(.title = "Event Tester", .isfloating = 1)
