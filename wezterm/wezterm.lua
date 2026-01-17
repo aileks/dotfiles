@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
 -- Alternative: config.font = wezterm.font("AdwaitaMono Nerd Font Mono")
-config.font = wezterm.font("BerkeleyMono Nerd Font Mono")
+config.font = wezterm.font("Monaspace Neon NF")
 config.font_size = 14.0
 config.colors = require("ashen")
 config.enable_tab_bar = false
