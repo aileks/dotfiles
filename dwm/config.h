@@ -63,42 +63,42 @@ static char c000000[]                    = "#000000";
 static char normfgcolor[]                = "#a7a7a7";
 static char normbgcolor[]                = "#121212";
 static char normbordercolor[]            = "#212121";
-static char normfloatcolor[]             = "#4A8B8B";
+static char normfloatcolor[]             = "#4a8b8b";
 
 static char selfgcolor[]                 = "#d5d5d5";
-static char selbgcolor[]                 = "#C4693D";
-static char selbordercolor[]             = "#C4693D";
-static char selfloatcolor[]              = "#C4693D";
+static char selbgcolor[]                 = "#c4693d";
+static char selbordercolor[]             = "#c4693d";
+static char selfloatcolor[]              = "#c4693d";
 
 static char titlenormfgcolor[]           = "#a7a7a7";
 static char titlenormbgcolor[]           = "#121212";
 static char titlenormbordercolor[]       = "#212121";
-static char titlenormfloatcolor[]        = "#4A8B8B";
+static char titlenormfloatcolor[]        = "#4a8b8b";
 
 static char titleselfgcolor[]            = "#d5d5d5";
 static char titleselbgcolor[]            = "#191919";
-static char titleselbordercolor[]        = "#C4693D";
-static char titleselfloatcolor[]         = "#C4693D";
+static char titleselbordercolor[]        = "#c4693d";
+static char titleselfloatcolor[]         = "#c4693d";
 
 static char tagsnormfgcolor[]            = "#949494";
 static char tagsnormbgcolor[]            = "#121212";
 static char tagsnormbordercolor[]        = "#212121";
-static char tagsnormfloatcolor[]         = "#4A8B8B";
+static char tagsnormfloatcolor[]         = "#4a8b8b";
 
 static char tagsselfgcolor[]             = "#121212";
-static char tagsselbgcolor[]             = "#C4693D";
-static char tagsselbordercolor[]         = "#C4693D";
-static char tagsselfloatcolor[]          = "#C4693D";
+static char tagsselbgcolor[]             = "#c4693d";
+static char tagsselbordercolor[]         = "#c4693d";
+static char tagsselfloatcolor[]          = "#c4693d";
 
-static char hidnormfgcolor[]             = "#4A8B8B";
-static char hidselfgcolor[]              = "#C4693D";
+static char hidnormfgcolor[]             = "#4a8b8b";
+static char hidselfgcolor[]              = "#c4693d";
 static char hidnormbgcolor[]             = "#121212";
 static char hidselbgcolor[]              = "#121212";
 
 static char urgfgcolor[]                 = "#d5d5d5";
 static char urgbgcolor[]                 = "#121212";
-static char urgbordercolor[]             = "#B14242";
-static char urgfloatcolor[]              = "#B14242";
+static char urgbordercolor[]             = "#b14242";
+static char urgfloatcolor[]              = "#b14242";
 
 #if BAR_ALPHA_PATCH
 static const unsigned int baralpha = 0xe6;
@@ -151,7 +151,7 @@ static const Rule rules[] = {
 	RULE(.wintype = WTYPE "UTILITY", .isfloating = 1)
 	RULE(.wintype = WTYPE "TOOLBAR", .isfloating = 1)
 	RULE(.wintype = WTYPE "SPLASH", .isfloating = 1)
-	RULE(.class = "firefox", .tags = 1 << 1)
+	RULE(.class = "qalculate-gtk", .isfloating = 1)
 	RULE(.class = "Nsxiv", .isfloating = 1)
 	RULE(.class = "feh", .isfloating = 1)
 	RULE(.title = "Event Tester", .isfloating = 1)
