@@ -75,6 +75,8 @@ PACMAN_PACKAGES=(
 	xorg-xsetroot
 	xorg-xrandr
 	xorg-xset
+	xclip
+	xdotool
 	xarchiver
 	libx11
 	libxft
@@ -127,8 +129,6 @@ PACMAN_PACKAGES=(
 	maim
 	slop
 	ffmpeg
-	xclip
-	xdotool
 	pamixer
 	playerctl
 	networkmanager
@@ -141,7 +141,6 @@ PACMAN_PACKAGES=(
 	fd
 	ripgrep
 	trash-cli
-	imagemagick
 	zathura
 	zathura-pdf-mupdf
 	nsxiv
@@ -151,32 +150,31 @@ PACMAN_PACKAGES=(
 	qalculate-gtk
 	mypaint
 	mpv
+	wiremix
 	gst-plugins-good
 	gst-plugins-bad
 	gst-plugins-ugly
 	gst-libav
+	ffmpegthumbnailer
 	usbutils
 	bluez
 	bluez-utils
 	blueman
 	cups
 	system-config-printer
-	ffmpegthumbnailer
 	webp-pixbuf-loader
 	noto-fonts
 	noto-fonts-cjk
 	noto-fonts-emoji
-	ttf-libertinus
+	otf-commit-mono-nerd
 	papirus-icon-theme
-	wiremix
 )
 
 AUR_PACKAGES=(
 	helium-browser-bin
 	betterlockscreen
-	ttf-adwaita-mono-nerd
 	ttf-mac-fonts
-	1password
+	1password-beta
 	1password-cli
 	onlyoffice-bin
 	keyd
