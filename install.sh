@@ -581,6 +581,43 @@ install_tpm() {
 	log_info "Run 'prefix + I' in tmux to install plugins"
 }
 
+install_orchis_theme() {
+	log_info "Installing Orchis theme (orange)..."
+
+	if command_exists gsettings; then
+		local current_theme
+		current_theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null || true)
+		if [[ "$current_theme" == *"Orchis"* ]]; then
+			log_success "Orchis theme already configured"
+			return 0
+		fi
+	fi
+
+	if log_dry "Clone and install Orchis theme (orange)"; then
+		return 0
+	fi
+
+	local tmp_dir
+	tmp_dir=$(mktemp -d)
+	if ! git clone --depth 1 https://github.com/vinceliuice/Orchis-theme "$tmp_dir/orchis-theme"; then
+		log_warning "Failed to clone Orchis theme"
+		rm -rf "$tmp_dir"
+		return 1
+	fi
+
+	pushd "$tmp_dir/orchis-theme" &>/dev/null
+	if ! ./install.sh -t orange; then
+		log_warning "Failed to install Orchis theme"
+		popd &>/dev/null
+		rm -rf "$tmp_dir"
+		return 1
+	fi
+	popd &>/dev/null
+
+	rm -rf "$tmp_dir"
+	log_success "Orchis theme installed"
+}
+
 setup_shell() {
 	log_info "Setting up shell..."
 
@@ -885,6 +922,7 @@ main() {
 		symlink_configs
 		install_tpm
 		setup_keyd
+		install_orchis_theme
 		build_dwm
 		build_dwmblocks
 		install_desktop_entry

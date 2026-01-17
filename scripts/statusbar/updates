@@ -34,3 +34,4 @@ else
 fi
 
 printf "^c%s^󰏔 %s^d^" "$color" "$total"
+
