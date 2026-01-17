@@ -5,6 +5,7 @@
 #include<signal.h>
 #include<errno.h>
 #include<time.h>
+#include<sys/wait.h>
 #ifndef NO_X
 #include<X11/Xlib.h>
 #endif
@@ -104,9 +105,10 @@ void getcmd(const Block *block, char *output, unsigned int index)
 			tempstatus[i++] = '\0';
 	}
 	strcpy(output, tempstatus);
-	pclose(cmdf);
+	int status = pclose(cmdf);
+	int failed = (status == -1) || !WIFEXITED(status) || WEXITSTATUS(status);
 
-	// Cache the output to prevent empty displays on race conditions
+	// Cache output; reuse only on command failure
 	if (tempstatus[0] != '\0') {
 		if (!last_updates[index]) {
 			last_updates[index] = malloc(CMDLENGTH);
@@ -114,8 +116,7 @@ void getcmd(const Block *block, char *output, unsigned int index)
 		if (last_updates[index]) {
 			strncpy(last_updates[index], tempstatus, CMDLENGTH);
 		}
-	} else if (last_updates[index]) {
-		// Use cached value if we got empty output
+	} else if (failed && last_updates[index]) {
 		strcpy(output, last_updates[index]);
 	}
 }

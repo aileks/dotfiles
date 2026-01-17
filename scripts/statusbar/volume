@@ -11,6 +11,12 @@ case $BUTTON in
 	wezterm start --class volume-floating -- wiremix
 	disown $!
 	;;
+4)
+	pamixer -i 5
+	;;
+5)
+	pamixer -d 5
+	;;
 esac
 
 vol=$(pamixer --get-volume 2>/dev/null)
