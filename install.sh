@@ -83,6 +83,7 @@ PACMAN_PACKAGES=(
 	libxinerama
 	libxrender
 	libgccjit
+	lldb
 	freetype2
 	fontconfig
 	imlib2
