@@ -1,5 +1,5 @@
 static const Block blocks[] = {
-	{"",    "updates",  14400, 11},
+	{"",    "updates",  43200,  11},
 	{"",    "cpu",      2,     2},
 	{"",    "memory",   2,     3},
 	{"",    "volume",   0,     10},
