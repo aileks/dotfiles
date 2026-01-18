@@ -16,7 +16,6 @@ case $BUTTON in
 	;;
 3)
 	wezterm start --class updates-floating -- paru -Syu
-	disown $!
 	;;
 
 esac
