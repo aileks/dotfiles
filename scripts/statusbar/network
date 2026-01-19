@@ -5,28 +5,28 @@
 # Middle click: show network details notification
 
 case $BUTTON in
-1)
-  nm-connection-editor
-  disown $!
-  ;;
-2)
-  connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f1)
-  if [ -n "$connection" ]; then
-    notify-send "󰈀 Network" "Connected: $connection"
-  else
-    notify-send "󰤭 Network" "No active connection"
-  fi
-  ;;
-3)
-  if nmcli -t -f wifi radio | grep -q "enabled"; then
-    nmcli radio wifi off
-    notify-send "󰤭 WiFi Disabled"
-  else
-    nmcli radio wifi on
-    notify-send "󰤨 WiFi Enabled"
-  fi
-  pkill -RTMIN+4 dwmblocks
-  ;;
+  1)
+    nm-connection-editor
+    disown $!
+    ;;
+  2)
+    connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f1)
+    if [ -n "$connection" ]; then
+      notify-send "󰈀 Network" "Connected: $connection"
+    else
+      notify-send "󰤭 Network" "No active connection"
+    fi
+    ;;
+  3)
+    if nmcli -t -f wifi radio | grep -q "enabled"; then
+      nmcli radio wifi off
+      notify-send "󰤭 WiFi Disabled"
+    else
+      nmcli radio wifi on
+      notify-send "󰤨 WiFi Enabled"
+    fi
+    pkill -RTMIN+4 dwmblocks
+    ;;
 esac
 
 connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f1)

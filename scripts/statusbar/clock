@@ -10,20 +10,20 @@ if [ ! -f "$state_file" ]; then
 fi
 
 case $BUTTON in
-1)
-  current_state=$(cat "$state_file")
-  if [ "$current_state" = "time" ]; then
-    echo "date" >"$state_file"
-  else
-    echo "time" >"$state_file"
-  fi
-  pkill -RTMIN+1 dwmblocks
-  current_state=$(cat "$state_file")
-  ;;
-3)
-  wezterm start --class calendar-floating -- calcurse >/dev/null 2>&1 &
-  disown $!
-  ;;
+  1)
+    current_state=$(cat "$state_file")
+    if [ "$current_state" = "time" ]; then
+      echo "date" >"$state_file"
+    else
+      echo "time" >"$state_file"
+    fi
+    pkill -RTMIN+1 dwmblocks
+    current_state=$(cat "$state_file")
+    ;;
+  3)
+    wezterm start --class calendar-floating -- calcurse >/dev/null 2>&1 &
+    disown $!
+    ;;
 esac
 
 icon="󰃰"

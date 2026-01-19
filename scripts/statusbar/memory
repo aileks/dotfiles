@@ -4,15 +4,15 @@
 # Right click: open btop
 
 case $BUTTON in
-1)
-  mem=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
-  swap=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
-  notify-send "󰍛 Memory Usage" "RAM: $mem\nSwap: $swap"
-  ;;
-3)
-  wezterm start --class btop-floating -- btop
-  disown $!
-  ;;
+  1)
+    mem=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+    swap=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
+    notify-send "󰍛 Memory Usage" "RAM: $mem\nSwap: $swap"
+    ;;
+  3)
+    wezterm start --class btop-floating -- btop
+    disown $!
+    ;;
 esac
 
 mem=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')

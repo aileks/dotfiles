@@ -716,34 +716,34 @@ setup_display_manager() {
   local dm_service=""
 
   case "$dm_choice" in
-  1)
-    dm_pkg="ly"
-    dm_service="ly"
-    ;;
-  2)
-    dm_pkg="sddm"
-    dm_service="sddm"
-    ;;
-  3)
-    dm_pkg="gdm"
-    dm_service="gdm"
-    ;;
-  4)
-    dm_pkg="lightdm"
-    dm_service="lightdm"
-    ;;
-  5)
-    dm_pkg="lemurs"
-    dm_service="lemurs"
-    ;;
-  6)
-    log_info "Skipping display manager setup"
-    return 0
-    ;;
-  *)
-    log_warning "Invalid choice, skipping display manager setup"
-    return 0
-    ;;
+    1)
+      dm_pkg="ly"
+      dm_service="ly"
+      ;;
+    2)
+      dm_pkg="sddm"
+      dm_service="sddm"
+      ;;
+    3)
+      dm_pkg="gdm"
+      dm_service="gdm"
+      ;;
+    4)
+      dm_pkg="lightdm"
+      dm_service="lightdm"
+      ;;
+    5)
+      dm_pkg="lemurs"
+      dm_service="lemurs"
+      ;;
+    6)
+      log_info "Skipping display manager setup"
+      return 0
+      ;;
+    *)
+      log_warning "Invalid choice, skipping display manager setup"
+      return 0
+      ;;
   esac
 
   log_info "Installing $dm_pkg..."
@@ -808,27 +808,27 @@ show_menu() {
   choice=${choice:-1}
 
   case "$choice" in
-  1) SYMLINK_ONLY=false ;;
-  2) SYMLINK_ONLY=true ;;
-  3)
-    build_dwm
-    build_dwmblocks
-    exit 0
-    ;;
-  4)
-    setup_chaotic_aur
-    install_pacman_packages
-    install_aur_packages
-    exit 0
-    ;;
-  q | Q)
-    log_info "Cancelled"
-    exit 0
-    ;;
-  *)
-    log_error "Invalid option: $choice"
-    exit 1
-    ;;
+    1) SYMLINK_ONLY=false ;;
+    2) SYMLINK_ONLY=true ;;
+    3)
+      build_dwm
+      build_dwmblocks
+      exit 0
+      ;;
+    4)
+      setup_chaotic_aur
+      install_pacman_packages
+      install_aur_packages
+      exit 0
+      ;;
+    q | Q)
+      log_info "Cancelled"
+      exit 0
+      ;;
+    *)
+      log_error "Invalid option: $choice"
+      exit 1
+      ;;
   esac
 }
 
@@ -863,29 +863,29 @@ EOF
 parse_arguments() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-    -h | --help)
-      show_help
-      exit 0
-      ;;
-    -d | --dry-run)
-      DRY_RUN=true
-      log_warning "Dry-run mode enabled"
-      ;;
-    --debug)
-      DEBUG=true
-      log_debug "Debug mode enabled"
-      ;;
-    1)
-      SYMLINK_ONLY=false
-      ;;
-    2)
-      SYMLINK_ONLY=true
-      ;;
-    *)
-      log_error "Unknown option: $1"
-      show_help
-      exit 1
-      ;;
+      -h | --help)
+        show_help
+        exit 0
+        ;;
+      -d | --dry-run)
+        DRY_RUN=true
+        log_warning "Dry-run mode enabled"
+        ;;
+      --debug)
+        DEBUG=true
+        log_debug "Debug mode enabled"
+        ;;
+      1)
+        SYMLINK_ONLY=false
+        ;;
+      2)
+        SYMLINK_ONLY=true
+        ;;
+      *)
+        log_error "Unknown option: $1"
+        show_help
+        exit 1
+        ;;
     esac
     shift
   done

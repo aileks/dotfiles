@@ -4,19 +4,19 @@
 # Right click: open wiremix
 
 case $BUTTON in
-1)
-  pamixer -t
-  ;;
-3)
-  wezterm start --class volume-floating -- wiremix
-  disown $!
-  ;;
-4)
-  pamixer -i 5
-  ;;
-5)
-  pamixer -d 5
-  ;;
+  1)
+    pamixer -t
+    ;;
+  3)
+    wezterm start --class volume-floating -- wiremix
+    disown $!
+    ;;
+  4)
+    pamixer -i 5
+    ;;
+  5)
+    pamixer -d 5
+    ;;
 esac
 
 vol=$(pamixer --get-volume 2>/dev/null)

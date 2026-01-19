@@ -137,7 +137,7 @@ install_aur_helper() {
 # ============================================================
 
 verify_dotfiles_repo() {
-  if [[ ! -d $DOTFILES_DIR  ]]; then
+  if [[ ! -d $DOTFILES_DIR ]]; then
     return 1
   fi
 
@@ -157,7 +157,7 @@ verify_dotfiles_repo() {
 
   popd &>/dev/null || true
 
-  if [[ $remote_url == *"$DOTFILES_REPO"*  ]] || [[ $remote_url == *"aileks/dotfiles"*   ]]; then
+  if [[ $remote_url == *"$DOTFILES_REPO"* ]] || [[ $remote_url == *"aileks/dotfiles"* ]]; then
     return 0
   fi
 
@@ -181,19 +181,19 @@ prompt_replace_repo() {
   while true; do
     read -rp "Enter your choice (1 or 2): " choice
     case "$choice" in
-    1)
-      log_info "Backing up existing repository..."
-      mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
-      log_success "Backed up to: ${DOTFILES_DIR}${BACKUP_SUFFIX}"
-      return 0
-      ;;
-    2)
-      log_info "Installation cancelled"
-      exit 0
-      ;;
-    *)
-      log_error "Invalid choice: $choice"
-      ;;
+      1)
+        log_info "Backing up existing repository..."
+        mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
+        log_success "Backed up to: ${DOTFILES_DIR}${BACKUP_SUFFIX}"
+        return 0
+        ;;
+      2)
+        log_info "Installation cancelled"
+        exit 0
+        ;;
+      *)
+        log_error "Invalid choice: $choice"
+        ;;
     esac
   done
 }
@@ -221,7 +221,7 @@ update_existing_repo() {
   local remote_ref
   remote_ref=$(git rev-parse "origin/$default_branch" 2>/dev/null || echo "")
 
-  if [[ $local_ref == "$remote_ref"  ]]; then
+  if [[ $local_ref == "$remote_ref" ]]; then
     log_success "Already up to date"
   else
     git reset --hard "origin/$default_branch" &>/dev/null
@@ -275,13 +275,13 @@ clone_repo() {
 parse_arguments() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-    -h | --help)
-      show_help
-      exit 0
-      ;;
-    *)
-      PASS_THROUGH_ARGS+=("$1")
-      ;;
+      -h | --help)
+        show_help
+        exit 0
+        ;;
+      *)
+        PASS_THROUGH_ARGS+=("$1")
+        ;;
     esac
     shift
   done
@@ -312,7 +312,7 @@ main() {
   # Handle dotfiles repository
   if verify_dotfiles_repo; then
     update_existing_repo || exit 1
-  elif [[ -d $DOTFILES_DIR  ]]; then
+  elif [[ -d $DOTFILES_DIR ]]; then
     prompt_replace_repo || exit 1
     clone_repo || exit 1
   else
