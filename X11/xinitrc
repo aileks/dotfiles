@@ -12,8 +12,9 @@ export XDG_CURRENT_DESKTOP="WM"
 export XCURSOR_SIZE=48
 export TERMINAL=wezterm
 export EDITOR="emacsclient -c -n"
+export VISUAL=$EDITOR
 export SUDO_EDITOR=vim
-export MANPAGER="nvim +Man!"
+export MANPAGER="bat -plman"
 export GPG_TTY=$(tty)
 
 xrdb -merge ~/.Xresources &
