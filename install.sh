@@ -113,7 +113,10 @@ PACMAN_PACKAGES=(
   perl-file-mimeinfo
   polkit-gnome
   yazi
-  pcmanfm
+  thunar
+  thunar-volman
+  thunar-media-tags-plugin
+  thunar-archive-plugin
   gvfs
   gvfs-afc
   udisks2
