@@ -37,13 +37,13 @@ log_error() {
 }
 
 log_debug() {
-  if [[ $DEBUG == true  ]]; then
+  if [[ $DEBUG == true ]]; then
     echo -e "${LOG_CYAN}[DEBUG]${LOG_NC} $1"
   fi
 }
 
 log_dry() {
-  if [[ $DRY_RUN == true  ]]; then
+  if [[ $DRY_RUN == true ]]; then
     echo -e "${LOG_YELLOW}[DRY-RUN]${LOG_NC} Would: $1"
     return 0
   fi
@@ -51,7 +51,7 @@ log_dry() {
 }
 
 run_cmd() {
-  if [[ $DRY_RUN == true  ]]; then
+  if [[ $DRY_RUN == true ]]; then
     echo -e "${LOG_YELLOW}[DRY-RUN]${LOG_NC} $*"
     return 0
   fi
@@ -83,6 +83,7 @@ PACMAN_PACKAGES=(
   libxinerama
   libxrender
   libgccjit
+  cronie
   gdb
   freetype2
   fontconfig
@@ -378,11 +379,11 @@ install_zsh_plugins() {
 backup_existing() {
   local target="$1"
 
-  if [[ ! -e $target && ! -L $target    ]]; then
+  if [[ ! -e $target && ! -L $target ]]; then
     return 0
   fi
 
-  if [[ -L $target  ]]; then
+  if [[ -L $target ]]; then
     log_debug "Removing existing symlink: $target"
     if ! log_dry "rm $target"; then
       rm "$target"
@@ -404,7 +405,7 @@ create_symlink() {
   local source="$1"
   local target="$2"
 
-  if [[ ! -e $source  ]]; then
+  if [[ ! -e $source ]]; then
     log_warning "Source does not exist: $source"
     exit 1
   fi
@@ -414,7 +415,7 @@ create_symlink() {
   local target_dir
   target_dir=$(dirname "$target")
 
-  if [[ ! -d $target_dir  ]]; then
+  if [[ ! -d $target_dir ]]; then
     if ! log_dry "mkdir -p $target_dir"; then
       mkdir -p "$target_dir"
     fi
@@ -562,7 +563,7 @@ install_tpm() {
 
   local tpm_dir="$HOME/.tmux/plugins/tpm"
 
-  if [[ -d $tpm_dir  ]]; then
+  if [[ -d $tpm_dir ]]; then
     log_success "tpm already installed"
     return 0
   fi
@@ -622,7 +623,7 @@ install_orchis_theme() {
 setup_shell() {
   log_info "Setting up shell..."
 
-  if [[ $SHELL == *"zsh"*  ]]; then
+  if [[ $SHELL == *"zsh"* ]]; then
     log_success "Zsh already default shell"
     return 0
   fi
@@ -757,7 +758,7 @@ setup_display_manager() {
 
   log_info "Enabling $dm_service service..."
 
-  if [[ $dm_pkg == "ly"  ]]; then
+  if [[ $dm_pkg == "ly" ]]; then
     if ! systemctl is-enabled ly@tty1 &>/dev/null; then
       sudo systemctl disable getty@tty1.service 2>/dev/null || true
       sudo systemctl enable ly@tty1.service
@@ -895,10 +896,10 @@ main() {
   parse_arguments "$@"
 
   # Show menu if no mode specified via args
-  if [[ $# -eq 0 ]] || { [[ $DRY_RUN == true || $DEBUG == true    ]] && [[ $# -le 2 ]]; }; then
+  if [[ $# -eq 0 ]] || { [[ $DRY_RUN == true || $DEBUG == true ]] && [[ $# -le 2 ]]; }; then
     local has_mode=false
     for arg in "$@"; do
-      [[ $arg == "1" || $arg == "2"  ]] && has_mode=true
+      [[ $arg == "1" || $arg == "2" ]] && has_mode=true
     done
     [[ $has_mode == false ]] && show_menu
   fi
@@ -908,7 +909,7 @@ main() {
   log_info "Dotfiles directory: $SCRIPT_DIR"
   echo
 
-  if [[ $SYMLINK_ONLY == true  ]]; then
+  if [[ $SYMLINK_ONLY == true ]]; then
     install_oh_my_zsh
     install_zsh_plugins
     symlink_configs
@@ -938,11 +939,11 @@ main() {
   log_success "═══════════════════════════════════════"
   echo
 
-  if [[ -d $BACKUP_DIR  ]]; then
+  if [[ -d $BACKUP_DIR ]]; then
     log_info "Backups saved to: $BACKUP_DIR"
   fi
 
-  if [[ $DRY_RUN == false && $SYMLINK_ONLY == false    ]]; then
+  if [[ $DRY_RUN == false && $SYMLINK_ONLY == false ]]; then
     echo
     read -rp "Reboot now? [Y/n]: " reboot_choice </dev/tty
     reboot_choice=${reboot_choice:-Y}
