@@ -150,6 +150,7 @@ PACMAN_PACKAGES=(
 	calcurse
 	qalculate-gtk
 	mypaint
+	gcolor3
 	mpv
 	wiremix
 	gst-plugins-good
