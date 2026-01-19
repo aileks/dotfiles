@@ -12,7 +12,7 @@ PIDFILE="/tmp/screenrecord.pid"
 FILENAME="recording-$(date +%Y%m%d-%H%M%S).mp4"
 
 # Check if already recording
-if [[ -f "$PIDFILE" ]]; then
+if [[ -f $PIDFILE   ]]; then
   PID=$(cat "$PIDFILE")
   if kill -0 "$PID" 2>/dev/null; then
     # Stop recording
@@ -45,7 +45,7 @@ get_window_geometry() {
 case "$MODE" in
 area)
   read -r X Y W H < <(slop -f "%x %y %w %h")
-  if [[ -z "$W" || -z "$H" ]]; then
+  if [[ -z $W || -z $H     ]]; then
     notify-send "Recording cancelled"
     exit 1
   fi

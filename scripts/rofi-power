@@ -31,7 +31,7 @@ rofi_dmenu() {
     die "rofi not found"
   fi
 
-  if [[ -f "$ROFI_CONFIG" ]]; then
+  if [[ -f $ROFI_CONFIG   ]]; then
     "$ROFI_BIN" -dmenu -i -p "$prompt" -config "$ROFI_CONFIG" ${ROFI_ARGS:-}
   else
     "$ROFI_BIN" -dmenu -i -p "$prompt" ${ROFI_ARGS:-}
@@ -43,7 +43,7 @@ confirm() {
 
   local choice
   choice=$(printf 'No\nYes\n' | rofi_dmenu "Confirm ${action}?")
-  [[ "$choice" == "Yes" ]]
+  [[ $choice == "Yes"   ]]
 }
 
 do_lock() {
@@ -60,7 +60,7 @@ do_lock() {
   fi
 
   if cmd_exists loginctl; then
-    if [[ -n "${XDG_SESSION_ID:-}" ]]; then
+    if [[ -n ${XDG_SESSION_ID:-}   ]]; then
       exec loginctl lock-session "$XDG_SESSION_ID"
     fi
     exec loginctl lock-sessions
@@ -70,7 +70,7 @@ do_lock() {
 }
 
 do_logout() {
-  if cmd_exists loginctl && [[ -n "${XDG_SESSION_ID:-}" ]]; then
+  if cmd_exists loginctl && [[ -n ${XDG_SESSION_ID:-}   ]]; then
     exec loginctl terminate-session "$XDG_SESSION_ID"
   fi
 
