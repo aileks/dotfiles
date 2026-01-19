@@ -87,7 +87,7 @@ PACMAN_PACKAGES=(
   freetype2
   fontconfig
   imlib2
-  neovim
+  gvim
   emacs
   zsh
   github-cli
@@ -438,7 +438,6 @@ symlink_configs() {
   # Direct directory symlinks
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
-  create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
   create_symlink "$SCRIPT_DIR/picom" "$HOME/.config/picom"
   create_symlink "$SCRIPT_DIR/dunst" "$HOME/.config/dunst"
   create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
@@ -455,6 +454,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
   create_symlink "$SCRIPT_DIR/X11/xinitrc" "$HOME/.xinitrc"
+  create_symlink "SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
 
   # Status bar scripts
   if [[ -d "$SCRIPT_DIR/scripts/statusbar" ]]; then

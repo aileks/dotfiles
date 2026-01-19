@@ -1,10 +1,3 @@
-" Vim configuration with Ashen colorscheme
-" Ported from https://github.com/ficd0/ashen.nvim
-" Author: Daniel Fichtinger
-
-" ============================================================================
-" Basic Settings
-" ============================================================================
 set nocompatible
 set encoding=utf-8
 filetype plugin indent on
@@ -12,9 +5,6 @@ syntax on
 set background=dark
 set termguicolors
 
-" ============================================================================
-" Ashen Palette (from official colors.lua)
-" ============================================================================
 let s:bg = '#121212'
 let s:g_0 = '#e5e5e5'
 let s:g_1 = '#e5e5e5'
@@ -40,14 +30,8 @@ let s:blue = '#4a8b8b'
 let s:blue_dark = '#3a6e6e'
 let s:green = '#1e6f54'
 let s:green_light = '#629c7d'
-
-" ============================================================================
-" Ashen Colorscheme
-" ============================================================================
-highlight clear
 let g:colors_name = 'ashen'
 
-" Core groups (following official theme.lua)
 execute 'hi Normal guifg=' . s:g_3 . ' guibg=NONE'
 execute 'hi Comment guifg=' . s:g_6 . ' guibg=NONE'
 execute 'hi String guifg=' . s:red_glowing . ' guibg=NONE'
@@ -85,11 +69,13 @@ execute 'hi Ignore guifg=' . s:g_6 . ' guibg=NONE'
 execute 'hi Error guifg=' . s:red_flame . ' guibg=NONE'
 execute 'hi Todo guifg=' . s:red_ember . ' guibg=' . s:g_8
 
-" UI
 execute 'hi LineNr guifg=' . s:g_8 . ' guibg=NONE'
-execute 'hi CursorLine guifg=NONE guibg=' . s:g_9
-execute 'hi CursorLineNr guifg=' . s:g_6 . ' guibg=NONE'
-execute 'hi CursorColumn guifg=NONE guibg=' . s:g_9
+
+" IMPORTANT: explicitly clear gui/cterm attributes so underline doesn't "stick"
+execute 'hi CursorLine gui=NONE cterm=NONE guifg=NONE guibg=' . s:g_9
+execute 'hi CursorLineNr gui=NONE cterm=NONE guifg=' . s:g_6 . ' guibg=NONE'
+execute 'hi CursorColumn gui=NONE cterm=NONE guifg=NONE guibg=' . s:g_9
+
 execute 'hi ColorColumn guifg=NONE guibg=' . s:g_8
 execute 'hi SignColumn guifg=NONE guibg=NONE'
 execute 'hi FoldColumn guifg=' . s:g_7 . ' guibg=NONE'
@@ -103,24 +89,20 @@ execute 'hi TabLineFill guifg=NONE guibg=' . s:g_8
 execute 'hi TabLineSel guifg=' . s:g_2 . ' guibg=NONE'
 execute 'hi Title guifg=' . s:red_ember . ' guibg=NONE gui=bold'
 
-" Search
 execute 'hi Search guifg=' . s:bg . ' guibg=' . s:orange_glow . ' gui=bold'
 execute 'hi IncSearch guifg=' . s:bg . ' guibg=' . s:g_5 . ' gui=bold'
 execute 'hi MatchParen guifg=NONE guibg=' . s:g_7
 
-" Diff
 execute 'hi DiffAdd guifg=' . s:g_4 . ' guibg=' . s:g_8
 execute 'hi DiffChange guifg=' . s:orange_smolder . ' guibg=' . s:g_6
 execute 'hi DiffDelete guifg=' . s:red_ember . ' guibg=' . s:g_8
 execute 'hi DiffText guifg=' . s:g_1 . ' guibg=' . s:g_7
 
-" Popup
 execute 'hi Pmenu guifg=' . s:g_2 . ' guibg=' . s:g_8
 execute 'hi PmenuSel guifg=' . s:g_1 . ' guibg=' . s:g_7
 execute 'hi PmenuSbar guifg=NONE guibg=' . s:g_8
 execute 'hi PmenuThumb guifg=NONE guibg=' . s:g_7
 
-" Misc
 execute 'hi Directory guifg=' . s:g_3 . ' guibg=NONE'
 execute 'hi NonText guifg=' . s:g_7 . ' guibg=NONE'
 execute 'hi SpecialKey guifg=' . s:g_6 . ' guibg=NONE'
@@ -132,13 +114,11 @@ execute 'hi WarningMsg guifg=' . s:orange_golden . ' guibg=NONE'
 execute 'hi Visual guifg=NONE guibg=' . s:g_8
 execute 'hi VisualNOS guifg=' . s:red_ember . ' guibg=' . s:g_8
 
-" ============================================================================
-" UI Improvements
-" ============================================================================
+highlight CursorLine term=NONE cterm=NONE
 set number
 set relativenumber
 set cursorline
-set scrolloff=5
+set scrolloff=8
 set showcmd
 set wildmenu
 set wildmode=longest:full,full
@@ -153,10 +133,6 @@ set listchars=tab:→\ ,trail:·,nbsp:␣
 set pumheight=10
 set cmdheight=1
 set shortmess+=c
-
-" ============================================================================
-" Editing Settings
-" ============================================================================
 set autoindent
 set smartindent
 set expandtab
@@ -168,18 +144,10 @@ set backspace=indent,eol,start
 set copyindent
 set preserveindent
 set whichwrap+=<,>,h,l
-
-" ============================================================================
-" Search Settings
-" ============================================================================
 set incsearch
 set hlsearch
 set ignorecase
 set smartcase
-
-" ============================================================================
-" Performance and Undo
-" ============================================================================
 set lazyredraw
 set updatetime=300
 set timeoutlen=500
@@ -191,17 +159,9 @@ set backup
 set backupdir=~/.vim/backup//
 set directory=~/.vim/swap//
 set undodir=~/.vim/undo//
-
-" ============================================================================
-" Mouse and Compatibility
-" ============================================================================
 set mouse=a
 set ttymouse=xterm2
 set mousemodel=extend
-
-" ============================================================================
-" Miscellaneous
-" ============================================================================
 set hidden
 set autoread
 set noerrorbells
@@ -209,10 +169,54 @@ set novisualbell
 set t_vb=
 set splitbelow
 set splitright
-set clipboard=unnamedplus
+set clipboard=unnamedplus,unnamed
 
-" Keybindings
 nnoremap <silent> <ESC> :nohl<CR>
 
-" Create backup directories
 silent !mkdir -p ~/.vim/backup ~/.vim/swap ~/.vim/undo
+
+if exists('##TextYankPost')
+  let s:yank_match_id = -1
+
+  function! s:HighlightOnYank() abort
+    if get(v:event, 'operator', '') isnot# 'y'
+      return
+    endif
+
+    if s:yank_match_id != -1
+      silent! call matchdelete(s:yank_match_id)
+      let s:yank_match_id = -1
+    endif
+
+    let [_, sline, scol, _] = getpos("'[")
+    let [_, eline, ecol, _] = getpos("']")
+
+    if sline <= 0 || eline <= 0
+      return
+    endif
+
+    let l:pos = []
+    if sline == eline
+      call add(l:pos, [sline, scol, max([1, ecol - scol + 1])])
+    else
+      call add(l:pos, [sline, scol, 999])
+      for lnum in range(sline + 1, eline - 1)
+        call add(l:pos, [lnum, 1, 999])
+      endfor
+      call add(l:pos, [eline, 1, ecol])
+    endif
+
+    let s:yank_match_id = matchaddpos('IncSearch', l:pos, 10)
+
+    if exists('*timer_start')
+      let l:id = s:yank_match_id
+      call timer_start(200, {-> execute('silent! call matchdelete(' . l:id . ')')})
+    endif
+  endfunction
+
+  augroup YankHighlight
+    autocmd!
+    autocmd TextYankPost * silent! call s:HighlightOnYank()
+  augroup END
+endif
+
