@@ -58,8 +58,7 @@ static char statusbar[LENGTH(blocks)][CMDLENGTH] = {0};
 static char statusstr[2][STATUSLENGTH];
 static char button[] = "\0";
 static int statusContinue = 1;
-static int returnStatus = 0;
-static char *last_updates[LENGTH(blocks)] = {0};
+
 
 //opens process *cmd and stores output in *output
 void getcmd(const Block *block, char *output, unsigned int index)
@@ -105,20 +104,7 @@ void getcmd(const Block *block, char *output, unsigned int index)
 			tempstatus[i++] = '\0';
 	}
 	strcpy(output, tempstatus);
-	int status = pclose(cmdf);
-	int failed = (status == -1) || !WIFEXITED(status) || WEXITSTATUS(status);
-
-	// Cache output; reuse only on command failure
-	if (tempstatus[0] != '\0') {
-		if (!last_updates[index]) {
-			last_updates[index] = malloc(CMDLENGTH);
-		}
-		if (last_updates[index]) {
-			strncpy(last_updates[index], tempstatus, CMDLENGTH);
-		}
-	} else if (failed && last_updates[index]) {
-		strcpy(output, last_updates[index]);
-	}
+	pclose(cmdf);
 }
 
 void getcmds(int time)
