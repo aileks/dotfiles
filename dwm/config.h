@@ -155,6 +155,7 @@ static const Rule rules[] = {
 	RULE(.class = "Nsxiv", .isfloating = 1)
 	RULE(.class = "feh", .isfloating = 1)
 	RULE(.title = "Event Tester", .isfloating = 1)
+	RULE(.title = "Color Picker", .isfloating = 1)
 	#if SWALLOW_PATCH
 	RULE(.class = "org.wezfurlong.wezterm", .isterminal = 1)
 	#endif
