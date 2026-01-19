@@ -5,24 +5,24 @@
 
 case $BUTTON in
 1)
-	mem=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
-	swap=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
-	notify-send "󰍛 Memory Usage" "RAM: $mem\nSwap: $swap"
-	;;
+  mem=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+  swap=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
+  notify-send "󰍛 Memory Usage" "RAM: $mem\nSwap: $swap"
+  ;;
 3)
-	wezterm start --class btop-floating -- btop
-	disown $!
-	;;
+  wezterm start --class btop-floating -- btop
+  disown $!
+  ;;
 esac
 
 mem=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
 
 if [ "$mem" -ge 80 ]; then
-	color="#b14242"
+  color="#b14242"
 elif [ "$mem" -ge 50 ]; then
-	color="#e49a44"
+  color="#e49a44"
 else
-	color="#a7a7a7"
+  color="#a7a7a7"
 fi
 
 printf "^c%s^󰍛 %s%%^d^" "$color" "$mem"

@@ -13,62 +13,62 @@ FILENAME="recording-$(date +%Y%m%d-%H%M%S).mp4"
 
 # Check if already recording
 if [[ -f "$PIDFILE" ]]; then
-	PID=$(cat "$PIDFILE")
-	if kill -0 "$PID" 2>/dev/null; then
-		# Stop recording
-		kill -SIGINT "$PID"
-		rm -f "$PIDFILE"
-		notify-send "Recording stopped" "Saved to $RECORDING_DIR"
-		exit 0
-	else
-		# Stale PID file
-		rm -f "$PIDFILE"
-	fi
+  PID=$(cat "$PIDFILE")
+  if kill -0 "$PID" 2>/dev/null; then
+    # Stop recording
+    kill -SIGINT "$PID"
+    rm -f "$PIDFILE"
+    notify-send "Recording stopped" "Saved to $RECORDING_DIR"
+    exit 0
+  else
+    # Stale PID file
+    rm -f "$PIDFILE"
+  fi
 fi
 
 # Start recording
 mkdir -p "$RECORDING_DIR"
 
 get_dimensions() {
-	xdpyinfo | grep dimensions | awk '{print $2}'
+  xdpyinfo | grep dimensions | awk '{print $2}'
 }
 
 get_window_geometry() {
-	local win_id
-	win_id=$(xdotool getactivewindow)
-	local info
-	info=$(xdotool getwindowgeometry --shell "$win_id")
-	eval "$info"
-	echo "${WIDTH}x${HEIGHT}" "$X,$Y"
+  local win_id
+  win_id=$(xdotool getactivewindow)
+  local info
+  info=$(xdotool getwindowgeometry --shell "$win_id")
+  eval "$info"
+  echo "${WIDTH}x${HEIGHT}" "$X,$Y"
 }
 
 case "$MODE" in
 area)
-	read -r X Y W H < <(slop -f "%x %y %w %h")
-	if [[ -z "$W" || -z "$H" ]]; then
-		notify-send "Recording cancelled"
-		exit 1
-	fi
-	ffmpeg -f x11grab -framerate 30 -video_size "${W}x${H}" -i "$DISPLAY+$X,$Y" \
-		-c:v libx264 -preset ultrafast -crf 23 \
-		"$RECORDING_DIR/$FILENAME" &
-	;;
+  read -r X Y W H < <(slop -f "%x %y %w %h")
+  if [[ -z "$W" || -z "$H" ]]; then
+    notify-send "Recording cancelled"
+    exit 1
+  fi
+  ffmpeg -f x11grab -framerate 30 -video_size "${W}x${H}" -i "$DISPLAY+$X,$Y" \
+    -c:v libx264 -preset ultrafast -crf 23 \
+    "$RECORDING_DIR/$FILENAME" &
+  ;;
 window)
-	read -r SIZE OFFSET < <(get_window_geometry)
-	ffmpeg -f x11grab -framerate 30 -video_size "$SIZE" -i "$DISPLAY+$OFFSET" \
-		-c:v libx264 -preset ultrafast -crf 23 \
-		"$RECORDING_DIR/$FILENAME" &
-	;;
+  read -r SIZE OFFSET < <(get_window_geometry)
+  ffmpeg -f x11grab -framerate 30 -video_size "$SIZE" -i "$DISPLAY+$OFFSET" \
+    -c:v libx264 -preset ultrafast -crf 23 \
+    "$RECORDING_DIR/$FILENAME" &
+  ;;
 fullscreen)
-	SIZE=$(get_dimensions)
-	ffmpeg -f x11grab -framerate 30 -video_size "$SIZE" -i "$DISPLAY+0,0" \
-		-c:v libx264 -preset ultrafast -crf 23 \
-		"$RECORDING_DIR/$FILENAME" &
-	;;
+  SIZE=$(get_dimensions)
+  ffmpeg -f x11grab -framerate 30 -video_size "$SIZE" -i "$DISPLAY+0,0" \
+    -c:v libx264 -preset ultrafast -crf 23 \
+    "$RECORDING_DIR/$FILENAME" &
+  ;;
 *)
-	echo "Usage: screenrecord [area|window|fullscreen]"
-	exit 1
-	;;
+  echo "Usage: screenrecord [area|window|fullscreen]"
+  exit 1
+  ;;
 esac
 
 echo $! >"$PIDFILE"

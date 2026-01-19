@@ -5,23 +5,23 @@
 
 case $BUTTON in
 1)
-	cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
-	notify-send "󰻠 CPU Usage" "Current CPU: $cpu%"
-	;;
+  cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
+  notify-send "󰻠 CPU Usage" "Current CPU: $cpu%"
+  ;;
 3)
-	wezterm start --class btop-floating -- btop
-	disown $!
-	;;
+  wezterm start --class btop-floating -- btop
+  disown $!
+  ;;
 esac
 
 cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
 
 if [ "$cpu" -ge 80 ]; then
-	color="#b14242"
+  color="#b14242"
 elif [ "$cpu" -ge 50 ]; then
-	color="#e49a44"
+  color="#e49a44"
 else
-	color="#a7a7a7"
+  color="#a7a7a7"
 fi
 
 printf "^c%s^󰻠 %s%%^d^" "$color" "$cpu"

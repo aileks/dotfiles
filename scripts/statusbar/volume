@@ -5,45 +5,45 @@
 
 case $BUTTON in
 1)
-	pamixer -t
-	;;
+  pamixer -t
+  ;;
 3)
-	wezterm start --class volume-floating -- wiremix
-	disown $!
-	;;
+  wezterm start --class volume-floating -- wiremix
+  disown $!
+  ;;
 4)
-	pamixer -i 5
-	;;
+  pamixer -i 5
+  ;;
 5)
-	pamixer -d 5
-	;;
+  pamixer -d 5
+  ;;
 esac
 
 vol=$(pamixer --get-volume 2>/dev/null)
 muted=$(pamixer --get-mute 2>/dev/null)
 
 if [ "$muted" = "true" ]; then
-	icon="󰝟"
-	color="#535353"
-	printf "^c%s^%s^d^" "$color" "$icon"
-	exit 0
+  icon="󰝟"
+  color="#535353"
+  printf "^c%s^%s^d^" "$color" "$icon"
+  exit 0
 elif [ -z "$vol" ]; then
-	:
+  :
 elif [ "$vol" -eq 0 ]; then
-	icon="󰕿"
-	color="#535353"
+  icon="󰕿"
+  color="#535353"
 
 elif [ "$vol" -lt 30 ]; then
-	icon="󰕿"
-	color="#a7a7a7"
+  icon="󰕿"
+  color="#a7a7a7"
 
 elif [ "$vol" -lt 70 ]; then
-	icon="󰖀"
-	color="#a7a7a7"
+  icon="󰖀"
+  color="#a7a7a7"
 
 else
-	icon="󰕾"
-	color="#d87c4a"
+  icon="󰕾"
+  color="#d87c4a"
 
 fi
 

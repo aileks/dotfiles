@@ -1,0 +1,218 @@
+" Vim configuration with Ashen colorscheme
+" Ported from https://github.com/ficd0/ashen.nvim
+" Author: Daniel Fichtinger
+
+" ============================================================================
+" Basic Settings
+" ============================================================================
+set nocompatible
+set encoding=utf-8
+filetype plugin indent on
+syntax on
+set background=dark
+set termguicolors
+
+" ============================================================================
+" Ashen Palette (from official colors.lua)
+" ============================================================================
+let s:bg = '#121212'
+let s:g_0 = '#e5e5e5'
+let s:g_1 = '#e5e5e5'
+let s:g_2 = '#d5d5d5'
+let s:g_3 = '#b4b4b4'
+let s:g_4 = '#a7a7a7'
+let s:g_5 = '#949494'
+let s:g_6 = '#737373'
+let s:g_7 = '#535353'
+let s:g_8 = '#323232'
+let s:g_9 = '#212121'
+let s:g_10 = '#1d1d1d'
+let s:g_11 = '#191919'
+let s:g_12 = '#151515'
+let s:red_flame = '#c53030'
+let s:red_glowing = '#df6464'
+let s:red_ember = '#b14242'
+let s:orange_glow = '#d87c4a'
+let s:orange_blaze = '#c4693d'
+let s:orange_golden = '#e5a72a'
+let s:orange_smolder = '#e49a44'
+let s:blue = '#4a8b8b'
+let s:blue_dark = '#3a6e6e'
+let s:green = '#1e6f54'
+let s:green_light = '#629c7d'
+
+" ============================================================================
+" Ashen Colorscheme
+" ============================================================================
+highlight clear
+let g:colors_name = 'ashen'
+
+" Core groups (following official theme.lua)
+execute 'hi Normal guifg=' . s:g_3 . ' guibg=NONE'
+execute 'hi Comment guifg=' . s:g_6 . ' guibg=NONE'
+execute 'hi String guifg=' . s:red_glowing . ' guibg=NONE'
+execute 'hi Constant guifg=' . s:orange_blaze . ' guibg=NONE'
+execute 'hi Character guifg=' . s:g_5 . ' guibg=NONE'
+execute 'hi Number guifg=' . s:blue . ' guibg=NONE'
+execute 'hi Boolean guifg=' . s:blue . ' guibg=NONE'
+execute 'hi Float guifg=' . s:blue . ' guibg=NONE'
+execute 'hi Identifier guifg=' . s:g_1 . ' guibg=NONE'
+execute 'hi Function guifg=' . s:g_1 . ' guibg=NONE'
+execute 'hi Statement guifg=' . s:g_1 . ' guibg=NONE'
+execute 'hi Conditional guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Repeat guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Label guifg=' . s:red_ember . ' guibg=NONE'
+execute 'hi Operator guifg=' . s:orange_glow . ' guibg=NONE'
+execute 'hi Keyword guifg=' . s:red_ember . ' guibg=NONE'
+execute 'hi Exception guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi PreProc guifg=' . s:red_ember . ' guibg=NONE'
+execute 'hi Include guifg=' . s:red_ember . ' guibg=NONE'
+execute 'hi Define guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Macro guifg=' . s:red_ember . ' guibg=NONE'
+execute 'hi PreCondit guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Type guifg=' . s:orange_blaze . ' guibg=NONE'
+execute 'hi StorageClass guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Structure guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Typedef guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Special guifg=' . s:g_5 . ' guibg=NONE'
+execute 'hi SpecialChar guifg=' . s:g_5 . ' guibg=NONE'
+execute 'hi Tag guifg=' . s:g_5 . ' guibg=NONE'
+execute 'hi Delimiter guifg=' . s:g_6 . ' guibg=NONE'
+execute 'hi SpecialComment guifg=' . s:g_6 . ' guibg=NONE'
+execute 'hi Debug guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Underlined guifg=' . s:g_3 . ' guibg=NONE gui=underline'
+execute 'hi Ignore guifg=' . s:g_6 . ' guibg=NONE'
+execute 'hi Error guifg=' . s:red_flame . ' guibg=NONE'
+execute 'hi Todo guifg=' . s:red_ember . ' guibg=' . s:g_8
+
+" UI
+execute 'hi LineNr guifg=' . s:g_8 . ' guibg=NONE'
+execute 'hi CursorLine guifg=NONE guibg=' . s:g_9
+execute 'hi CursorLineNr guifg=' . s:g_6 . ' guibg=NONE'
+execute 'hi CursorColumn guifg=NONE guibg=' . s:g_9
+execute 'hi ColorColumn guifg=NONE guibg=' . s:g_8
+execute 'hi SignColumn guifg=NONE guibg=NONE'
+execute 'hi FoldColumn guifg=' . s:g_7 . ' guibg=NONE'
+execute 'hi Folded guifg=' . s:g_5 . ' guibg=' . s:g_8
+execute 'hi VertSplit guifg=' . s:g_8 . ' guibg=' . s:g_9
+execute 'hi WinSeparator guifg=' . s:g_8 . ' guibg=' . s:g_9
+execute 'hi StatusLine guifg=' . s:g_5 . ' guibg=' . s:g_8
+execute 'hi StatusLineNC guifg=' . s:g_7 . ' guibg=' . s:g_8
+execute 'hi TabLine guifg=' . s:g_3 . ' guibg=' . s:g_8
+execute 'hi TabLineFill guifg=NONE guibg=' . s:g_8
+execute 'hi TabLineSel guifg=' . s:g_2 . ' guibg=NONE'
+execute 'hi Title guifg=' . s:red_ember . ' guibg=NONE gui=bold'
+
+" Search
+execute 'hi Search guifg=' . s:bg . ' guibg=' . s:orange_glow . ' gui=bold'
+execute 'hi IncSearch guifg=' . s:bg . ' guibg=' . s:g_5 . ' gui=bold'
+execute 'hi MatchParen guifg=NONE guibg=' . s:g_7
+
+" Diff
+execute 'hi DiffAdd guifg=' . s:g_4 . ' guibg=' . s:g_8
+execute 'hi DiffChange guifg=' . s:orange_smolder . ' guibg=' . s:g_6
+execute 'hi DiffDelete guifg=' . s:red_ember . ' guibg=' . s:g_8
+execute 'hi DiffText guifg=' . s:g_1 . ' guibg=' . s:g_7
+
+" Popup
+execute 'hi Pmenu guifg=' . s:g_2 . ' guibg=' . s:g_8
+execute 'hi PmenuSel guifg=' . s:g_1 . ' guibg=' . s:g_7
+execute 'hi PmenuSbar guifg=NONE guibg=' . s:g_8
+execute 'hi PmenuThumb guifg=NONE guibg=' . s:g_7
+
+" Misc
+execute 'hi Directory guifg=' . s:g_3 . ' guibg=NONE'
+execute 'hi NonText guifg=' . s:g_7 . ' guibg=NONE'
+execute 'hi SpecialKey guifg=' . s:g_6 . ' guibg=NONE'
+execute 'hi WildMenu guifg=' . s:g_5 . ' guibg=' . s:g_8
+execute 'hi Question guifg=' . s:g_1 . ' guibg=' . s:g_8
+execute 'hi MoreMsg guifg=NONE guibg=' . s:g_6
+execute 'hi ModeMsg guifg=' . s:g_4 . ' guibg=NONE'
+execute 'hi WarningMsg guifg=' . s:orange_golden . ' guibg=NONE'
+execute 'hi Visual guifg=NONE guibg=' . s:g_8
+execute 'hi VisualNOS guifg=' . s:red_ember . ' guibg=' . s:g_8
+
+" ============================================================================
+" UI Improvements
+" ============================================================================
+set number
+set relativenumber
+set cursorline
+set scrolloff=5
+set showcmd
+set wildmenu
+set wildmode=longest:full,full
+set laststatus=2
+set showtabline=2
+set showmode
+set wrap
+set linebreak
+set showbreak=...
+set list
+set listchars=tab:→\ ,trail:·,nbsp:␣
+set pumheight=10
+set cmdheight=1
+set shortmess+=c
+
+" ============================================================================
+" Editing Settings
+" ============================================================================
+set autoindent
+set smartindent
+set expandtab
+set smarttab
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set backspace=indent,eol,start
+set copyindent
+set preserveindent
+set whichwrap+=<,>,h,l
+
+" ============================================================================
+" Search Settings
+" ============================================================================
+set incsearch
+set hlsearch
+set ignorecase
+set smartcase
+
+" ============================================================================
+" Performance and Undo
+" ============================================================================
+set lazyredraw
+set updatetime=300
+set timeoutlen=500
+set ttimeoutlen=50
+set undofile
+set undolevels=1000
+set history=1000
+set backup
+set backupdir=~/.vim/backup//
+set directory=~/.vim/swap//
+set undodir=~/.vim/undo//
+
+" ============================================================================
+" Mouse and Compatibility
+" ============================================================================
+set mouse=a
+set ttymouse=xterm2
+set mousemodel=extend
+
+" ============================================================================
+" Miscellaneous
+" ============================================================================
+set hidden
+set autoread
+set noerrorbells
+set novisualbell
+set t_vb=
+set splitbelow
+set splitright
+set clipboard=unnamedplus
+
+" Keybindings
+nnoremap <silent> <ESC> :nohl<CR>
+
+" Create backup directories
+silent !mkdir -p ~/.vim/backup ~/.vim/swap ~/.vim/undo

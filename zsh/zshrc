@@ -1,31 +1,17 @@
-# Path
-export PATH="$PATH:$HOME/.local/bin:$HOME/.opencode/bin"
-
-# Env variables
+export PATH="$PATH:$HOME/.local/bin"
 export ZSH="$HOME/.oh-my-zsh"
-export EDITOR=nvim
-export SUDO_EDITOR=nvim
-export MANPAGER="nvim +Man!"
-export GPG_TTY=$(tty)
 
-# Theme
 ZSH_THEME="refined"
-
-# Plugins
 plugins=(archlinux fzf git gh zsh-autosuggestions zsh-syntax-highlighting)
-
-# Startup
 source "$ZSH/oh-my-zsh.sh"
 source $ZSH/custom/plugins/ashen_zsh_syntax_highlighting.zsh
 eval "$(zoxide init zsh)"
 
-# Aliases
 alias ls="eza --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
 alias rm="trash-put"
 alias c="clear"
 alias fzf="fzf --style full"
-alias vim="nvim"
 alias ff="fastfetch"
 
 # Web dev stuff
@@ -33,9 +19,14 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-[ -s "/Users/aileks/.bun/_bun" ] && source "/Users/aileks/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
 
 # FZF settings
 export FZF_CTRL_T_OPTS="
@@ -52,18 +43,16 @@ export FZF_DEFAULT_OPTS="
   --color=fg+:#d5d5d5
   --color=bg:#121212
   --color=bg+:#323232
-  --color=hl:#C4693D
-  --color=hl+:#E49A44
+  --color=hl:#c4693d
+  --color=hl+:#e49a44
   --color=info:#a7a7a7
-  --color=marker:#C4693D
-  --color=prompt:#C4693D
-  --color=spinner:#D87C4A
-  --color=pointer:#E5A72A
-  --color=header:#B14242
+  --color=marker:#c4693d
+  --color=prompt:#c4693d
+  --color=spinner:#d87c4a
+  --color=pointer:#e5a72a
+  --color=header:#b14242
   --color=border:#a7a7a7
   --color=query:#d5d5d5
-
-
   --color=gutter:#121212
   --highlight-line
   --info=inline-right
@@ -78,42 +67,3 @@ export _ZO_FZF_OPTS="
   --preview-window=down,border-top
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
-
-# DO NOT TOUCH
-#compdef opencode
-###-begin-opencode-completions-###
-#
-# yargs command completion script
-#
-# Installation: opencode completion >> ~/.zshrc
-#    or opencode completion >> ~/.zprofile on OSX.
-#
-_opencode_yargs_completions() {
-  local reply
-  local si=$IFS
-  IFS=$'
-' reply=($(COMP_CWORD="$((CURRENT - 1))" COMP_LINE="$BUFFER" COMP_POINT="$CURSOR" opencode --get-yargs-completions "${words[@]}"))
-  IFS=$si
-  if [[ ${#reply} -gt 0 ]]; then
-    _describe 'values' reply
-  else
-    _default
-  fi
-}
-if [[ "'${zsh_eval_context[-1]}" == "loadautofunc" ]]; then
-  _opencode_yargs_completions "$@"
-else
-  compdef _opencode_yargs_completions opencode
-fi
-###-end-opencode-completions-###
-
-# bun completions
-[ -s "/home/aileks/.bun/_bun" ] && source "/home/aileks/.bun/_bun"
-
-# pnpm
-export PNPM_HOME="/home/aileks/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end

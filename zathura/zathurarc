@@ -1,7 +1,7 @@
 set completion-bg "#121212"
 set completion-fg "#d5d5d5"
 set completion-group-bg "#121212"
-set completion-group-fg "#A23D3D"
+set completion-group-fg "#a23d3d"
 set completion-highlight-bg "#d5d5d5"
 set completion-highlight-fg "#121212"
 
