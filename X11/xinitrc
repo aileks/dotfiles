@@ -15,6 +15,7 @@ export EDITOR="emacsclient -c -n"
 export VISUAL=$EDITOR
 export SUDO_EDITOR=vim
 export MANPAGER="bat -plman"
+export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export GPG_TTY=$(tty)
 
 xrdb -merge ~/.Xresources &

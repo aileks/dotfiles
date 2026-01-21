@@ -16,7 +16,7 @@ Arch setup built on DWM-Flexipatch with the [Ashen](https://codeberg.org/ficd/as
 - **File manager**: Yazi
 - **PDF viewer**: Zathura
 
-List of keybinds here [here](https://github.com/aileks/dotfiles/wiki)
+List of keybinds here [here](https://codeberg.org/aileks/dotfiles/wiki)
 
 ## Quick Start
 
@@ -27,7 +27,7 @@ curl -fsSL https://aileks.dev/linux | bash
 Or manually:
 
 ```bash
-git clone --recursive https://github.com/aileks/dotfiles.git ~/.dotfiles
+git clone --recursive https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
 ```
