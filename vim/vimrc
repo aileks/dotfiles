@@ -160,13 +160,11 @@ set backupdir=~/.vim/backup//
 set directory=~/.vim/swap//
 set undodir=~/.vim/undo//
 set mouse=a
-set ttymouse=xterm2
 set mousemodel=extend
 set hidden
 set autoread
 set noerrorbells
 set novisualbell
-set t_vb=
 set splitbelow
 set splitright
 set clipboard=unnamedplus,unnamed
