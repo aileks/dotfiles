@@ -83,7 +83,6 @@ PACMAN_PACKAGES=(
   libxinerama
   libxrender
   libgccjit
-  cronie
   gdb
   freetype2
   fontconfig
