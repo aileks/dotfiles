@@ -21,14 +21,19 @@ export GPG_TTY=$(tty)
 xrdb -merge ~/.Xresources &
 xset r rate 300 40 &
 
+exec dbus-run-session -- sh -c '
 picom -b &
 dunst &
-feh --bg-fill ~/Pictures/wallpaper.jpg &
+feh --bg-fill "$HOME/Pictures/wallpaper.jpg" &
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 blueman-applet &
 solaar &
 emacs --daemon &
 
+dwm &
+dwm_pid=$!
+
 dwmblocks &
 
-exec dbus-run-session dwm
+wait $dwm_pid
+'
