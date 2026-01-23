@@ -19,7 +19,12 @@ export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export GPG_TTY=$(tty)
 
 xrdb -merge ~/.Xresources &
-xset r rate 300 40 &
+xset s on
+xset s 600 0
+xset +dpms
+xset dpms 0 0 900
+xset r rate 270 45
+xss-lock --transfer-sleep-lock -- betterlockscreen -l dimpixel &
 
 exec dbus-run-session -- sh -c '
 picom -b &
