@@ -107,6 +107,7 @@ PACMAN_PACKAGES=(
   unzip
   unrar
   7zip
+  geoclue
   xdg-user-dirs
   xdg-utils
   perl-file-mimeinfo

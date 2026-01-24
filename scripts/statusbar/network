@@ -10,7 +10,7 @@ case $BUTTON in
     disown $!
     ;;
   2)
-    connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f1)
+    connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1 | cut -d: -f1)
     if [ -n "$connection" ]; then
       notify-send "󰈀 Network" "Connected: $connection"
     else
@@ -29,7 +29,7 @@ case $BUTTON in
     ;;
 esac
 
-connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f1)
+connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1 | cut -d: -f1)
 
 if [ -z "$connection" ]; then
   icon="󰤭"
@@ -38,7 +38,7 @@ if [ -z "$connection" ]; then
   exit 0
 fi
 
-type=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wifi|ethernet' | head -1 | cut -d: -f2)
+type=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1 | cut -d: -f2)
 
 if [ "$type" = "802-11-wireless" ]; then
   label="WiFi"
