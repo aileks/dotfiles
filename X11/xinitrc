@@ -18,7 +18,7 @@ export MANPAGER="bat -plman"
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export GPG_TTY=$(tty)
 
-xrdb -merge ~/.Xresources &
+xrdb -merge ~/.Xresources
 xset s on
 xset s 600 0
 xset +dpms
@@ -35,10 +35,6 @@ blueman-applet &
 solaar &
 emacs --daemon &
 
-dwm &
-dwm_pid=$!
-
 dwmblocks &
-
-wait $dwm_pid
+exec dwm
 '
