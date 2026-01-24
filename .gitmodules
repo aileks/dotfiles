@@ -1,8 +1,4 @@
-[submodule "nvim"]
-	path = nvim
-	url = git@github.com:aileks/nvim-config.git
-  branch = main
 [submodule "emacs"]
 	path = emacs
-	url = git@github.com:aileks/emacs.d.git
+	url = https://codeberg.org/aileks/emacs.d.git
 	branch = main
