@@ -32,4 +32,4 @@ set pages-per-row 1
 set scroll-page-aware "true"
 set smooth-scroll "true"
 set selection-clipboard clipboard
-set font "CommitMono Nerd Font Mono 17"
+set font "CommitMono Nerd Font Mono 14"

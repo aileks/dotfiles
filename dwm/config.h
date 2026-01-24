@@ -11,11 +11,11 @@ static const unsigned int snap           = 32;
 static const int swallowfloating         = 0;
 #endif
 #if VANITYGAPS_PATCH
-static const unsigned int gappih         = 10;
-static const unsigned int gappiv         = 10;
-static const unsigned int gappoh         = 10;
-static const unsigned int gappov         = 10;
-static const int smartgaps_fact          = 0;
+static const unsigned int gappih         = 2;
+static const unsigned int gappiv         = 2;
+static const unsigned int gappoh         = 2;
+static const unsigned int gappov         = 2;
+static const int smartgaps_fact          = 1;
 #endif
 #if AUTOSTART_PATCH
 static const char autostartblocksh[]     = "autostart_blocking.sh";
@@ -51,11 +51,11 @@ static int tiledindicatortype            = INDICATOR_NONE;
 static int floatindicatortype            = INDICATOR_TOP_LEFT_SQUARE;
 
 #if BAR_PANGO_PATCH
-static const char font[]                 = "AdwaitaMono Nerd Font Mono 17";
+static const char font[]                 = "AdwaitaMono Nerd Font Mono 14";
 #else
-static const char *fonts[]               = { "AdwaitaMono Nerd Font Mono:size=17" };
+static const char *fonts[]               = { "AdwaitaMono Nerd Font Mono:size=14" };
 #endif
-static const char dmenufont[]            = "AdwaitaMono Nerd Font Mono:size=17";
+static const char dmenufont[]            = "AdwaitaMono Nerd Font Mono:size=14";
 
 static char c000000[]                    = "#000000";
 

@@ -25,14 +25,14 @@ xset +dpms
 xset dpms 0 0 900
 xset r rate 270 45
 
-xrandr --output HDMI-A-0 --mode 3840x2160 --rate 60 --scale 0.6667x0.6667 --rotate left --pos 0x0 \
-       --output DisplayPort-0 --primary --mode 2560x1440 --rate 200 --scale 0.8x0.8 --rotate normal --pos 1440x0
+xrandr --output HDMI-A-0 --mode 3840x2160 --rate 60 --rotate left --pos 0x0 \
+  --output DisplayPort-0 --primary --mode 2560x1440 --rate 200 --rotate normal --pos 2160x0
 
 xss-lock --transfer-sleep-lock -- betterlockscreen -l dimpixel &
 
 picom -b &
 dunst &
-feh --bg-fill "$HOME/Pictures/wallpaper2.jpg" "$HOME/Pictures/wallpaper.jpg" &
+feh --bg-fill "$HOME/Pictures/wallpaper.jpg" "$HOME/Pictures/wallpaper2.jpg" &
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 blueman-applet &
 solaar &

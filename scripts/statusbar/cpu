@@ -24,4 +24,4 @@ else
   color="#a7a7a7"
 fi
 
-printf "^c%s^󰻠 %s%%^d^" "$color" "$cpu"
+printf "^c%s^ 󰻠 %s%%^d^" "$color" "$cpu"
