@@ -67,5 +67,3 @@ export _ZO_FZF_OPTS="
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
 
-# opencode
-export PATH=/home/aileks/.opencode/bin:$PATH
