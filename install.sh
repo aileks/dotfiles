@@ -167,7 +167,6 @@ PACMAN_PACKAGES=(
   noto-fonts
   noto-fonts-cjk
   noto-fonts-emoji
-  otf-commit-mono-nerd
   papirus-icon-theme
 )
 
@@ -175,7 +174,7 @@ AUR_PACKAGES=(
   helium-browser-bin
   ttf-adwaita-mono-nerd
   ttf-mac-fonts
-  1password-beta
+  1password
   1password-cli
   onlyoffice-bin
   keyd
@@ -431,7 +430,6 @@ symlink_configs() {
   mkdir -p "$HOME/.config"
   mkdir -p "$HOME/.emacs.d"
   mkdir -p "$HOME/.local/bin"
-  mkdir -p "$HOME/.local/share/dwm"
 
   # Direct directory symlinks
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
@@ -452,7 +450,6 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/X11/Xresources" "$HOME/.Xresources"
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
-  create_symlink "$SCRIPT_DIR/X11/xinitrc" "$HOME/.xinitrc"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
 
   # Status bar scripts
@@ -466,74 +463,10 @@ symlink_configs() {
   # Utility scripts
   create_symlink "$SCRIPT_DIR/scripts/screenshot" "$HOME/.local/bin/screenshot"
   create_symlink "$SCRIPT_DIR/scripts/screenrecord" "$HOME/.local/bin/screenrecord"
-  create_symlink "$SCRIPT_DIR/scripts/rofi-power" "$HOME/.local/bin/rofi-power"
+  create_symlink "$SCRIPT_DIR/scripts/power-menu" "$HOME/.local/bin/power-menu"
   create_symlink "$SCRIPT_DIR/scripts/monitors" "$HOME/.local/bin/monitors"
 
   log_success "Config symlinks created"
-}
-
-# ============================================================
-# Build Suckless Tools
-# ============================================================
-
-build_dwm() {
-  log_info "Building DWM..."
-
-  if [[ ! -d "$SCRIPT_DIR/dwm" ]]; then
-    log_error "DWM directory not found: $SCRIPT_DIR/dwm"
-    exit 1
-  fi
-
-  if log_dry "cd $SCRIPT_DIR/dwm && sudo make clean install"; then
-    return 0
-  fi
-
-  pushd "$SCRIPT_DIR/dwm" &>/dev/null
-
-  if ! sudo make clean install; then
-    log_error "Failed to build DWM"
-    popd &>/dev/null
-    exit 1
-  fi
-
-  popd &>/dev/null
-  log_success "DWM installed"
-}
-
-build_dwmblocks() {
-  log_info "Building dwmblocks..."
-
-  if [[ ! -d "$SCRIPT_DIR/dwmblocks" ]]; then
-    log_error "dwmblocks directory not found: $SCRIPT_DIR/dwmblocks"
-    exit 1
-  fi
-
-  if log_dry "cd $SCRIPT_DIR/dwmblocks && sudo make clean install"; then
-    return 0
-  fi
-
-  pushd "$SCRIPT_DIR/dwmblocks" &>/dev/null
-
-  if ! sudo make clean install; then
-    log_error "Failed to build dwmblocks"
-    popd &>/dev/null
-    exit 1
-  fi
-
-  popd &>/dev/null
-  log_success "dwmblocks installed"
-}
-
-install_desktop_entry() {
-  log_info "Installing dwm desktop entry..."
-
-  if log_dry "sudo mkdir -p /usr/share/xsessions && sudo cp $SCRIPT_DIR/X11/dwm.desktop /usr/share/xsessions/dwm.desktop"; then
-    return 0
-  fi
-
-  sudo mkdir -p /usr/share/xsessions
-  sudo cp "$SCRIPT_DIR/X11/dwm.desktop" /usr/share/xsessions/dwm.desktop
-  log_success "Desktop entry installed"
 }
 
 setup_keyd() {
@@ -792,10 +725,9 @@ show_menu() {
   echo -e "${LOG_BLUE}║${LOG_NC}    Arch Linux Dotfiles Installer       ${LOG_BLUE}║${LOG_NC}"
   echo -e "${LOG_BLUE}╚════════════════════════════════════════╝${LOG_NC}"
   echo
-  echo "  1) Full setup (packages + symlinks + build)"
+  echo "  1) Full setup (packages + symlinks)"
   echo "  2) Symlink configs only"
-  echo "  3) Build legacy suckless tools (dwm + dwmblocks)"
-  echo "  4) Install packages only"
+  echo "  3) Install packages only"
   echo
   echo "  q) Quit"
   echo
@@ -807,11 +739,6 @@ show_menu() {
     1) SYMLINK_ONLY=false ;;
     2) SYMLINK_ONLY=true ;;
     3)
-      build_dwm
-      build_dwmblocks
-      exit 0
-      ;;
-    4)
       setup_chaotic_aur
       install_pacman_packages
       install_aur_packages

@@ -24,7 +24,7 @@ riverctl map normal "$mod" D spawn "fuzzel"
 riverctl map normal "$mod" E spawn "thunar"
 riverctl map normal "$mod" W spawn "helium-browser"
 riverctl map normal "$mod" X spawn "swaylock"
-riverctl map normal "$mod+Shift" P spawn "rofi-power"
+riverctl map normal "$mod+Shift" P spawn "power-menu"
 riverctl map normal "$mod" S spawn "signal-desktop"
 riverctl map normal "$mod" B spawn "emacsclient -c -a ''"
 
