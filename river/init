@@ -167,3 +167,4 @@ fastmail &
 
 pkill -x waybar 2>/dev/null || true
 waybar &
+dbus-update-activation-environment DISPLAY WAYLAND_DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE &
