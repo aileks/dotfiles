@@ -8,8 +8,8 @@ export TERMINAL=wezterm
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export GPG_TTY="$(tty)"
 
-wlr-randr --output DP-1 --on --mode 2560x1440@200Hz --scale 1.25 --adaptive-sync enabled
-wlr-randr --output HDMI-A-1 --on --mode 3840x2160@60Hz --scale 2 --transform 90 --left-of DP-1
+wlr-randr --output HDMI-A-1 --on --mode 3840x2160@60Hz --scale 2 --transform 90 --pos 0,0
+wlr-randr --output DP-1 --on --mode 2560x1440@200Hz --scale 1.25 --pos 1080,384 --adaptive-sync enabled
 riverctl focus-output DP-1
 
 mod="Mod4"
