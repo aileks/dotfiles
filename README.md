@@ -12,7 +12,7 @@ Arch setup built on River with the [Ashen](https://codeberg.org/ficd/ashen) colo
 - **Lockscreen**: Swaylock
 - **Wallpaper**: Swaybg
 - **Shell**: Zsh
-- **Editor**: Emacs
+- **Editor**: [Emacs](https://codeberg.org/aileks/emacs.d)
 - **File manager**: Yazi
 - **PDF viewer**: Zathura
 
