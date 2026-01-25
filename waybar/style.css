@@ -99,7 +99,7 @@ tooltip {
 
 #custom-clock,
 #custom-clock label {
-  color: @orange_golden;
+  color: @orange_glow;
 }
 
 #custom-cpu.warning,
