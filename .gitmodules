@@ -1,4 +1,0 @@
-[submodule "emacs"]
-	path = emacs
-	url = https://codeberg.org/aileks/emacs.d.git
-	branch = main
