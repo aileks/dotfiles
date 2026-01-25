@@ -1,62 +1,79 @@
 #!/bin/bash
 # Statusbar module: network status
 # Left click: open network connections
-# Right click: toggle wifi
 # Middle click: show network details notification
+# Right click: toggle wifi
 
-case $BUTTON in
-  1)
-    nm-connection-editor
+set -euo pipefail
+
+notify() {
+  notify-send "󰈀 Network" "$1"
+}
+
+active_connection() {
+  nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1
+}
+
+case "${1:-}" in
+  --open)
+    nm-connection-editor >/dev/null 2>&1 &
     disown $!
+    exit 0
     ;;
-  2)
-    connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1 | cut -d: -f1)
-    if [ -n "$connection" ]; then
-      notify-send "󰈀 Network" "Connected: $connection"
+  --info)
+    connection=$(active_connection)
+    if [[ -n $connection ]]; then
+      name=${connection%%:*}
+      notify "Connected: $name"
     else
-      notify-send "󰤭 Network" "No active connection"
+      notify "No active connection"
     fi
+    exit 0
     ;;
-  3)
+  --toggle-wifi)
     if nmcli -t -f wifi radio | grep -q "enabled"; then
       nmcli radio wifi off
-      notify-send "󰤭 WiFi Disabled"
+      notify "WiFi Disabled"
     else
       nmcli radio wifi on
-      notify-send "󰤨 WiFi Enabled"
+      notify "WiFi Enabled"
     fi
-    pkill -RTMIN+4 dwmblocks
+    pkill -RTMIN+4 waybar
+    exit 0
     ;;
 esac
 
-connection=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1 | cut -d: -f1)
-
-if [ -z "$connection" ]; then
-  icon="󰤭"
-  color="#535353"
-  printf "^c%s^%s^d^" "$color" "$icon"
+connection=$(active_connection)
+if [[ -z $connection ]]; then
+  printf '{"text":"󰤭","class":"network disconnected"}\n'
   exit 0
 fi
 
-type=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1 | cut -d: -f2)
+name=${connection%%:*}
+type=${connection##*:}
 
-if [ "$type" = "802-11-wireless" ]; then
-  label="WiFi"
-  signal=$(nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | grep '^\*' | cut -d: -f2)
-  if [ -n "$signal" ] && [ "$signal" -ge 70 ]; then
-    icon="󰤨"
-    color="#4a8b8b"
-  elif [ -n "$signal" ] && [ "$signal" -ge 40 ]; then
-    icon="󰤥"
-    color="#a7a7a7"
-  else
-    icon="󰤟"
-    color="#e49a44"
+if [[ $type == "802-11-wireless" ]]; then
+  signal=$(nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | awk -F: '$1=="*" {print $2; exit}')
+  icon="󰤥"
+  class="warning"
+  if [[ -n $signal ]]; then
+    if [[ $signal -ge 70 ]]; then
+      icon="󰤨"
+      class="good"
+    elif [[ $signal -ge 40 ]]; then
+      icon="󰤥"
+      class="normal"
+    else
+      icon="󰤟"
+      class="warning"
+    fi
   fi
+  text="$icon WiFi"
+  tooltip="$name (${signal:-?}%)"
 else
-  label="Eth"
-  icon="󰈀"
-  color="#4a8b8b"
+  text="󰈀 Eth"
+  tooltip="$name"
+  class="good"
 fi
 
-printf "^c%s^%s %s^d^" "$color" "$icon" "$label"
+printf '{"text":"%s","tooltip":"%s","class":"network %s"}\n' "$text" "$tooltip" "$class"

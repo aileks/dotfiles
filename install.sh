@@ -70,18 +70,20 @@ command_exists() {
 PACMAN_PACKAGES=(
   base-devel
   pacman-contrib
-  xorg-server
-  xorg-xinit
-  xorg-xsetroot
-  xorg-xrandr
-  xorg-xset
-  xclip
-  xdotool
+  river
+  waybar
+  fuzzel
+  mako
+  swaylock
+  swayidle
+  swaybg
+  wlr-randr
+  grim
+  slurp
+  wl-clipboard
+  wf-recorder
+  xorg-xwayland
   xarchiver
-  libx11
-  libxft
-  libxinerama
-  libxrender
   libgccjit
   gdb
   freetype2
@@ -125,14 +127,7 @@ PACMAN_PACKAGES=(
   exfat-utils
   libimobiledevice
   ifuse
-  picom
-  dunst
   libnotify
-  rofi
-  rofimoji
-  feh
-  maim
-  slop
   ffmpeg
   pamixer
   playerctl
@@ -178,7 +173,6 @@ PACMAN_PACKAGES=(
 
 AUR_PACKAGES=(
   helium-browser-bin
-  betterlockscreen
   ttf-adwaita-mono-nerd
   ttf-mac-fonts
   1password-beta
@@ -442,14 +436,15 @@ symlink_configs() {
   # Direct directory symlinks
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
-  create_symlink "$SCRIPT_DIR/picom" "$HOME/.config/picom"
-  create_symlink "$SCRIPT_DIR/dunst" "$HOME/.config/dunst"
+  create_symlink "$SCRIPT_DIR/river" "$HOME/.config/river"
+  create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
+  create_symlink "$SCRIPT_DIR/mako" "$HOME/.config/mako"
+  create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
+  create_symlink "$SCRIPT_DIR/swaylock" "$HOME/.config/swaylock"
+  create_symlink "$SCRIPT_DIR/swayidle" "$HOME/.config/swayidle"
   create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
-  create_symlink "$SCRIPT_DIR/rofi" "$HOME/.config/rofi"
-  create_symlink "$SCRIPT_DIR/rofimoji/rofimoji.rc" "$HOME/.config/rofimoji.rc"
   create_symlink "$SCRIPT_DIR/yazi" "$HOME/.config/yazi"
-  create_symlink "$SCRIPT_DIR/betterlockscreen" "$HOME/.config/betterlockscreen"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/emacs" "$HOME/.emacs.d"
 
@@ -472,6 +467,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/scripts/screenshot" "$HOME/.local/bin/screenshot"
   create_symlink "$SCRIPT_DIR/scripts/screenrecord" "$HOME/.local/bin/screenrecord"
   create_symlink "$SCRIPT_DIR/scripts/rofi-power" "$HOME/.local/bin/rofi-power"
+  create_symlink "$SCRIPT_DIR/scripts/monitors" "$HOME/.local/bin/monitors"
 
   log_success "Config symlinks created"
 }
@@ -798,7 +794,7 @@ show_menu() {
   echo
   echo "  1) Full setup (packages + symlinks + build)"
   echo "  2) Symlink configs only"
-  echo "  3) Build suckless tools only (dwm + dwmblocks)"
+  echo "  3) Build legacy suckless tools (dwm + dwmblocks)"
   echo "  4) Install packages only"
   echo
   echo "  q) Quit"
@@ -928,9 +924,6 @@ main() {
     install_tpm
     setup_keyd
     install_orchis_theme
-    build_dwm
-    build_dwmblocks
-    install_desktop_entry
     setup_shell
     enable_services
     setup_display_manager

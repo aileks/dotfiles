@@ -3,28 +3,44 @@
 # Left click: toggle between time/date
 # Right click: launch calcurse
 
-state_file="/tmp/dwmblocks_clock_state"
+set -euo pipefail
 
-if [ ! -f "$state_file" ]; then
-  echo "time" >"$state_file"
-fi
+state_file="/tmp/waybar_clock_state"
 
-case $BUTTON in
-  1)
-    current_state=$(cat "$state_file")
-    if [ "$current_state" = "time" ]; then
-      echo "date" >"$state_file"
-    else
-      echo "time" >"$state_file"
-    fi
-    pkill -RTMIN+1 dwmblocks
-    current_state=$(cat "$state_file")
+ensure_state() {
+  if [[ ! -f $state_file ]]; then
+    echo "time" >"$state_file"
+  fi
+}
+
+do_toggle() {
+  ensure_state
+  current_state=$(cat "$state_file")
+  if [[ $current_state == "time" ]]; then
+    echo "date" >"$state_file"
+  else
+    echo "time" >"$state_file"
+  fi
+  pkill -RTMIN+6 waybar
+}
+
+do_open() {
+  wezterm start --class calendar-floating -- calcurse >/dev/null 2>&1 &
+  disown $!
+}
+
+case "${1:-}" in
+  --toggle)
+    do_toggle
+    exit 0
     ;;
-  3)
-    wezterm start --class calendar-floating -- calcurse >/dev/null 2>&1 &
-    disown $!
+  --open)
+    do_open
+    exit 0
     ;;
 esac
+
+ensure_state
 
 icon="󰃰"
 date_fmt="%a %b %d"
@@ -34,11 +50,12 @@ date_str=$(date +"$date_fmt")
 time_str=$(date +"$time_fmt")
 
 current_state=$(cat "$state_file")
-
-if [ "$current_state" = "time" ]; then
-  # Show only time
-  printf "^c#e49a44^%s^d^ %s" "$icon" "$time_str"
+if [[ $current_state == "time" ]]; then
+  text="$icon $time_str"
+  tooltip="$date_str"
 else
-  # Show only date
-  printf "^c#e49a44^%s^d^ %s" "$icon" "$date_str"
+  text="$icon $date_str"
+  tooltip="$time_str"
 fi
+
+printf '{"text":"%s","tooltip":"%s","class":"clock"}\n' "$text" "$tooltip"

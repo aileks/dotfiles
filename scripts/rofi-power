@@ -2,87 +2,70 @@
 
 set -euo pipefail
 
-ROFI_BIN="${ROFI_BIN:-rofi}"
-ROFI_CONFIG="${ROFI_CONFIG:-$HOME/.config/rofi/config.rasi}"
-ROFI_THEME="${ROFI_THEME:-}"
-ROFI_ARGS="${ROFI_ARGS:-}"
-ROFI_ARGS_STR="${ROFI_ARGS:-}"
+FUZZEL_BIN="${FUZZEL_BIN:-fuzzel}"
+FUZZEL_ARGS="${FUZZEL_ARGS:-}"
 
 cmd_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
 die() {
-  local msg="$1"
-
-  if cmd_exists "$ROFI_BIN"; then
-    "$ROFI_BIN" -e "$msg" || true
-  else
-    printf '%s\n' "$msg" >&2
-  fi
-
+  printf '%s\n' "$1" >&2
   exit 1
 }
 
-rofi_dmenu() {
+fuzzel_dmenu() {
   local prompt="$1"
 
-  if ! cmd_exists "$ROFI_BIN"; then
-    die "rofi not found"
+  if ! cmd_exists "$FUZZEL_BIN"; then
+    die "fuzzel not found"
   fi
 
-  if [[ -f $ROFI_CONFIG   ]]; then
-    "$ROFI_BIN" -dmenu -i -p "$prompt" -config "$ROFI_CONFIG" ${ROFI_ARGS:-}
-  else
-    "$ROFI_BIN" -dmenu -i -p "$prompt" ${ROFI_ARGS:-}
-  fi
+  "$FUZZEL_BIN" --dmenu --prompt "$prompt" ${FUZZEL_ARGS:-}
 }
 
 confirm() {
   local action="$1"
 
   local choice
-  choice=$(printf 'No\nYes\n' | rofi_dmenu "Confirm ${action}?")
-  [[ $choice == "Yes"   ]]
+  choice=$(printf 'No\nYes\n' | fuzzel_dmenu "Confirm ${action}?")
+  [[ $choice == "Yes" ]]
 }
 
 do_lock() {
-  if cmd_exists betterlockscreen; then
-    exec betterlockscreen -l dimpixel
-  fi
-
-  if cmd_exists i3lock; then
-    exec i3lock
-  fi
-
-  if cmd_exists slock; then
-    exec slock
+  if cmd_exists swaylock; then
+    exec swaylock
   fi
 
   if cmd_exists loginctl; then
-    if [[ -n ${XDG_SESSION_ID:-}   ]]; then
+    if [[ -n ${XDG_SESSION_ID:-} ]]; then
       exec loginctl lock-session "$XDG_SESSION_ID"
     fi
     exec loginctl lock-sessions
   fi
 
-  die "No lock backend found (betterlockscreen/i3lock/slock/loginctl)"
+  die "No lock backend found (swaylock/loginctl)"
 }
 
 do_logout() {
-  if cmd_exists loginctl && [[ -n ${XDG_SESSION_ID:-}   ]]; then
+  if cmd_exists riverctl; then
+    riverctl exit
+    exit 0
+  fi
+
+  if cmd_exists loginctl && [[ -n ${XDG_SESSION_ID:-} ]]; then
     exec loginctl terminate-session "$XDG_SESSION_ID"
   fi
 
   if cmd_exists pkill; then
-    exec pkill -TERM -x dwm
+    exec pkill -TERM -x river
   fi
 
   if cmd_exists killall; then
-    exec killall -TERM dwm
+    exec killall -TERM river
   fi
 
-  die "No logout backend found (loginctl/pkill/killall)"
+  die "No logout backend found (riverctl/loginctl/pkill/killall)"
 }
 
 do_reboot() {
@@ -139,7 +122,7 @@ REBOOT=$'\uf2f1  Reboot'
 SUSPEND=$'\uf186  Suspend'
 SHUTDOWN=$'\uf011  Shutdown'
 
-choice=$(printf '%s\n%s\n%s\n%s\n%s\n' "$LOCK" "$LOGOUT" "$REBOOT" "$SUSPEND" "$SHUTDOWN" | rofi_dmenu 'Power')
+choice=$(printf '%s\n%s\n%s\n%s\n%s\n' "$LOCK" "$LOGOUT" "$REBOOT" "$SUSPEND" "$SHUTDOWN" | fuzzel_dmenu 'Power')
 
 case "$choice" in
   "$LOCK")

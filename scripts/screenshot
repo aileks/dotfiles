@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Screenshot utility for dwm
+# Screenshot utility for river/Wayland
 # Usage: screenshot <area|window|fullscreen> <clipboard|file>
 
 set -euo pipefail
@@ -12,26 +12,40 @@ FILENAME="screenshot-$(date +%Y%m%d-%H%M%S).png"
 
 mkdir -p "$SCREENSHOT_DIR"
 
+notify() {
+  notify-send "󰄭 Screenshot" "$1"
+}
+
+copy_clipboard() {
+  wl-copy --type image/png
+}
+
+select_region() {
+  slurp
+}
+
 case "$MODE" in
-  area)
-    if [[ $OUTPUT == "clipboard" ]]; then
-      maim -s | xclip -selection clipboard -t image/png && notify-send "󰄭 Screenshot" "Area copied to clipboard"
-    else
-      maim -s "$SCREENSHOT_DIR/$FILENAME" && notify-send "󰄭 Screenshot" "$FILENAME saved to screenshots"
+  area|window)
+    region=$(select_region || true)
+    if [[ -z ${region} ]]; then
+      notify "Selection cancelled"
+      exit 1
     fi
-    ;;
-  window)
-    if [[ $OUTPUT == "clipboard" ]]; then
-      maim -i "$(xdotool getactivewindow)" | xclip -selection clipboard -t image/png && notify-send "󰄭 Screenshot" "Window copied to clipboard"
+    if [[ "$OUTPUT" == "clipboard" ]]; then
+      grim -g "$region" - | copy_clipboard
+      notify "Selection copied to clipboard"
     else
-      maim -i "$(xdotool getactivewindow)" "$SCREENSHOT_DIR/$FILENAME" && notify-send "󰄭 Screenshot" "$FILENAME saved to screenshots"
+      grim -g "$region" "$SCREENSHOT_DIR/$FILENAME"
+      notify "$FILENAME saved to screenshots"
     fi
     ;;
   fullscreen)
-    if [[ $OUTPUT == "clipboard" ]]; then
-      maim | xclip -selection clipboard -t image/png && notify-send "󰄭 Screenshot" "Fullscreen copied to clipboard"
+    if [[ "$OUTPUT" == "clipboard" ]]; then
+      grim - | copy_clipboard
+      notify "Fullscreen copied to clipboard"
     else
-      maim "$SCREENSHOT_DIR/$FILENAME" && notify-send "󰄭 Screenshot" "$FILENAME saved to screenshots"
+      grim "$SCREENSHOT_DIR/$FILENAME"
+      notify "$FILENAME saved to screenshots"
     fi
     ;;
   *)

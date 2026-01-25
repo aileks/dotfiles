@@ -1,0 +1,60 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 28,
+  "spacing": 8,
+  "modules-left": ["river/tags", "river/layout"],
+  "modules-center": ["river/window"],
+  "modules-right": ["custom/cpu", "custom/memory", "custom/network", "custom/volume", "custom/clock", "tray"],
+  "river/tags": {
+    "num-tags": 9
+  },
+  "river/window": {
+    "max-length": 80
+  },
+  "custom/cpu": {
+    "exec": "cpu",
+    "interval": 5,
+    "return-type": "json",
+    "on-click": "cpu --notify",
+    "on-click-right": "cpu --open"
+  },
+  "custom/memory": {
+    "exec": "memory",
+    "interval": 5,
+    "return-type": "json",
+    "on-click": "memory --notify",
+    "on-click-right": "memory --open"
+  },
+  "custom/network": {
+    "exec": "network",
+    "interval": 10,
+    "return-type": "json",
+    "signal": 4,
+    "on-click": "network --open",
+    "on-click-middle": "network --info",
+    "on-click-right": "network --toggle-wifi"
+  },
+  "custom/volume": {
+    "exec": "volume",
+    "interval": 2,
+    "return-type": "json",
+    "signal": 5,
+    "on-click": "volume --toggle-mute",
+    "on-click-right": "volume --open",
+    "on-scroll-up": "volume --inc",
+    "on-scroll-down": "volume --dec"
+  },
+  "custom/clock": {
+    "exec": "clock",
+    "interval": 5,
+    "return-type": "json",
+    "signal": 6,
+    "on-click": "clock --toggle",
+    "on-click-right": "clock --open"
+  },
+  "tray": {
+    "icon-size": 18,
+    "spacing": 6
+  }
+}

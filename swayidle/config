@@ -1,0 +1,5 @@
+lock 'swaylock'
+before-sleep 'swaylock'
+timeout 600 'swaylock'
+timeout 900 'wlr-randr --output DP-1 --off --output HDMI-A-1 --off'
+resume 'monitors'

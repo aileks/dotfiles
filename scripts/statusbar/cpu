@@ -3,25 +3,37 @@
 # Left click: show CPU details notification
 # Right click: open btop
 
-case $BUTTON in
-  1)
-    cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
-    notify-send "󰻠 CPU Usage" "Current CPU: $cpu%"
+set -euo pipefail
+
+notify_cpu() {
+  local cpu
+  cpu=$(top -bn1 | awk -F'[, ]+' '/Cpu\(s\)/ {print int($3 + $5)}')
+  notify-send "󰻠 CPU Usage" "Current CPU: ${cpu}%"
+}
+
+open_btop() {
+  wezterm start --class btop-floating -- btop >/dev/null 2>&1 &
+  disown $!
+}
+
+case "${1:-}" in
+  --notify)
+    notify_cpu
+    exit 0
     ;;
-  3)
-    wezterm start --class btop-floating -- btop
-    disown $!
+  --open)
+    open_btop
+    exit 0
     ;;
 esac
 
-cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2 + $4)}')
+cpu=$(top -bn1 | awk -F'[, ]+' '/Cpu\(s\)/ {print int($3 + $5)}')
 
-if [ "$cpu" -ge 80 ]; then
-  color="#b14242"
-elif [ "$cpu" -ge 50 ]; then
-  color="#e49a44"
-else
-  color="#a7a7a7"
+class="normal"
+if [[ $cpu -ge 80 ]]; then
+  class="critical"
+elif [[ $cpu -ge 50 ]]; then
+  class="warning"
 fi
 
-printf "^c%s^ 󰻠 %s%%^d^" "$color" "$cpu"
+printf '{"text":"󰻠 %s%%","class":"cpu %s"}\n' "$cpu" "$class"

@@ -3,26 +3,38 @@
 # Left click: show memory details notification
 # Right click: open btop
 
-case $BUTTON in
-  1)
-    mem=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
-    swap=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
-    notify-send "󰍛 Memory Usage" "RAM: $mem\nSwap: $swap"
+set -euo pipefail
+
+notify_mem() {
+  local mem swap
+  mem=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+  swap=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
+  notify-send "󰍛 Memory Usage" "RAM: $mem\nSwap: $swap"
+}
+
+open_btop() {
+  wezterm start --class btop-floating -- btop >/dev/null 2>&1 &
+  disown $!
+}
+
+case "${1:-}" in
+  --notify)
+    notify_mem
+    exit 0
     ;;
-  3)
-    wezterm start --class btop-floating -- btop
-    disown $!
+  --open)
+    open_btop
+    exit 0
     ;;
 esac
 
 mem=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
 
-if [ "$mem" -ge 80 ]; then
-  color="#b14242"
-elif [ "$mem" -ge 50 ]; then
-  color="#e49a44"
-else
-  color="#a7a7a7"
+class="normal"
+if [[ $mem -ge 80 ]]; then
+  class="critical"
+elif [[ $mem -ge 50 ]]; then
+  class="warning"
 fi
 
-printf "^c%s^󰍛 %s%%^d^" "$color" "$mem"
+printf '{"text":"󰍛 %s%%","class":"memory %s"}\n' "$mem" "$class"

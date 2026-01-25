@@ -1,0 +1,73 @@
+* {
+  font-family: "CommitMono Nerd Font Mono";
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: #121212;
+  border-bottom: 2px solid #212121;
+}
+
+#river-tags button {
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: #949494;
+}
+
+#river-tags button.focused {
+  background: #c4693d;
+  color: #121212;
+}
+
+#river-tags button.urgent {
+  background: #b14242;
+  color: #d5d5d5;
+}
+
+#river-layout,
+#river-window,
+#custom-cpu,
+#custom-memory,
+#custom-network,
+#custom-volume,
+#custom-clock,
+#tray {
+  padding: 0 10px;
+  color: #a7a7a7;
+}
+
+#custom-clock {
+  color: #e49a44;
+}
+
+#custom-cpu.warning,
+#custom-memory.warning {
+  color: #e49a44;
+}
+
+#custom-cpu.critical,
+#custom-memory.critical {
+  color: #b14242;
+}
+
+#custom-network.disconnected {
+  color: #535353;
+}
+
+#custom-network.good {
+  color: #4a8b8b;
+}
+
+#custom-network.warning {
+  color: #e49a44;
+}
+
+#custom-volume.muted {
+  color: #535353;
+}
+
+#custom-volume.high {
+  color: #d87c4a;
+}

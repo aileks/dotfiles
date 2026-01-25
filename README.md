@@ -1,16 +1,16 @@
 # Arch Linux Dotfiles
 
-Arch setup built on DWM-Flexipatch with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+Arch setup built on River with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 
 ## Features
 
-- **WM**: DWM w/ Flexipatch
-- **Status bar**: dwmblocks with colored status2d modules
+- **WM**: River (Wayland)
+- **Status bar**: Waybar
 - **Terminal**: WezTerm
-- **Launcher**: Rofi
-- **Compositor**: Picom
-- **Notifications**: Dunst
-- **Lockscreen**: Betterlockscreen
+- **Launcher**: Fuzzel
+- **Notifications**: Mako
+- **Lockscreen**: Swaylock
+- **Wallpaper**: Swaybg
 - **Shell**: Zsh
 - **Editor**: Emacs
 - **File manager**: Yazi
@@ -49,7 +49,7 @@ sudo systemctl enable betterlockscreen@$USER
 
 ## Resources
 
-- [DWM-Flexipatch](https://github.com/bakkeby/dwm-flexipatch)
-- [dwmblocks](https://github.com/torrinfail/dwmblocks)
-- [Arch Wiki - DWM](https://wiki.archlinux.org/title/dwm)
+- [River](https://github.com/riverwm/river)
+- [Waybar](https://github.com/Alexays/Waybar)
+- [Arch Wiki - River](https://wiki.archlinux.org/title/River)
 - [keyd](https://github.com/rvaiya/keyd)

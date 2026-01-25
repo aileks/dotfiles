@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -euo pipefail
+
+wlr-randr --output DP-1 --on --mode 2560x1440@200Hz --scale 1.5
+wlr-randr --output HDMI-A-1 --on --mode 3840x2160@60Hz --scale 2 --transform 90 --left-of DP-1

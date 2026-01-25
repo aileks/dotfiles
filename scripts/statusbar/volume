@@ -3,48 +3,58 @@
 # Left click: toggle mute
 # Right click: open wiremix
 
-case $BUTTON in
-  1)
+set -euo pipefail
+
+case "${1:-}" in
+  --toggle-mute)
     pamixer -t
+    pkill -RTMIN+5 waybar
+    exit 0
     ;;
-  3)
-    wezterm start --class volume-floating -- wiremix
+  --open)
+    wezterm start --class volume-floating -- wiremix >/dev/null 2>&1 &
     disown $!
+    exit 0
     ;;
-  4)
+  --inc)
     pamixer -i 5
+    pkill -RTMIN+5 waybar
+    exit 0
     ;;
-  5)
+  --dec)
     pamixer -d 5
+    pkill -RTMIN+5 waybar
+    exit 0
     ;;
 esac
 
-vol=$(pamixer --get-volume 2>/dev/null)
-muted=$(pamixer --get-mute 2>/dev/null)
+vol=$(pamixer --get-volume 2>/dev/null || true)
+muted=$(pamixer --get-mute 2>/dev/null || true)
 
-if [ "$muted" = "true" ]; then
-  icon="󰝟"
-  color="#535353"
-  printf "^c%s^%s^d^" "$color" "$icon"
+if [[ $muted == "true" ]]; then
+  printf '{"text":"󰝟","class":"volume muted"}\n'
   exit 0
-elif [ -z "$vol" ]; then
-  :
-elif [ "$vol" -eq 0 ]; then
-  icon="󰕿"
-  color="#535353"
-
-elif [ "$vol" -lt 30 ]; then
-  icon="󰕿"
-  color="#a7a7a7"
-
-elif [ "$vol" -lt 70 ]; then
-  icon="󰖀"
-  color="#a7a7a7"
-
-else
-  icon="󰕾"
-  color="#d87c4a"
-
 fi
 
-printf "^c%s^%s %s%%^d^" "$color" "$icon" "$vol"
+icon="󰕿"
+class="normal"
+
+if [[ -z $vol ]]; then
+  vol=0
+fi
+
+if [[ $vol -eq 0 ]]; then
+  icon="󰕿"
+  class="muted"
+elif [[ $vol -lt 30 ]]; then
+  icon="󰕿"
+  class="normal"
+elif [[ $vol -lt 70 ]]; then
+  icon="󰖀"
+  class="normal"
+else
+  icon="󰕾"
+  class="high"
+fi
+
+printf '{"text":"%s %s%%","class":"volume %s"}\n' "$icon" "$vol" "$class"

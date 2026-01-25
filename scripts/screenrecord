@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Screen recording utility for dwm
+# Screen recording utility for river/Wayland
 # Usage: screenrecord [area|window|fullscreen]
 # Toggle-based: first call starts, second call stops
 
@@ -11,59 +11,40 @@ RECORDING_DIR="$HOME/Videos/recordings"
 PIDFILE="/tmp/screenrecord.pid"
 FILENAME="recording-$(date +%Y%m%d-%H%M%S).mp4"
 
+notify() {
+  notify-send "$1" "$2"
+}
+
 # Check if already recording
-if [[ -f $PIDFILE   ]]; then
+if [[ -f $PIDFILE ]]; then
   PID=$(cat "$PIDFILE")
   if kill -0 "$PID" 2>/dev/null; then
-    # Stop recording
     kill -SIGINT "$PID"
     rm -f "$PIDFILE"
-    notify-send "Recording stopped" "Saved to $RECORDING_DIR"
+    notify "Recording stopped" "Saved to $RECORDING_DIR"
     exit 0
   else
-    # Stale PID file
     rm -f "$PIDFILE"
   fi
 fi
 
-# Start recording
 mkdir -p "$RECORDING_DIR"
 
-get_dimensions() {
-  xdpyinfo | grep dimensions | awk '{print $2}'
-}
-
-get_window_geometry() {
-  local win_id
-  win_id=$(xdotool getactivewindow)
-  local info
-  info=$(xdotool getwindowgeometry --shell "$win_id")
-  eval "$info"
-  echo "${WIDTH}x${HEIGHT}" "$X,$Y"
+select_region() {
+  slurp
 }
 
 case "$MODE" in
-  area)
-    read -r X Y W H < <(slop -f "%x %y %w %h")
-    if [[ -z $W || -z $H   ]]; then
-      notify-send "Recording cancelled"
+  area|window)
+    region=$(select_region || true)
+    if [[ -z ${region} ]]; then
+      notify "Recording cancelled" "No region selected"
       exit 1
     fi
-    ffmpeg -f x11grab -framerate 30 -video_size "${W}x${H}" -i "$DISPLAY+$X,$Y" \
-      -c:v libx264 -preset ultrafast -crf 23 \
-      "$RECORDING_DIR/$FILENAME" &
-    ;;
-  window)
-    read -r SIZE OFFSET < <(get_window_geometry)
-    ffmpeg -f x11grab -framerate 30 -video_size "$SIZE" -i "$DISPLAY+$OFFSET" \
-      -c:v libx264 -preset ultrafast -crf 23 \
-      "$RECORDING_DIR/$FILENAME" &
+    wf-recorder -g "$region" -f "$RECORDING_DIR/$FILENAME" &
     ;;
   fullscreen)
-    SIZE=$(get_dimensions)
-    ffmpeg -f x11grab -framerate 30 -video_size "$SIZE" -i "$DISPLAY+0,0" \
-      -c:v libx264 -preset ultrafast -crf 23 \
-      "$RECORDING_DIR/$FILENAME" &
+    wf-recorder -f "$RECORDING_DIR/$FILENAME" &
     ;;
   *)
     echo "Usage: screenrecord [area|window|fullscreen]"
@@ -72,4 +53,4 @@ case "$MODE" in
 esac
 
 echo $! >"$PIDFILE"
-notify-send "Recording started" "Mode: $MODE"
+notify "Recording started" "Mode: $MODE"
