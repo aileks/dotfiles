@@ -1,6 +1,6 @@
 * {
   font-family: "CommitMono Nerd Font Mono";
-  font-size: 13px;
+  font-size: 14px;
   min-height: 0;
 }
 
@@ -9,21 +9,29 @@ window#waybar {
   border-bottom: 2px solid #212121;
 }
 
-#river-tags button {
-  padding: 0 8px;
+#river-tags button,
+#tags button,
+#workspaces button {
+  padding: 0 2px;
   border: 0;
   background: transparent;
   color: #949494;
 }
 
-#river-tags button.focused {
+#river-tags button.focused,
+#tags button.focused,
+#workspaces button.focused {
   background: #c4693d;
   color: #121212;
+  border-radius: 6px;
 }
 
-#river-tags button.urgent {
+#river-tags button.urgent,
+#tags button.urgent,
+#workspaces button.urgent {
   background: #b14242;
   color: #d5d5d5;
+  border-radius: 6px;
 }
 
 #river-layout,
@@ -34,7 +42,7 @@ window#waybar {
 #custom-volume,
 #custom-clock,
 #tray {
-  padding: 0 10px;
+  padding: 0 2px;
   color: #a7a7a7;
 }
 

@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -euo pipefail
+
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:$PATH"
+
+state_file="/tmp/river_layout_state"
+order=(left top right bottom)
+
+direction="${1:-next}"
+
+current="left"
+if [[ -f $state_file ]]; then
+  current=$(cat "$state_file" || echo "left")
+fi
+
+idx=0
+for i in "${!order[@]}"; do
+  if [[ ${order[$i]} == "$current" ]]; then
+    idx=$i
+    break
+  fi
+done
+
+if [[ $direction == "prev" ]]; then
+  next_idx=$(( (idx - 1 + ${#order[@]}) % ${#order[@]} ))
+else
+  next_idx=$(( (idx + 1) % ${#order[@]} ))
+fi
+
+next="${order[$next_idx]}"
+
+if ! command -v riverctl >/dev/null 2>&1; then
+  printf '%s\n' "riverctl not found" >&2
+  exit 1
+fi
+
+riverctl send-layout-cmd rivertile "main-location $next"
+echo "$next" >"$state_file"

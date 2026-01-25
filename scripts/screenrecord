@@ -6,14 +6,34 @@
 
 set -uo pipefail
 
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:$PATH"
+
 MODE="${1:-area}"
 RECORDING_DIR="$HOME/Videos/recordings"
 PIDFILE="/tmp/screenrecord.pid"
 FILENAME="recording-$(date +%Y%m%d-%H%M%S).mp4"
 
 notify() {
-  notify-send "$1" "$2"
+  local title="$1"
+  local message="$2"
+  local urgency="${3:-normal}"
+
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send -a screenrecord -u "$urgency" "$title" "$message"
+  else
+    printf '%s\n' "$title: $message" >&2
+  fi
 }
+
+require_bin() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    notify "Recording error" "Missing dependency: $1"
+    exit 1
+  fi
+}
+
+require_bin wf-recorder
+require_bin slurp
 
 # Check if already recording
 if [[ -f $PIDFILE ]]; then

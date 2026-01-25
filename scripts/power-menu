@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:$PATH"
+
 FUZZEL_BIN="${FUZZEL_BIN:-fuzzel}"
 FUZZEL_ARGS="${FUZZEL_ARGS:-}"
 

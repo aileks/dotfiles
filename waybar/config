@@ -9,6 +9,12 @@
   "river/tags": {
     "num-tags": 9
   },
+  "river/layout": {
+    "format": "{}",
+    "max-length": 20,
+    "on-click": "~/.local/bin/layout-cycle next",
+    "on-click-right": "~/.local/bin/layout-cycle prev"
+  },
   "river/window": {
     "max-length": 80
   },

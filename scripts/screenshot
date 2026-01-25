@@ -5,6 +5,8 @@
 
 set -euo pipefail
 
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:$PATH"
+
 MODE="${1:-area}"
 OUTPUT="${2:-clipboard}"
 SCREENSHOT_DIR="$HOME/Pictures/screenshots"
@@ -13,7 +15,14 @@ FILENAME="screenshot-$(date +%Y%m%d-%H%M%S).png"
 mkdir -p "$SCREENSHOT_DIR"
 
 notify() {
-  notify-send "󰄭 Screenshot" "$1"
+  local message="$1"
+  local urgency="${2:-normal}"
+
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send -a screenshot -u "$urgency" "󰄭 Screenshot" "$message"
+  else
+    printf '%s\n' "$message" >&2
+  fi
 }
 
 copy_clipboard() {
@@ -24,6 +33,19 @@ select_region() {
   slurp
 }
 
+require_bin() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    notify "Missing dependency: $1"
+    exit 1
+  fi
+}
+
+require_bin grim
+require_bin slurp
+if [[ "$OUTPUT" == "clipboard" ]]; then
+  require_bin wl-copy
+fi
+
 case "$MODE" in
   area|window)
     region=$(select_region || true)
@@ -32,20 +54,36 @@ case "$MODE" in
       exit 1
     fi
     if [[ "$OUTPUT" == "clipboard" ]]; then
-      grim -g "$region" - | copy_clipboard
-      notify "Selection copied to clipboard"
+      if grim -g "$region" - | copy_clipboard; then
+        notify "Selection copied to clipboard"
+      else
+        notify "Selection capture failed" "critical"
+        exit 1
+      fi
     else
-      grim -g "$region" "$SCREENSHOT_DIR/$FILENAME"
-      notify "$FILENAME saved to screenshots"
+      if grim -g "$region" "$SCREENSHOT_DIR/$FILENAME"; then
+        notify "$FILENAME saved to screenshots"
+      else
+        notify "Selection capture failed" "critical"
+        exit 1
+      fi
     fi
     ;;
   fullscreen)
     if [[ "$OUTPUT" == "clipboard" ]]; then
-      grim - | copy_clipboard
-      notify "Fullscreen copied to clipboard"
+      if grim - | copy_clipboard; then
+        notify "Fullscreen copied to clipboard"
+      else
+        notify "Fullscreen capture failed" "critical"
+        exit 1
+      fi
     else
-      grim "$SCREENSHOT_DIR/$FILENAME"
-      notify "$FILENAME saved to screenshots"
+      if grim "$SCREENSHOT_DIR/$FILENAME"; then
+        notify "$FILENAME saved to screenshots"
+      else
+        notify "Fullscreen capture failed" "critical"
+        exit 1
+      fi
     fi
     ;;
   *)

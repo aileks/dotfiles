@@ -465,6 +465,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/scripts/screenrecord" "$HOME/.local/bin/screenrecord"
   create_symlink "$SCRIPT_DIR/scripts/power-menu" "$HOME/.local/bin/power-menu"
   create_symlink "$SCRIPT_DIR/scripts/monitors" "$HOME/.local/bin/monitors"
+  create_symlink "$SCRIPT_DIR/scripts/layout-cycle" "$HOME/.local/bin/layout-cycle"
 
   log_success "Config symlinks created"
 }

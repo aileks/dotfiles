@@ -1,20 +1,20 @@
 #!/bin/sh
 
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.bun/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.bun/bin:$PATH"
 export XDG_CURRENT_DESKTOP="river"
-export XCURSOR_SIZE=48
+export XCURSOR_SIZE=32
 export TERMINAL=wezterm
-export EDITOR="emacsclient -c -n"
-export VISUAL="$EDITOR"
+export EDITOR="emacsclient -t"
+export VISUAL="emacsclient -t -nw"
 export SUDO_EDITOR=vim
 export MANPAGER="bat -plman"
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export GPG_TTY="$(tty)"
 
-wlr-randr --output DP-1 --on --mode 2560x1440@200Hz --scale 1.5
+wlr-randr --output DP-1 --on --mode 2560x1440@200Hz --scale 1.25
 wlr-randr --output HDMI-A-1 --on --mode 3840x2160@60Hz --scale 2 --transform 90 --left-of DP-1
 
-mod="Super"
+mod="Mod4"
 
 riverctl map normal "$mod" Q close
 riverctl map normal "$mod+Shift" Q exit
@@ -24,7 +24,7 @@ riverctl map normal "$mod" D spawn "fuzzel"
 riverctl map normal "$mod" E spawn "thunar"
 riverctl map normal "$mod" W spawn "helium-browser"
 riverctl map normal "$mod" X spawn "swaylock"
-riverctl map normal "$mod+Shift" P spawn "power-menu"
+riverctl map normal "$mod+Shift" P spawn "$HOME/.local/bin/power-menu"
 riverctl map normal "$mod" S spawn "signal-desktop"
 riverctl map normal "$mod" B spawn "emacsclient -c -a ''"
 
@@ -36,8 +36,8 @@ riverctl map normal "$mod+Shift" Return zoom
 
 riverctl map normal "$mod" Comma focus-output previous
 riverctl map normal "$mod" Period focus-output next
-riverctl map normal "$mod+Shift" Comma send-to-output previous
-riverctl map normal "$mod+Shift" Period send-to-output next
+riverctl map normal "$mod+Shift" Comma send-to-output -current-tags previous
+riverctl map normal "$mod+Shift" Period send-to-output -current-tags next
 
 riverctl map normal "$mod" H send-layout-cmd rivertile "main-ratio -0.05"
 riverctl map normal "$mod" L send-layout-cmd rivertile "main-ratio +0.05"
@@ -52,6 +52,8 @@ riverctl map normal "$mod" Up send-layout-cmd rivertile "main-location top"
 riverctl map normal "$mod" Right send-layout-cmd rivertile "main-location right"
 riverctl map normal "$mod" Down send-layout-cmd rivertile "main-location bottom"
 riverctl map normal "$mod" Left send-layout-cmd rivertile "main-location left"
+riverctl map normal "$mod" BracketLeft spawn "$HOME/.local/bin/layout-cycle prev"
+riverctl map normal "$mod" BracketRight spawn "$HOME/.local/bin/layout-cycle next"
 
 riverctl map normal "$mod+Alt" H move left 100
 riverctl map normal "$mod+Alt" J move down 100
@@ -84,28 +86,25 @@ all_tags=$(((1 << 32) - 1))
 riverctl map normal "$mod" 0 set-focused-tags $all_tags
 riverctl map normal "$mod+Shift" 0 set-view-tags $all_tags
 
-riverctl map normal None Print spawn "screenshot area clipboard"
-riverctl map normal Shift Print spawn "screenshot area file"
-riverctl map normal Control Print spawn "screenshot window clipboard"
-riverctl map normal Control+Shift Print spawn "screenshot window file"
-riverctl map normal "$mod" Print spawn "screenshot fullscreen clipboard"
-riverctl map normal "$mod+Shift" Print spawn "screenshot fullscreen file"
+riverctl map normal None Print spawn "$HOME/.local/bin/screenshot area clipboard"
+riverctl map normal Shift Print spawn "$HOME/.local/bin/screenshot area file"
+riverctl map normal Control Print spawn "$HOME/.local/bin/screenshot window clipboard"
+riverctl map normal Control+Shift Print spawn "$HOME/.local/bin/screenshot window file"
+riverctl map normal "$mod" Print spawn "$HOME/.local/bin/screenshot fullscreen clipboard"
+riverctl map normal "$mod+Shift" Print spawn "$HOME/.local/bin/screenshot fullscreen file"
 
-riverctl map normal None F9 spawn "screenrecord area"
-riverctl map normal Shift F9 spawn "screenrecord window"
-riverctl map normal Control F9 spawn "screenrecord fullscreen"
+riverctl map normal None F9 spawn "$HOME/.local/bin/screenrecord area"
+riverctl map normal Shift F9 spawn "$HOME/.local/bin/screenrecord window"
+riverctl map normal Control F9 spawn "$HOME/.local/bin/screenrecord fullscreen"
 
 for mode in normal locked; do
-  riverctl map $mode None XF86Eject spawn "eject -T"
-  riverctl map $mode None XF86AudioRaiseVolume spawn "pamixer -i 5"
-  riverctl map $mode None XF86AudioLowerVolume spawn "pamixer -d 5"
-  riverctl map $mode None XF86AudioMute spawn "pamixer --toggle-mute"
+  riverctl map $mode None XF86AudioRaiseVolume spawn "pamixer -i 5; pkill -RTMIN+5 waybar"
+  riverctl map $mode None XF86AudioLowerVolume spawn "pamixer -d 5; pkill -RTMIN+5 waybar"
+  riverctl map $mode None XF86AudioMute spawn "pamixer --toggle-mute; pkill -RTMIN+5 waybar"
   riverctl map $mode None XF86AudioMedia spawn "playerctl play-pause"
   riverctl map $mode None XF86AudioPlay spawn "playerctl play-pause"
   riverctl map $mode None XF86AudioPrev spawn "playerctl previous"
   riverctl map $mode None XF86AudioNext spawn "playerctl next"
-  riverctl map $mode None XF86MonBrightnessUp spawn "brightnessctl set +5%"
-  riverctl map $mode None XF86MonBrightnessDown spawn "brightnessctl set 5%-"
 done
 
 riverctl background-color 0x121212
@@ -115,13 +114,17 @@ riverctl border-color-urgent 0xb14242
 riverctl border-width 2
 
 riverctl set-repeat 45 270
+riverctl focus-follows-cursor normal
+
+riverctl input "*" accel-profile flat
+riverctl input "*" pointer-accel 0
 
 riverctl rule-add -app-id "calendar-floating" float
 riverctl rule-add -app-id "btop-floating" float
 riverctl rule-add -app-id "volume-floating" float
 
 riverctl default-layout rivertile
-rivertile -view-padding 3 -outer-padding 3 &
+rivertile -view-padding 3 -outer-padding 3 -main-ratio 0.5 -main-count 1 &
 
 pkill -x swaybg 2>/dev/null || true
 swaybg -o DP-1 -i "$HOME/Pictures/wallpaper.jpg" -m fill &
