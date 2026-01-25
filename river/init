@@ -109,12 +109,12 @@ for mode in normal locked; do
 done
 
 riverctl background-color 0x121212
-riverctl border-color-focused 0xc4693d
-riverctl border-color-unfocused 0x212121
-riverctl border-color-urgent 0xb14242
+riverctl border-color-focused 0xb14242
+riverctl border-color-unfocused 0x535353
+riverctl border-color-urgent 0xdf6464
 riverctl border-width 2
 
-riverctl set-repeat 45 270
+riverctl set-repeat 50 300
 riverctl focus-follows-cursor normal
 
 riverctl input "*" accel-profile flat

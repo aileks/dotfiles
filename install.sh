@@ -461,11 +461,12 @@ symlink_configs() {
   fi
 
   # Utility scripts
-  create_symlink "$SCRIPT_DIR/scripts/screenshot" "$HOME/.local/bin/screenshot"
-  create_symlink "$SCRIPT_DIR/scripts/screenrecord" "$HOME/.local/bin/screenrecord"
-  create_symlink "$SCRIPT_DIR/scripts/power-menu" "$HOME/.local/bin/power-menu"
-  create_symlink "$SCRIPT_DIR/scripts/monitors" "$HOME/.local/bin/monitors"
-  create_symlink "$SCRIPT_DIR/scripts/layout-cycle" "$HOME/.local/bin/layout-cycle"
+  if [[ -d "$SCRIPT_DIR/scripts" ]]; then
+    for script in "$SCRIPT_DIR/scripts/"*; do
+      [[ -f $script ]] || continue
+      create_symlink "$script" "$HOME/.local/bin/$(basename "$script")"
+    done
+  fi
 
   log_success "Config symlinks created"
 }

@@ -54,6 +54,35 @@ select_region() {
   slurp
 }
 
+fullscreen_region() {
+  require_bin wlr-randr
+  require_bin jq
+
+  wlr-randr --json | jq -r '
+    map(select(.enabled)) as $outs
+    | if ($outs | length) == 0 then empty else
+      $outs
+      | map(
+          . as $o
+          | ($o.modes[] | select(.current)) as $m
+          | ($o.scale // 1) as $s
+          | ($o.transform // "normal" | tostring) as $t
+          | ($m.width) as $w
+          | ($m.height) as $h
+          | (if ($t | test("90|270")) then $h else $w end) as $tw
+          | (if ($t | test("90|270")) then $w else $h end) as $th
+          | {x: $o.position.x, y: $o.position.y, w: ($tw / $s), h: ($th / $s)}
+        )
+      | {minx: (map(.x) | min), miny: (map(.y) | min),
+         maxx: (map(.x + .w) | max), maxy: (map(.y + .h) | max)}
+      | {x: (.minx | floor), y: (.miny | floor),
+         w: ((.maxx | ceil) - (.minx | floor)),
+         h: ((.maxy | ceil) - (.miny | floor))}
+      | "\(.x),\(.y) \(.w)x\(.h)"
+    end
+  '
+}
+
 case "$MODE" in
   area|window)
     region=$(select_region || true)
@@ -64,7 +93,12 @@ case "$MODE" in
     wf-recorder -g "$region" -f "$RECORDING_DIR/$FILENAME" &
     ;;
   fullscreen)
-    wf-recorder -f "$RECORDING_DIR/$FILENAME" &
+    region=$(fullscreen_region || true)
+    if [[ -z ${region} ]]; then
+      notify "Recording error" "No fullscreen region found"
+      exit 1
+    fi
+    wf-recorder -g "$region" -f "$RECORDING_DIR/$FILENAME" &
     ;;
   *)
     echo "Usage: screenrecord [area|window|fullscreen]"

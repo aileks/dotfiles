@@ -14,6 +14,7 @@ window#waybar {
 #workspaces button {
   padding: 0 2px;
   border: 0;
+  border-radius: 0;
   background: transparent;
   color: #949494;
 }
@@ -62,6 +63,10 @@ window#waybar {
   color: #535353;
 }
 
+#custom-network {
+  color: #4a8b8b;
+}
+
 #custom-network.good {
   color: #4a8b8b;
 }
@@ -74,6 +79,10 @@ window#waybar {
   color: #535353;
 }
 
+#custom-volume {
+  color: #c4693d;
+}
+
 #custom-volume.high {
-  color: #d87c4a;
+  color: #c4693d;
 }
