@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=dwm
-Comment=Dynamic window manager
-Exec=dwm
-TryExec=dwm
-Type=Application
-Keywords=tiling;wm;windowmanager;
