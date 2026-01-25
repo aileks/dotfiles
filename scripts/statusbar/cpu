@@ -28,6 +28,7 @@ case "${1:-}" in
 esac
 
 cpu=$(top -bn1 | awk -F'[, ]+' '/Cpu\(s\)/ {print int($3 + $5)}')
+load=$(awk '{print $1" "$2" "$3}' /proc/loadavg)
 
 class="normal"
 if [[ $cpu -ge 80 ]]; then
@@ -36,4 +37,5 @@ elif [[ $cpu -ge 50 ]]; then
   class="warning"
 fi
 
-printf '{"text":"󰻠 %s%%","class":"cpu %s"}\n' "$cpu" "$class"
+tooltip="CPU: ${cpu}%\\nLoad: ${load}"
+printf '{"text":"󰻠 %s%%","class":"cpu %s","tooltip":"%s"}\n' "$cpu" "$class" "$tooltip"

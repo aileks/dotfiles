@@ -29,6 +29,8 @@ case "${1:-}" in
 esac
 
 mem=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
+read -r mem_used mem_total < <(free -h | awk '/Mem:/ {print $3, $2}')
+read -r swap_used swap_total < <(free -h | awk '/Swap:/ {print $3, $2}')
 
 class="normal"
 if [[ $mem -ge 80 ]]; then
@@ -37,4 +39,5 @@ elif [[ $mem -ge 50 ]]; then
   class="warning"
 fi
 
-printf '{"text":"󰍛 %s%%","class":"memory %s"}\n' "$mem" "$class"
+tooltip="RAM: ${mem_used}/${mem_total} (${mem}%)\\nSwap: ${swap_used}/${swap_total}"
+printf '{"text":"󰍛 %s%%","class":"memory %s","tooltip":"%s"}\n' "$mem" "$class" "$tooltip"

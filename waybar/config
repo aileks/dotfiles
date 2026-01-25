@@ -13,45 +13,45 @@
     "max-length": 80
   },
   "custom/cpu": {
-    "exec": "cpu",
+    "exec": "$HOME/.local/bin/cpu",
     "interval": 5,
     "return-type": "json",
-    "on-click": "cpu --notify",
-    "on-click-right": "cpu --open"
+    "on-click": "$HOME/.local/bin/cpu --notify",
+    "on-click-right": "$HOME/.local/bin/cpu --open"
   },
   "custom/memory": {
-    "exec": "memory",
+    "exec": "$HOME/.local/bin/memory",
     "interval": 5,
     "return-type": "json",
-    "on-click": "memory --notify",
-    "on-click-right": "memory --open"
+    "on-click": "$HOME/.local/bin/memory --notify",
+    "on-click-right": "$HOME/.local/bin/memory --open"
   },
   "custom/network": {
-    "exec": "network",
+    "exec": "$HOME/.local/bin/network",
     "interval": 10,
     "return-type": "json",
     "signal": 4,
-    "on-click": "network --open",
-    "on-click-middle": "network --info",
-    "on-click-right": "network --toggle-wifi"
+    "on-click": "$HOME/.local/bin/network --open",
+    "on-click-middle": "$HOME/.local/bin/network --info",
+    "on-click-right": "$HOME/.local/bin/network --toggle-wifi"
   },
   "custom/volume": {
-    "exec": "volume",
+    "exec": "$HOME/.local/bin/volume",
     "interval": 2,
     "return-type": "json",
     "signal": 5,
-    "on-click": "volume --toggle-mute",
-    "on-click-right": "volume --open",
-    "on-scroll-up": "volume --inc",
-    "on-scroll-down": "volume --dec"
+    "on-click": "$HOME/.local/bin/volume --toggle-mute",
+    "on-click-right": "$HOME/.local/bin/volume --open",
+    "on-scroll-up": "$HOME/.local/bin/volume --inc",
+    "on-scroll-down": "$HOME/.local/bin/volume --dec"
   },
   "custom/clock": {
-    "exec": "clock",
+    "exec": "$HOME/.local/bin/clock",
     "interval": 5,
     "return-type": "json",
     "signal": 6,
-    "on-click": "clock --toggle",
-    "on-click-right": "clock --open"
+    "on-click": "$HOME/.local/bin/clock --toggle",
+    "on-click-right": "$HOME/.local/bin/clock --open"
   },
   "tray": {
     "icon-size": 18,

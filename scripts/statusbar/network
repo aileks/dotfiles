@@ -11,7 +11,9 @@ notify() {
 }
 
 active_connection() {
-  nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | grep -E 'wireless|wifi|ethernet' | head -1
+  local connections
+  connections=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null || true)
+  printf '%s\n' "$connections" | awk -F: '$2 ~ /(wireless|wifi|ethernet)/ {print; exit}'
 }
 
 case "${1:-}" in
@@ -45,7 +47,12 @@ esac
 
 connection=$(active_connection)
 if [[ -z $connection ]]; then
-  printf '{"text":"󰤭","class":"network disconnected"}\n'
+  wifi_state=$(nmcli -t -f WIFI radio 2>/dev/null || true)
+  if [[ $wifi_state == "disabled" ]]; then
+    printf '{"text":"󰤮 WiFi","tooltip":"WiFi disabled","class":"network disconnected"}\n'
+  else
+    printf '{"text":"󰤭 WiFi","tooltip":"WiFi disconnected","class":"network disconnected"}\n'
+  fi
   exit 0
 fi
 
@@ -53,7 +60,7 @@ name=${connection%%:*}
 type=${connection##*:}
 
 if [[ $type == "802-11-wireless" ]]; then
-  signal=$(nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | awk -F: '$1=="*" {print $2; exit}')
+  signal=$(nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | awk -F: '$1=="*" {print $2; exit}' || true)
   icon="󰤥"
   class="warning"
   if [[ -n $signal ]]; then

@@ -5,6 +5,56 @@
 
 set -euo pipefail
 
+get_output() {
+  local output=""
+  local sink=""
+  local sink_desc=""
+
+  if command -v wpctl >/dev/null 2>&1; then
+    output=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk -F'"' '
+      /node.description/ {print $2; exit}
+    ' || true)
+    if [[ -z $output ]]; then
+      output=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk -F'"' '
+        /node.name/ {print $2; exit}
+      ' || true)
+    fi
+  fi
+
+  if [[ -z $output ]] && command -v pamixer >/dev/null 2>&1; then
+    sink=$(pamixer --get-default-sink 2>/dev/null || true)
+  fi
+
+  if [[ -z $sink ]] && command -v pactl >/dev/null 2>&1; then
+    sink=$(pactl get-default-sink 2>/dev/null || true)
+  fi
+
+  if [[ -n $sink ]] && command -v pactl >/dev/null 2>&1; then
+    sink_desc=$(pactl list sinks 2>/dev/null | awk -v sink="$sink" '
+      $1=="Name:" && $2==sink {found=1}
+      found && $1=="Description:" {sub(/^Description:[ \t]*/, "", $0); print $0; exit}
+    ' || true)
+  fi
+
+  if [[ -n $output ]]; then
+    printf '%s' "$output"
+  elif [[ -n $sink_desc ]]; then
+    printf '%s' "$sink_desc"
+  elif [[ -n $sink ]]; then
+    printf '%s' "$sink"
+  else
+    printf 'Unknown'
+  fi
+}
+
+json_escape() {
+  local value=$1
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  value=${value//$'\n'/\\n}
+  printf '%s' "$value"
+}
+
 case "${1:-}" in
   --toggle-mute)
     pamixer -t
@@ -30,9 +80,12 @@ esac
 
 vol=$(pamixer --get-volume 2>/dev/null || true)
 muted=$(pamixer --get-mute 2>/dev/null || true)
+output=$(get_output)
+output_escaped=$(json_escape "$output")
 
 if [[ $muted == "true" ]]; then
-  printf '{"text":"󰝟","class":"muted"}\n'
+  tooltip="Output: ${output_escaped}\\nMuted"
+  printf '{"text":"󰝟","class":"muted","tooltip":"%s"}\n' "$tooltip"
   exit 0
 fi
 
@@ -57,4 +110,5 @@ else
   class="high"
 fi
 
-printf '{"text":"%s %s%%","class":"%s"}\n' "$icon" "$vol" "$class"
+tooltip="Output: ${output_escaped}\\nVolume: ${vol}%"
+printf '{"text":"%s %s%%","class":"%s","tooltip":"%s"}\n' "$icon" "$vol" "$class" "$tooltip"
