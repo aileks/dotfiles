@@ -118,6 +118,7 @@ riverctl focus-follows-cursor normal
 riverctl input "*" accel-profile flat
 riverctl input "*" pointer-accel 0
 
+riverctl rule-add -app-id "imv" float
 riverctl rule-add -app-id "calendar-floating" float
 riverctl rule-add -app-id "btop-floating" float
 riverctl rule-add -app-id "volume-floating" float

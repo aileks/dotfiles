@@ -127,7 +127,7 @@ PACMAN_PACKAGES=(
   trash-cli
   zathura
   zathura-pdf-mupdf
-  nsxiv
+  imv
   fastfetch
   btop
   calcurse
