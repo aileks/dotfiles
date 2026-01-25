@@ -30,7 +30,7 @@ copy_clipboard() {
 }
 
 select_region() {
-  slurp
+  slurp -d
 }
 
 require_bin() {

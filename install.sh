@@ -84,7 +84,7 @@ PACMAN_PACKAGES=(
   libgccjit
   gdb
   gvim
-  emacs
+  emacs-wayland
   zsh
   github-cli
   wezterm
