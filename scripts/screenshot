@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Screenshot utility for river/Wayland
-# Usage: screenshot <area|window|fullscreen> <clipboard|file>
+# Usage: screenshot <area|fullscreen> <clipboard|file>
 
 set -euo pipefail
 
@@ -29,6 +29,17 @@ copy_clipboard() {
   wl-copy --type image/png
 }
 
+annotate_file() {
+  local file="$1"
+
+  if command -v satty >/dev/null 2>&1; then
+    satty --filename "$file" --output-filename "$file" >/dev/null 2>&1 &
+    disown $!
+  else
+    notify "Satty not installed; skipping annotation"
+  fi
+}
+
 select_region() {
   slurp -d
 }
@@ -47,7 +58,7 @@ if [[ "$OUTPUT" == "clipboard" ]]; then
 fi
 
 case "$MODE" in
-  area|window)
+  area)
     region=$(select_region || true)
     if [[ -z ${region} ]]; then
       notify "Selection cancelled"
@@ -63,6 +74,7 @@ case "$MODE" in
     else
       if grim -g "$region" "$SCREENSHOT_DIR/$FILENAME"; then
         notify "$FILENAME saved to screenshots"
+        annotate_file "$SCREENSHOT_DIR/$FILENAME"
       else
         notify "Selection capture failed" "critical"
         exit 1
@@ -80,6 +92,7 @@ case "$MODE" in
     else
       if grim "$SCREENSHOT_DIR/$FILENAME"; then
         notify "$FILENAME saved to screenshots"
+        annotate_file "$SCREENSHOT_DIR/$FILENAME"
       else
         notify "Fullscreen capture failed" "critical"
         exit 1
@@ -87,7 +100,7 @@ case "$MODE" in
     fi
     ;;
   *)
-    echo "Usage: screenshot <area|window|fullscreen> <clipboard|file>"
+    echo "Usage: screenshot <area|fullscreen> <clipboard|file>"
     exit 1
     ;;
 esac
