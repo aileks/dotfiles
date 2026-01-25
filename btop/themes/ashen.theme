@@ -23,7 +23,7 @@ theme[temp_end]="#c53030"
 
 theme[cpu_start]="#a7a7a7"
 theme[cpu_mid]="#e49a44"
-theme[cpu_end]="#c5303"
+theme[cpu_end]="#c53030"
 
 theme[free_start]="#212121"
 theme[free_mid]="#535353"
@@ -33,7 +33,7 @@ theme[cached_start]="#191919"
 theme[cached_mid]="#b4b4b4"
 theme[cached_end]="#4a8b8b"
 
-theme[available_start]="#191919"
+theme[available_start]="#c53030"
 theme[available_mid]="#d87c4a"
 theme[available_end]="#4a8b8b"
 
