@@ -71,6 +71,12 @@ tooltip {
   background: transparent;
 }
 
+#river-tags button.occupied,
+#tags button.occupied,
+#workspaces button.occupied {
+  box-shadow: inset 0 -2px @orange_blaze;
+}
+
 #river-tags button.focused,
 #tags button.focused,
 #workspaces button.focused {

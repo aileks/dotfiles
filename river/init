@@ -124,6 +124,7 @@ riverctl rule-add -app-id "calendar-floating" float
 riverctl rule-add -app-id "btop-floating" float
 riverctl rule-add -app-id "volume-floating" float
 riverctl rule-add -app-id "qalculate-gtk" float
+riverctl rule-add -app-id "Fastmail" tags 256
 riverctl rule-add -app-id "xdg-desktop-portal-gtk" float
 riverctl rule-add -app-id "org.freedesktop.impl.portal.desktop.gtk" float
 riverctl rule-add -app-id "xdg-desktop-portal-wlr" float
@@ -168,3 +169,4 @@ swayidle -w &
 blueman-applet &
 solaar -w hide &
 emacs --daemon &
+fastmail &
