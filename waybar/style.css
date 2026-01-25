@@ -6,6 +6,7 @@
 @define-color orange_glow #d87c4a;
 @define-color orange_blaze #c4693d;
 @define-color orange_smolder #e49a44;
+@define-color orange_golden #e5a72a;
 @define-color green #629c7d;
 @define-color teal #4a8b8b;
 
@@ -98,7 +99,7 @@ tooltip {
 
 #custom-clock,
 #custom-clock label {
-  color: @orange_smolder;
+  color: @orange_golden;
 }
 
 #custom-cpu.warning,
