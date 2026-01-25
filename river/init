@@ -53,8 +53,6 @@ riverctl map normal "$mod" Up send-layout-cmd rivertile "main-location top"
 riverctl map normal "$mod" Right send-layout-cmd rivertile "main-location right"
 riverctl map normal "$mod" Down send-layout-cmd rivertile "main-location bottom"
 riverctl map normal "$mod" Left send-layout-cmd rivertile "main-location left"
-riverctl map normal "$mod" BracketLeft spawn "$HOME/.local/bin/layout-cycle prev"
-riverctl map normal "$mod" BracketRight spawn "$HOME/.local/bin/layout-cycle next"
 
 riverctl map normal "$mod+Alt" H move left 100
 riverctl map normal "$mod+Alt" J move down 100

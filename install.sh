@@ -104,7 +104,6 @@ PACMAN_PACKAGES=(
   wget
   jq
   tree
-  bc
   zip
   unzip
   unrar
@@ -112,7 +111,8 @@ PACMAN_PACKAGES=(
   geoclue
   xdg-user-dirs
   xdg-utils
-  perl-file-mimeinfo
+  xdg-desktop-portal-gtk
+  xdg-desktop-portal-wlr
   polkit-gnome
   yazi
   thunar
