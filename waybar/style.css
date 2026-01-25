@@ -1,88 +1,155 @@
+@define-color bg #121212;
+@define-color fg #d5d5d5;
+@define-color grey #949494;
+@define-color red_ember #b14242;
+@define-color red_glowing #df6464;
+@define-color orange_glow #d87c4a;
+@define-color orange_blaze #c4693d;
+@define-color orange_smolder #e49a44;
+@define-color green #629c7d;
+@define-color teal #4a8b8b;
+
 * {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
   font-family: "CommitMono Nerd Font Mono";
   font-size: 14px;
-  min-height: 0;
+  padding: 0;
 }
 
 window#waybar {
-  background: #121212;
-  border-bottom: 2px solid #212121;
+  background: @bg;
+  padding: 0;
+  margin: 0;
+}
+
+tooltip {
+  background-color: @bg;
+  color: @fg;
+  padding: 4px;
+}
+
+#river-window,
+#river-window label,
+#custom-clock,
+#custom-clock label,
+#custom-cpu,
+#custom-cpu label,
+#custom-memory,
+#custom-memory label,
+#custom-network,
+#custom-network label,
+#custom-volume,
+#custom-volume label,
+#tray {
+  margin: 0;
+  padding: 2px 6px;
+  color: @fg;
+}
+
+#river-tags,
+#tags,
+#workspaces {
+  background-color: @bg;
+  margin: 0;
+  padding: 2px 6px;
 }
 
 #river-tags button,
 #tags button,
 #workspaces button {
-  padding: 0 2px;
-  border: 0;
+  all: initial;
+  min-width: 0;
+  box-shadow: none;
+  padding: 2px 8px;
+  color: @fg;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
   border-radius: 0;
   background: transparent;
-  color: #949494;
 }
 
 #river-tags button.focused,
 #tags button.focused,
 #workspaces button.focused {
-  background: #c4693d;
-  color: #121212;
+  border: none;
+  background: @orange_blaze;
+  color: @bg;
 }
 
 #river-tags button.urgent,
 #tags button.urgent,
 #workspaces button.urgent {
-  background: #b14242;
-  color: #d5d5d5;
+  border: none;
+  box-shadow: inset 0 -2px @orange_glow;
 }
 
-#river-layout,
-#river-window,
-#custom-cpu,
-#custom-memory,
-#custom-network,
-#custom-volume,
-#custom-clock,
 #tray {
-  padding: 0 2px;
-  color: #a7a7a7;
+  border: none;
 }
 
-#custom-clock {
-  color: #e49a44;
+#custom-clock,
+#custom-clock label {
+  color: @orange_smolder;
 }
 
 #custom-cpu.warning,
-#custom-memory.warning {
-  color: #e49a44;
+#custom-cpu.warning label,
+#custom-memory.warning,
+#custom-memory.warning label {
+  color: @orange_smolder;
 }
 
 #custom-cpu.critical,
-#custom-memory.critical {
-  color: #b14242;
+#custom-cpu.critical label,
+#custom-memory.critical,
+#custom-memory.critical label {
+  color: @red_ember;
 }
 
-#custom-network.disconnected {
-  color: #535353;
+#custom-network,
+#custom-network label {
+  color: @teal;
 }
 
-#custom-network {
-  color: #4a8b8b;
+#custom-network.disconnected,
+#custom-network.disconnected label {
+  color: @grey;
 }
 
-#custom-network.good {
-  color: #4a8b8b;
+#custom-network.good,
+#custom-network.good label {
+  color: @teal;
 }
 
-#custom-network.warning {
-  color: #e49a44;
+#custom-network.warning,
+#custom-network.warning label {
+  color: @orange_glow;
 }
 
-#custom-volume.muted {
-  color: #535353;
+#custom-volume,
+#custom-volume label {
+  color: @orange_blaze;
 }
 
-#custom-volume {
-  color: #c4693d;
+#custom-volume.muted,
+#custom-volume.muted label {
+  color: @grey;
 }
 
-#custom-volume.high {
-  color: #c4693d;
+#custom-volume.high,
+#custom-volume.high label {
+  color: @orange_blaze;
+}
+
+#custom-volume.medium,
+#custom-volume.medium label {
+  color: @orange_smolder;
+}
+
+#custom-volume.low,
+#custom-volume.low label {
+  color: @green;
 }

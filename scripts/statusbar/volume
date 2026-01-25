@@ -37,7 +37,7 @@ if [[ $muted == "true" ]]; then
 fi
 
 icon="󰕿"
-class="normal"
+class="medium"
 
 if [[ -z $vol ]]; then
   vol=0
@@ -48,10 +48,10 @@ if [[ $vol -eq 0 ]]; then
   class="muted"
 elif [[ $vol -lt 30 ]]; then
   icon="󰕿"
-  class="normal"
+  class="low"
 elif [[ $vol -lt 70 ]]; then
   icon="󰖀"
-  class="normal"
+  class="medium"
 else
   icon="󰕾"
   class="high"
