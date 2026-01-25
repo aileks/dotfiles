@@ -78,17 +78,11 @@ PACMAN_PACKAGES=(
   swayidle
   swaybg
   wlr-randr
-  grim
-  slurp
   wl-clipboard
   wf-recorder
-  xorg-xwayland
   xarchiver
   libgccjit
   gdb
-  freetype2
-  fontconfig
-  imlib2
   gvim
   emacs
   zsh
@@ -121,19 +115,9 @@ PACMAN_PACKAGES=(
   thunar-archive-plugin
   gvfs
   gvfs-afc
-  udisks2
-  ntfs-3g
-  dosfstools
-  exfat-utils
-  libimobiledevice
   ifuse
-  libnotify
-  ffmpeg
   pamixer
-  playerctl
-  networkmanager
   network-manager-applet
-  nm-connection-editor
   fzf
   zoxide
   eza
@@ -148,17 +132,16 @@ PACMAN_PACKAGES=(
   btop
   calcurse
   qalculate-gtk
-  mypaint
-  gcolor3
+  hyprpicker
   mpv
   wiremix
   gst-plugins-good
   gst-plugins-bad
   gst-plugins-ugly
   gst-libav
+  ffmpeg
   ffmpegthumbnailer
   usbutils
-  bluez
   bluez-utils
   blueman
   cups
