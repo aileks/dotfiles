@@ -1,14 +1,9 @@
 #!/bin/sh
 
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.bun/bin:$PATH"
 export XDG_CURRENT_DESKTOP="river"
 export XCURSOR_SIZE=32
 export GTK_CSD=0
 export TERMINAL=wezterm
-export EDITOR="emacsclient -t"
-export VISUAL="emacsclient -t -nw"
-export SUDO_EDITOR=vim
-export MANPAGER="bat -plman"
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export GPG_TTY="$(tty)"
 

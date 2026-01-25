@@ -32,7 +32,7 @@ vol=$(pamixer --get-volume 2>/dev/null || true)
 muted=$(pamixer --get-mute 2>/dev/null || true)
 
 if [[ $muted == "true" ]]; then
-  printf '{"text":"󰝟","class":"volume muted"}\n'
+  printf '{"text":"󰝟","class":"muted"}\n'
   exit 0
 fi
 
@@ -57,4 +57,4 @@ else
   class="high"
 fi
 
-printf '{"text":"%s %s%%","class":"volume %s"}\n' "$icon" "$vol" "$class"
+printf '{"text":"%s %s%%","class":"%s"}\n' "$icon" "$vol" "$class"
