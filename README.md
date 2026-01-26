@@ -15,6 +15,7 @@ Arch setup built on River with the [Ashen](https://codeberg.org/ficd/ashen) colo
 - **Editor**: [Emacs](https://codeberg.org/aileks/emacs.d)
 - **File manager**: Yazi
 - **PDF viewer**: Zathura
+- **Media player**: mpv
 
 List of keybinds here [here](https://codeberg.org/aileks/dotfiles/wiki)
 
@@ -40,6 +41,10 @@ cd ~/.dotfiles
 ./install.sh 2            # Symlink only
 ./install.sh --dry-run 1  # Preview changes
 ```
+
+## MPV
+
+Config lives in `~/.config/mpv` (symlinked from `~/.dotfiles/mpv`). OSC theme uses mpv-osc-modern.
 
 ### Lock on Suspend
 
