@@ -133,6 +133,7 @@ riverctl rule-add -title "*Open File*" float
 riverctl rule-add -title "*Options*" float
 riverctl rule-add -title "*Preferences*" float
 riverctl rule-add -title "*Properties*" float
+riverctl rule-add -app-id "thunar" -title "*Rename*" float
 riverctl rule-add -title "*Save As*" float
 riverctl rule-add -title "*Save File*" float
 riverctl rule-add -title "*Select File*" float
