@@ -29,17 +29,6 @@ copy_clipboard() {
   wl-copy --type image/png
 }
 
-annotate_file() {
-  local file="$1"
-
-  if command -v satty >/dev/null 2>&1; then
-    satty --filename "$file" --output-filename "$file" >/dev/null 2>&1 &
-    disown $!
-  else
-    notify "Satty not installed; skipping annotation"
-  fi
-}
-
 select_region() {
   slurp -d
 }
@@ -74,7 +63,6 @@ case "$MODE" in
     else
       if grim -g "$region" "$SCREENSHOT_DIR/$FILENAME"; then
         notify "$FILENAME saved to screenshots"
-        annotate_file "$SCREENSHOT_DIR/$FILENAME"
       else
         notify "Selection capture failed" "critical"
         exit 1
@@ -92,7 +80,6 @@ case "$MODE" in
     else
       if grim "$SCREENSHOT_DIR/$FILENAME"; then
         notify "$FILENAME saved to screenshots"
-        annotate_file "$SCREENSHOT_DIR/$FILENAME"
       else
         notify "Fullscreen capture failed" "critical"
         exit 1
