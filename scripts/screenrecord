@@ -84,7 +84,7 @@ fullscreen_region() {
 }
 
 case "$MODE" in
-  area|window)
+  area | window)
     region=$(select_region || true)
     if [[ -z ${region} ]]; then
       notify "Recording cancelled" "No region selected"

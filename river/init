@@ -153,8 +153,8 @@ pkill -x swaybg 2>/dev/null || true
 swaybg -o DP-1 -i "$HOME/Pictures/wallpaper.jpg" -m fill &
 swaybg -o HDMI-A-1 -i "$HOME/Pictures/wallpaper2.jpg" -m fill &
 
-pkill -x mako 2>/dev/null || true
-mako &
+pkill -x wired 2>/dev/null || true
+wired -r &
 
 pkill -x swayidle 2>/dev/null || true
 swayidle -w &

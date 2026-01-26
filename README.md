@@ -27,7 +27,7 @@ curl -fsSL https://aileks.dev/linux | bash
 Or manually:
 
 ```bash
-git clone --recursive https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
+git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
 ```

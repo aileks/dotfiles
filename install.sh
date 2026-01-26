@@ -11,6 +11,8 @@ readonly LOG_NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
+EMACS_REPO="https://codeberg.org/aileks/emacs.d.git"
+EMACS_DIR="$HOME/.emacs.d"
 
 DRY_RUN=false
 DEBUG=false
@@ -73,7 +75,6 @@ PACMAN_PACKAGES=(
   river
   waybar
   fuzzel
-  mako
   swaylock
   swayidle
   swaybg
@@ -154,6 +155,7 @@ PACMAN_PACKAGES=(
 )
 
 AUR_PACKAGES=(
+  wired
   helium-browser-bin
   ttf-adwaita-mono-nerd
   ttf-mac-fonts
@@ -351,6 +353,31 @@ install_zsh_plugins() {
   log_success "Zsh plugins installed"
 }
 
+setup_emacs_config() {
+  log_info "Setting up Emacs config..."
+
+  if [[ -d "$EMACS_DIR/.git" ]]; then
+    log_success "Emacs config already cloned"
+    return 0
+  fi
+
+  if [[ -e "$EMACS_DIR" ]]; then
+    log_warning "Emacs config path exists, skipping clone: $EMACS_DIR"
+    return 0
+  fi
+
+  if log_dry "git clone $EMACS_REPO $EMACS_DIR"; then
+    return 0
+  fi
+
+  if ! git clone "$EMACS_REPO" "$EMACS_DIR"; then
+    log_warning "Failed to clone Emacs config"
+    return 0
+  fi
+
+  log_success "Emacs config cloned"
+}
+
 # ============================================================
 # Symlink Management
 # ============================================================
@@ -411,7 +438,6 @@ symlink_configs() {
   log_info "Creating config symlinks..."
 
   mkdir -p "$HOME/.config"
-  mkdir -p "$HOME/.emacs.d"
   mkdir -p "$HOME/.local/bin"
 
   # Direct directory symlinks
@@ -419,7 +445,6 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
   create_symlink "$SCRIPT_DIR/river" "$HOME/.config/river"
   create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
-  create_symlink "$SCRIPT_DIR/mako" "$HOME/.config/mako"
   create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
   create_symlink "$SCRIPT_DIR/swaylock" "$HOME/.config/swaylock"
   create_symlink "$SCRIPT_DIR/swayidle" "$HOME/.config/swayidle"
@@ -427,10 +452,9 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/yazi" "$HOME/.config/yazi"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
-  create_symlink "$SCRIPT_DIR/emacs" "$HOME/.emacs.d"
+  create_symlink "$SCRIPT_DIR/wired" "$HOME/.config/wired"
 
   # Single file symlinks
-  create_symlink "$SCRIPT_DIR/X11/Xresources" "$HOME/.Xresources"
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
@@ -823,6 +847,7 @@ main() {
   if [[ $SYMLINK_ONLY == true ]]; then
     install_oh_my_zsh
     install_zsh_plugins
+    setup_emacs_config
     symlink_configs
     install_tpm
   else
@@ -832,6 +857,7 @@ main() {
     setup_xdg_dirs
     install_oh_my_zsh
     install_zsh_plugins
+    setup_emacs_config
     symlink_configs
     install_tpm
     setup_keyd

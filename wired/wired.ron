@@ -1,0 +1,135 @@
+(
+    max_notifications: 0,
+    timeout: 10000,
+    zero_timeout_behavior: NeverExpire,
+    poll_interval: 16,
+    focus_follows: Window,
+
+    layout_blocks: [
+        (
+            name: "root",
+            parent: "",
+            hook: Hook(parent_anchor: TR, self_anchor: TR),
+            offset: Vec2(x: -20.0, y: 50.0),
+            params: NotificationBlock((
+                monitor: 1,
+                border_width: 2.0,
+                border_rounding: 0.0,
+                background_color: Color(hex: "#191919"),
+                border_color: Color(hex: "#c4693d"),
+                border_color_low: Color(hex: "#535353"),
+                border_color_critical: Color(hex: "#b14242"),
+                border_color_paused: Color(hex: "#535353"),
+                gap: Vec2(x: 0.0, y: 10.0),
+                notification_hook: Hook(parent_anchor: BL, self_anchor: TL),
+            )),
+        ),
+
+        (
+            name: "summary_normal",
+            parent: "root",
+            hook: Hook(parent_anchor: TL, self_anchor: TL),
+            offset: Vec2(x: 0.0, y: 0.0),
+            render_criteria: [Body],
+            render_anti_criteria: [Urgency("low")],
+            params: TextBlock((
+                text: "%s",
+                font: "CommitMono Nerd Font Mono 16",
+                color: Color(hex: "#d5d5d5"),
+                padding: Padding(left: 15.0, right: 15.0, top: 15.0, bottom: 0.0),
+                dimensions: (width: (min: 400, max: 400), height: (min: 0, max: 0)),
+            )),
+        ),
+
+        (
+            name: "summary_normal_nobody",
+            parent: "root",
+            hook: Hook(parent_anchor: TL, self_anchor: TL),
+            offset: Vec2(x: 0.0, y: 0.0),
+            render_anti_criteria: [Body, Urgency("low")],
+            params: TextBlock((
+                text: "%s",
+                font: "CommitMono Nerd Font Mono 16",
+                color: Color(hex: "#d5d5d5"),
+                padding: Padding(left: 15.0, right: 15.0, top: 15.0, bottom: 15.0),
+                dimensions: (width: (min: 400, max: 400), height: (min: 0, max: 0)),
+            )),
+        ),
+
+        (
+            name: "summary_low",
+            parent: "root",
+            hook: Hook(parent_anchor: TL, self_anchor: TL),
+            offset: Vec2(x: 0.0, y: 0.0),
+            render_criteria: [And([Body, Urgency("low")])],
+            params: TextBlock((
+                text: "%s",
+                font: "CommitMono Nerd Font Mono 16",
+                color: Color(hex: "#a7a7a7"),
+                padding: Padding(left: 15.0, right: 15.0, top: 15.0, bottom: 0.0),
+                dimensions: (width: (min: 400, max: 400), height: (min: 0, max: 0)),
+            )),
+        ),
+
+        (
+            name: "summary_low_nobody",
+            parent: "root",
+            hook: Hook(parent_anchor: TL, self_anchor: TL),
+            offset: Vec2(x: 0.0, y: 0.0),
+            render_criteria: [Urgency("low")],
+            render_anti_criteria: [Body],
+            params: TextBlock((
+                text: "%s",
+                font: "CommitMono Nerd Font Mono 16",
+                color: Color(hex: "#a7a7a7"),
+                padding: Padding(left: 15.0, right: 15.0, top: 15.0, bottom: 15.0),
+                dimensions: (width: (min: 400, max: 400), height: (min: 0, max: 0)),
+            )),
+        ),
+
+        (
+            name: "body_normal",
+            parent: "summary_normal",
+            hook: Hook(parent_anchor: BL, self_anchor: TL),
+            offset: Vec2(x: 0.0, y: 0.0),
+            render_criteria: [Body],
+            render_anti_criteria: [Urgency("low")],
+            params: ScrollingTextBlock((
+                text: "%b",
+                font: "CommitMono Nerd Font Mono 16",
+                color: Color(hex: "#d5d5d5"),
+                padding: Padding(left: 15.0, right: 15.0, top: 3.0, bottom: 15.0),
+                width: (min: 400, max: 400),
+                scroll_speed: 0.1,
+                lhs_dist: 35.0,
+                rhs_dist: 35.0,
+                scroll_t: 1.0,
+            )),
+        ),
+
+        (
+            name: "body_low",
+            parent: "summary_low",
+            hook: Hook(parent_anchor: BL, self_anchor: TL),
+            offset: Vec2(x: 0.0, y: 0.0),
+            render_criteria: [And([Body, Urgency("low")])],
+            params: ScrollingTextBlock((
+                text: "%b",
+                font: "CommitMono Nerd Font Mono 16",
+                color: Color(hex: "#a7a7a7"),
+                padding: Padding(left: 15.0, right: 15.0, top: 3.0, bottom: 15.0),
+                width: (min: 400, max: 400),
+                scroll_speed: 0.1,
+                lhs_dist: 35.0,
+                rhs_dist: 35.0,
+                scroll_t: 1.0,
+            )),
+        ),
+    ],
+
+    shortcuts: ShortcutsConfig (
+        notification_interact: 1,
+        notification_close: 2,
+        notification_action1: 3,
+    ),
+)
