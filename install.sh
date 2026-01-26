@@ -75,7 +75,7 @@ PACMAN_PACKAGES=(
   river
   waybar
   fuzzel
-  swaylock
+  waylock
   swayidle
   swaybg
   wlr-randr
@@ -446,7 +446,6 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/river" "$HOME/.config/river"
   create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
   create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
-  create_symlink "$SCRIPT_DIR/swaylock" "$HOME/.config/swaylock"
   create_symlink "$SCRIPT_DIR/swayidle" "$HOME/.config/swayidle"
   create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"

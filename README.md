@@ -9,7 +9,7 @@ Arch setup built on River with the [Ashen](https://codeberg.org/ficd/ashen) colo
 - **Terminal**: WezTerm
 - **Launcher**: Fuzzel
 - **Notifications**: Mako
-- **Lockscreen**: Swaylock
+- **Lockscreen**: Waylock
 - **Wallpaper**: Swaybg
 - **Shell**: Zsh
 - **Editor**: [Emacs](https://codeberg.org/aileks/emacs.d)

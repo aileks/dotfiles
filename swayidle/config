@@ -1,5 +1,5 @@
-lock 'swaylock'
-before-sleep 'swaylock'
-timeout 600 'swaylock'
+lock 'lock --fork'
+before-sleep 'lock --fork'
+timeout 600 'lock --fork'
 timeout 900 'wlr-randr --output DP-1 --off --output HDMI-A-1 --off'
 resume 'monitors'

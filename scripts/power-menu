@@ -35,8 +35,12 @@ confirm() {
 }
 
 do_lock() {
-  if cmd_exists swaylock; then
-    exec swaylock
+  if cmd_exists lock; then
+    exec lock
+  fi
+
+  if cmd_exists waylock; then
+    exec waylock
   fi
 
   if cmd_exists loginctl; then
@@ -46,7 +50,7 @@ do_lock() {
     exec loginctl lock-sessions
   fi
 
-  die "No lock backend found (swaylock/loginctl)"
+  die "No lock backend found (waylock/loginctl)"
 }
 
 do_logout() {
@@ -67,7 +71,7 @@ do_logout() {
     exec killall -TERM river
   fi
 
-  die "No logout backend found (riverctl/loginctl/pkill/killall)"
+  die "No logout backend found"
 }
 
 do_reboot() {
@@ -83,7 +87,7 @@ do_reboot() {
     exec reboot
   fi
 
-  die "No reboot backend found (systemctl/loginctl/reboot)"
+  die "No reboot backend found"
 }
 
 do_suspend() {
@@ -95,7 +99,7 @@ do_suspend() {
     exec loginctl suspend
   fi
 
-  die "No suspend backend found (systemctl/loginctl)"
+  die "No suspend backend found"
 }
 
 do_shutdown() {
@@ -115,7 +119,7 @@ do_shutdown() {
     exec poweroff
   fi
 
-  die "No shutdown backend found (systemctl/loginctl/shutdown/poweroff)"
+  die "No shutdown backend found"
 }
 
 LOCK=$'\uf023  Lock'

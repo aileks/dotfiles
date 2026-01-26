@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+INIT_COLOR="0x121212"
+INPUT_COLOR="0xd87c4a"
+INPUT_ALT_COLOR="0xe49a44"
+FAIL_COLOR="0xc53030"
+
+args=()
+if [[ ${1:-} == "--fork" ]]; then
+  args+=("-fork-on-lock")
+  shift
+fi
+
+if command -v waylock >/dev/null 2>&1; then
+  exec waylock \
+    "${args[@]}" \
+    -init-color "$INIT_COLOR" \
+    -input-color "$INPUT_COLOR" \
+    -input-alt-color "$INPUT_ALT_COLOR" \
+    -fail-color "$FAIL_COLOR"
+fi
+
+if command -v loginctl >/dev/null 2>&1; then
+  if [[ -n ${XDG_SESSION_ID:-} ]]; then
+    exec loginctl lock-session "$XDG_SESSION_ID"
+  fi
+  exec loginctl lock-sessions
+fi
+
+printf '%s\n' "No lock backend found" >&2
+exit 1
