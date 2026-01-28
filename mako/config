@@ -5,9 +5,9 @@ height=150
 padding=15
 border-size=2
 border-radius=0
-font=CommitMono Nerd Font Mono 16
-background-color=#191919
-text-color=#d5d5d5
+font=CommitMono Nerd Font Mono 14
+background-color=#121212
+text-color=#b4b4b4
 border-color=#535353
 markup=1
 format=<b>%s</b>\n%b
@@ -20,11 +20,11 @@ border-color=#535353
 default-timeout=5000
 
 [urgency=normal]
-text-color=#d5d5d5
+text-color=#b4b4b4
 border-color=#c4693d
 default-timeout=10000
 
 [urgency=critical]
-text-color=#d5d5d5
+text-color=#b4b4b4
 border-color=#b14242
 default-timeout=0

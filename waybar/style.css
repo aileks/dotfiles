@@ -1,13 +1,13 @@
 @define-color bg #121212;
 @define-color fg #d5d5d5;
 @define-color grey #949494;
+@define-color red_flame #c53030;
 @define-color red_ember #b14242;
 @define-color red_glowing #df6464;
 @define-color orange_glow #d87c4a;
 @define-color orange_blaze #c4693d;
 @define-color orange_smolder #e49a44;
 @define-color orange_golden #e5a72a;
-@define-color green #629c7d;
 @define-color teal #4a8b8b;
 
 * {
@@ -82,6 +82,12 @@ tooltip {
   color: @grey;
 }
 
+#workspaces button.focused.empty {
+  background: @orange_glow;
+  color: @bg;
+}
+
+
 #tray {
   border: none;
 }
@@ -95,7 +101,7 @@ tooltip {
 #custom-cpu.warning label,
 #custom-memory.warning,
 #custom-memory.warning label {
-  color: @orange_smolder;
+  color: @orange_golden;
 }
 
 #custom-cpu.critical,
@@ -115,19 +121,14 @@ tooltip {
   color: @grey;
 }
 
-#custom-network.good,
-#custom-network.good label {
-  color: @teal;
-}
-
 #custom-network.warning,
 #custom-network.warning label {
-  color: @orange_glow;
+  color: @orange_golden;
 }
 
 #custom-volume,
 #custom-volume label {
-  color: @orange_blaze;
+  color: @teal;
 }
 
 #custom-volume.muted,
@@ -137,7 +138,7 @@ tooltip {
 
 #custom-volume.high,
 #custom-volume.high label {
-  color: @orange_blaze;
+  color: @red_flame;
 }
 
 #custom-volume.medium,
@@ -147,5 +148,5 @@ tooltip {
 
 #custom-volume.low,
 #custom-volume.low label {
-  color: @green;
+  color: @orange_glow;
 }

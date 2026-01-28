@@ -7,7 +7,7 @@ environment {
 
 cursor {
     xcursor-theme "Adwaita"
-    xcursor-size 34
+    xcursor-size 32
 }
 
 input {
@@ -108,7 +108,7 @@ workspace "5"
 workspace "6"
 workspace "7"
 workspace "8"
-workspace "mail"
+workspace "9"
 
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
@@ -137,7 +137,7 @@ window-rule {
 
 window-rule {
     match app-id="Fastmail"
-    open-on-workspace "mail"
+    open-on-workspace "9"
 }
 
 window-rule {
@@ -146,7 +146,7 @@ window-rule {
     focus-ring {
         on
         width 3
-        active-color "#df6464"
+        active-color "#322119"
         inactive-color "#535353"
         urgent-color "#df6464"
     }
@@ -199,7 +199,7 @@ binds {
     Mod+Shift+P { spawn "~/.local/bin/power-menu"; }
     Mod+S { spawn "signal-desktop"; }
     Mod+B { spawn "emacsclient" "-c" "-a" ""; }
-    Mod+Shift+C { spawn "hyprpicker" "-a"; }
+    Mod+Shift+C { spawn "~/.local/bin/pick-color"; }
 
     Mod+J { focus-window-down; }
     Mod+K { focus-window-up; }
@@ -270,4 +270,3 @@ spawn-at-startup "solaar" "-w" "hide"
 spawn-at-startup "emacs" "--daemon"
 spawn-at-startup "fastmail"
 spawn-at-startup "xwayland-satellite"
-spawn-sh-at-startup "dbus-update-activation-environment DISPLAY WAYLAND_DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"

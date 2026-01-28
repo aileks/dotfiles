@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -euo pipefail
+
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:$PATH"
+
+notify() {
+  local message="$1"
+  local urgency="${2:-normal}"
+
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send -a niri -u "$urgency" "󰄭 Color" "$message"
+  else
+    printf '%s\n' "$message" >&2
+  fi
+}
+
+require_bin() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    notify "Missing dependency: $1" "critical"
+    exit 1
+  fi
+}
+
+require_bin niri
+
+output=$(niri msg pick-color 2>/dev/null || true)
+if [[ -z ${output} ]]; then
+  notify "Color pick cancelled" "critical"
+  exit 1
+fi
+
+hex=""
+rgb=""
+
+while IFS= read -r line; do
+  case "$line" in
+    "Hex:"*)
+      hex=${line#Hex: }
+      ;;
+    "Picked color:"*)
+      rgb=${line#Picked color: }
+      ;;
+  esac
+done <<< "$output"
+
+if [[ -z ${hex} ]]; then
+  notify "Failed to parse picked color" "critical"
+  exit 1
+fi
+
+if command -v wl-copy >/dev/null 2>&1; then
+  printf '%s' "$hex" | wl-copy
+  if [[ -n ${rgb} ]]; then
+    notify "Copied $hex ($rgb)"
+  else
+    notify "Copied $hex"
+  fi
+else
+  printf '%s\n' "$hex"
+  notify "Color: $hex"
+fi
