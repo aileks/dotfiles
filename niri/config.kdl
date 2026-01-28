@@ -106,9 +106,6 @@ workspace "3"
 workspace "4"
 workspace "5"
 workspace "6"
-workspace "7"
-workspace "8"
-workspace "9"
 
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
@@ -137,7 +134,7 @@ window-rule {
 
 window-rule {
     match app-id="Fastmail"
-    open-on-workspace "9"
+    open-on-workspace "6"
 }
 
 window-rule {
@@ -220,7 +217,7 @@ binds {
     Mod+Space { toggle-window-floating; }
     Mod+Tab { focus-workspace-previous; }
     Mod+Shift+V { toggle-overview; }
-    
+
     Mod+Comma { focus-monitor-left; }
     Mod+Period { focus-monitor-right; }
     Mod+Shift+Comma { move-column-to-monitor-left; }

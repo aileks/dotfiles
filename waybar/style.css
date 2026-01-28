@@ -87,6 +87,12 @@ tooltip {
 
 #workspaces button.empty {
   color: @grey;
+  opacity: 0.55;
+}
+
+#workspaces button:not(.empty) {
+  color: @fg;
+  opacity: 1;
 }
 
 #workspaces button.focused.empty {
@@ -106,15 +112,19 @@ tooltip {
 
 #custom-cpu.warning,
 #custom-cpu.warning label,
+#custom-cpu label.warning,
 #custom-memory.warning,
-#custom-memory.warning label {
+#custom-memory.warning label,
+#custom-memory label.warning {
   color: @orange_golden;
 }
 
 #custom-cpu.critical,
 #custom-cpu.critical label,
+#custom-cpu label.critical,
 #custom-memory.critical,
-#custom-memory.critical label {
+#custom-memory.critical label,
+#custom-memory label.critical {
   color: @red_ember;
 }
 
