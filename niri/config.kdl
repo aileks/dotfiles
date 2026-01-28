@@ -1,5 +1,3 @@
-// niri config (KDL)
-
 environment {
     XDG_CURRENT_DESKTOP "niri"
     GTK_CSD "0"
@@ -167,6 +165,14 @@ window-rule {
 }
 
 layer-rule {
+    match namespace="^mako$"
+    match namespace="^notifications$"
+    shadow {
+        off
+    }
+}
+
+layer-rule {
     match namespace="^launcher$"
     match namespace="^fuzzel$"
     geometry-corner-radius 12
@@ -208,12 +214,13 @@ binds {
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
+    Mod+Shift+Return { maximize-column; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+Space { toggle-window-floating; }
     Mod+Tab { focus-workspace-previous; }
     Mod+Shift+V { toggle-overview; }
-
+    
     Mod+Comma { focus-monitor-left; }
     Mod+Period { focus-monitor-right; }
     Mod+Shift+Comma { move-column-to-monitor-left; }
@@ -247,7 +254,7 @@ binds {
 
     F9 { spawn "~/.local/bin/screenrecord" "area"; }
     Shift+F9 { spawn "~/.local/bin/screenrecord" "window"; }
-    Ctrl+F9 { spawn "~/.local/bin/screenrecord" "fullscreen"; }
+    Mod+F9 { spawn "~/.local/bin/screenrecord" "fullscreen"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "pamixer -i 5; pkill -RTMIN+5 waybar"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "pamixer -d 5; pkill -RTMIN+5 waybar"; }
