@@ -3,6 +3,8 @@ environment {
     GTK_CSD "0"
     TERMINAL "wezterm"
     SSH_AUTH_SOCK "/home/aileks/.1password/agent.sock"
+    XCURSOR_THEME "Adwaita"
+    XCURSOR_SIZE "32"
 }
 
 cursor {
@@ -215,7 +217,6 @@ binds {
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+Space { toggle-window-floating; }
-    Mod+Tab { focus-workspace-previous; }
     Mod+Shift+V { toggle-overview; }
 
     Mod+Comma { focus-monitor-left; }

@@ -4,12 +4,12 @@ Arch setup built on Niri with the [Ashen](https://codeberg.org/ficd/ashen) color
 
 ## Features
 
-- **WM**: Niri (Wayland)
+- **WM**: Niri
 - **Status bar**: Waybar
 - **Terminal**: WezTerm
 - **Launcher**: Fuzzel
 - **Notifications**: Mako
-- **Lockscreen**: Waylock
+- **Lockscreen**: Swaylock
 - **Wallpaper**: Swaybg
 - **Shell**: Zsh
 - **Editor**: [Emacs](https://codeberg.org/aileks/emacs.d)
@@ -30,10 +30,10 @@ Or manually:
 ```bash
 git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.sh
+./setup.sh
 ```
 
-## Flags
+## Install Script Flags
 
 ```bash
 ./install.sh              # Interactive menu
@@ -42,15 +42,10 @@ cd ~/.dotfiles
 ./install.sh --dry-run 1  # Preview changes
 ```
 
-## MPV
+## Systemd
 
-Config lives in `~/.config/mpv` (symlinked from `~/.dotfiles/mpv`). OSC theme uses mpv-osc-modern.
-
-### Lock on Suspend
-
-```bash
-sudo systemctl enable betterlockscreen@$USER
-```
+This setup requires systemd to work with Niri nicely. If you are on a systemd-less distro, clone the repo manually and run the install script with `--no-systemd`.  
+You will have to edit the Niri config to launch these services as background processes instead.
 
 ## Resources
 

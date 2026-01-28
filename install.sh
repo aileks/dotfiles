@@ -17,6 +17,7 @@ EMACS_DIR="$HOME/.emacs.d"
 DRY_RUN=false
 DEBUG=false
 SYMLINK_ONLY=false
+NO_SYSTEMD=false
 
 # ============================================================
 # Logging
@@ -482,6 +483,11 @@ install_systemd_user_units() {
 	local user_systemd_dir="$HOME/.config/systemd/user"
 	local wants_unit="niri.service"
 
+	if [[ $NO_SYSTEMD == true ]]; then
+		log_info "Skipping systemd user units (--no-systemd)"
+		return 0
+	fi
+
 	if [[ ! -d $units_dir ]]; then
 		log_debug "No systemd unit directory found"
 		return 0
@@ -882,6 +888,7 @@ Options:
   -h, --help      Show this help message
   -d, --dry-run   Show what would be done without making changes
   --debug         Enable debug output
+  --no-systemd    Skip installing systemd user units
 
 Modes:
   1               Full setup (default)
@@ -909,6 +916,10 @@ parse_arguments() {
 		--debug)
 			DEBUG=true
 			log_debug "Debug mode enabled"
+			;;
+		--no-systemd)
+			NO_SYSTEMD=true
+			log_info "Systemd unit installation disabled"
 			;;
 		1)
 			SYMLINK_ONLY=false

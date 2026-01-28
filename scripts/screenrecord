@@ -31,6 +31,21 @@ require_bin() {
 require_bin wf-recorder
 require_bin slurp
 
+get_niri_gap() {
+  local gap="${NIRI_GAPS:-}"
+  local config_file="${XDG_CONFIG_HOME:-$HOME/.config}/niri/config.kdl"
+
+  if [[ -z ${gap} && -f $config_file ]]; then
+    gap=$(awk '/^[[:space:]]*gaps[[:space:]]+/ {print $2; exit}' "$config_file")
+  fi
+
+  if [[ ! ${gap:-} =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    gap=6
+  fi
+
+  printf '%s' "$gap"
+}
+
 # Check if already recording
 if [[ -f $PIDFILE ]]; then
   PID=$(cat "$PIDFILE")
@@ -57,6 +72,7 @@ select_window_region() {
   local windows_json
   local workspaces_json
   local outputs_json
+  local gap
   local rects
 
   if ! windows_json=$(niri msg --json windows 2>/dev/null); then
@@ -74,44 +90,109 @@ select_window_region() {
     exit 1
   fi
 
-  rects=$(
-          jq -nr \
-      --argjson windows "$windows_json" \
-      --argjson workspaces "$workspaces_json" \
-      --argjson outputs "$outputs_json" \
-      '
-    def outputs_raw: ($outputs.Outputs // $outputs.Ok.Outputs // {});
-    def workspaces_raw: ($workspaces.Workspaces // $workspaces.Ok.Workspaces // []);
-    def windows_raw: ($windows.Windows // $windows.Ok.Windows // []);
+  gap=$(get_niri_gap)
+
+  rects=$(jq -nr \
+    --argjson windows "$windows_json" \
+    --argjson workspaces "$workspaces_json" \
+    --argjson outputs "$outputs_json" \
+    --argjson gap "$gap" \
+    '
+    def unwrap: (.Ok // .);
+    def arrify: (if type == "array" then . else (if type == "object" then (.[]?) else [] end) end);
+
+    def outputs_raw: ($outputs | unwrap | (.outputs // .Outputs // .));
+    def workspaces_raw: ($workspaces | unwrap | (.workspaces // .Workspaces // .) | arrify);
+    def windows_raw: ($windows | unwrap | (.windows // .Windows // .) | arrify);
 
     def output_map:
       (outputs_raw
-       | to_entries
-       | map(select(.value.logical != null) | {key: .key, value: .value.logical})
-       | from_entries);
+       | if type == "object" then
+           to_entries
+           | map(select(.value.logical != null) | {key: .key, value: .value.logical})
+           | from_entries
+         else
+           map(select(.logical != null) | {key: (.name // .id // "unknown"), value: .logical})
+           | from_entries
+         end);
 
     def workspace_map:
       (workspaces_raw
        | map(select(.output != null) | {key: (.id | tostring), value: .output})
        | from_entries);
 
+    def column_x_map($wins; $gap):
+      ($wins
+       | map(select(.layout.pos_in_scrolling_layout != null))
+       | group_by(.layout.pos_in_scrolling_layout[0])
+       | map({col: .[0].layout.pos_in_scrolling_layout[0], width: (map(.layout.tile_size[0]) | max)})
+       | sort_by(.col)
+       | reduce .[] as $c ({x: $gap, map: {}};
+           .map[($c.col | tostring)] = .x
+           | .x = (.x + $c.width + $gap)
+         )
+       | .map);
+
+    def tile_y_map($wins; $gap):
+      ($wins
+       | map(select(.layout.pos_in_scrolling_layout != null))
+       | sort_by(.layout.pos_in_scrolling_layout[0], .layout.pos_in_scrolling_layout[1])
+       | group_by(.layout.pos_in_scrolling_layout[0])
+       | map({
+           col: .[0].layout.pos_in_scrolling_layout[0],
+           map: (reduce .[] as $w ({y: $gap, map: {}};
+                   .map[($w.id | tostring)] = .y
+                   | .y = (.y + $w.layout.tile_size[1] + $gap)
+                 ) | .map)
+         })
+       | reduce .[] as $c ({}; .[($c.col | tostring)] = $c.map));
+
+    def win_pos($w; $col_x; $tile_y):
+      (if $w.layout.tile_pos_in_workspace_view != null then
+         $w.layout.tile_pos_in_workspace_view
+       elif $w.layout.pos_in_scrolling_layout != null then
+         ($w.layout.pos_in_scrolling_layout[0] as $col
+          | [($col_x[($col | tostring)] // null), ($tile_y[($col | tostring)][($w.id | tostring)] // null)])
+       else
+         null
+       end);
+
+    def win_size:
+      (if .layout.tile_size != null then
+         .layout.tile_size
+       elif .layout.window_size != null then
+         .layout.window_size
+       else
+         null
+       end);
+
     windows_raw
     | map(select(.workspace_id != null))
+    | sort_by(.workspace_id)
+    | group_by(.workspace_id)
     | map(
-        . as $w
-        | (workspace_map[($w.workspace_id | tostring)] // null) as $out_name
-        | (output_map[$out_name] // null) as $out
-        | select($out != null)
-        | select($w.layout.tile_pos_in_workspace_view != null)
-        | $w.layout as $layout
-        | {
-            x: ($out.x + $layout.tile_pos_in_workspace_view[0]),
-            y: ($out.y + $layout.tile_pos_in_workspace_view[1]),
-            w: ($layout.tile_size[0]),
-            h: ($layout.tile_size[1]),
-            label: ((($w.app_id // "window") + ":" + ($w.id | tostring)))
-          }
+        . as $wins
+        | (column_x_map($wins; $gap)) as $col_x
+        | (tile_y_map($wins; $gap)) as $tile_y
+        | $wins
+        | map(
+            . as $w
+            | (workspace_map[($w.workspace_id | tostring)] // null) as $out_name
+            | (output_map[$out_name] // null) as $out
+            | select($out != null)
+            | (win_pos($w; $col_x; $tile_y)) as $p
+            | (win_size($w)) as $s
+            | select($p != null and $s != null)
+            | {
+                x: ($out.x + $p[0]),
+                y: ($out.y + $p[1]),
+                w: ($s[0]),
+                h: ($s[1]),
+                label: ((($w.app_id // "window") + ":" + ($w.id | tostring)))
+              }
+          )
       )
+    | add
     | map("\(.x|floor|tostring),\(.y|floor|tostring) \(.w|ceil|tostring)x\(.h|ceil|tostring) \(.label)")
     | .[]
     '
@@ -129,22 +210,73 @@ fullscreen_region() {
   require_bin niri
   require_bin jq
 
-  niri msg --json outputs | jq -r '
-    def outputs_raw: (.Outputs // .Ok.Outputs // {});
-    outputs_raw
-    | to_entries
-    | map(.value.logical)
-    | map(select(. != null)) as $outs
-    | if ($outs | length) == 0 then empty else
-      $outs
-      | {minx: (map(.x) | min), miny: (map(.y) | min),
-         maxx: (map(.x + .width) | max), maxy: (map(.y + .height) | max)}
-      | {x: (.minx | floor), y: (.miny | floor),
-         w: ((.maxx | ceil) - (.minx | floor)),
-         h: ((.maxy | ceil) - (.miny | floor))}
-      | "\(.x),\(.y) \(.w)x\(.h)"
-    end
-  '
+  local outputs_json
+  local workspaces_json
+  local rect
+
+  if ! outputs_json=$(niri msg --json outputs 2>/dev/null); then
+    notify "Recording error" "Failed to query niri outputs" "critical"
+    exit 1
+  fi
+
+  if ! workspaces_json=$(niri msg --json workspaces 2>/dev/null); then
+    notify "Recording error" "Failed to query niri workspaces" "critical"
+    exit 1
+  fi
+
+  rect=$(jq -nr \
+    --argjson outputs "$outputs_json" \
+    --argjson workspaces "$workspaces_json" \
+    '
+    def unwrap: (.Ok // .);
+    def arrify: (if type == "array" then . else (if type == "object" then (.[]?) else [] end) end);
+
+    def outputs_raw: ($outputs | unwrap | (.outputs // .Outputs // .));
+    def workspaces_raw: ($workspaces | unwrap | (.workspaces // .Workspaces // .) | arrify);
+
+    def output_map:
+      (outputs_raw
+       | if type == "object" then
+           to_entries
+           | map(select(.value.logical != null) | {key: .key, value: .value.logical})
+           | from_entries
+         else
+           map(select(.logical != null) | {key: (.name // .id // "unknown"), value: .logical})
+           | from_entries
+         end);
+
+    def focused_output_from_workspace:
+      (workspaces_raw
+       | map(select(.is_focused == true or .is_focused == 1) | .output)
+       | first);
+
+    def union_rect:
+      (output_map
+       | to_entries
+       | map(.value)
+       | map(select(. != null)) as $outs
+       | if ($outs | length) == 0 then empty else
+         $outs
+         | {minx: (map(.x) | min), miny: (map(.y) | min),
+            maxx: (map(.x + .width) | max), maxy: (map(.y + .height) | max)}
+         | {x: (.minx | floor), y: (.miny | floor),
+            w: ((.maxx | ceil) - (.minx | floor)),
+            h: ((.maxy | ceil) - (.miny | floor))}
+       end);
+
+    def focused_rect:
+      (focused_output_from_workspace as $name
+       | (output_map[$name] // null)
+       | if . == null then empty else
+         {x: (.x|floor), y: (.y|floor), w: (.width|ceil), h: (.height|ceil)}
+         end);
+
+    (focused_rect // union_rect)
+    | if . == null then empty else "\(.x),\(.y) \(.w)x\(.h)" end
+    '
+  )
+
+  printf '%s\n' "$rect"
 }
 
 case "$MODE" in
