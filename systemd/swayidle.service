@@ -1,0 +1,12 @@
+[Unit]
+Description=Swayidle
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/swayidle -w timeout 600 "lock --fork" before-sleep "lock --fork" timeout 900 "niri msg action power-off-monitors" resume "niri msg action power-on-monitors"
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

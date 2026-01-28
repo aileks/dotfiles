@@ -54,21 +54,14 @@ do_lock() {
 }
 
 do_logout() {
-  if cmd_exists riverctl; then
-    riverctl exit
-    exit 0
+  if cmd_exists niri; then
+    if niri msg action quit >/dev/null 2>&1; then
+      exit 0
+    fi
   fi
 
   if cmd_exists loginctl && [[ -n ${XDG_SESSION_ID:-} ]]; then
     exec loginctl terminate-session "$XDG_SESSION_ID"
-  fi
-
-  if cmd_exists pkill; then
-    exec pkill -TERM -x river
-  fi
-
-  if cmd_exists killall; then
-    exec killall -TERM river
   fi
 
   die "No logout backend found"

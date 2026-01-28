@@ -10,7 +10,7 @@ cache_file="$cache_dir/cpu"
 
 read_cpu() {
   local _cpu user nice system idle iowait irq softirq steal guest guest_nice
-  read -r _cpu user nice system idle iowait irq softirq steal guest guest_nice < /proc/stat
+  read -r _cpu user nice system idle iowait irq softirq steal guest guest_nice </proc/stat
   local idle_all=$((idle + iowait))
   local non_idle=$((user + nice + system + irq + softirq + steal))
   local total=$((idle_all + non_idle))
@@ -22,7 +22,7 @@ calc_cpu_usage() {
 
   read -r total_now idle_now < <(read_cpu)
   if [[ -f "$cache_file" ]]; then
-    read -r total_prev idle_prev < "$cache_file" || true
+    read -r total_prev idle_prev <"$cache_file"  || true
   else
     total_prev=""
   fi
@@ -32,22 +32,22 @@ calc_cpu_usage() {
     read -r total_prev idle_prev < <(read_cpu)
     total_diff=$((total_prev - total_now))
     idle_diff=$((idle_prev - idle_now))
-    printf '%s %s\n' "$total_prev" "$idle_prev" > "$cache_file"
+    printf '%s %s\n' "$total_prev" "$idle_prev" >"$cache_file"
   else
     total_diff=$((total_now - total_prev))
     idle_diff=$((idle_now - idle_prev))
-    printf '%s %s\n' "$total_now" "$idle_now" > "$cache_file"
+    printf '%s %s\n' "$total_now" "$idle_now" >"$cache_file"
   fi
 
-  if (( total_diff <= 0 )); then
+  if ((total_diff <= 0)); then
     usage=0
   else
-    usage=$(( (100 * (total_diff - idle_diff)) / total_diff ))
+    usage=$(((100 * (total_diff - idle_diff)) / total_diff))
   fi
 
-  if (( usage < 0 )); then
+  if ((usage < 0)); then
     usage=0
-  elif (( usage > 100 )); then
+  elif ((usage > 100)); then
     usage=100
   fi
 

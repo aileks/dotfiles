@@ -1,10 +1,10 @@
 # Arch Linux Dotfiles
 
-Arch setup built on River with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+Arch setup built on Niri with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 
 ## Features
 
-- **WM**: River (Wayland)
+- **WM**: Niri (Wayland)
 - **Status bar**: Waybar
 - **Terminal**: WezTerm
 - **Launcher**: Fuzzel
@@ -54,7 +54,7 @@ sudo systemctl enable betterlockscreen@$USER
 
 ## Resources
 
-- [River](https://github.com/riverwm/river)
+- [Niri](https://github.com/YaLTeR/niri)
 - [Waybar](https://github.com/Alexays/Waybar)
-- [Arch Wiki - River](https://wiki.archlinux.org/title/River)
+- [Niri Docs](https://yalter.github.io/niri/)
 - [keyd](https://github.com/rvaiya/keyd)

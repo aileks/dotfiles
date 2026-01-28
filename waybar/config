@@ -3,13 +3,13 @@
   "position": "top",
   "height": 28,
   "spacing": 8,
-  "modules-left": ["river/tags"],
-  "modules-center": ["river/window"],
+  "modules-left": ["niri/workspaces"],
+  "modules-center": ["niri/window"],
   "modules-right": ["custom/cpu", "custom/memory", "custom/network", "custom/volume", "custom/clock", "tray"],
-  "river/tags": {
-    "num-tags": 9
+  "niri/workspaces": {
+    "format": "{index}"
   },
-  "river/window": {
+  "niri/window": {
     "max-length": 80
   },
   "custom/cpu": {

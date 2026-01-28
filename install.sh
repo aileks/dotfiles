@@ -72,13 +72,12 @@ command_exists() {
 PACMAN_PACKAGES=(
 	base-devel
 	pacman-contrib
-	river
+	niri
 	waybar
 	fuzzel
 	waylock
 	swayidle
 	swaybg
-	wlr-randr
 	wl-clipboard
 	wf-recorder
 	xarchiver
@@ -443,7 +442,7 @@ symlink_configs() {
 	# Direct directory symlinks
 	create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
 	create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
-	create_symlink "$SCRIPT_DIR/river" "$HOME/.config/river"
+	create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
 	create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
 	create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
 	create_symlink "$SCRIPT_DIR/swayidle" "$HOME/.config/swayidle"
@@ -476,6 +475,74 @@ symlink_configs() {
 	fi
 
 	log_success "Config symlinks created"
+}
+
+install_systemd_user_units() {
+	local units_dir="$SCRIPT_DIR/systemd"
+	local user_systemd_dir="$HOME/.config/systemd/user"
+	local wants_unit="niri.service"
+
+	if [[ ! -d $units_dir ]]; then
+		log_debug "No systemd unit directory found"
+		return 0
+	fi
+
+	log_info "Installing systemd user units..."
+
+	if log_dry "mkdir -p $user_systemd_dir"; then
+		:
+	else
+		mkdir -p "$user_systemd_dir"
+	fi
+
+	local unit_files=()
+	for unit in "$units_dir"/*.service; do
+		[[ -f $unit ]] || continue
+		unit_files+=("$unit")
+		if log_dry "cp $unit $user_systemd_dir/"; then
+			continue
+		fi
+		cp "$unit" "$user_systemd_dir/"
+	done
+
+	if [[ ${#unit_files[@]} -eq 0 ]]; then
+		log_success "No systemd user unit files to install"
+		return 0
+	fi
+
+	if ! command_exists systemctl; then
+		log_warning "systemctl not found, skipping user unit setup"
+		return 0
+	fi
+
+	if log_dry "systemctl --user daemon-reload"; then
+		return 0
+	fi
+
+	if ! systemctl --user daemon-reload; then
+		log_warning "Failed to reload user systemd daemon"
+		return 0
+	fi
+
+	for unit in "${unit_files[@]}"; do
+		local unit_name
+		unit_name=$(basename "$unit")
+		if log_dry "systemctl --user add-wants $wants_unit $unit_name"; then
+			continue
+		fi
+		if ! systemctl --user add-wants "$wants_unit" "$unit_name"; then
+			log_warning "Failed to add $unit_name to $wants_unit"
+		fi
+	done
+
+	if systemctl --user list-unit-files waybar.service &>/dev/null; then
+		if log_dry "systemctl --user add-wants $wants_unit waybar.service"; then
+			return 0
+		fi
+		systemctl --user add-wants "$wants_unit" waybar.service || log_warning "Failed to add waybar.service to $wants_unit"
+	fi
+
+	log_success "Systemd user units installed"
 }
 
 setup_keyd() {
@@ -849,6 +916,7 @@ main() {
 		install_zsh_plugins
 		setup_emacs_config
 		symlink_configs
+		install_systemd_user_units
 		install_tpm
 	else
 		# setup_chaotic_aur
@@ -859,6 +927,7 @@ main() {
 		install_zsh_plugins
 		setup_emacs_config
 		symlink_configs
+		install_systemd_user_units
 		install_tpm
 		setup_keyd
 		install_orchis_theme

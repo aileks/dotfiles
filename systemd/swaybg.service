@@ -1,0 +1,12 @@
+[Unit]
+Description=Swaybg Wallpaper
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/sh -c 'swaybg -o DP-1 -i "%h/Pictures/wallpaper.jpg" -m fill & swaybg -o HDMI-A-1 -i "%h/Pictures/wallpaper2.jpg" -m fill & wait'
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

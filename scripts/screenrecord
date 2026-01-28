@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Screen recording utility for river/Wayland
-# Usage: screenrecord [area|window|fullscreen]
-# Toggle-based: first call starts, second call stops
-
 set -uo pipefail
 
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:$PATH"
@@ -54,27 +50,95 @@ select_region() {
   slurp
 }
 
-fullscreen_region() {
-  require_bin wlr-randr
+select_window_region() {
+  require_bin niri
   require_bin jq
 
-  wlr-randr --json | jq -r '
-    map(select(.enabled)) as $outs
+  local windows_json
+  local workspaces_json
+  local outputs_json
+  local rects
+
+  if ! windows_json=$(niri msg --json windows 2>/dev/null); then
+    notify "Recording error" "Failed to query niri windows" "critical"
+    exit 1
+  fi
+
+  if ! workspaces_json=$(niri msg --json workspaces 2>/dev/null); then
+    notify "Recording error" "Failed to query niri workspaces" "critical"
+    exit 1
+  fi
+
+  if ! outputs_json=$(niri msg --json outputs 2>/dev/null); then
+    notify "Recording error" "Failed to query niri outputs" "critical"
+    exit 1
+  fi
+
+  rects=$(
+          jq -nr \
+      --argjson windows "$windows_json" \
+      --argjson workspaces "$workspaces_json" \
+      --argjson outputs "$outputs_json" \
+      '
+    def outputs_raw: ($outputs.Outputs // $outputs.Ok.Outputs // {});
+    def workspaces_raw: ($workspaces.Workspaces // $workspaces.Ok.Workspaces // []);
+    def windows_raw: ($windows.Windows // $windows.Ok.Windows // []);
+
+    def output_map:
+      (outputs_raw
+       | to_entries
+       | map(select(.value.logical != null) | {key: .key, value: .value.logical})
+       | from_entries);
+
+    def workspace_map:
+      (workspaces_raw
+       | map(select(.output != null) | {key: (.id | tostring), value: .output})
+       | from_entries);
+
+    windows_raw
+    | map(select(.workspace_id != null))
+    | map(
+        . as $w
+        | (workspace_map[($w.workspace_id | tostring)] // null) as $out_name
+        | (output_map[$out_name] // null) as $out
+        | select($out != null)
+        | select($w.layout.tile_pos_in_workspace_view != null)
+        | $w.layout as $layout
+        | {
+            x: ($out.x + $layout.tile_pos_in_workspace_view[0]),
+            y: ($out.y + $layout.tile_pos_in_workspace_view[1]),
+            w: ($layout.tile_size[0]),
+            h: ($layout.tile_size[1]),
+            label: ((($w.app_id // "window") + ":" + ($w.id | tostring)))
+          }
+      )
+    | map("\(.x|floor|tostring),\(.y|floor|tostring) \(.w|ceil|tostring)x\(.h|ceil|tostring) \(.label)")
+    | .[]
+    '
+  )
+
+  if [[ -z ${rects} ]]; then
+    notify "Recording error" "No windows available to select" "critical"
+    exit 1
+  fi
+
+  printf '%s\n' "$rects" | slurp -r
+}
+
+fullscreen_region() {
+  require_bin niri
+  require_bin jq
+
+  niri msg --json outputs | jq -r '
+    def outputs_raw: (.Outputs // .Ok.Outputs // {});
+    outputs_raw
+    | to_entries
+    | map(.value.logical)
+    | map(select(. != null)) as $outs
     | if ($outs | length) == 0 then empty else
       $outs
-      | map(
-          . as $o
-          | ($o.modes[] | select(.current)) as $m
-          | ($o.scale // 1) as $s
-          | ($o.transform // "normal" | tostring) as $t
-          | ($m.width) as $w
-          | ($m.height) as $h
-          | (if ($t | test("90|270")) then $h else $w end) as $tw
-          | (if ($t | test("90|270")) then $w else $h end) as $th
-          | {x: $o.position.x, y: $o.position.y, w: ($tw / $s), h: ($th / $s)}
-        )
       | {minx: (map(.x) | min), miny: (map(.y) | min),
-         maxx: (map(.x + .w) | max), maxy: (map(.y + .h) | max)}
+         maxx: (map(.x + .width) | max), maxy: (map(.y + .height) | max)}
       | {x: (.minx | floor), y: (.miny | floor),
          w: ((.maxx | ceil) - (.minx | floor)),
          h: ((.maxy | ceil) - (.miny | floor))}
@@ -84,10 +148,18 @@ fullscreen_region() {
 }
 
 case "$MODE" in
-  area | window)
+  area)
     region=$(select_region || true)
     if [[ -z ${region} ]]; then
       notify "Recording cancelled" "No region selected"
+      exit 1
+    fi
+    wf-recorder -g "$region" -f "$RECORDING_DIR/$FILENAME" &
+    ;;
+  window)
+    region=$(select_window_region || true)
+    if [[ -z ${region} ]]; then
+      notify "Recording cancelled" "No window selected"
       exit 1
     fi
     wf-recorder -g "$region" -f "$RECORDING_DIR/$FILENAME" &
