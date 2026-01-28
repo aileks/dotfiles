@@ -78,8 +78,10 @@ PACMAN_PACKAGES=(
 	waylock
 	swayidle
 	swaybg
+	tumbler
 	wl-clipboard
 	wf-recorder
+	mako
 	xarchiver
 	libgccjit
 	gdb
@@ -105,10 +107,10 @@ PACMAN_PACKAGES=(
 	geoclue
 	xdg-user-dirs
 	xdg-utils
-	xdg-desktop-portal-gtk
-	xdg-desktop-portal-wlr
+	xdg-desktop-portal-gnome
 	polkit-gnome
 	yazi
+	catfish
 	thunar
 	thunar-volman
 	thunar-media-tags-plugin
@@ -140,7 +142,7 @@ PACMAN_PACKAGES=(
 	gst-plugins-ugly
 	gst-libav
 	ffmpeg
-	ffmpegthumbnailer
+	tumbler
 	usbutils
 	bluez-utils
 	blueman
@@ -154,7 +156,6 @@ PACMAN_PACKAGES=(
 )
 
 AUR_PACKAGES=(
-	wired
 	helium-browser-bin
 	ttf-adwaita-mono-nerd
 	ttf-mac-fonts
@@ -445,13 +446,11 @@ symlink_configs() {
 	create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
 	create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
 	create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
-	create_symlink "$SCRIPT_DIR/swayidle" "$HOME/.config/swayidle"
 	create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
 	create_symlink "$SCRIPT_DIR/mpv" "$HOME/.config/mpv"
 	create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
 	create_symlink "$SCRIPT_DIR/yazi" "$HOME/.config/yazi"
 	create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
-	create_symlink "$SCRIPT_DIR/wired" "$HOME/.config/wired"
 
 	# Single file symlinks
 	create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
@@ -542,7 +541,43 @@ install_systemd_user_units() {
 		systemctl --user add-wants "$wants_unit" waybar.service || log_warning "Failed to add waybar.service to $wants_unit"
 	fi
 
+	if systemctl --user list-unit-files mako.service &>/dev/null; then
+		if log_dry "systemctl --user add-wants $wants_unit mako.service"; then
+			return 0
+		fi
+		systemctl --user add-wants "$wants_unit" mako.service || log_warning "Failed to add mako.service to $wants_unit"
+	fi
+
 	log_success "Systemd user units installed"
+}
+
+install_portals_config() {
+	local portals_conf="$SCRIPT_DIR/portals/niri-portals.conf"
+	local portals_dir="/usr/local/share/xdg-desktop-portal"
+
+	if [[ ! -f $portals_conf ]]; then
+		log_debug "No niri-portals.conf found"
+		return 0
+	fi
+
+	log_info "Installing xdg-desktop-portal config..."
+
+	if log_dry "sudo mkdir -p $portals_dir"; then
+		return 0
+	fi
+
+	sudo mkdir -p "$portals_dir"
+
+	if log_dry "sudo cp $portals_conf $portals_dir/niri-portals.conf"; then
+		return 0
+	fi
+
+	if ! sudo cp "$portals_conf" "$portals_dir/niri-portals.conf"; then
+		log_warning "Failed to install niri-portals.conf"
+		return 0
+	fi
+
+	log_success "xdg-desktop-portal config installed"
 }
 
 setup_keyd() {
@@ -917,6 +952,7 @@ main() {
 		setup_emacs_config
 		symlink_configs
 		install_systemd_user_units
+		install_portals_config
 		install_tpm
 	else
 		# setup_chaotic_aur
@@ -928,6 +964,7 @@ main() {
 		setup_emacs_config
 		symlink_configs
 		install_systemd_user_units
+		install_portals_config
 		install_tpm
 		setup_keyd
 		install_orchis_theme

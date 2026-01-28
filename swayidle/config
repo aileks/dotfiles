@@ -1,5 +1,0 @@
-lock 'lock --fork'
-before-sleep 'lock --fork'
-timeout 600 'lock --fork'
-timeout 900 'niri msg action power-off-monitors'
-resume 'niri msg action power-on-monitors'

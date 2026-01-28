@@ -51,7 +51,9 @@ output "DP-1" {
 }
 
 layout {
-    gaps 16
+    gaps 6
+
+    default-column-width { proportion 0.5; }
 
     focus-ring {
         width 2
@@ -65,8 +67,11 @@ layout {
     }
 }
 
-prefer-no-csd
+hotkey-overlay {
+    skip-at-startup
+}
 
+prefer-no-csd
 screenshot-path "~/Pictures/screenshots/screenshot-%Y%m%d-%H%M%S.png"
 
 animations {
@@ -97,16 +102,20 @@ animations {
     }
 }
 
+workspace "1"
+workspace "2"
+workspace "3"
+workspace "4"
+workspace "5"
+workspace "6"
+workspace "7"
+workspace "8"
 workspace "mail"
 
-
-
-spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-spawn-at-startup "blueman-applet"
-spawn-at-startup "solaar" "-w" "hide"
-spawn-at-startup "emacs" "--daemon"
-spawn-at-startup "fastmail"
-spawn-sh-at-startup "dbus-update-activation-environment DISPLAY WAYLAND_DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
 
 window-rule {
     match app-id=r#"^(imv|wl-color-picker|calendar-floating|btop-floating|volume-floating|qalculate-gtk)$"#
@@ -140,7 +149,7 @@ window-rule {
         on
         width 3
         active-color "#df6464"
-        inactive-color "#7d0d2d"
+        inactive-color "#535353"
         urgent-color "#df6464"
     }
 
@@ -148,19 +157,13 @@ window-rule {
         on
         width 2
         active-color "#df6464"
-        inactive-color "#7d0d2d"
+        inactive-color "#535353"
         urgent-color "#df6464"
     }
 
     shadow {
-        color "#7d0d2d70"
+        color "#53535370"
     }
-}
-
-layer-rule {
-    match namespace="^swaybg$"
-    match namespace="^wallpaper$"
-    place-within-backdrop true
 }
 
 layer-rule {
@@ -186,10 +189,11 @@ binds {
     Mod+D { spawn "fuzzel"; }
     Mod+E { spawn "thunar"; }
     Mod+W { spawn "helium-browser"; }
-    Mod+X { spawn "lock"; }
+    Mod+Shift+X { spawn "~/.local/bin/lock"; }
     Mod+Shift+P { spawn "~/.local/bin/power-menu"; }
     Mod+S { spawn "signal-desktop"; }
     Mod+B { spawn "emacsclient" "-c" "-a" ""; }
+    Mod+Shift+C { spawn "hyprpicker" "-a"; }
 
     Mod+J { focus-window-down; }
     Mod+K { focus-window-up; }
@@ -201,15 +205,21 @@ binds {
     Mod+Shift+H { move-column-left; }
     Mod+Shift+L { move-column-right; }
 
-    Mod+Shift+Return { maximize-column; }
-    Mod+F { fullscreen-window; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
     Mod+Space { toggle-window-floating; }
     Mod+Tab { focus-workspace-previous; }
+    Mod+Shift+V { toggle-overview; }
 
     Mod+Comma { focus-monitor-left; }
     Mod+Period { focus-monitor-right; }
     Mod+Shift+Comma { move-column-to-monitor-left; }
     Mod+Shift+Period { move-column-to-monitor-right; }
+    Mod+Ctrl+Comma { consume-or-expel-window-left; }
+    Mod+Ctrl+Period { consume-or-expel-window-right; }
 
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
@@ -219,7 +229,7 @@ binds {
     Mod+6 { focus-workspace 6; }
     Mod+7 { focus-workspace 7; }
     Mod+8 { focus-workspace 8; }
-    Mod+9 { focus-workspace "mail"; }
+    Mod+9 { focus-workspace 9; }
 
     Mod+Shift+1 { move-column-to-workspace 1; }
     Mod+Shift+2 { move-column-to-workspace 2; }
@@ -229,7 +239,7 @@ binds {
     Mod+Shift+6 { move-column-to-workspace 6; }
     Mod+Shift+7 { move-column-to-workspace 7; }
     Mod+Shift+8 { move-column-to-workspace 8; }
-    Mod+Shift+9 { move-column-to-workspace "mail"; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
 
     Print { screenshot; }
     Shift+Print { screenshot-window; }
@@ -247,3 +257,10 @@ binds {
     XF86AudioPrev allow-when-locked=true { spawn-sh "playerctl previous"; }
     XF86AudioNext allow-when-locked=true { spawn-sh "playerctl next"; }
 }
+
+spawn-at-startup "blueman-applet"
+spawn-at-startup "solaar" "-w" "hide"
+spawn-at-startup "emacs" "--daemon"
+spawn-at-startup "fastmail"
+spawn-at-startup "xwayland-satellite"
+spawn-sh-at-startup "dbus-update-activation-environment DISPLAY WAYLAND_DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"
