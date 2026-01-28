@@ -1,6 +1,10 @@
+/* Ashen Theme for Waybar */
+/* Author: Daniel Fichtinger */
+/* License: MIT */
+/* Adapted by: Aaliyah Harper */
+
 @define-color bg #121212;
 @define-color fg #d5d5d5;
-@define-color grey #949494;
 @define-color red_flame #c53030;
 @define-color red_ember #b14242;
 @define-color red_glowing #df6464;
@@ -8,6 +12,9 @@
 @define-color orange_blaze #c4693d;
 @define-color orange_smolder #e49a44;
 @define-color orange_golden #e5a72a;
+@define-color gray1 #737373;
+@define-color gray2 #535353;
+@define-color green #629c7d;
 @define-color teal #4a8b8b;
 
 * {
@@ -133,7 +140,7 @@ tooltip {
 
 #custom-volume.muted,
 #custom-volume.muted label {
-  color: @grey;
+  color: @gray2;
 }
 
 #custom-volume.high,
@@ -143,10 +150,10 @@ tooltip {
 
 #custom-volume.medium,
 #custom-volume.medium label {
-  color: @orange_smolder;
+  color: @green;
 }
 
 #custom-volume.low,
 #custom-volume.low label {
-  color: @orange_glow;
+  color: @gray1;
 }
