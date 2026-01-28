@@ -46,6 +46,27 @@ get_niri_gap() {
   printf '%s' "$gap"
 }
 
+get_waybar_offset() {
+  local config_file="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/config"
+  local position="top"
+  local height="0"
+
+  if [[ -f $config_file ]]; then
+    position=$(jq -r '.position // "top"' "$config_file" 2>/dev/null || true)
+    height=$(jq -r '.height // 0' "$config_file" 2>/dev/null || true)
+  fi
+
+  if [[ ! ${height:-} =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    height=0
+  fi
+
+  if [[ $position != "top" ]]; then
+    height=0
+  fi
+
+  printf '%s' "$height"
+}
+
 # Check if already recording
 if [[ -f $PIDFILE ]]; then
   PID=$(cat "$PIDFILE")
@@ -73,6 +94,7 @@ select_window_region() {
   local workspaces_json
   local outputs_json
   local gap
+  local bar_offset
   local rects
 
   if ! windows_json=$(niri msg --json windows 2>/dev/null); then
@@ -91,19 +113,32 @@ select_window_region() {
   fi
 
   gap=$(get_niri_gap)
+  bar_offset=$(get_waybar_offset)
 
   rects=$(jq -nr \
     --argjson windows "$windows_json" \
     --argjson workspaces "$workspaces_json" \
     --argjson outputs "$outputs_json" \
     --argjson gap "$gap" \
+    --argjson bar_offset "$bar_offset" \
     '
-    def unwrap: (.Ok // .);
+    def unwrap: (if type == "object" then (.Ok // .) else . end);
     def arrify: (if type == "array" then . else (if type == "object" then (.[]?) else [] end) end);
 
-    def outputs_raw: ($outputs | unwrap | (.outputs // .Outputs // .));
-    def workspaces_raw: ($workspaces | unwrap | (.workspaces // .Workspaces // .) | arrify);
-    def windows_raw: ($windows | unwrap | (.windows // .Windows // .) | arrify);
+    def outputs_raw:
+      ($outputs
+       | unwrap
+       | if type == "object" then (.outputs // .Outputs // .) else . end);
+    def workspaces_raw:
+      ($workspaces
+       | unwrap
+       | if type == "object" then (.workspaces // .Workspaces // .) else . end
+       | arrify);
+    def windows_raw:
+      ($windows
+       | unwrap
+       | if type == "object" then (.windows // .Windows // .) else . end
+       | arrify);
 
     def output_map:
       (outputs_raw
@@ -181,11 +216,11 @@ select_window_region() {
             | (output_map[$out_name] // null) as $out
             | select($out != null)
             | (win_pos($w; $col_x; $tile_y)) as $p
-            | (win_size($w)) as $s
+            | ($w | win_size) as $s
             | select($p != null and $s != null)
             | {
                 x: ($out.x + $p[0]),
-                y: ($out.y + $p[1]),
+                y: ($out.y + $bar_offset + $p[1]),
                 w: ($s[0]),
                 h: ($s[1]),
                 label: ((($w.app_id // "window") + ":" + ($w.id | tostring)))
@@ -228,11 +263,18 @@ fullscreen_region() {
     --argjson outputs "$outputs_json" \
     --argjson workspaces "$workspaces_json" \
     '
-    def unwrap: (.Ok // .);
+    def unwrap: (if type == "object" then (.Ok // .) else . end);
     def arrify: (if type == "array" then . else (if type == "object" then (.[]?) else [] end) end);
 
-    def outputs_raw: ($outputs | unwrap | (.outputs // .Outputs // .));
-    def workspaces_raw: ($workspaces | unwrap | (.workspaces // .Workspaces // .) | arrify);
+    def outputs_raw:
+      ($outputs
+       | unwrap
+       | if type == "object" then (.outputs // .Outputs // .) else . end);
+    def workspaces_raw:
+      ($workspaces
+       | unwrap
+       | if type == "object" then (.workspaces // .Workspaces // .) else . end
+       | arrify);
 
     def output_map:
       (outputs_raw

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Statusbar module: network status
-# Left click: open network connections
+# Left click: open nmtui
 # Middle click: show network details notification
 # Right click: toggle wifi
 
@@ -18,7 +18,11 @@ active_connection() {
 
 case "${1:-}" in
   --open)
-    nm-connection-editor >/dev/null 2>&1 &
+    if ! command -v nmtui >/dev/null 2>&1; then
+      notify "nmtui not found"
+      exit 1
+    fi
+    wezterm start --class network-floating -- nmtui >/dev/null 2>&1 &
     disown $!
     exit 0
     ;;
