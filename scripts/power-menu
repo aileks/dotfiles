@@ -121,28 +121,28 @@ REBOOT=$'\uf2f1  Reboot'
 SUSPEND=$'\uf186  Suspend'
 SHUTDOWN=$'\uf011  Shutdown'
 
-choice=$(printf '%s\n%s\n%s\n%s\n%s\n' "$LOCK" "$LOGOUT" "$REBOOT" "$SUSPEND" "$SHUTDOWN" | fuzzel_dmenu 'Power')
+choice=$(printf '%s\n%s\n%s\n%s\n%s\n' "$LOCK" "$LOGOUT" "$REBOOT" "$SUSPEND" "$SHUTDOWN" | fuzzel_dmenu 'Power ')
 
 case "$choice" in
-  "$LOCK")
-    do_lock
-    ;;
-  "$LOGOUT")
-    confirm "logout" && do_logout
-    ;;
-  "$REBOOT")
-    confirm "reboot" && do_reboot
-    ;;
-  "$SUSPEND")
-    confirm "suspend" && do_suspend
-    ;;
-  "$SHUTDOWN")
-    confirm "shutdown" && do_shutdown
-    ;;
-  "")
-    exit 0
-    ;;
-  *)
-    exit 0
-    ;;
+"$LOCK")
+  do_lock
+  ;;
+"$LOGOUT")
+  confirm "logout" && do_logout
+  ;;
+"$REBOOT")
+  confirm "reboot" && do_reboot
+  ;;
+"$SUSPEND")
+  confirm "suspend" && do_suspend
+  ;;
+"$SHUTDOWN")
+  confirm "shutdown" && do_shutdown
+  ;;
+"")
+  exit 0
+  ;;
+*)
+  exit 0
+  ;;
 esac
