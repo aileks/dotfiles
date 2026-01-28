@@ -75,7 +75,7 @@ PACMAN_PACKAGES=(
 	niri
 	waybar
 	fuzzel
-	waylock
+	swaylock
 	swayidle
 	swaybg
 	tumbler
@@ -446,6 +446,7 @@ symlink_configs() {
 	create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
 	create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
 	create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
+	create_symlink "$SCRIPT_DIR/mako" "$HOME/.config/mako"
 	create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
 	create_symlink "$SCRIPT_DIR/mpv" "$HOME/.config/mpv"
 	create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"

@@ -8,9 +8,23 @@ INPUT_ALT_COLOR="0xe49a44"
 FAIL_COLOR="0xc53030"
 
 args=()
+swaylock_args=()
 if [[ ${1:-} == "--fork" ]]; then
+  swaylock_args+=("-f")
   args+=("-fork-on-lock")
   shift
+fi
+
+if command -v swaylock >/dev/null 2>&1; then
+  exec swaylock \
+    "${swaylock_args[@]}" \
+    --color "121212" \
+    --inside-color "121212" \
+    --ring-color "d87c4a" \
+    --ring-ver-color "e49a44" \
+    --ring-wrong-color "c53030" \
+    --key-hl-color "e49a44" \
+    --text-color "d5d5d5"
 fi
 
 if command -v waylock >/dev/null 2>&1; then
