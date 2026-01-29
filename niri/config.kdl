@@ -8,6 +8,7 @@ environment {
 }
 
 cursor {
+    hide-after-inactive-ms 2000
     xcursor-theme "Adwaita"
     xcursor-size 32
 }
@@ -51,12 +52,12 @@ output "DP-1" {
 }
 
 layout {
-    gaps 6
+    gaps 8
 
     default-column-width { proportion 0.5; }
 
     focus-ring {
-        width 2
+        width 3
         active-color "#b14242"
         inactive-color "#535353"
         urgent-color "#df6464"
@@ -131,6 +132,11 @@ window-rule {
 window-rule {
     match app-id="Fastmail"
     open-on-workspace "6"
+}
+
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
 }
 
 window-rule {
