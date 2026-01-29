@@ -7,7 +7,7 @@
   "modules-center": [],
   "modules-right": ["custom/cpu", "custom/memory", "custom/network", "custom/volume", "custom/clock", "tray"],
   "niri/workspaces": {
-    "format": "{name}"
+    "format": "{index}"
   },
   "niri/window": {
     "max-length": 80
