@@ -111,7 +111,6 @@ PACMAN_PACKAGES=(
 	xdg-desktop-portal-gnome
 	polkit-gnome
 	yazi
-	catfish
 	thunar
 	thunar-volman
 	thunar-media-tags-plugin
@@ -540,6 +539,13 @@ install_systemd_user_units() {
 			log_warning "Failed to add $unit_name to $wants_unit"
 		fi
 	done
+
+	if systemctl --user list-unit-files swayidle.service &>/dev/null; then
+		if log_dry "systemctl --user enable --now swayidle.service"; then
+			return 0
+		fi
+		systemctl --user enable --now swayidle.service || log_warning "Failed to enable swayidle.service"
+	fi
 
 	if systemctl --user list-unit-files waybar.service &>/dev/null; then
 		if log_dry "systemctl --user add-wants $wants_unit waybar.service"; then
