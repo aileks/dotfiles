@@ -115,13 +115,14 @@ select_window_region() {
   gap=$(get_niri_gap)
   bar_offset=$(get_waybar_offset)
 
-  rects=$(jq -nr \
-    --argjson windows "$windows_json" \
-    --argjson workspaces "$workspaces_json" \
-    --argjson outputs "$outputs_json" \
-    --argjson gap "$gap" \
-    --argjson bar_offset "$bar_offset" \
-    '
+  rects=$(
+          jq -nr \
+      --argjson windows "$windows_json" \
+      --argjson workspaces "$workspaces_json" \
+      --argjson outputs "$outputs_json" \
+      --argjson gap "$gap" \
+      --argjson bar_offset "$bar_offset" \
+      '
     def unwrap: (if type == "object" then (.Ok // .) else . end);
     def arrify: (if type == "array" then . else (if type == "object" then (.[]?) else [] end) end);
 
@@ -259,10 +260,11 @@ fullscreen_region() {
     exit 1
   fi
 
-  rect=$(jq -nr \
-    --argjson outputs "$outputs_json" \
-    --argjson workspaces "$workspaces_json" \
-    '
+  rect=$(
+         jq -nr \
+      --argjson outputs "$outputs_json" \
+      --argjson workspaces "$workspaces_json" \
+      '
     def unwrap: (if type == "object" then (.Ok // .) else . end);
     def arrify: (if type == "array" then . else (if type == "object" then (.[]?) else [] end) end);
 
