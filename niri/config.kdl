@@ -130,7 +130,7 @@ window-rule {
 
 window-rule {
     match app-id="Fastmail"
-    open-on-workspace "󰬿"
+    open-on-workspace "6"
 }
 
 window-rule {
@@ -178,13 +178,12 @@ layer-rule {
     }
 }
 
-workspace "󰬺" { open-on-output "DP-1"; }
-workspace "󰬻" { open-on-output "DP-1"; }
-workspace "󰬼" { open-on-output "DP-1"; }
-workspace "󰬽" { open-on-output "DP-1"; }
-workspace "󰬾" { open-on-output "DP-1"; }
-workspace "󰬿" { open-on-output "DP-1"; }
-workspace "󰍺"
+workspace "1" { open-on-output "DP-1"; }
+workspace "2" { open-on-output "DP-1"; }
+workspace "3" { open-on-output "DP-1"; }
+workspace "4" { open-on-output "DP-1"; }
+workspace "5" { open-on-output "DP-1"; }
+workspace "6" { open-on-output "DP-1"; }
 
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
@@ -228,19 +227,25 @@ binds {
     Mod+Ctrl+Comma { consume-or-expel-window-left; }
     Mod+Ctrl+Period { consume-or-expel-window-right; }
 
-    Mod+1 { focus-workspace "󰬺"; }
-    Mod+2 { focus-workspace "󰬻"; }
-    Mod+3 { focus-workspace "󰬼"; }
-    Mod+4 { focus-workspace "󰬽"; }
-    Mod+5 { focus-workspace "󰬾"; }
-    Mod+6 { focus-workspace "󰬿"; }
+    Mod+1 { focus-workspace "1"; }
+    Mod+2 { focus-workspace "2"; }
+    Mod+3 { focus-workspace "3"; }
+    Mod+4 { focus-workspace "4"; }
+    Mod+5 { focus-workspace "5"; }
+    Mod+6 { focus-workspace "6"; }
+    Mod+7 { focus-workspace "7"; }
+    Mod+8 { focus-workspace "8"; }
+    Mod+9 { focus-workspace "9"; }
 
-    Mod+Shift+1 { move-column-to-workspace "󰬺"; }
-    Mod+Shift+2 { move-column-to-workspace "󰬻"; }
-    Mod+Shift+3 { move-column-to-workspace "󰬼"; }
-    Mod+Shift+4 { move-column-to-workspace "󰬽"; }
-    Mod+Shift+5 { move-column-to-workspace "󰬾"; }
-    Mod+Shift+6 { move-column-to-workspace "󰬿"; }
+    Mod+Shift+1 { move-column-to-workspace "1"; }
+    Mod+Shift+2 { move-column-to-workspace "2"; }
+    Mod+Shift+3 { move-column-to-workspace "3"; }
+    Mod+Shift+4 { move-column-to-workspace "4"; }
+    Mod+Shift+5 { move-column-to-workspace "5"; }
+    Mod+Shift+6 { move-column-to-workspace "6"; }
+    Mod+Shift+7 { move-column-to-workspace "7"; }
+    Mod+Shift+8 { move-column-to-workspace "8"; }
+    Mod+Shift+9 { move-column-to-workspace "9"; }
 
     Print { screenshot; }
     Shift+Print { screenshot-window; }
