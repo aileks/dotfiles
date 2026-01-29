@@ -3,8 +3,8 @@
   "position": "top",
   "height": 28,
   "spacing": 8,
-  "modules-left": ["niri/workspaces"],
-  "modules-center": ["niri/window"],
+  "modules-left": ["niri/workspaces", "niri/window"],
+  "modules-center": [],
   "modules-right": ["custom/cpu", "custom/memory", "custom/network", "custom/volume", "custom/clock", "tray"],
   "niri/workspaces": {
     "format": "{index}"
