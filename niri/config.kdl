@@ -8,7 +8,7 @@ environment {
 }
 
 cursor {
-    hide-after-inactive-ms 2000
+    hide-after-inactive-ms 5000
     xcursor-theme "Adwaita"
     xcursor-size 32
 }
@@ -118,7 +118,6 @@ animations {
     }
 }
 
-
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     default-column-width {}
@@ -155,22 +154,14 @@ window-rule {
 }
 
 layer-rule {
-    match namespace="^mako$"
-    match namespace="^notifications$"
-    shadow {
-        off
-    }
-}
-
-layer-rule {
     match namespace="^launcher$"
     match namespace="^fuzzel$"
-    geometry-corner-radius 12
+
     shadow {
         on
         softness 30
-        spread 6
-        offset x=0 y=8
+        spread 5
+        offset x=0 y=5
         color "#00000080"
     }
 }

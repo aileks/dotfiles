@@ -1,30 +1,25 @@
 anchor=top-right
-margin=20,50
+margin=10,10
 width=400
-height=150
-padding=15
+height=160
+padding=14
 border-size=2
-border-radius=0
-font=CommitMono Nerd Font Mono 13
+border-radius=8
+font=CommitMono Nerd Font Mono 14
 background-color=#121212
 text-color=#b4b4b4
 border-color=#535353
 markup=1
 format=<b>%s</b>\n%b
 default-timeout=3000
-max-icon-size=32
+max-icon-size=64
 
 [urgency=low]
-text-color=#a7a7a7
-border-color=#535353
-default-timeout=3000
+border-color=#737373
 
 [urgency=normal]
-text-color=#b4b4b4
 border-color=#c4693d
-default-timeout=3000
 
 [urgency=critical]
-text-color=#b4b4b4
 border-color=#b14242
-default-timeout=0
+default-timeout=30000
