@@ -52,19 +52,34 @@ output "DP-1" {
 }
 
 layout {
-    gaps 8
+    gaps 2
 
     default-column-width { proportion 0.5; }
 
     focus-ring {
-        width 3
+        off
+    }
+
+    border {
+        width 1.5
         active-color "#b14242"
         inactive-color "#535353"
         urgent-color "#df6464"
     }
 
-    border {
-        off
+    shadow {
+        on
+        softness 30
+        spread 5
+        offset x=0 y=2
+        draw-behind-window true
+        color "#12121299"
+        inactive-color "#12121280"
+    }
+
+    insert-hint {
+        on
+        color "#e5a72a66"
     }
 }
 
@@ -110,7 +125,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(imv|wl-color-picker|calendar-floating|btop-floating|volume-floating|qalculate-gtk)$"#
+    match app-id=r#"^(imv|calendar-floating|btop-floating|volume-floating|qalculate-gtk)$"#
     open-floating true
 }
 
@@ -137,30 +152,6 @@ window-rule {
 window-rule {
     geometry-corner-radius 8
     clip-to-geometry true
-}
-
-window-rule {
-    match is-window-cast-target=true
-
-    focus-ring {
-        on
-        width 3
-        active-color "#322119"
-        inactive-color "#535353"
-        urgent-color "#df6464"
-    }
-
-    border {
-        on
-        width 2
-        active-color "#df6464"
-        inactive-color "#535353"
-        urgent-color "#df6464"
-    }
-
-    shadow {
-        color "#53535370"
-    }
 }
 
 layer-rule {
