@@ -2,7 +2,7 @@ export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 export ZSH="$HOME/.oh-my-zsh"
 export EDITOR='emacsclient -t -a ""'
 export VISUAL="$EDITOR"
-export SUDO_EDITOR="$VISUAL"
+export SUDO_EDITOR="$EDITOR"
 export MANPAGER="batcat -plman"
 
 ZSH_THEME="refined"

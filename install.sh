@@ -88,6 +88,7 @@ APT_PACKAGES=(
   zoxide
   eza
   bat
+  jq
   fd-find
   ripgrep
   btop
