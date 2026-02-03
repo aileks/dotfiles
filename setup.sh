@@ -12,16 +12,14 @@ DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
 PASS_THROUGH_ARGS=()
-OS_ID=""
-OS_LIKE=""
 
 show_help() {
 	cat <<EOF
-Arch / Pop!_OS Dotfiles Bootstrap Installer
+Dotfiles Bootstrap Installer
 
 This installer will:
   1. Ensure base packages are installed (git, build tools)
-  2. Install an AUR helper (Arch) or Pacstall (Pop!_OS)
+  2. Install Pacstall if needed
   3. Clone/update your dotfiles to ~/.dotfiles
   4. Run the full setup script
 
@@ -63,17 +61,11 @@ command_exists() {
 	return $?
 }
 
-detect_os() {
-	if [[ -r /etc/os-release ]]; then
-		# shellcheck disable=SC1091
-		. /etc/os-release
-		OS_ID=${ID:-""}
-		OS_LIKE=${ID_LIKE:-""}
+check_os() {
+	if ! [[ -r /etc/os-release ]] || ! grep -qiE 'ubuntu|debian' /etc/os-release; then
+		log_error "Unsupported system. This setup requires an Ubuntu-based distribution."
+		exit 1
 	fi
-}
-
-is_popos() {
-	[[ $OS_ID == "pop" ]] || [[ $OS_LIKE == *"pop"* ]]
 }
 
 # ============================================================
@@ -82,34 +74,6 @@ is_popos() {
 
 install_base_packages() {
 	log_info "Checking base packages..."
-
-	local missing_pkgs=()
-
-	if ! command_exists git; then
-		missing_pkgs+=("git")
-	fi
-
-	if ! pacman -Qq base-devel &>/dev/null; then
-		missing_pkgs+=("base-devel")
-	fi
-
-	if [[ ${#missing_pkgs[@]} -eq 0 ]]; then
-		log_success "Base packages already installed"
-		return 0
-	fi
-
-	log_info "Installing base packages: ${missing_pkgs[*]}"
-
-	if ! sudo pacman -S --needed --noconfirm "${missing_pkgs[@]}"; then
-		log_error "Failed to install base packages"
-		exit 1
-	fi
-
-	log_success "Base packages installed"
-}
-
-install_base_packages_popos() {
-	log_info "Checking base packages (Pop!_OS)..."
 
 	local missing_pkgs=()
 
@@ -147,45 +111,6 @@ install_base_packages_popos() {
 	fi
 
 	log_success "Base packages installed"
-}
-
-install_aur_helper() {
-	log_info "Checking for AUR helper..."
-
-	if command_exists paru; then
-		log_success "paru already installed"
-		return 0
-	fi
-
-	if command_exists yay; then
-		log_success "yay already installed (will use yay)"
-		return 0
-	fi
-
-	log_info "Installing paru (AUR helper)..."
-
-	local paru_dir
-	paru_dir=$(mktemp -d)
-
-	if ! git clone https://aur.archlinux.org/paru.git "$paru_dir"; then
-		log_error "Failed to clone paru"
-		rm -rf "$paru_dir"
-		exit 1
-	fi
-
-	pushd "$paru_dir" &>/dev/null || exit 1
-
-	if ! makepkg -si --noconfirm; then
-		log_error "Failed to build paru"
-		popd &>/dev/null || true
-		rm -rf "$paru_dir"
-		exit 1
-	fi
-
-	popd &>/dev/null || true
-	rm -rf "$paru_dir"
-
-	log_success "paru installed successfully"
 }
 
 install_pacstall() {
@@ -352,22 +277,12 @@ parse_arguments() {
 # ============================================================
 
 main() {
-	detect_os
 	parse_arguments "$@"
+	check_os
 
-	if is_popos; then
-		log_info "Starting Pop!_OS bootstrap installer..."
-		install_base_packages_popos
-		install_pacstall
-	elif [[ -f /etc/arch-release ]]; then
-		log_info "Starting Arch Linux bootstrap installer..."
-		install_base_packages
-		install_aur_helper
-	else
-		log_error "Unsupported OS for this bootstrap script."
-		log_error "Detected OS: $(cat /etc/os-release 2>/dev/null | grep PRETTY_NAME | cut -d= -f2 || uname -s)"
-		exit 1
-	fi
+	log_info "Starting bootstrap installer..."
+	install_base_packages
+	install_pacstall
 
 	# Handle dotfiles repository
 	if verify_dotfiles_repo; then

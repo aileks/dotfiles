@@ -17,8 +17,6 @@ EMACS_DIR="$HOME/.emacs.d"
 DRY_RUN=false
 DEBUG=false
 SYMLINK_ONLY=false
-OS_ID=""
-OS_LIKE=""
 
 # ============================================================
 # Logging
@@ -67,76 +65,16 @@ command_exists() {
 	command -v "$1" &>/dev/null
 }
 
-detect_os() {
-	if [[ -r /etc/os-release ]]; then
-		# shellcheck disable=SC1091
-		. /etc/os-release
-		OS_ID=${ID:-""}
-		OS_LIKE=${ID_LIKE:-""}
+check_os() {
+	if ! [[ -r /etc/os-release ]] || ! grep -qiE 'ubuntu|debian|pop_os' /etc/os-release; then
+		log_error "Unsupported OS."
+		exit 1
 	fi
-}
-
-is_popos() {
-	[[ $OS_ID == "pop" ]] || [[ $OS_LIKE == *"pop"* ]]
 }
 
 # ============================================================
 # Package Lists
 # ============================================================
-
-# Most packages are installed via archinstall
-PACMAN_PACKAGES=(
-	base-devel
-	pacman-contrib
-	libgccjit
-	gdb
-	gvim
-	emacs-wayland
-	zsh
-	github-cli
-	wezterm
-	tmux
-	git
-	man-db
-	man-pages
-	words
-	hunspell
-	hunspell-en_us
-	jq
-	tree
-	unzip
-	unrar
-	7zip
-	geoclue
-	yazi
-	ifuse
-	fzf
-	zoxide
-	eza
-	bat
-	fd
-	ripgrep
-	trash-cli
-	zathura
-	zathura-pdf-mupdf
-	fastfetch
-	btop
-	calcurse
-	qalculate-gtk
-	mpv
-	gst-plugins-good
-	gst-plugins-bad
-	gst-plugins-ugly
-	gst-libav
-	ffmpeg
-	usbutils
-	cups
-	system-config-printer
-	webp-pixbuf-loader
-	noto-fonts
-	noto-fonts-cjk
-	noto-fonts-emoji
-)
 
 APT_PACKAGES=(
 	curl
@@ -190,16 +128,6 @@ APT_PACKAGES=(
 	fonts-noto-color-emoji
 )
 
-AUR_PACKAGES=(
-	helium-browser-bin
-	ttf-adwaita-mono-nerd
-	ttf-mac-fonts
-	1password
-	1password-cli
-	onlyoffice-bin
-	keyd
-)
-
 PACSTALL_PACKAGES=(
 	wezterm-bin
 	onlyoffice-desktopeditors-deb
@@ -210,36 +138,6 @@ PACSTALL_PACKAGES=(
 # ============================================================
 # Package Installation
 # ============================================================
-
-install_pacman_packages() {
-	log_info "Installing pacman packages..."
-
-	local to_install=()
-
-	for pkg in "${PACMAN_PACKAGES[@]}"; do
-		if ! pacman -Qq "$pkg" &>/dev/null; then
-			to_install+=("$pkg")
-		fi
-	done
-
-	if [[ ${#to_install[@]} -eq 0 ]]; then
-		log_success "All pacman packages already installed"
-		return 0
-	fi
-
-	log_info "Installing ${#to_install[@]} packages: ${to_install[*]:0:5}..."
-
-	if log_dry "sudo pacman -S --needed --noconfirm ${to_install[*]}"; then
-		return 0
-	fi
-
-	if ! sudo pacman -S --needed --noconfirm "${to_install[@]}"; then
-		log_error "Failed to install some pacman packages"
-		exit 1
-	fi
-
-	log_success "Pacman packages installed"
-}
 
 install_apt_packages() {
 	log_info "Installing apt packages..."
@@ -272,53 +170,6 @@ install_apt_packages() {
 
 	log_success "Apt packages installed"
 }
-
-install_aur_packages() {
-	log_info "Installing AUR packages..."
-
-	local helium_key="BE677C1989D35EAB2C5F26C9351601AD01D6378E"
-	if ! gpg --list-keys "$helium_key" &>/dev/null; then
-		log_info "Importing Helium browser GPG key..."
-		gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "$helium_key"
-	fi
-
-	local aur_helper=""
-	if command_exists paru; then
-		aur_helper="paru"
-	elif command_exists yay; then
-		aur_helper="yay"
-	else
-		log_error "No AUR helper found. Run setup.sh first."
-		exit 1
-	fi
-
-	local to_install=()
-
-	for pkg in "${AUR_PACKAGES[@]}"; do
-		if ! pacman -Qq "$pkg" &>/dev/null; then
-			to_install+=("$pkg")
-		fi
-	done
-
-	if [[ ${#to_install[@]} -eq 0 ]]; then
-		log_success "All AUR packages already installed"
-		return 0
-	fi
-
-	log_info "Installing ${#to_install[@]} AUR packages with $aur_helper"
-
-	if log_dry "$aur_helper -S --needed --noconfirm ${to_install[*]}"; then
-		return 0
-	fi
-
-	if ! $aur_helper -S --needed --noconfirm "${to_install[@]}"; then
-		log_warning "Some AUR packages failed to install"
-		exit 1
-	fi
-
-	log_success "AUR packages installed"
-}
-
 install_pacstall_packages() {
 	log_info "Installing pacstall packages..."
 
@@ -516,15 +367,10 @@ EOF
 }
 
 install_packages() {
-	if is_popos; then
-		install_apt_packages
-		install_pacstall_packages
-		install_1password
-		install_helium_appimage
-	else
-		install_pacman_packages
-		install_aur_packages
-	fi
+	install_apt_packages
+	install_pacstall_packages
+	install_1password
+	install_helium_appimage
 }
 
 # ============================================================
@@ -776,44 +622,8 @@ install_tpm() {
 
 install_orchis_theme() {
 	log_info "Installing Orchis theme (orange)..."
-
-	if is_popos; then
-		log_info "Skipping Orchis theme on Pop!_OS COSMIC"
-		return 0
-	fi
-
-	if command_exists gsettings; then
-		local current_theme
-		current_theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null || true)
-		if [[ $current_theme == *"Orchis"* ]]; then
-			log_success "Orchis theme already configured"
-			return 0
-		fi
-	fi
-
-	if log_dry "Clone and install Orchis theme (orange)"; then
-		return 0
-	fi
-
-	local tmp_dir
-	tmp_dir=$(mktemp -d)
-	if ! git clone --depth 1 https://github.com/vinceliuice/Orchis-theme "$tmp_dir/orchis-theme"; then
-		log_warning "Failed to clone Orchis theme"
-		rm -rf "$tmp_dir"
-		return 1
-	fi
-
-	pushd "$tmp_dir/orchis-theme" &>/dev/null
-	if ! ./install.sh -t orange; then
-		log_warning "Failed to install Orchis theme"
-		popd &>/dev/null
-		rm -rf "$tmp_dir"
-		return 1
-	fi
-	popd &>/dev/null
-
-	rm -rf "$tmp_dir"
-	log_success "Orchis theme installed"
+	log_info "Skipping Orchis theme in this setup"
+	return 0
 }
 
 setup_shell() {
@@ -888,106 +698,6 @@ setup_xdg_dirs() {
 	log_success "XDG user directories created"
 }
 
-setup_display_manager() {
-	if is_popos; then
-		log_info "Skipping display manager setup on Pop!_OS"
-		return 0
-	fi
-	echo
-	echo -e "${LOG_BLUE}╔════════════════════════════════════════╗${LOG_NC}"
-	echo -e "${LOG_BLUE}║${LOG_NC}       Display Manager Selection        ${LOG_BLUE}║${LOG_NC}"
-	echo -e "${LOG_BLUE}╚════════════════════════════════════════╝${LOG_NC}"
-	echo
-	echo "  1) ly             - ncurses-like display manager written in Zig"
-	echo "  2) sddm           - Simple Desktop Display Manager"
-	echo "  3) gdm            - GNOME Display Manager"
-	echo "  4) lightdm        - Lightweight display manager"
-	echo "  5) lemurs         - TUI display manager written in Rust"
-	echo "  6) cosmic-greeter - COSMIC greetd-based display manager"
-	echo "  7) none           - Skip display manager setup"
-	echo
-
-	read -rp "Choose a display manager [1]: " dm_choice </dev/tty
-	dm_choice=${dm_choice:-1}
-
-	local dm_pkg=""
-	local dm_service=""
-
-	case "$dm_choice" in
-	1)
-		dm_pkg="ly"
-		dm_service="ly"
-		;;
-	2)
-		dm_pkg="sddm"
-		dm_service="sddm"
-		;;
-	3)
-		dm_pkg="gdm"
-		dm_service="gdm"
-		;;
-	4)
-		dm_pkg="lightdm"
-		dm_service="lightdm"
-		;;
-	5)
-		dm_pkg="lemurs"
-		dm_service="lemurs"
-		;;
-	6)
-		dm_pkg="cosmic-greeter"
-		dm_service="cosmic-greeter"
-		;;
-	7)
-		log_info "Skipping display manager setup"
-		return 0
-		;;
-	*)
-		log_warning "Invalid choice, skipping display manager setup"
-		return 0
-		;;
-	esac
-
-	log_info "Installing $dm_pkg..."
-
-	if log_dry "sudo pacman -S --needed --noconfirm $dm_pkg"; then
-		return 0
-	fi
-
-	if ! sudo pacman -S --needed --noconfirm "$dm_pkg"; then
-		log_error "Failed to install $dm_pkg"
-		exit 1
-	fi
-
-	log_success "$dm_pkg installed"
-
-	log_info "Enabling $dm_service service..."
-
-	if [[ $dm_pkg == "ly" ]]; then
-		if ! systemctl is-enabled ly@tty1 &>/dev/null; then
-			sudo systemctl disable getty@tty1.service 2>/dev/null || true
-			sudo systemctl enable ly@tty1.service
-			log_success "ly@tty1 enabled, getty@tty1 disabled"
-		else
-			log_success "ly@tty1 already enabled"
-		fi
-
-		log_info "Configuring console font for HiDPI..."
-		if ! pacman -Qq terminus-font &>/dev/null; then
-			sudo pacman -S --needed --noconfirm terminus-font
-		fi
-		echo "FONT=ter-132b" | sudo tee /etc/vconsole.conf >/dev/null
-		log_success "Console font set to ter-132b"
-	else
-		if ! systemctl is-enabled "$dm_service" &>/dev/null; then
-			sudo systemctl enable "$dm_service"
-			log_success "$dm_service enabled"
-		else
-			log_success "$dm_service already enabled"
-		fi
-	fi
-}
-
 # ============================================================
 # Interactive Menu
 # ============================================================
@@ -1032,7 +742,7 @@ show_menu() {
 
 show_help() {
 	cat <<EOF
-Arch / Pop!_OS Dotfiles Install Script
+Dotfiles Install Script
 
 Usage:
   ./install.sh [OPTIONS] [MODE]
@@ -1090,7 +800,7 @@ parse_arguments() {
 # ============================================================
 
 main() {
-	detect_os
+	check_os
 	parse_arguments "$@"
 
 	# Show menu if no mode specified via args
@@ -1125,7 +835,6 @@ main() {
 		install_orchis_theme
 		setup_shell
 		enable_services
-		setup_display_manager
 	fi
 
 	echo
