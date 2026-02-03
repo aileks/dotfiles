@@ -1,4 +1,4 @@
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.opencode/bin:$PATH"
 export ZSH="$HOME/.oh-my-zsh"
 export EDITOR='emacsclient -t -a ""'
 export VISUAL="$EDITOR"
@@ -15,7 +15,6 @@ alias ls="eza --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
 alias rm="trash-put"
 alias c="clear"
-alias fzf="fzf --style full"
 alias ff="fastfetch"
 alias bat="batcat"
 
@@ -62,7 +61,6 @@ export FZF_DEFAULT_OPTS="
   --color=border:#a7a7a7
   --color=query:#d5d5d5
   --color=gutter:#121212
-  --highlight-line
   --info=inline-right
   --layout=reverse
   --pointer='█'
@@ -76,6 +74,3 @@ export _ZO_FZF_OPTS="
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
 
-
-# opencode
-export PATH=/home/aileks/.opencode/bin:$PATH
