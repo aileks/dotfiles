@@ -84,7 +84,6 @@ APT_PACKAGES=(
   zsh
   gh
   tmux
-  fzf
   gdb
   zoxide
   eza
@@ -104,6 +103,7 @@ APT_PACKAGES=(
 )
 
 PACSTALL_PACKAGES=(
+  fzf-bin
   bat-deb
   onlyoffice-desktopeditors-deb
   keyd-deb
