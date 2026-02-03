@@ -1,6 +1,4 @@
-# Arch Linux Dotfiles
-
-Arch setup built on COSMIC with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+# Linux Dotfiles
 
 ## Features
 
@@ -34,11 +32,12 @@ cd ~/.dotfiles
 ./install.sh --dry-run 1  # Preview changes
 ```
 
-## Systemd
-
-This setup assumes systemd for user services. If you are on a systemd-less distro, clone the repo manually and run the install script with `--no-systemd`.
-
 ## Resources
 
 - [COSMIC](https://github.com/pop-os/cosmic-epoch)
 - [keyd](https://github.com/rvaiya/keyd)
+- [Helium](https://github.com/imputnet/helium-linux)
+
+## License
+
+[MIT](./LICENSE)
