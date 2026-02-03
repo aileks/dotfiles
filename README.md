@@ -1,5 +1,7 @@
 # Linux Dotfiles
 
+![Preview Image](./preview.png)
+
 ## Features
 
 - **Desktop**: COSMIC
