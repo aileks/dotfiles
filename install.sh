@@ -77,8 +77,6 @@ check_os() {
 # ============================================================
 
 APT_PACKAGES=(
-  curl
-  rsync
   emacs-pgtk
   zsh
   gh
@@ -95,6 +93,7 @@ APT_PACKAGES=(
   calcurse
   qalculate-gtk
   mpv
+  solaar
   fonts-noto
   fonts-noto-cjk
   fonts-noto-color-emoji
@@ -141,6 +140,30 @@ install_apt_packages() {
   fi
 
   log_success "Apt packages installed"
+}
+
+setup_solaar_repo() {
+  local repo_pattern="/etc/apt/sources.list.d/solaar-unifying-ubuntu-stable"
+
+  if ls "${repo_pattern}"*.list &>/dev/null; then
+    log_success "Solaar repository already present"
+    return 0
+  fi
+
+  log_info "Adding Solaar repository..."
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "sudo apt install -y software-properties-common"
+    log_dry "sudo add-apt-repository -y ppa:solaar-unifying/stable"
+    return 0
+  fi
+
+  if ! command_exists add-apt-repository; then
+    sudo apt update
+    sudo apt install -y software-properties-common
+  fi
+
+  sudo add-apt-repository -y ppa:solaar-unifying/stable
 }
 install_pacstall_packages() {
   log_info "Installing pacstall packages..."
@@ -339,6 +362,7 @@ EOF
 }
 
 install_packages() {
+  setup_solaar_repo
   install_apt_packages
   install_pacstall_packages
   install_1password
