@@ -88,7 +88,6 @@ APT_PACKAGES=(
   gdb
   zoxide
   eza
-  bat
   jq
   fd-find
   ripgrep
@@ -97,6 +96,7 @@ APT_PACKAGES=(
   qalculate-gtk
   mpv
   solaar
+  cider
   trash-cli
   fonts-noto
   fonts-noto-cjk
@@ -104,6 +104,7 @@ APT_PACKAGES=(
 )
 
 PACSTALL_PACKAGES=(
+  bat-deb
   onlyoffice-desktopeditors-deb
   keyd-deb
   fastfetch-git
@@ -168,6 +169,42 @@ setup_solaar_repo() {
   fi
 
   sudo add-apt-repository -y ppa:solaar-unifying/stable
+}
+
+setup_cider_repo() {
+  local keyring_path="/usr/share/keyrings/cider-archive-keyring.gpg"
+  local repo_file="/etc/apt/sources.list.d/cider.list"
+  local repo_entry="deb [signed-by=${keyring_path}] https://repo.cider.sh/apt stable main"
+
+  if [[ -f $repo_file && -f $keyring_path ]]; then
+    log_success "Cider repository already present"
+    return 0
+  fi
+
+  if ! command_exists gpg; then
+    log_error "gpg is required to install the Cider repo (install gnupg)"
+    return 1
+  fi
+
+  log_info "Adding Cider repository..."
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "curl -fsSL https://repo.cider.sh/APT-GPG-KEY | sudo gpg --dearmor -o ${keyring_path}"
+    log_dry "echo '${repo_entry}' | sudo tee ${repo_file}"
+    return 0
+  fi
+
+  if ! curl -fsSL https://repo.cider.sh/APT-GPG-KEY | sudo gpg --dearmor -o "$keyring_path"; then
+    log_error "Failed to install Cider repo key"
+    return 1
+  fi
+
+  if ! echo "$repo_entry" | sudo tee "$repo_file" >/dev/null; then
+    log_error "Failed to configure Cider repo"
+    return 1
+  fi
+
+  sudo chmod 644 "$keyring_path"
 }
 install_pacstall_packages() {
   log_info "Installing pacstall packages..."
@@ -357,6 +394,7 @@ EOF
 
 install_packages() {
   setup_solaar_repo
+  setup_cider_repo
   install_apt_packages
   install_wezterm
   install_pacstall_packages

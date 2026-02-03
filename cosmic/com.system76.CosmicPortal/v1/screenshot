@@ -1,10 +1,10 @@
 (
-    save_location: Pictures,
-    choice: Output(Some("DP-1")),
+    save_location: Clipboard,
+    choice: Rectangle,
     last_rectangle: Some((
-        left: 1437,
-        top: 712,
-        right: 2131,
-        bottom: 1238,
+        left: 2441,
+        top: 562,
+        right: 3081,
+        bottom: 628,
     )),
 )
