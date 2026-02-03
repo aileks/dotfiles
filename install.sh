@@ -85,6 +85,7 @@ APT_PACKAGES=(
   gh
   tmux
   fzf
+  gdb
   zoxide
   eza
   bat
