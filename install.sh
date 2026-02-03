@@ -80,7 +80,6 @@ APT_PACKAGES=(
   curl
   rsync
   build-essential
-  emacs-pgtk
   zsh
   gh
   tmux
@@ -106,6 +105,7 @@ PACSTALL_PACKAGES=(
   onlyoffice-desktopeditors-deb
   keyd-deb
   fastfetch-git
+  emacs # pop_os repos don't have emacs 30
 )
 
 # ============================================================
