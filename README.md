@@ -1,4 +1,4 @@
-# Linux Dotfiles
+# Dotfiles
 
 ![Preview Image](./preview.png)
 
