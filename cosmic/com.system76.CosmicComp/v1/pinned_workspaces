@@ -1,0 +1,92 @@
+[
+    (
+        output: (
+            name: "DP-1",
+            edid: Some((
+                manufacturer: ('G', 'S', 'M'),
+                product: 23780,
+                serial: Some(1485),
+                manufacture_week: 31,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("145fcb5"),
+    ),
+    (
+        output: (
+            name: "DP-1",
+            edid: Some((
+                manufacturer: ('G', 'S', 'M'),
+                product: 23780,
+                serial: Some(1485),
+                manufacture_week: 31,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("df9954"),
+    ),
+    (
+        output: (
+            name: "DP-1",
+            edid: Some((
+                manufacturer: ('G', 'S', 'M'),
+                product: 23780,
+                serial: Some(1485),
+                manufacture_week: 31,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("17f850c"),
+    ),
+    (
+        output: (
+            name: "DP-1",
+            edid: Some((
+                manufacturer: ('G', 'S', 'M'),
+                product: 23780,
+                serial: Some(1485),
+                manufacture_week: 31,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("b867df"),
+    ),
+    (
+        output: (
+            name: "DP-1",
+            edid: Some((
+                manufacturer: ('G', 'S', 'M'),
+                product: 23780,
+                serial: Some(1485),
+                manufacture_week: 31,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("13c9ab6"),
+    ),
+    (
+        output: (
+            name: "DP-1",
+            edid: Some((
+                manufacturer: ('G', 'S', 'M'),
+                product: 23780,
+                serial: Some(1485),
+                manufacture_week: 31,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("8c2ba3"),
+    ),
+]
