@@ -79,6 +79,7 @@ check_os() {
 APT_PACKAGES=(
   curl
   rsync
+  libnotify-bin
   build-essential
   zsh
   gh
