@@ -1,16 +1,11 @@
 # Arch Linux Dotfiles
 
-Arch setup built on Niri with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+Arch setup built on COSMIC with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 
 ## Features
 
-- **WM**: Niri
-- **Status bar**: Waybar
+- **Desktop**: COSMIC
 - **Terminal**: WezTerm
-- **Launcher**: Fuzzel
-- **Notifications**: Mako
-- **Lockscreen**: Swaylock
-- **Wallpaper**: Swaybg
 - **Shell**: Zsh
 - **Editor**: [Emacs](https://codeberg.org/aileks/emacs.d)
 - **File manager**: Yazi
@@ -44,12 +39,9 @@ cd ~/.dotfiles
 
 ## Systemd
 
-This setup requires systemd to work with Niri nicely. If you are on a systemd-less distro, clone the repo manually and run the install script with `--no-systemd`.  
-You will have to edit the Niri config to launch these services as background processes instead.
+This setup assumes systemd for user services. If you are on a systemd-less distro, clone the repo manually and run the install script with `--no-systemd`.
 
 ## Resources
 
-- [Niri](https://github.com/YaLTeR/niri)
-- [Waybar](https://github.com/Alexays/Waybar)
-- [Niri Docs](https://yalter.github.io/niri/)
+- [COSMIC](https://github.com/pop-os/cosmic-epoch)
 - [keyd](https://github.com/rvaiya/keyd)
