@@ -6,7 +6,7 @@ export SUDO_EDITOR="$VISUAL"
 export MANPAGER="batcat -plman"
 
 ZSH_THEME="refined"
-plugins=(archlinux fzf git gh zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(fzf git gh ubuntu zsh-autosuggestions zsh-syntax-highlighting)
 source "$ZSH/oh-my-zsh.sh"
 source "$ZSH/custom/plugins/ashen_zsh_syntax_highlighting.zsh"
 eval "$(zoxide init zsh)"
@@ -76,3 +76,6 @@ export _ZO_FZF_OPTS="
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
 
+
+# opencode
+export PATH=/home/aileks/.opencode/bin:$PATH

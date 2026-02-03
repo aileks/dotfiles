@@ -77,6 +77,9 @@ check_os() {
 # ============================================================
 
 APT_PACKAGES=(
+  curl
+  rsync
+  build-essential
   emacs-pgtk
   zsh
   gh
@@ -87,20 +90,18 @@ APT_PACKAGES=(
   bat
   fd-find
   ripgrep
-  zathura
-  zathura-pdf-mupdf
   btop
   calcurse
   qalculate-gtk
   mpv
   solaar
+  trash-cli
   fonts-noto
   fonts-noto-cjk
   fonts-noto-color-emoji
 )
 
 PACSTALL_PACKAGES=(
-  wezterm-bin
   onlyoffice-desktopeditors-deb
   keyd-deb
   fastfetch-git
@@ -255,7 +256,50 @@ install_1password() {
   log_success "1Password installed"
 }
 
-install_helium_appimage() {
+install_wezterm() {
+  log_info "Installing WezTerm..."
+
+  if dpkg -s wezterm &>/dev/null; then
+    log_success "WezTerm already installed"
+    return 0
+  fi
+
+  if ! command_exists gpg; then
+    log_error "gpg is required to install WezTerm (install gnupg)"
+    return 1
+  fi
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg"
+    log_dry "echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list"
+    log_dry "sudo chmod 644 /usr/share/keyrings/wezterm-fury.gpg"
+    log_dry "sudo apt update"
+    log_dry "sudo apt install -y wezterm"
+    return 0
+  fi
+
+  if ! curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg; then
+    log_error "Failed to install WezTerm apt repo key"
+    return 1
+  fi
+
+  if ! echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list >/dev/null; then
+    log_error "Failed to configure WezTerm apt repo"
+    return 1
+  fi
+
+  sudo chmod 644 /usr/share/keyrings/wezterm-fury.gpg
+  sudo apt update
+
+  if ! sudo apt install -y wezterm; then
+    log_error "Failed to install WezTerm"
+    return 1
+  fi
+
+  log_success "WezTerm installed"
+}
+
+install_helium() {
   log_info "Installing Helium AppImage..."
 
   if [[ $DRY_RUN == true ]]; then
@@ -264,61 +308,8 @@ install_helium_appimage() {
     return 0
   fi
 
-  if ! command_exists jq; then
-    log_error "jq is required to install Helium"
-    return 1
-  fi
-
-  local arch
-  case "$(uname -m)" in
-    x86_64 | amd64) arch="x86_64" ;;
-    aarch64 | arm64) arch="arm64" ;;
-    *)
-      log_error "Unsupported architecture for Helium"
-      return 1
-      ;;
-  esac
-
-  local release_json
-  release_json=$(curl -fsSL "https://api.github.com/repos/imputnet/helium-linux/releases/latest")
-  local tag
-  tag=$(jq -r ".tag_name" <<<"$release_json")
   local appimage_url
-  appimage_url=$(jq -r ".assets[] | select(.name | test(\"${arch}\\.AppImage$\")) | .browser_download_url" <<<"$release_json")
-
-  if [[ -z $appimage_url || $appimage_url == "null" ]]; then
-    log_error "Failed to find Helium AppImage for ${arch}"
-    return 1
-  fi
-
-  if command_exists gpg; then
-    local helium_key="BE677C1989D35EAB2C5F26C9351601AD01D6378E"
-    local tmp_dir
-    tmp_dir=$(mktemp -d)
-    local tar_url="https://github.com/imputnet/helium-linux/releases/download/${tag}/helium-${tag}-${arch}_linux.tar.xz"
-    local asc_url="${tar_url}.asc"
-
-    if ! gpg --list-keys "$helium_key" &>/dev/null; then
-      log_info "Importing Helium signing key..."
-      gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "$helium_key" || true
-    fi
-
-    if ! curl -fsSL "$tar_url" -o "$tmp_dir/helium.tar.xz"; then
-      log_warning "Failed to download Helium tarball for signature verification"
-    elif ! curl -fsSL "$asc_url" -o "$tmp_dir/helium.tar.xz.asc"; then
-      log_warning "Failed to download Helium signature file"
-    elif ! gpg --verify "$tmp_dir/helium.tar.xz.asc" "$tmp_dir/helium.tar.xz"; then
-      log_error "Helium signature verification failed"
-      rm -rf "$tmp_dir"
-      return 1
-    else
-      log_success "Helium signature verified"
-    fi
-
-    rm -rf "$tmp_dir"
-  else
-    log_warning "gpg not available; skipping Helium signature verification"
-  fi
+  appimage_url="https://github.com/imputnet/helium-linux/releases/download/0.8.4.1/helium-0.8.4.1-x86_64.AppImage"
 
   local install_dir="$HOME/.local/opt/helium"
   local appimage_path="$install_dir/helium.AppImage"
@@ -364,9 +355,10 @@ EOF
 install_packages() {
   setup_solaar_repo
   install_apt_packages
+  install_wezterm
   install_pacstall_packages
   install_1password
-  install_helium_appimage
+  install_helium
 }
 
 # ============================================================
@@ -543,7 +535,6 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/zathura" "$HOME/.config/zathura"
   create_symlink "$SCRIPT_DIR/mpv" "$HOME/.config/mpv"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
-  create_symlink "$SCRIPT_DIR/yazi" "$HOME/.config/yazi"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
 
   # Single file symlinks
