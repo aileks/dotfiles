@@ -96,6 +96,7 @@ APT_PACKAGES=(
   mpv
   solaar
   cider
+  zathura
   trash-cli
   fonts-noto
   fonts-noto-cjk
