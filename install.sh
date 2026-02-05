@@ -90,7 +90,6 @@ APT_PACKAGES=(
   jq
   fd-find
   ripgrep
-  btop
   calcurse
   qalculate-gtk
   mpv
@@ -105,6 +104,7 @@ APT_PACKAGES=(
 
 PACSTALL_PACKAGES=(
   fzf-bin
+  btop-bin
   bat-deb
   onlyoffice-desktopeditors-deb
   keyd-deb
@@ -264,12 +264,12 @@ install_1password() {
 
   local arch
   case "$(uname -m)" in
-    x86_64 | amd64) arch="amd64" ;;
-    aarch64 | arm64) arch="arm64" ;;
-    *)
-      log_error "Unsupported architecture for 1Password"
-      return 1
-      ;;
+  x86_64 | amd64) arch="amd64" ;;
+  aarch64 | arm64) arch="arm64" ;;
+  *)
+    log_error "Unsupported architecture for 1Password"
+    return 1
+    ;;
   esac
 
   local tmp_deb
@@ -748,20 +748,20 @@ show_menu() {
   choice=${choice:-1}
 
   case "$choice" in
-    1) SYMLINK_ONLY=false ;;
-    2) SYMLINK_ONLY=true ;;
-    3)
-      install_packages
-      exit 0
-      ;;
-    q | Q)
-      log_info "Cancelled"
-      exit 0
-      ;;
-    *)
-      log_error "Invalid option: $choice"
-      exit 1
-      ;;
+  1) SYMLINK_ONLY=false ;;
+  2) SYMLINK_ONLY=true ;;
+  3)
+    install_packages
+    exit 0
+    ;;
+  q | Q)
+    log_info "Cancelled"
+    exit 0
+    ;;
+  *)
+    log_error "Invalid option: $choice"
+    exit 1
+    ;;
   esac
 }
 
@@ -796,29 +796,29 @@ EOF
 parse_arguments() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -h | --help)
-        show_help
-        exit 0
-        ;;
-      -d | --dry-run)
-        DRY_RUN=true
-        log_warning "Dry-run mode enabled"
-        ;;
-      --debug)
-        DEBUG=true
-        log_debug "Debug mode enabled"
-        ;;
-      1)
-        SYMLINK_ONLY=false
-        ;;
-      2)
-        SYMLINK_ONLY=true
-        ;;
-      *)
-        log_error "Unknown option: $1"
-        show_help
-        exit 1
-        ;;
+    -h | --help)
+      show_help
+      exit 0
+      ;;
+    -d | --dry-run)
+      DRY_RUN=true
+      log_warning "Dry-run mode enabled"
+      ;;
+    --debug)
+      DEBUG=true
+      log_debug "Debug mode enabled"
+      ;;
+    1)
+      SYMLINK_ONLY=false
+      ;;
+    2)
+      SYMLINK_ONLY=true
+      ;;
+    *)
+      log_error "Unknown option: $1"
+      show_help
+      exit 1
+      ;;
     esac
     shift
   done
