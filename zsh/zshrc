@@ -25,7 +25,6 @@ fi
 # Web dev stuff
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 [ -s "/home/aileks/.bun/_bun" ] && source "/home/aileks/.bun/_bun"
 
@@ -75,3 +74,12 @@ export _ZO_FZF_OPTS="
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
 
+
+# pnpm
+export PNPM_HOME="/home/aileks/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
