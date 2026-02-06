@@ -109,7 +109,7 @@ PACSTALL_PACKAGES=(
   onlyoffice-desktopeditors-deb
   keyd-deb
   fastfetch-git
-  emacs # pop_os repos don't have emacs 30
+  emacs-git # pop_os repos don't have emacs 30
 )
 
 # ============================================================
