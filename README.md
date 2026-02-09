@@ -31,6 +31,8 @@ cd ~/.dotfiles
 ./install.sh              # Interactive menu
 ./install.sh 1            # Full setup (symlinks + build)
 ./install.sh 2            # Symlink only
+./install.sh 3            # Packages only
+./install.sh 4            # Zsh setup only
 ./install.sh --dry-run 1  # Preview changes
 ```
 

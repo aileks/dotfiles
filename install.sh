@@ -11,12 +11,15 @@ readonly LOG_NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
-EMACS_REPO="https://codeberg.org/aileks/emacs.d.git"
-EMACS_DIR="$HOME/.emacs.d"
+EMACS_CONFIG_REPO="https://codeberg.org/aileks/emacs.d.git"
+EMACS_CONFIG_DIR="$HOME/.emacs.d"
+EMACS_SOURCE_REPO="https://github.com/emacs-mirror/emacs.git"
+EMACS_SOURCE_DIR="$HOME/.local/src/emacs"
+EMACS_PREFIX="/usr/local"
 
 DRY_RUN=false
 DEBUG=false
-SYMLINK_ONLY=false
+INSTALL_MODE="full"
 
 # ============================================================
 # Logging
@@ -65,6 +68,19 @@ command_exists() {
   command -v "$1" &>/dev/null
 }
 
+wait_for_file() {
+  local file_path="$1"
+  local retries="${2:-100}"
+
+  while (( retries > 0 )); do
+    [[ -f "$file_path" ]] && return 0
+    sleep 0.1
+    ((retries--))
+  done
+
+  return 1
+}
+
 check_os() {
   if ! [[ -r /etc/os-release ]] || ! grep -qiE 'ubuntu|debian|pop_os' /etc/os-release; then
     log_error "Unsupported OS."
@@ -81,6 +97,7 @@ APT_PACKAGES=(
   rsync
   libnotify-bin
   build-essential
+  git
   zsh
   gh
   tmux
@@ -109,7 +126,25 @@ PACSTALL_PACKAGES=(
   onlyoffice-desktopeditors-deb
   keyd-deb
   fastfetch-git
-  emacs-git # pop_os repos don't have emacs 30
+)
+
+EMACS_BUILD_PACKAGES=(
+  autoconf
+  automake
+  make
+  texinfo
+  pkg-config
+  libgnutls28-dev
+  libjansson-dev
+  libtree-sitter-dev
+  libgtk-3-dev
+  libncurses-dev
+  libxml2-dev
+  libjpeg-dev
+  libpng-dev
+  libgif-dev
+  libtiff-dev
+  libxpm-dev
 )
 
 # ============================================================
@@ -393,10 +428,148 @@ EOF
   log_success "Helium installed and set as default browser"
 }
 
+detect_gccjit_dev_package() {
+  local pkg
+  pkg=$(apt-cache search --names-only '^libgccjit-[0-9]+-dev$' 2>/dev/null | awk '{print $1}' | sort -Vr | head -n1)
+  echo "$pkg"
+}
+
+install_emacs_build_dependencies() {
+  log_info "Installing Emacs build dependencies..."
+
+  local deps=("${EMACS_BUILD_PACKAGES[@]}")
+  local gccjit_pkg
+  gccjit_pkg=$(detect_gccjit_dev_package)
+
+  if [[ -z "$gccjit_pkg" && $DRY_RUN == false ]]; then
+    sudo apt update
+    gccjit_pkg=$(detect_gccjit_dev_package)
+  fi
+
+  if [[ -n "$gccjit_pkg" ]]; then
+    deps+=("$gccjit_pkg")
+  else
+    if [[ $DRY_RUN == true ]]; then
+      log_warning "No libgccjit-<version>-dev package detected in apt cache"
+    else
+      log_error "Could not find a libgccjit-<version>-dev package in apt cache"
+      exit 1
+    fi
+  fi
+
+  local to_install=()
+  for pkg in "${deps[@]}"; do
+    if ! dpkg -s "$pkg" &>/dev/null; then
+      to_install+=("$pkg")
+    fi
+  done
+
+  if [[ ${#to_install[@]} -eq 0 ]]; then
+    log_success "Emacs build dependencies already installed"
+    return 0
+  fi
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "sudo apt update"
+    log_dry "sudo apt install -y ${to_install[*]}"
+    return 0
+  fi
+
+  sudo apt update
+  if ! sudo apt install -y "${to_install[@]}"; then
+    log_error "Failed to install Emacs build dependencies"
+    exit 1
+  fi
+
+  log_success "Emacs build dependencies installed"
+}
+
+emacs_has_native_comp_and_treesitter() {
+  if ! command_exists emacs; then
+    return 1
+  fi
+
+  local check_output
+  check_output=$(emacs --batch --eval "(princ (if (and (fboundp 'native-comp-available-p) (native-comp-available-p) (fboundp 'treesit-available-p) (treesit-available-p)) \"yes\" \"no\"))" 2>/dev/null || true)
+  [[ "$check_output" == "yes" ]]
+}
+
+install_emacs_from_source() {
+  log_info "Installing Emacs from source (native-comp + tree-sitter)..."
+
+  if emacs_has_native_comp_and_treesitter; then
+    log_success "Existing Emacs already has native-comp and tree-sitter"
+    return 0
+  fi
+
+  install_emacs_build_dependencies
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "git clone ${EMACS_SOURCE_REPO} ${EMACS_SOURCE_DIR}"
+    log_dry "cd ${EMACS_SOURCE_DIR} && ./autogen.sh"
+    log_dry "cd ${EMACS_SOURCE_DIR} && ./configure --with-native-compilation=aot --with-tree-sitter --prefix=${EMACS_PREFIX}"
+    log_dry "cd ${EMACS_SOURCE_DIR} && make -j\$(nproc)"
+    log_dry "cd ${EMACS_SOURCE_DIR} && sudo make install"
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$EMACS_SOURCE_DIR")"
+
+  if [[ -d "$EMACS_SOURCE_DIR/.git" ]]; then
+    if ! git -C "$EMACS_SOURCE_DIR" pull --ff-only; then
+      log_error "Failed to update Emacs source repository"
+      exit 1
+    fi
+  elif [[ -e "$EMACS_SOURCE_DIR" ]]; then
+    log_error "Emacs source path exists and is not a git repo: $EMACS_SOURCE_DIR"
+    exit 1
+  else
+    if ! git clone "$EMACS_SOURCE_REPO" "$EMACS_SOURCE_DIR"; then
+      log_error "Failed to clone Emacs source repository"
+      exit 1
+    fi
+  fi
+
+  pushd "$EMACS_SOURCE_DIR" >/dev/null
+
+  if ! ./autogen.sh; then
+    log_error "Emacs autogen.sh failed"
+    popd >/dev/null
+    exit 1
+  fi
+
+  if ! ./configure --with-native-compilation=aot --with-tree-sitter --prefix="$EMACS_PREFIX"; then
+    log_error "Emacs configure failed"
+    popd >/dev/null
+    exit 1
+  fi
+
+  if ! make -j"$(nproc)"; then
+    log_error "Emacs build failed"
+    popd >/dev/null
+    exit 1
+  fi
+
+  if ! sudo make install; then
+    log_error "Emacs install failed"
+    popd >/dev/null
+    exit 1
+  fi
+
+  popd >/dev/null
+
+  if emacs_has_native_comp_and_treesitter; then
+    log_success "Emacs installed with native-comp and tree-sitter support"
+  else
+    log_warning "Emacs installed, but native-comp/tree-sitter checks failed"
+  fi
+}
+
 install_packages() {
   setup_solaar_repo
   setup_cider_repo
   install_apt_packages
+  install_emacs_from_source
   install_wezterm
   install_pacstall_packages
   install_1password
@@ -432,7 +605,7 @@ install_zplug() {
     exit 1
   fi
 
-  if [[ ! -f "$zplug_home/init.zsh" ]]; then
+  if ! wait_for_file "$zplug_home/init.zsh" 150; then
     log_error "zplug installer finished but ${zplug_home}/init.zsh is missing"
     exit 1
   fi
@@ -470,24 +643,29 @@ install_zsh_custom_assets() {
   log_success "Zsh custom assets installed"
 }
 
+install_zsh_setup() {
+  install_zplug
+  install_zsh_custom_assets
+}
+
 setup_emacs_config() {
   log_info "Setting up Emacs config..."
 
-  if [[ -d "$EMACS_DIR/.git" ]]; then
+  if [[ -d "$EMACS_CONFIG_DIR/.git" ]]; then
     log_success "Emacs config already cloned"
     return 0
   fi
 
-  if [[ -e "$EMACS_DIR" ]]; then
-    log_warning "Emacs config path exists, skipping clone: $EMACS_DIR"
+  if [[ -e "$EMACS_CONFIG_DIR" ]]; then
+    log_warning "Emacs config path exists, skipping clone: $EMACS_CONFIG_DIR"
     return 0
   fi
 
-  if log_dry "git clone $EMACS_REPO $EMACS_DIR"; then
+  if log_dry "git clone $EMACS_CONFIG_REPO $EMACS_CONFIG_DIR"; then
     return 0
   fi
 
-  if ! git clone "$EMACS_REPO" "$EMACS_DIR"; then
+  if ! git clone "$EMACS_CONFIG_REPO" "$EMACS_CONFIG_DIR"; then
     log_warning "Failed to clone Emacs config"
     return 0
   fi
@@ -727,6 +905,7 @@ show_menu() {
   echo "  1) Full setup (packages + symlinks)"
   echo "  2) Symlink configs only"
   echo "  3) Install packages only"
+  echo "  4) Zsh setup only"
   echo
   echo "  q) Quit"
   echo
@@ -735,12 +914,10 @@ show_menu() {
   choice=${choice:-1}
 
   case "$choice" in
-  1) SYMLINK_ONLY=false ;;
-  2) SYMLINK_ONLY=true ;;
-  3)
-    install_packages
-    exit 0
-    ;;
+  1) INSTALL_MODE="full" ;;
+  2) INSTALL_MODE="symlink" ;;
+  3) INSTALL_MODE="packages" ;;
+  4) INSTALL_MODE="zsh" ;;
   q | Q)
     log_info "Cancelled"
     exit 0
@@ -771,11 +948,15 @@ Options:
 Modes:
   1               Full setup (default)
   2               Symlink configs only
+  3               Install packages only
+  4               Zsh setup only
 
 Examples:
   ./install.sh              # Interactive menu
   ./install.sh 1            # Full setup
   ./install.sh 2            # Symlink only
+  ./install.sh 3            # Packages only
+  ./install.sh 4            # Zsh setup only
   ./install.sh --dry-run 1  # Preview full setup
 EOF
 }
@@ -796,10 +977,16 @@ parse_arguments() {
       log_debug "Debug mode enabled"
       ;;
     1)
-      SYMLINK_ONLY=false
+      INSTALL_MODE="full"
       ;;
     2)
-      SYMLINK_ONLY=true
+      INSTALL_MODE="symlink"
+      ;;
+    3)
+      INSTALL_MODE="packages"
+      ;;
+    4)
+      INSTALL_MODE="zsh"
       ;;
     *)
       log_error "Unknown option: $1"
@@ -823,7 +1010,7 @@ main() {
   if [[ $# -eq 0 ]] || { [[ $DRY_RUN == true || $DEBUG == true ]] && [[ $# -le 2 ]]; }; then
     local has_mode=false
     for arg in "$@"; do
-      [[ $arg == "1" || $arg == "2" ]] && has_mode=true
+      [[ $arg == "1" || $arg == "2" || $arg == "3" || $arg == "4" ]] && has_mode=true
     done
     [[ $has_mode == false ]] && show_menu
   fi
@@ -833,17 +1020,11 @@ main() {
   log_info "Dotfiles directory: $SCRIPT_DIR"
   echo
 
-  if [[ $SYMLINK_ONLY == true ]]; then
-    install_zplug
-    install_zsh_custom_assets
-    setup_emacs_config
-    symlink_configs
-    install_tpm
-  else
+  case "$INSTALL_MODE" in
+  full)
     install_packages
     setup_xdg_dirs
-    install_zplug
-    install_zsh_custom_assets
+    install_zsh_setup
     setup_emacs_config
     symlink_configs
     install_tpm
@@ -851,7 +1032,26 @@ main() {
     install_orchis_theme
     setup_shell
     enable_services
-  fi
+    ;;
+  symlink)
+    install_zsh_setup
+    setup_emacs_config
+    symlink_configs
+    install_tpm
+    ;;
+  packages)
+    install_packages
+    ;;
+  zsh)
+    install_zsh_setup
+    create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+    setup_shell
+    ;;
+  *)
+    log_error "Unsupported install mode: $INSTALL_MODE"
+    exit 1
+    ;;
+  esac
 
   echo
   log_success "═══════════════════════════════════════"
@@ -863,7 +1063,7 @@ main() {
     log_info "Backups saved to: $BACKUP_DIR"
   fi
 
-  if [[ $DRY_RUN == false && $SYMLINK_ONLY == false ]]; then
+  if [[ $DRY_RUN == false && $INSTALL_MODE == "full" ]]; then
     echo
     read -rp "Reboot now? [Y/n]: " reboot_choice </dev/tty
     reboot_choice=${reboot_choice:-Y}
