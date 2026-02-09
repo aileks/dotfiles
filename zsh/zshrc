@@ -5,6 +5,17 @@ export VISUAL="$EDITOR"
 export SUDO_EDITOR="$EDITOR"
 export MANPAGER="bat -plman"
 
+[ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
+[[ ${HISTSIZE:-0} -lt 50000 ]] && HISTSIZE=50000
+[[ ${SAVEHIST:-0} -lt 10000 ]] && SAVEHIST=10000
+
+setopt extended_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_ignore_space
+setopt hist_verify
+setopt share_history
+
 if [[ -f "$ZPLUG_HOME/init.zsh" ]]; then
   source "$ZPLUG_HOME/init.zsh"
 
@@ -17,7 +28,7 @@ if [[ -f "$ZPLUG_HOME/init.zsh" ]]; then
   zplug "plugins/git", from:oh-my-zsh
   zplug "plugins/gh", from:oh-my-zsh
   zplug "plugins/ubuntu", from:oh-my-zsh
-  zplug "zsh-users/zsh-autosuggestions"
+  zplug "zsh-users/zsh-autosuggestions", use:"zsh-autosuggestions.zsh"
   zplug "zsh-users/zsh-syntax-highlighting", defer:2
   zplug "mafredri/zsh-async", from:github
   zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
@@ -27,9 +38,7 @@ if [[ -f "$ZPLUG_HOME/init.zsh" ]]; then
   fi
 
   zplug load
-  autoload -U promptinit
-  promptinit
-  prompt pure
+
 else
   echo "warning: zplug not found at $ZPLUG_HOME; run ~/.dotfiles/install.sh" >&2
 fi
@@ -38,27 +47,14 @@ fi
 eval "$(zoxide init zsh)"
 
 alias ls="eza --color=always --icons --group-directories-first"
+alias l="eza -l --color=always --icons --group-directories-first"
+alias la="eza -la --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
 alias rm="trash-put"
 alias c="clear"
 alias ff="fastfetch"
 alias fzf="fzf --style full"
-
-if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
-  alias fd=fdfind
-fi
-
-# Web dev stuff
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-[ -s "/home/aileks/.bun/_bun" ] && source "/home/aileks/.bun/_bun"
-
-export PNPM_HOME="/home/aileks/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+alias fd="fdfind"
 
 # FZF settings
 export FZF_CTRL_T_OPTS="
@@ -99,3 +95,14 @@ export _ZO_FZF_OPTS="
   --preview-window=down,border-top
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+[ -s "/home/aileks/.bun/_bun" ] && source "/home/aileks/.bun/_bun"
+
+export PNPM_HOME="/home/aileks/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac

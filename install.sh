@@ -81,6 +81,20 @@ wait_for_file() {
   return 1
 }
 
+prompt_yes_no() {
+  local prompt="$1"
+  local default_answer="${2:-Y}"
+  local reply
+
+  if ! read -r -p "$prompt [$default_answer/n]: " reply; then
+    reply="$default_answer"
+  fi
+
+  reply=${reply:-$default_answer}
+
+  [[ $reply =~ ^[Yy]$ ]]
+}
+
 check_os() {
   if ! [[ -r /etc/os-release ]] || ! grep -qiE 'ubuntu|debian|pop_os' /etc/os-release; then
     log_error "Unsupported OS."
@@ -379,42 +393,75 @@ install_helium() {
   log_info "Installing Helium AppImage..."
 
   if [[ $DRY_RUN == true ]]; then
-    log_dry "Download Helium AppImage and install desktop entry"
+    log_dry "Download Helium AppImage and extract to /opt/helium"
+    log_dry "Install Helium desktop entry from /opt/helium/helium.desktop"
     log_dry "Set Helium as default browser"
     return 0
   fi
 
   local appimage_url
-  appimage_url="https://github.com/imputnet/helium-linux/releases/download/0.8.4.1/helium-0.8.4.1-x86_64.AppImage"
+  appimage_url="https://github.com/imputnet/helium-linux/releases/download/0.8.5.1/helium-0.8.5.1-x86_64.AppImage"
 
-  local install_dir="$HOME/.local/opt/helium"
-  local appimage_path="$install_dir/helium.AppImage"
+  local install_dir="/opt/helium"
+  local appimage_path
+  local extract_dir
+  local extracted_root
 
-  if log_dry "Download Helium AppImage"; then
-    return 0
-  fi
+  appimage_path=$(mktemp)
+  extract_dir=$(mktemp -d)
+  extracted_root="$extract_dir/squashfs-root"
 
-  mkdir -p "$install_dir"
   if ! curl -fsSL "$appimage_url" -o "$appimage_path"; then
     log_error "Failed to download Helium AppImage"
+    rm -f "$appimage_path"
+    rm -rf "$extract_dir"
     return 1
   fi
 
   chmod +x "$appimage_path"
 
+  if ! (cd "$extract_dir" && "$appimage_path" --appimage-extract >/dev/null); then
+    log_error "Failed to extract Helium AppImage"
+    rm -f "$appimage_path"
+    rm -rf "$extract_dir"
+    return 1
+  fi
+
+  if [[ ! -d "$extracted_root" ]]; then
+    log_error "Helium extraction output missing: $extracted_root"
+    rm -f "$appimage_path"
+    rm -rf "$extract_dir"
+    return 1
+  fi
+
+  sudo mkdir -p "$install_dir"
+  if ! sudo cp -a "$extracted_root/." "$install_dir/"; then
+    log_error "Failed to copy Helium files to $install_dir"
+    rm -f "$appimage_path"
+    rm -rf "$extract_dir"
+    return 1
+  fi
+
+  rm -f "$appimage_path"
+  rm -rf "$extract_dir"
+
   local desktop_dir="$HOME/.local/share/applications"
   mkdir -p "$desktop_dir"
 
-  cat >"$desktop_dir/helium.desktop" <<EOF
+  if [[ -f "$install_dir/helium.desktop" ]]; then
+    sed "s|^Exec=.*|Exec=${install_dir}/AppRun|" "$install_dir/helium.desktop" >"$desktop_dir/helium.desktop"
+  else
+    cat >"$desktop_dir/helium.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=Helium
-Exec=${appimage_path}
+Exec=${install_dir}/AppRun
 Terminal=false
 Categories=Network;WebBrowser;
 MimeType=x-scheme-handler/http;x-scheme-handler/https;
 StartupNotify=true
 EOF
+  fi
 
   if command_exists xdg-mime; then
     xdg-mime default helium.desktop x-scheme-handler/http
@@ -496,6 +543,11 @@ emacs_has_native_comp_and_treesitter() {
 
 install_emacs_from_source() {
   log_info "Installing Emacs from source (native-comp + tree-sitter)..."
+
+  if ! prompt_yes_no "Build Emacs from source?"; then
+    log_info "Skipping Emacs source installation"
+    return 0
+  fi
 
   if emacs_has_native_comp_and_treesitter; then
     log_success "Existing Emacs already has native-comp and tree-sitter"
@@ -617,8 +669,10 @@ install_zsh_custom_assets() {
   log_info "Installing zsh custom assets..."
 
   local plugins_dir="$HOME/.zsh/plugins"
+  local autosuggest_dir="$plugins_dir/zsh-autosuggestions"
+  local autosuggest_repo="https://github.com/zsh-users/zsh-autosuggestions"
   local ashen_path="$plugins_dir/ashen_zsh_syntax_highlighting.zsh"
-  local ashen_url="https://codeberg.org/ficd/ashen/raw/branch/main/ports/zsh-syntax-highlighting/ashen_zsh_syntax_highlighting.zsh"
+  local ashen_url="https://codeberg.org/ficd/ashen/raw/branch/main/zsh/ashen_zsh_syntax_highlighting.zsh"
 
   if [[ ! -d "$plugins_dir" ]]; then
     if log_dry "mkdir -p ${plugins_dir}"; then
@@ -637,6 +691,26 @@ install_zsh_custom_assets() {
       log_warning "Failed to download ashen_zsh_syntax_highlighting"
     else
       log_success "ashen_zsh_syntax_highlighting installed"
+    fi
+  fi
+
+  if [[ -d "$autosuggest_dir/.git" ]]; then
+    if log_dry "git -C ${autosuggest_dir} pull --ff-only"; then
+      :
+    elif ! git -C "$autosuggest_dir" pull --ff-only; then
+      log_warning "Failed to update zsh-autosuggestions"
+    else
+      log_success "zsh-autosuggestions updated"
+    fi
+  elif [[ -e "$autosuggest_dir" ]]; then
+    log_warning "zsh-autosuggestions path exists and is not a git repo: $autosuggest_dir"
+  else
+    if log_dry "git clone ${autosuggest_repo} ${autosuggest_dir}"; then
+      :
+    elif ! git clone "$autosuggest_repo" "$autosuggest_dir"; then
+      log_warning "Failed to clone zsh-autosuggestions"
+    else
+      log_success "zsh-autosuggestions installed"
     fi
   fi
 
@@ -910,7 +984,7 @@ show_menu() {
   echo "  q) Quit"
   echo
 
-  read -rp "Choose an option [1]: " choice </dev/tty
+  read -rp "Choose an option [1]: " choice
   choice=${choice:-1}
 
   case "$choice" in
@@ -1065,7 +1139,7 @@ main() {
 
   if [[ $DRY_RUN == false && $INSTALL_MODE == "full" ]]; then
     echo
-    read -rp "Reboot now? [Y/n]: " reboot_choice </dev/tty
+    read -rp "Reboot now? [Y/n]: " reboot_choice
     reboot_choice=${reboot_choice:-Y}
 
     if [[ $reboot_choice =~ ^[Yy]$ ]]; then
