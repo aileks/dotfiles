@@ -669,8 +669,6 @@ install_zsh_custom_assets() {
   log_info "Installing zsh custom assets..."
 
   local plugins_dir="$HOME/.zsh/plugins"
-  local autosuggest_dir="$plugins_dir/zsh-autosuggestions"
-  local autosuggest_repo="https://github.com/zsh-users/zsh-autosuggestions"
   local ashen_path="$plugins_dir/ashen_zsh_syntax_highlighting.zsh"
   local ashen_url="https://codeberg.org/ficd/ashen/raw/branch/main/zsh/ashen_zsh_syntax_highlighting.zsh"
 
@@ -691,26 +689,6 @@ install_zsh_custom_assets() {
       log_warning "Failed to download ashen_zsh_syntax_highlighting"
     else
       log_success "ashen_zsh_syntax_highlighting installed"
-    fi
-  fi
-
-  if [[ -d "$autosuggest_dir/.git" ]]; then
-    if log_dry "git -C ${autosuggest_dir} pull --ff-only"; then
-      :
-    elif ! git -C "$autosuggest_dir" pull --ff-only; then
-      log_warning "Failed to update zsh-autosuggestions"
-    else
-      log_success "zsh-autosuggestions updated"
-    fi
-  elif [[ -e "$autosuggest_dir" ]]; then
-    log_warning "zsh-autosuggestions path exists and is not a git repo: $autosuggest_dir"
-  else
-    if log_dry "git clone ${autosuggest_repo} ${autosuggest_dir}"; then
-      :
-    elif ! git clone "$autosuggest_repo" "$autosuggest_dir"; then
-      log_warning "Failed to clone zsh-autosuggestions"
-    else
-      log_success "zsh-autosuggestions installed"
     fi
   fi
 

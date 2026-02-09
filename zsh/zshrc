@@ -3,12 +3,26 @@ export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 export EDITOR='emacsclient -t -a ""'
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$EDITOR"
-export MANPAGER="bat -plman"
+
+source "$ZPLUG_HOME/init.zsh"
+zplug "MichaelAquilina/zsh-you-should-use"
+zplug "zsh-users/zsh-autosuggestions"
+zplug "zsh-users/zsh-history-substring-search"
+zplug "mafredri/zsh-async", from:"github", use:"async.zsh"
+zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
+zplug "Aloxaf/fzf-tab", defer:2
+
+zplug check || zplug install
+zplug load
+
+[ -s "$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh" ] && source "$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh"
 
 [ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
 [[ ${HISTSIZE:-0} -lt 50000 ]] && HISTSIZE=50000
 [[ ${SAVEHIST:-0} -lt 10000 ]] && SAVEHIST=10000
 
+setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT PUSHD_MINUS
 setopt extended_history
 setopt hist_expire_dups_first
 setopt hist_ignore_dups
@@ -16,34 +30,6 @@ setopt hist_ignore_space
 setopt hist_verify
 setopt share_history
 
-if [[ -f "$ZPLUG_HOME/init.zsh" ]]; then
-  source "$ZPLUG_HOME/init.zsh"
-
-  export ZSH_CACHE_DIR="${ZSH_CACHE_DIR:-$HOME/.cache/ohmyzsh}"
-  mkdir -p "$ZSH_CACHE_DIR/completions"
-  autoload -Uz compinit
-  compinit -d "$ZSH_CACHE_DIR/.zcompdump-${ZSH_VERSION}"
-
-  zplug "plugins/fzf", from:oh-my-zsh
-  zplug "plugins/git", from:oh-my-zsh
-  zplug "plugins/gh", from:oh-my-zsh
-  zplug "plugins/ubuntu", from:oh-my-zsh
-  zplug "zsh-users/zsh-autosuggestions", use:"zsh-autosuggestions.zsh"
-  zplug "zsh-users/zsh-syntax-highlighting", defer:2
-  zplug "mafredri/zsh-async", from:github
-  zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
-
-  if ! zplug check; then
-    zplug install
-  fi
-
-  zplug load
-
-else
-  echo "warning: zplug not found at $ZPLUG_HOME; run ~/.dotfiles/install.sh" >&2
-fi
-
-[ -s "$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh" ] && source "$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh"
 eval "$(zoxide init zsh)"
 
 alias ls="eza --color=always --icons --group-directories-first"
@@ -52,9 +38,19 @@ alias la="eza -la --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
 alias rm="trash-put"
 alias c="clear"
+alias d="dirs -v"
 alias ff="fastfetch"
 alias fzf="fzf --style full"
 alias fd="fdfind"
+alias agi="sudo apt install"
+alias aguu="sudo apt update && sudo apt upgrade"
+alias ase="apt search"
+alias agr="sudo apt remove"
+alias agp="sudo apt purge"
+alias agar="sudo apt autoremove"
+alias gaa="git add -A"
+alias gst="git status"
+alias gcm="git commit -m"
 
 # FZF settings
 export FZF_CTRL_T_OPTS="
@@ -95,6 +91,8 @@ export _ZO_FZF_OPTS="
   --preview-window=down,border-top
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
+
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
