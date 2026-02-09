@@ -51,6 +51,7 @@ alias agar="sudo apt autoremove"
 alias gaa="git add -A"
 alias gst="git status"
 alias gcm="git commit -m"
+alias gp="git push"
 
 # FZF settings
 export FZF_CTRL_T_OPTS="

@@ -15,7 +15,6 @@ EMACS_CONFIG_REPO="https://codeberg.org/aileks/emacs.d.git"
 EMACS_CONFIG_DIR="$HOME/.emacs.d"
 EMACS_SOURCE_REPO="https://github.com/emacs-mirror/emacs.git"
 EMACS_SOURCE_DIR="$HOME/.local/src/emacs"
-EMACS_PREFIX="/usr/local"
 
 DRY_RUN=false
 DEBUG=false
@@ -72,7 +71,7 @@ wait_for_file() {
   local file_path="$1"
   local retries="${2:-100}"
 
-  while (( retries > 0 )); do
+  while ((retries > 0)); do
     [[ -f "$file_path" ]] && return 0
     sleep 0.1
     ((retries--))
@@ -140,25 +139,6 @@ PACSTALL_PACKAGES=(
   onlyoffice-desktopeditors-deb
   keyd-deb
   fastfetch-git
-)
-
-EMACS_BUILD_PACKAGES=(
-  autoconf
-  automake
-  make
-  texinfo
-  pkg-config
-  libgnutls28-dev
-  libjansson-dev
-  libtree-sitter-dev
-  libgtk-3-dev
-  libncurses-dev
-  libxml2-dev
-  libjpeg-dev
-  libpng-dev
-  libgif-dev
-  libtiff-dev
-  libxpm-dev
 )
 
 # ============================================================
@@ -448,21 +428,6 @@ install_helium() {
   local desktop_dir="$HOME/.local/share/applications"
   mkdir -p "$desktop_dir"
 
-  if [[ -f "$install_dir/helium.desktop" ]]; then
-    sed "s|^Exec=.*|Exec=${install_dir}/AppRun|" "$install_dir/helium.desktop" >"$desktop_dir/helium.desktop"
-  else
-    cat >"$desktop_dir/helium.desktop" <<EOF
-[Desktop Entry]
-Type=Application
-Name=Helium
-Exec=${install_dir}/AppRun
-Terminal=false
-Categories=Network;WebBrowser;
-MimeType=x-scheme-handler/http;x-scheme-handler/https;
-StartupNotify=true
-EOF
-  fi
-
   if command_exists xdg-mime; then
     xdg-mime default helium.desktop x-scheme-handler/http
     xdg-mime default helium.desktop x-scheme-handler/https
@@ -476,54 +441,42 @@ EOF
 }
 
 detect_gccjit_dev_package() {
-  local pkg
-  pkg=$(apt-cache search --names-only '^libgccjit-[0-9]+-dev$' 2>/dev/null | awk '{print $1}' | sort -Vr | head -n1)
-  echo "$pkg"
+  apt-cache search --names-only '^libgccjit-[0-9]+-dev$' 2>/dev/null | awk '{print $1}' | sort -Vr | head -n1
 }
 
 install_emacs_build_dependencies() {
   log_info "Installing Emacs build dependencies..."
 
-  local deps=("${EMACS_BUILD_PACKAGES[@]}")
-  local gccjit_pkg
-  gccjit_pkg=$(detect_gccjit_dev_package)
-
-  if [[ -z "$gccjit_pkg" && $DRY_RUN == false ]]; then
-    sudo apt update
-    gccjit_pkg=$(detect_gccjit_dev_package)
-  fi
-
-  if [[ -n "$gccjit_pkg" ]]; then
-    deps+=("$gccjit_pkg")
-  else
-    if [[ $DRY_RUN == true ]]; then
-      log_warning "No libgccjit-<version>-dev package detected in apt cache"
-    else
-      log_error "Could not find a libgccjit-<version>-dev package in apt cache"
-      exit 1
-    fi
-  fi
-
-  local to_install=()
-  for pkg in "${deps[@]}"; do
-    if ! dpkg -s "$pkg" &>/dev/null; then
-      to_install+=("$pkg")
-    fi
-  done
-
-  if [[ ${#to_install[@]} -eq 0 ]]; then
-    log_success "Emacs build dependencies already installed"
-    return 0
-  fi
-
   if [[ $DRY_RUN == true ]]; then
     log_dry "sudo apt update"
-    log_dry "sudo apt install -y ${to_install[*]}"
+    log_dry "sudo apt build-dep -y emacs"
+    log_dry "sudo apt install -y tree-sitter-cli"
+    if [[ -z "$(detect_gccjit_dev_package)" ]]; then
+      log_warning "No libgccjit-<version>-dev package detected in apt cache"
+    else
+      log_dry "sudo apt install -y $(detect_gccjit_dev_package)"
+    fi
     return 0
   fi
 
   sudo apt update
-  if ! sudo apt install -y "${to_install[@]}"; then
+
+  if ! sudo apt build-dep -y emacs; then
+    log_error "Failed to install Emacs build dependencies via apt build-dep"
+    exit 1
+  fi
+
+  if ! sudo apt install -y tree-sitter-cli; then
+    log_error "Failed to install tree-sitter-cli"
+    exit 1
+  fi
+
+  if [[ -z "$(detect_gccjit_dev_package)" ]]; then
+    log_error "Could not find a libgccjit-<version>-dev package in apt cache"
+    exit 1
+  fi
+
+  if ! sudo apt install -y "$(detect_gccjit_dev_package)"; then
     log_error "Failed to install Emacs build dependencies"
     exit 1
   fi
@@ -559,7 +512,7 @@ install_emacs_from_source() {
   if [[ $DRY_RUN == true ]]; then
     log_dry "git clone ${EMACS_SOURCE_REPO} ${EMACS_SOURCE_DIR}"
     log_dry "cd ${EMACS_SOURCE_DIR} && ./autogen.sh"
-    log_dry "cd ${EMACS_SOURCE_DIR} && ./configure --with-native-compilation=aot --with-tree-sitter --prefix=${EMACS_PREFIX}"
+    log_dry "cd ${EMACS_SOURCE_DIR} && ./configure --with-native-compilation --with-tree-sitter"
     log_dry "cd ${EMACS_SOURCE_DIR} && make -j\$(nproc)"
     log_dry "cd ${EMACS_SOURCE_DIR} && sudo make install"
     return 0
@@ -590,7 +543,7 @@ install_emacs_from_source() {
     exit 1
   fi
 
-  if ! ./configure --with-native-compilation=aot --with-tree-sitter --prefix="$EMACS_PREFIX"; then
+  if ! ./configure --with-native-compilation --with-tree-sitter; then
     log_error "Emacs configure failed"
     popd >/dev/null
     exit 1
@@ -895,29 +848,8 @@ setup_shell() {
 enable_services() {
   log_info "Enabling system services..."
 
-  if log_dry "sudo systemctl enable NetworkManager bluetooth cups keyd"; then
+  if log_dry "sudo systemctl enable keyd"; then
     return 0
-  fi
-
-  if ! systemctl is-enabled NetworkManager &>/dev/null; then
-    sudo systemctl enable --now NetworkManager
-    log_success "NetworkManager enabled"
-  else
-    log_success "NetworkManager already enabled"
-  fi
-
-  if ! systemctl is-enabled bluetooth &>/dev/null; then
-    sudo systemctl enable --now bluetooth
-    log_success "Bluetooth enabled"
-  else
-    log_success "Bluetooth already enabled"
-  fi
-
-  if ! systemctl is-enabled cups &>/dev/null; then
-    sudo systemctl enable --now cups
-    log_success "CUPS enabled"
-  else
-    log_success "CUPS already enabled"
   fi
 
   if ! systemctl is-enabled keyd &>/dev/null; then
