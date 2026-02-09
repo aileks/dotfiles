@@ -39,6 +39,7 @@ cd ~/.dotfiles
 - [COSMIC](https://github.com/pop-os/cosmic-epoch)
 - [keyd](https://github.com/rvaiya/keyd)
 - [Helium](https://github.com/imputnet/helium-linux)
+- [zplug](https://github.com/zplug/zplug)
 
 ## License
 

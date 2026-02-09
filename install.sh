@@ -404,83 +404,70 @@ install_packages() {
 }
 
 # ============================================================
-# Oh-My-Zsh Installation
+# Zsh Setup
 # ============================================================
 
-install_oh_my_zsh() {
-  log_info "Setting up Oh-My-Zsh..."
+install_zplug() {
+  log_info "Installing zplug..."
 
-  if [[ -d "$HOME/.oh-my-zsh" ]]; then
-    log_success "Oh-My-Zsh already installed"
+  local zplug_home="${ZPLUG_HOME:-$HOME/.zplug}"
+  local installer_url="https://raw.githubusercontent.com/zplug/installer/master/installer.zsh"
+
+  if [[ -f "$zplug_home/init.zsh" ]]; then
+    log_success "zplug already installed"
     return 0
   fi
 
-  if log_dry "Install Oh-My-Zsh (unattended, keep zshrc)"; then
+  if ! command_exists zsh; then
+    log_error "zsh is required to install zplug"
+    exit 1
+  fi
+
+  if log_dry "curl -sL --proto-redir -all,https ${installer_url} | zsh"; then
     return 0
   fi
 
-  local omz_installer
-  omz_installer=$(mktemp)
-
-  if ! curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o "$omz_installer"; then
-    log_error "Failed to download Oh-My-Zsh installer"
-    rm -f "$omz_installer"
+  if ! curl -sL --proto-redir -all,https "$installer_url" | zsh; then
+    log_error "Failed to install zplug"
     exit 1
   fi
 
-  if ! RUNZSH=no KEEP_ZSHRC=yes sh "$omz_installer" --unattended; then
-    log_error "Failed to install Oh-My-Zsh"
-    rm -f "$omz_installer"
+  if [[ ! -f "$zplug_home/init.zsh" ]]; then
+    log_error "zplug installer finished but ${zplug_home}/init.zsh is missing"
     exit 1
   fi
 
-  rm -f "$omz_installer"
-  log_success "Oh-My-Zsh installed"
+  log_success "zplug installed"
 }
 
-install_zsh_plugins() {
-  log_info "Installing zsh plugins..."
+install_zsh_custom_assets() {
+  log_info "Installing zsh custom assets..."
 
-  local plugins_dir="$HOME/.oh-my-zsh/custom/plugins"
-  mkdir -p "$plugins_dir"
+  local plugins_dir="$HOME/.zsh/plugins"
+  local ashen_path="$plugins_dir/ashen_zsh_syntax_highlighting.zsh"
+  local ashen_url="https://codeberg.org/ficd/ashen/raw/branch/main/ports/zsh-syntax-highlighting/ashen_zsh_syntax_highlighting.zsh"
 
-  if [[ -d "$plugins_dir/zsh-autosuggestions" ]]; then
-    log_success "zsh-autosuggestions already installed"
-  else
-    if log_dry "Clone zsh-autosuggestions"; then
+  if [[ ! -d "$plugins_dir" ]]; then
+    if log_dry "mkdir -p ${plugins_dir}"; then
       :
-    elif ! git clone https://github.com/zsh-users/zsh-autosuggestions "$plugins_dir/zsh-autosuggestions"; then
-      log_warning "Failed to clone zsh-autosuggestions"
     else
-      log_success "zsh-autosuggestions installed"
+      mkdir -p "$plugins_dir"
     fi
   fi
 
-  if [[ -d "$plugins_dir/zsh-syntax-highlighting" ]]; then
-    log_success "zsh-syntax-highlighting already installed"
-  else
-    if log_dry "Clone zsh-syntax-highlighting"; then
-      :
-    elif ! git clone https://github.com/zsh-users/zsh-syntax-highlighting "$plugins_dir/zsh-syntax-highlighting"; then
-      log_warning "Failed to clone zsh-syntax-highlighting"
-    else
-      log_success "zsh-syntax-highlighting installed"
-    fi
-  fi
-
-  if [[ -f "$plugins_dir/ashen_zsh_syntax_highlighting.zsh" ]]; then
+  if [[ -f "$ashen_path" ]]; then
     log_success "ashen_zsh_syntax_highlighting already installed"
   else
-    if log_dry "Download ashen_zsh_syntax_highlighting"; then
+    if log_dry "curl -fsSL ${ashen_url} -o ${ashen_path}"; then
       :
-    elif ! curl -fsSL "https://codeberg.org/ficd/ashen/raw/branch/main/ports/zsh-syntax-highlighting/ashen_zsh_syntax_highlighting.zsh" -o "$plugins_dir/ashen_zsh_syntax_highlighting.zsh"; then
+    elif ! curl -fsSL "$ashen_url" -o "$ashen_path"; then
       log_warning "Failed to download ashen_zsh_syntax_highlighting"
     else
       log_success "ashen_zsh_syntax_highlighting installed"
     fi
   fi
 
-  log_success "Zsh plugins installed"
+  log_success "Zsh custom assets installed"
 }
 
 setup_emacs_config() {
@@ -847,16 +834,16 @@ main() {
   echo
 
   if [[ $SYMLINK_ONLY == true ]]; then
-    install_oh_my_zsh
-    install_zsh_plugins
+    install_zplug
+    install_zsh_custom_assets
     setup_emacs_config
     symlink_configs
     install_tpm
   else
     install_packages
     setup_xdg_dirs
-    install_oh_my_zsh
-    install_zsh_plugins
+    install_zplug
+    install_zsh_custom_assets
     setup_emacs_config
     symlink_configs
     install_tpm

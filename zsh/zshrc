@@ -1,14 +1,40 @@
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.opencode/bin:$PATH"
-export ZSH="$HOME/.oh-my-zsh"
+export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 export EDITOR='emacsclient -t -a ""'
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$EDITOR"
 export MANPAGER="bat -plman"
 
-ZSH_THEME="refined"
-plugins=(fzf git gh ubuntu zsh-autosuggestions zsh-syntax-highlighting)
-source "$ZSH/oh-my-zsh.sh"
-source "$ZSH/custom/plugins/ashen_zsh_syntax_highlighting.zsh"
+if [[ -f "$ZPLUG_HOME/init.zsh" ]]; then
+  source "$ZPLUG_HOME/init.zsh"
+
+  export ZSH_CACHE_DIR="${ZSH_CACHE_DIR:-$HOME/.cache/ohmyzsh}"
+  mkdir -p "$ZSH_CACHE_DIR/completions"
+  autoload -Uz compinit
+  compinit -d "$ZSH_CACHE_DIR/.zcompdump-${ZSH_VERSION}"
+
+  zplug "plugins/fzf", from:oh-my-zsh
+  zplug "plugins/git", from:oh-my-zsh
+  zplug "plugins/gh", from:oh-my-zsh
+  zplug "plugins/ubuntu", from:oh-my-zsh
+  zplug "zsh-users/zsh-autosuggestions"
+  zplug "zsh-users/zsh-syntax-highlighting", defer:2
+  zplug "mafredri/zsh-async", from:github
+  zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+
+  if ! zplug check; then
+    zplug install
+  fi
+
+  zplug load
+  autoload -U promptinit
+  promptinit
+  prompt pure
+else
+  echo "warning: zplug not found at $ZPLUG_HOME; run ~/.dotfiles/install.sh" >&2
+fi
+
+[ -s "$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh" ] && source "$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh"
 eval "$(zoxide init zsh)"
 
 alias ls="eza --color=always --icons --group-directories-first"
@@ -73,4 +99,3 @@ export _ZO_FZF_OPTS="
   --preview-window=down,border-top
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
-
