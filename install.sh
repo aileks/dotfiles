@@ -369,77 +369,6 @@ install_wezterm() {
   log_success "WezTerm installed"
 }
 
-install_helium() {
-  log_info "Installing Helium AppImage..."
-
-  if [[ $DRY_RUN == true ]]; then
-    log_dry "Download Helium AppImage and extract to /opt/helium"
-    log_dry "Install Helium desktop entry from /opt/helium/helium.desktop"
-    log_dry "Set Helium as default browser"
-    return 0
-  fi
-
-  local appimage_url
-  appimage_url="https://github.com/imputnet/helium-linux/releases/download/0.8.5.1/helium-0.8.5.1-x86_64.AppImage"
-
-  local install_dir="/opt/helium"
-  local appimage_path
-  local extract_dir
-  local extracted_root
-
-  appimage_path=$(mktemp)
-  extract_dir=$(mktemp -d)
-  extracted_root="$extract_dir/squashfs-root"
-
-  if ! curl -fsSL "$appimage_url" -o "$appimage_path"; then
-    log_error "Failed to download Helium AppImage"
-    rm -f "$appimage_path"
-    rm -rf "$extract_dir"
-    return 1
-  fi
-
-  chmod +x "$appimage_path"
-
-  if ! (cd "$extract_dir" && "$appimage_path" --appimage-extract >/dev/null); then
-    log_error "Failed to extract Helium AppImage"
-    rm -f "$appimage_path"
-    rm -rf "$extract_dir"
-    return 1
-  fi
-
-  if [[ ! -d "$extracted_root" ]]; then
-    log_error "Helium extraction output missing: $extracted_root"
-    rm -f "$appimage_path"
-    rm -rf "$extract_dir"
-    return 1
-  fi
-
-  sudo mkdir -p "$install_dir"
-  if ! sudo cp -a "$extracted_root/." "$install_dir/"; then
-    log_error "Failed to copy Helium files to $install_dir"
-    rm -f "$appimage_path"
-    rm -rf "$extract_dir"
-    return 1
-  fi
-
-  rm -f "$appimage_path"
-  rm -rf "$extract_dir"
-
-  local desktop_dir="$HOME/.local/share/applications"
-  mkdir -p "$desktop_dir"
-
-  if command_exists xdg-mime; then
-    xdg-mime default helium.desktop x-scheme-handler/http
-    xdg-mime default helium.desktop x-scheme-handler/https
-  fi
-
-  if command_exists xdg-settings; then
-    xdg-settings set default-web-browser helium.desktop
-  fi
-
-  log_success "Helium installed and set as default browser"
-}
-
 detect_gccjit_dev_package() {
   apt-cache search --names-only '^libgccjit-[0-9]+-dev$' 2>/dev/null | awk '{print $1}' | sort -Vr | head -n1
 }
@@ -578,7 +507,6 @@ install_packages() {
   install_wezterm
   install_pacstall_packages
   install_1password
-  install_helium
 }
 
 # ============================================================
