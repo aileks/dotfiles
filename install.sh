@@ -15,6 +15,10 @@ EMACS_CONFIG_REPO="https://codeberg.org/aileks/emacs.d.git"
 EMACS_CONFIG_DIR="$HOME/.emacs.d"
 EMACS_SOURCE_REPO="https://github.com/emacs-mirror/emacs.git"
 EMACS_SOURCE_DIR="$HOME/.local/src/emacs"
+MINICONDA_PREFIX="$HOME/miniconda3"
+MINICONDA_INSTALLER_BASE_URL="https://repo.anaconda.com/miniconda"
+RSTUDIO_DOWNLOAD_PAGE_URL="https://posit.co/download/rstudio-desktop/"
+RSTUDIO_DEB_FALLBACK_URL="https://download1.rstudio.org/electron/jammy/amd64/rstudio-2026.01.0-392-amd64.deb"
 
 DRY_RUN=false
 DEBUG=false
@@ -277,6 +281,215 @@ install_pacstall_packages() {
   log_success "Pacstall packages installed"
 }
 
+detect_miniconda_installer_url() {
+  case "$(uname -m)" in
+    x86_64 | amd64)
+      echo "${MINICONDA_INSTALLER_BASE_URL}/Miniconda3-latest-Linux-x86_64.sh"
+      ;;
+    aarch64 | arm64)
+      echo "${MINICONDA_INSTALLER_BASE_URL}/Miniconda3-latest-Linux-aarch64.sh"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+resolve_rstudio_deb_url() {
+  local resolved_url
+
+  resolved_url=$(
+    curl -fsSL "$RSTUDIO_DOWNLOAD_PAGE_URL" |
+      grep -oE 'https://download1\.rstudio\.org/electron/jammy/amd64/rstudio-[^"[:space:]]+-amd64\.deb' |
+      head -n1
+  ) || true
+
+  if [[ -n "${resolved_url:-}" ]]; then
+    echo "$resolved_url"
+    return 0
+  fi
+
+  echo "$RSTUDIO_DEB_FALLBACK_URL"
+}
+
+install_or_update_uv() {
+  log_info "Installing/updating uv..."
+
+  if command_exists uv; then
+    if log_dry "uv self update"; then
+      log_success "uv update command queued (dry-run)"
+      return 0
+    fi
+
+    if uv self update; then
+      log_success "uv updated"
+      return 0
+    fi
+
+    log_warning "uv self update failed; trying installer refresh"
+  fi
+
+  if log_dry "curl -LsSf https://astral.sh/uv/install.sh | sh"; then
+    log_success "uv install command queued (dry-run)"
+    return 0
+  fi
+
+  if ! curl -LsSf https://astral.sh/uv/install.sh | sh; then
+    log_error "Failed to install/update uv"
+    return 1
+  fi
+
+  log_success "uv installed/updated"
+}
+
+install_or_update_miniconda() {
+  log_info "Installing/updating Miniconda..."
+
+  local conda_bin="${MINICONDA_PREFIX}/bin/conda"
+  local installer_url
+
+  if [[ -d "$MINICONDA_PREFIX" && ! -x "$conda_bin" ]]; then
+    log_error "Miniconda path exists but conda binary missing: ${MINICONDA_PREFIX}"
+    return 1
+  fi
+
+  if [[ -x "$conda_bin" ]]; then
+    if log_dry "${conda_bin} update -n base -c defaults conda -y"; then
+      log_success "Miniconda update command queued (dry-run)"
+      return 0
+    fi
+
+    if ! "$conda_bin" update -n base -c defaults conda -y; then
+      log_error "Failed to update Miniconda (conda)"
+      return 1
+    fi
+
+    log_success "Miniconda updated"
+    return 0
+  fi
+
+  if ! installer_url=$(detect_miniconda_installer_url); then
+    log_error "Unsupported architecture for Miniconda: $(uname -m)"
+    return 1
+  fi
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "curl -fsSL ${installer_url} -o /tmp/miniconda-installer.sh"
+    log_dry "bash /tmp/miniconda-installer.sh -b -p ${MINICONDA_PREFIX}"
+    log_success "Miniconda install commands queued (dry-run)"
+    return 0
+  fi
+
+  local installer_path
+  installer_path=$(mktemp "/tmp/miniconda-installer.XXXXXX.sh")
+
+  if ! curl -fsSL "$installer_url" -o "$installer_path"; then
+    log_error "Failed to download Miniconda installer"
+    rm -f "$installer_path"
+    return 1
+  fi
+
+  if ! bash "$installer_path" -b -p "$MINICONDA_PREFIX"; then
+    log_error "Failed to install Miniconda"
+    rm -f "$installer_path"
+    return 1
+  fi
+
+  rm -f "$installer_path"
+  log_success "Miniconda installed"
+}
+
+configure_conda_for_zsh() {
+  log_info "Configuring conda shell behavior..."
+
+  local conda_bin="${MINICONDA_PREFIX}/bin/conda"
+
+  if [[ ! -x "$conda_bin" ]]; then
+    log_error "Conda binary not found at ${conda_bin}"
+    return 1
+  fi
+
+  if log_dry "${conda_bin} config --set auto_activate_base false"; then
+    log_success "Conda shell config command queued (dry-run)"
+    return 0
+  fi
+
+  if ! "$conda_bin" config --set auto_activate_base false; then
+    log_error "Failed to configure conda (auto_activate_base=false)"
+    return 1
+  fi
+
+  log_success "Conda configured (auto_activate_base=false)"
+}
+
+install_r_base() {
+  log_info "Installing/updating R (r-base)..."
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "sudo apt update"
+    log_dry "sudo apt install -y r-base"
+    log_success "R install commands queued (dry-run)"
+    return 0
+  fi
+
+  sudo apt update
+
+  if ! sudo apt install -y r-base; then
+    log_error "Failed to install/update r-base"
+    return 1
+  fi
+
+  log_success "R (r-base) installed/updated"
+}
+
+install_or_update_rstudio() {
+  log_info "Installing/updating RStudio Desktop..."
+
+  local rstudio_url
+  local rstudio_deb
+
+  rstudio_url=$(resolve_rstudio_deb_url)
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "curl -fsSL ${rstudio_url} -o /tmp/rstudio-latest-amd64.deb"
+    log_dry "sudo apt install -y /tmp/rstudio-latest-amd64.deb"
+    log_success "RStudio install commands queued (dry-run)"
+    return 0
+  fi
+
+  rstudio_deb=$(mktemp "/tmp/rstudio.XXXXXX.deb")
+
+  if ! curl -fsSL "$rstudio_url" -o "$rstudio_deb"; then
+    log_error "Failed to download RStudio Desktop package"
+    rm -f "$rstudio_deb"
+    return 1
+  fi
+
+  if ! sudo apt install -y "$rstudio_deb"; then
+    log_error "Failed to install/update RStudio Desktop"
+    rm -f "$rstudio_deb"
+    return 1
+  fi
+
+  rm -f "$rstudio_deb"
+  log_success "RStudio Desktop installed/updated"
+}
+
+install_data_tools() {
+  if ! prompt_yes_no "Install data science tools?" "Y"; then
+    log_info "Skipping toolset installation..."
+    return 0
+  fi
+
+  install_or_update_uv
+  install_or_update_miniconda
+  configure_conda_for_zsh
+  install_r_base
+  install_or_update_rstudio
+
+  log_success "Data science toolset installed/updated"
+}
+
 install_1password() {
   log_info "Installing 1Password..."
 
@@ -293,12 +506,12 @@ install_1password() {
 
   local arch
   case "$(uname -m)" in
-  x86_64 | amd64) arch="amd64" ;;
-  aarch64 | arm64) arch="arm64" ;;
-  *)
-    log_error "Unsupported architecture for 1Password"
-    return 1
-    ;;
+    x86_64 | amd64) arch="amd64" ;;
+    aarch64 | arm64) arch="arm64" ;;
+    *)
+      log_error "Unsupported architecture for 1Password"
+      return 1
+      ;;
   esac
 
   local tmp_deb
@@ -503,6 +716,7 @@ install_packages() {
   setup_solaar_repo
   setup_cider_repo
   install_apt_packages
+  install_data_tools
   install_emacs_from_source
   install_wezterm
   install_pacstall_packages
@@ -747,12 +961,6 @@ install_tpm() {
   log_info "Run 'prefix + I' in tmux to install plugins"
 }
 
-install_orchis_theme() {
-  log_info "Installing Orchis theme (orange)..."
-  log_info "Skipping Orchis theme in this setup"
-  return 0
-}
-
 setup_shell() {
   log_info "Setting up shell..."
 
@@ -792,7 +1000,7 @@ setup_xdg_dirs() {
   log_info "Setting up XDG user directories..."
 
   if ! command_exists xdg-user-dirs-update; then
-    log_warning "xdg-user-dirs-update not found, skipping"
+    log_warning "xdg-user-dirs-update not found, skipping..."
     return 0
   fi
 
@@ -826,18 +1034,18 @@ show_menu() {
   choice=${choice:-1}
 
   case "$choice" in
-  1) INSTALL_MODE="full" ;;
-  2) INSTALL_MODE="symlink" ;;
-  3) INSTALL_MODE="packages" ;;
-  4) INSTALL_MODE="zsh" ;;
-  q | Q)
-    log_info "Cancelled"
-    exit 0
-    ;;
-  *)
-    log_error "Invalid option: $choice"
-    exit 1
-    ;;
+    1) INSTALL_MODE="full" ;;
+    2) INSTALL_MODE="symlink" ;;
+    3) INSTALL_MODE="packages" ;;
+    4) INSTALL_MODE="zsh" ;;
+    q | Q)
+      log_info "Cancelled"
+      exit 0
+      ;;
+    *)
+      log_error "Invalid option: $choice"
+      exit 1
+      ;;
   esac
 }
 
@@ -876,35 +1084,35 @@ EOF
 parse_arguments() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-    -h | --help)
-      show_help
-      exit 0
-      ;;
-    -d | --dry-run)
-      DRY_RUN=true
-      log_warning "Dry-run mode enabled"
-      ;;
-    --debug)
-      DEBUG=true
-      log_debug "Debug mode enabled"
-      ;;
-    1)
-      INSTALL_MODE="full"
-      ;;
-    2)
-      INSTALL_MODE="symlink"
-      ;;
-    3)
-      INSTALL_MODE="packages"
-      ;;
-    4)
-      INSTALL_MODE="zsh"
-      ;;
-    *)
-      log_error "Unknown option: $1"
-      show_help
-      exit 1
-      ;;
+      -h | --help)
+        show_help
+        exit 0
+        ;;
+      -d | --dry-run)
+        DRY_RUN=true
+        log_warning "Dry-run mode enabled"
+        ;;
+      --debug)
+        DEBUG=true
+        log_debug "Debug mode enabled"
+        ;;
+      1)
+        INSTALL_MODE="full"
+        ;;
+      2)
+        INSTALL_MODE="symlink"
+        ;;
+      3)
+        INSTALL_MODE="packages"
+        ;;
+      4)
+        INSTALL_MODE="zsh"
+        ;;
+      *)
+        log_error "Unknown option: $1"
+        show_help
+        exit 1
+        ;;
     esac
     shift
   done
@@ -933,36 +1141,35 @@ main() {
   echo
 
   case "$INSTALL_MODE" in
-  full)
-    install_packages
-    setup_xdg_dirs
-    install_zsh_setup
-    setup_emacs_config
-    symlink_configs
-    install_tpm
-    setup_keyd
-    install_orchis_theme
-    setup_shell
-    enable_services
-    ;;
-  symlink)
-    install_zsh_setup
-    setup_emacs_config
-    symlink_configs
-    install_tpm
-    ;;
-  packages)
-    install_packages
-    ;;
-  zsh)
-    install_zsh_setup
-    create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
-    setup_shell
-    ;;
-  *)
-    log_error "Unsupported install mode: $INSTALL_MODE"
-    exit 1
-    ;;
+    full)
+      install_packages
+      setup_xdg_dirs
+      install_zsh_setup
+      setup_emacs_config
+      symlink_configs
+      install_tpm
+      setup_keyd
+      setup_shell
+      enable_services
+      ;;
+    symlink)
+      install_zsh_setup
+      setup_emacs_config
+      symlink_configs
+      install_tpm
+      ;;
+    packages)
+      install_packages
+      ;;
+    zsh)
+      install_zsh_setup
+      create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+      setup_shell
+      ;;
+    *)
+      log_error "Unsupported install mode: $INSTALL_MODE"
+      exit 1
+      ;;
   esac
 
   echo

@@ -36,6 +36,20 @@ cd ~/.dotfiles
 ./install.sh --dry-run 1  # Preview changes
 ```
 
+## Data Science Toolset
+
+`install_packages` now prompts for `install_data_tools`.
+
+When accepted, installer installs/updates:
+- `uv`
+- Miniconda (`$HOME/miniconda3`)
+- `r-base`
+- RStudio Desktop
+
+Conda policy:
+- shell hook path uses `$HOME/miniconda3`
+- `auto_activate_base=false`
+
 ## Resources
 
 - [COSMIC](https://github.com/pop-os/cosmic-epoch)
