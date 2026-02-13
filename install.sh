@@ -317,7 +317,7 @@ install_or_update_uv() {
 
   if command_exists uv; then
     if log_dry "uv self update"; then
-      log_success "uv update command queued (dry-run)"
+      log_success "uv update command queued"
       return 0
     fi
 
@@ -330,7 +330,7 @@ install_or_update_uv() {
   fi
 
   if log_dry "curl -LsSf https://astral.sh/uv/install.sh | sh"; then
-    log_success "uv install command queued (dry-run)"
+    log_success "uv install command queued"
     return 0
   fi
 
@@ -355,7 +355,7 @@ install_or_update_miniconda() {
 
   if [[ -x "$conda_bin" ]]; then
     if log_dry "${conda_bin} update -n base -c defaults conda -y"; then
-      log_success "Miniconda update command queued (dry-run)"
+      log_success "Miniconda update command queued"
       return 0
     fi
 
@@ -376,7 +376,7 @@ install_or_update_miniconda() {
   if [[ $DRY_RUN == true ]]; then
     log_dry "curl -fsSL ${installer_url} -o /tmp/miniconda-installer.sh"
     log_dry "bash /tmp/miniconda-installer.sh -b -p ${MINICONDA_PREFIX}"
-    log_success "Miniconda install commands queued (dry-run)"
+    log_success "Miniconda install commands queued"
     return 0
   fi
 
@@ -410,25 +410,25 @@ configure_conda_for_zsh() {
   fi
 
   if log_dry "${conda_bin} config --set auto_activate_base false"; then
-    log_success "Conda shell config command queued (dry-run)"
+    log_success "Conda shell config command queued"
     return 0
   fi
 
   if ! "$conda_bin" config --set auto_activate_base false; then
-    log_error "Failed to configure conda (auto_activate_base=false)"
+    log_error "Failed to configure conda"
     return 1
   fi
 
-  log_success "Conda configured (auto_activate_base=false)"
+  log_success "Conda configured"
 }
 
 install_r_base() {
-  log_info "Installing/updating R (r-base)..."
+  log_info "Installing/updating R..."
 
   if [[ $DRY_RUN == true ]]; then
     log_dry "sudo apt update"
     log_dry "sudo apt install -y r-base"
-    log_success "R install commands queued (dry-run)"
+    log_success "R install commands queued"
     return 0
   fi
 
@@ -439,7 +439,7 @@ install_r_base() {
     return 1
   fi
 
-  log_success "R (r-base) installed/updated"
+  log_success "R installed/updated"
 }
 
 install_or_update_rstudio() {
@@ -453,7 +453,7 @@ install_or_update_rstudio() {
   if [[ $DRY_RUN == true ]]; then
     log_dry "curl -fsSL ${rstudio_url} -o /tmp/rstudio-latest-amd64.deb"
     log_dry "sudo apt install -y /tmp/rstudio-latest-amd64.deb"
-    log_success "RStudio install commands queued (dry-run)"
+    log_success "RStudio install commands queued"
     return 0
   fi
 
@@ -654,7 +654,7 @@ install_emacs_from_source() {
   if [[ $DRY_RUN == true ]]; then
     log_dry "git clone ${EMACS_SOURCE_REPO} ${EMACS_SOURCE_DIR}"
     log_dry "cd ${EMACS_SOURCE_DIR} && ./autogen.sh"
-    log_dry "cd ${EMACS_SOURCE_DIR} && ./configure --with-native-compilation --with-tree-sitter"
+    log_dry "cd ${EMACS_SOURCE_DIR} && ./configure --with-x-toolkit=lucid --with-native-compilation --with-tree-sitter"
     log_dry "cd ${EMACS_SOURCE_DIR} && make -j\$(nproc)"
     log_dry "cd ${EMACS_SOURCE_DIR} && sudo make install"
     return 0
