@@ -1,4 +1,4 @@
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.opencode/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.juliaup/bin:$PATH"
 export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 export EDITOR='emacsclient -t -a ""'
 export VISUAL="$EDITOR"
