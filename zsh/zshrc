@@ -49,10 +49,13 @@ alias ase="apt search"
 alias agr="sudo apt remove"
 alias agp="sudo apt purge"
 alias agar="sudo apt autoremove"
+alias g="git"
 alias gaa="git add -A"
 alias gst="git status"
 alias gcm="git commit -m"
 alias gp="git push"
+alias gl="git pull"
+alias gf="git fetch"
 
 # FZF settings
 export FZF_CTRL_T_OPTS="
