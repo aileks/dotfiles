@@ -17,6 +17,9 @@ EMACS_SOURCE_REPO="https://github.com/emacs-mirror/emacs.git"
 EMACS_SOURCE_DIR="$HOME/.local/src/emacs"
 MINICONDA_PREFIX="$HOME/miniconda3"
 MINICONDA_INSTALLER_BASE_URL="https://repo.anaconda.com/miniconda"
+JULIAUP_INSTALL_URL="https://install.julialang.org"
+JULIAUP_BIN="$HOME/.juliaup/bin/juliaup"
+JULIA_BIN="$HOME/.juliaup/bin/julia"
 RSTUDIO_DOWNLOAD_PAGE_URL="https://posit.co/download/rstudio-desktop/"
 RSTUDIO_DEB_FALLBACK_URL="https://download1.rstudio.org/electron/jammy/amd64/rstudio-2026.01.0-392-amd64.deb"
 
@@ -399,6 +402,71 @@ install_or_update_miniconda() {
   log_success "Miniconda installed"
 }
 
+install_or_update_julia() {
+  log_info "Installing/updating Julia..."
+
+  if [[ -x "$JULIAUP_BIN" ]]; then
+    if log_dry "${JULIAUP_BIN} self update"; then
+      log_dry "${JULIAUP_BIN} update release"
+      if [[ -x "$JULIA_BIN" ]]; then
+        log_dry "${JULIA_BIN} --version"
+      fi
+      log_success "Julia update commands queued"
+      return 0
+    fi
+
+    if ! "$JULIAUP_BIN" self update; then
+      log_error "Failed to update juliaup"
+      return 1
+    fi
+
+    if ! "$JULIAUP_BIN" update release; then
+      log_error "Failed to update Julia release channel"
+      return 1
+    fi
+
+    if [[ -x "$JULIA_BIN" ]] && ! "$JULIA_BIN" --version; then
+      log_warning "Julia version check failed after update"
+    fi
+
+    log_success "Julia installed/updated"
+    return 0
+  fi
+
+  if log_dry "curl -fsSL ${JULIAUP_INSTALL_URL} | sh -s -- --yes --default-channel=release"; then
+    log_dry "${JULIAUP_BIN} update release"
+    log_dry "${JULIA_BIN} --version"
+    log_success "Julia install commands queued"
+    return 0
+  fi
+
+  if ! curl -fsSL "$JULIAUP_INSTALL_URL" | sh -s -- --yes --default-channel=release; then
+    log_error "Failed to install Julia via juliaup"
+    return 1
+  fi
+
+  if [[ ! -x "$JULIAUP_BIN" ]]; then
+    log_error "juliaup binary not found at ${JULIAUP_BIN}"
+    return 1
+  fi
+
+  if ! "$JULIAUP_BIN" update release; then
+    log_error "Failed to update Julia release channel"
+    return 1
+  fi
+
+  if [[ ! -x "$JULIA_BIN" ]]; then
+    log_error "Julia binary not found at ${JULIA_BIN}"
+    return 1
+  fi
+
+  if ! "$JULIA_BIN" --version; then
+    log_warning "Julia installed but version check failed"
+  fi
+
+  log_success "Julia installed/updated"
+}
+
 configure_conda_for_zsh() {
   log_info "Configuring conda shell behavior..."
 
@@ -484,6 +552,7 @@ install_data_tools() {
   install_or_update_uv
   install_or_update_miniconda
   configure_conda_for_zsh
+  install_or_update_julia
   install_r_base
   install_or_update_rstudio
 
