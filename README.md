@@ -35,11 +35,11 @@ cd ~/.dotfiles
 ./install.sh 4            # Zsh setup only
 ./install.sh --dry-run 1  # Preview changes
 ```
+
 ## Resources
 
 - [COSMIC](https://github.com/pop-os/cosmic-epoch)
 - [keyd](https://github.com/rvaiya/keyd)
-- [Helium](https://github.com/imputnet/helium-linux)
 - [zplug](https://github.com/zplug/zplug)
 
 ## License

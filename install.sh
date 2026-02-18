@@ -22,6 +22,8 @@ JULIAUP_BIN="$HOME/.juliaup/bin/juliaup"
 JULIA_BIN="$HOME/.juliaup/bin/julia"
 RSTUDIO_DOWNLOAD_PAGE_URL="https://posit.co/download/rstudio-desktop/"
 RSTUDIO_DEB_FALLBACK_URL="https://download1.rstudio.org/electron/jammy/amd64/rstudio-2026.01.0-392-amd64.deb"
+R_CRAN_MIRROR="https://cloud.r-project.org"
+PREFERRED_LLVM_MAJOR="20"
 
 DRY_RUN=false
 DEBUG=false
@@ -117,6 +119,9 @@ APT_PACKAGES=(
   rsync
   libnotify-bin
   build-essential
+  libcurl4-openssl-dev
+  libssl-dev
+  libxml2-dev
   git
   zsh
   gh
@@ -134,6 +139,13 @@ APT_PACKAGES=(
   cider
   zathura
   trash-cli
+  clang-20
+  clang-format-20
+  latexmk
+  texlive-latex-base
+  texlive-latex-extra
+  texlive-fonts-recommended
+  r-base
   fonts-noto
   fonts-noto-cjk
   fonts-noto-color-emoji
@@ -343,6 +355,198 @@ install_or_update_uv() {
   fi
 
   log_success "uv installed/updated"
+}
+
+resolve_uv_bin() {
+  local uv_bin
+
+  if uv_bin=$(command -v uv 2>/dev/null); then
+    echo "$uv_bin"
+    return 0
+  fi
+
+  if [[ -x "$HOME/.local/bin/uv" ]]; then
+    echo "$HOME/.local/bin/uv"
+    return 0
+  fi
+
+  return 1
+}
+
+setup_clang_shims() {
+  local local_bin_dir="$HOME/.local/bin"
+  local clang_target="/usr/bin/clang-${PREFERRED_LLVM_MAJOR}"
+  local clang_format_target="/usr/bin/clang-format-${PREFERRED_LLVM_MAJOR}"
+
+  log_info "Configuring clang shims..."
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "mkdir -p ${local_bin_dir}"
+    log_dry "ln -sfn ${clang_target} ${local_bin_dir}/clang"
+    log_dry "ln -sfn ${clang_format_target} ${local_bin_dir}/clang-format"
+    log_success "Clang shim commands queued"
+    return 0
+  fi
+
+  if [[ ! -x "$clang_target" ]]; then
+    log_error "Missing clang target binary: ${clang_target}"
+    return 1
+  fi
+
+  if [[ ! -x "$clang_format_target" ]]; then
+    log_error "Missing clang-format target binary: ${clang_format_target}"
+    return 1
+  fi
+
+  mkdir -p "$local_bin_dir"
+
+  if ! ln -sfn "$clang_target" "${local_bin_dir}/clang"; then
+    log_error "Failed to configure clang shim"
+    return 1
+  fi
+
+  if ! ln -sfn "$clang_format_target" "${local_bin_dir}/clang-format"; then
+    log_error "Failed to configure clang-format shim"
+    return 1
+  fi
+
+  log_success "Clang shims configured"
+}
+
+install_required_language_tooling() {
+  log_info "Installing required language tooling..."
+
+  if ! install_or_update_uv; then
+    return 1
+  fi
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "uv tool install --upgrade ruff"
+    log_dry "uv tool install --upgrade basedpyright"
+    log_dry "Rscript --vanilla -e 'install.packages(\"languageserver\", repos=\"${R_CRAN_MIRROR}\")'"
+    log_success "Required language tooling commands queued"
+    return 0
+  fi
+
+  local uv_bin
+  if ! uv_bin=$(resolve_uv_bin); then
+    log_error "uv binary not found after install/update"
+    return 1
+  fi
+
+  if ! "$uv_bin" tool install --upgrade ruff; then
+    log_error "Failed to install/update ruff"
+    return 1
+  fi
+
+  if ! "$uv_bin" tool install --upgrade basedpyright; then
+    log_error "Failed to install/update basedpyright"
+    return 1
+  fi
+
+  if ! command_exists Rscript; then
+    log_error "Rscript not found (expected from r-base)"
+    return 1
+  fi
+
+  if ! Rscript --vanilla -e "install.packages(\"languageserver\", repos=\"${R_CRAN_MIRROR}\")"; then
+    log_error "Failed to install/update R package: languageserver"
+    return 1
+  fi
+
+  log_success "Required language tooling installed/updated"
+}
+
+verify_required_language_tooling() {
+  log_info "Verifying required language tooling..."
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "ruff --version"
+    log_dry "basedpyright --version"
+    log_dry "command -v basedpyright-langserver"
+    log_dry "clang --version"
+    log_dry "clang-format --version"
+    log_dry "latexmk -v"
+    log_dry "pdflatex --version"
+    log_dry "Rscript --vanilla -e 'packageVersion(\"languageserver\")'"
+    return 0
+  fi
+
+  local ruff_bin=""
+  if ruff_bin=$(command -v ruff 2>/dev/null); then
+    :
+  elif [[ -x "$HOME/.local/bin/ruff" ]]; then
+    ruff_bin="$HOME/.local/bin/ruff"
+  fi
+
+  if [[ -z "$ruff_bin" ]] || ! "$ruff_bin" --version; then
+    log_error "ruff verification failed"
+    return 1
+  fi
+
+  local basedpyright_bin=""
+  if basedpyright_bin=$(command -v basedpyright 2>/dev/null); then
+    :
+  elif [[ -x "$HOME/.local/bin/basedpyright" ]]; then
+    basedpyright_bin="$HOME/.local/bin/basedpyright"
+  fi
+
+  if [[ -z "$basedpyright_bin" ]] || ! "$basedpyright_bin" --version; then
+    log_error "basedpyright verification failed"
+    return 1
+  fi
+
+  if ! command_exists basedpyright-langserver && [[ ! -x "$HOME/.local/bin/basedpyright-langserver" ]]; then
+    log_error "basedpyright-langserver command not found"
+    return 1
+  fi
+
+  local clang_bin=""
+  if clang_bin=$(command -v clang 2>/dev/null); then
+    :
+  elif [[ -x "$HOME/.local/bin/clang" ]]; then
+    clang_bin="$HOME/.local/bin/clang"
+  fi
+
+  if [[ -z "$clang_bin" ]] || ! "$clang_bin" --version; then
+    log_error "clang verification failed"
+    return 1
+  fi
+
+  local clang_format_bin=""
+  if clang_format_bin=$(command -v clang-format 2>/dev/null); then
+    :
+  elif [[ -x "$HOME/.local/bin/clang-format" ]]; then
+    clang_format_bin="$HOME/.local/bin/clang-format"
+  fi
+
+  if [[ -z "$clang_format_bin" ]] || ! "$clang_format_bin" --version; then
+    log_error "clang-format verification failed"
+    return 1
+  fi
+
+  if ! command_exists latexmk || ! latexmk -v; then
+    log_error "latexmk verification failed"
+    return 1
+  fi
+
+  if ! command_exists pdflatex || ! pdflatex --version; then
+    log_error "pdflatex verification failed"
+    return 1
+  fi
+
+  if ! Rscript --vanilla -e 'quit(status = ifelse(requireNamespace("languageserver", quietly = TRUE), 0, 1))'; then
+    log_error "R package languageserver is not available"
+    return 1
+  fi
+
+  local languageserver_version
+  languageserver_version=$(Rscript --vanilla -e 'cat(as.character(utils::packageVersion("languageserver")), "\n")' 2>/dev/null || true)
+  if [[ -n "${languageserver_version:-}" ]]; then
+    log_success "languageserver version: ${languageserver_version}"
+  fi
+
+  log_success "Required language tooling verified"
 }
 
 install_or_update_miniconda() {
@@ -785,11 +989,14 @@ install_packages() {
   setup_solaar_repo
   setup_cider_repo
   install_apt_packages
+  setup_clang_shims
+  install_required_language_tooling
   install_data_tools
   install_emacs_from_source
   install_wezterm
   install_pacstall_packages
   install_1password
+  verify_required_language_tooling
 }
 
 # ============================================================
