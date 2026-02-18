@@ -24,6 +24,9 @@ RSTUDIO_DOWNLOAD_PAGE_URL="https://posit.co/download/rstudio-desktop/"
 RSTUDIO_DEB_FALLBACK_URL="https://download1.rstudio.org/electron/jammy/amd64/rstudio-2026.01.0-392-amd64.deb"
 R_CRAN_MIRROR="https://cloud.r-project.org"
 PREFERRED_LLVM_MAJOR="20"
+BITWARDEN_RELEASES_API_URL="https://api.github.com/repos/bitwarden/clients/releases?per_page=100"
+PACSTALL_BITWARDEN_DESKTOP_PACSCRIPT_URL="https://raw.githubusercontent.com/pacstall/pacstall-programs/master/packages/bitwarden-deb/bitwarden-deb.pacscript"
+PACSTALL_BITWARDEN_CLI_PACSCRIPT_URL="https://raw.githubusercontent.com/pacstall/pacstall-programs/master/packages/bitwarden-cli-bin/bitwarden-cli-bin.pacscript"
 
 DRY_RUN=false
 DEBUG=false
@@ -140,6 +143,7 @@ APT_PACKAGES=(
   zathura
   trash-cli
   pipx
+  unzip
   clang-20
   clang-format-20
   latexmk
@@ -159,6 +163,8 @@ PACSTALL_PACKAGES=(
   onlyoffice-desktopeditors-deb
   keyd-deb
   fastfetch-git
+  bitwarden-deb
+  bitwarden-cli-bin
 )
 
 # ============================================================
@@ -295,6 +301,207 @@ install_pacstall_packages() {
   done
 
   log_success "Pacstall packages installed"
+}
+
+extract_pacscript_pkgver() {
+  local pacscript_url="$1"
+
+  curl -fsSL "$pacscript_url" | awk -F'"' '/^pkgver=/{print $2; exit}'
+}
+
+fetch_latest_bitwarden_version() {
+  local tag_prefix="$1"
+  local tag_name
+
+  tag_name=$(
+    curl -fsSL "$BITWARDEN_RELEASES_API_URL" |
+      jq -r --arg prefix "$tag_prefix" 'map(select((.tag_name | startswith($prefix)) and (.draft | not) and (.prerelease | not))) | .[0].tag_name // empty'
+  ) || return 1
+
+  if [[ -z "${tag_name:-}" ]]; then
+    return 1
+  fi
+
+  echo "${tag_name#${tag_prefix}}"
+}
+
+version_is_older() {
+  local current_version="$1"
+  local latest_version="$2"
+
+  if [[ "$current_version" == "$latest_version" ]]; then
+    return 1
+  fi
+
+  [[ "$(printf '%s\n%s\n' "$current_version" "$latest_version" | sort -V | head -n1)" == "$current_version" ]]
+}
+
+bitwarden_upstream_fallback_supported_arch() {
+  case "$(uname -m)" in
+    x86_64 | amd64)
+      return 0
+      ;;
+    *)
+      log_warning "Bitwarden upstream fallback supports amd64 only; skipping on $(uname -m)"
+      return 1
+      ;;
+  esac
+}
+
+install_bitwarden_desktop_from_upstream() {
+  local version="$1"
+  local deb_url="https://github.com/bitwarden/clients/releases/download/desktop-v${version}/Bitwarden-${version}-amd64.deb"
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "curl -fsSL ${deb_url} -o /tmp/bitwarden-desktop-${version}-amd64.deb"
+    log_dry "sudo apt install -y /tmp/bitwarden-desktop-${version}-amd64.deb"
+    return 0
+  fi
+
+  local deb_path
+  deb_path=$(mktemp "/tmp/bitwarden-desktop.${version}.XXXXXX.deb")
+
+  if ! curl -fsSL "$deb_url" -o "$deb_path"; then
+    log_error "Failed to download Bitwarden desktop release ${version}"
+    rm -f "$deb_path"
+    return 1
+  fi
+
+  if ! sudo apt install -y "$deb_path"; then
+    log_error "Failed to install Bitwarden desktop release ${version}"
+    rm -f "$deb_path"
+    return 1
+  fi
+
+  rm -f "$deb_path"
+  log_success "Bitwarden desktop updated from upstream (${version})"
+}
+
+install_bitwarden_cli_from_upstream() {
+  local version="$1"
+  local zip_url="https://github.com/bitwarden/clients/releases/download/cli-v${version}/bw-linux-${version}.zip"
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "curl -fsSL ${zip_url} -o /tmp/bitwarden-cli-${version}.zip"
+    log_dry "unzip -qo /tmp/bitwarden-cli-${version}.zip -d /tmp/bitwarden-cli-${version}"
+    log_dry "sudo install -Dm755 /tmp/bitwarden-cli-${version}/bw /usr/local/bin/bw"
+    log_dry "sudo install -Dm644 /tmp/bitwarden-cli-${version}/_bw /usr/share/zsh/site-functions/_bw"
+    return 0
+  fi
+
+  local tmp_dir
+  local zip_path
+  local completion_path
+
+  tmp_dir=$(mktemp -d "/tmp/bitwarden-cli.${version}.XXXXXX")
+  zip_path="${tmp_dir}/bw.zip"
+  completion_path="${tmp_dir}/_bw"
+
+  if ! curl -fsSL "$zip_url" -o "$zip_path"; then
+    log_error "Failed to download Bitwarden CLI release ${version}"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+
+  if ! unzip -qo "$zip_path" -d "$tmp_dir"; then
+    log_error "Failed to extract Bitwarden CLI release ${version}"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+
+  if [[ ! -x "${tmp_dir}/bw" ]]; then
+    log_error "Bitwarden CLI binary missing after extraction"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+
+  if ! sudo install -Dm755 "${tmp_dir}/bw" /usr/local/bin/bw; then
+    log_error "Failed to install Bitwarden CLI binary"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+
+  if "${tmp_dir}/bw" completion --shell zsh >"$completion_path" 2>/dev/null; then
+    if ! sudo install -Dm644 "$completion_path" /usr/share/zsh/site-functions/_bw; then
+      log_warning "Failed to install Bitwarden CLI zsh completion"
+    fi
+  else
+    log_warning "Failed to generate Bitwarden CLI zsh completion"
+  fi
+
+  rm -rf "$tmp_dir"
+  log_success "Bitwarden CLI updated from upstream (${version})"
+}
+
+install_bitwarden_stack() {
+  log_info "Ensuring Bitwarden desktop and CLI are current..."
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "Compare pacstall Bitwarden recipe versions to upstream GitHub releases"
+    log_dry "If stale: install latest Bitwarden desktop .deb from upstream release"
+    log_dry "If stale: install latest Bitwarden CLI binary from upstream release"
+    return 0
+  fi
+
+  local pacstall_desktop_version
+  local pacstall_cli_version
+  local upstream_desktop_version
+  local upstream_cli_version
+  local desktop_stale=false
+  local cli_stale=false
+
+  if ! pacstall_desktop_version=$(extract_pacscript_pkgver "$PACSTALL_BITWARDEN_DESKTOP_PACSCRIPT_URL"); then
+    log_warning "Could not read pacstall bitwarden-deb version; keeping pacstall install"
+    return 0
+  fi
+
+  if ! pacstall_cli_version=$(extract_pacscript_pkgver "$PACSTALL_BITWARDEN_CLI_PACSCRIPT_URL"); then
+    log_warning "Could not read pacstall bitwarden-cli-bin version; keeping pacstall install"
+    return 0
+  fi
+
+  if ! upstream_desktop_version=$(fetch_latest_bitwarden_version "desktop-v"); then
+    log_warning "Could not fetch latest Bitwarden desktop release; keeping pacstall install"
+    return 0
+  fi
+
+  if ! upstream_cli_version=$(fetch_latest_bitwarden_version "cli-v"); then
+    log_warning "Could not fetch latest Bitwarden CLI release; keeping pacstall install"
+    return 0
+  fi
+
+  if version_is_older "$pacstall_desktop_version" "$upstream_desktop_version"; then
+    desktop_stale=true
+    log_warning "bitwarden-deb lagging: pacstall ${pacstall_desktop_version}, upstream ${upstream_desktop_version}"
+  fi
+
+  if version_is_older "$pacstall_cli_version" "$upstream_cli_version"; then
+    cli_stale=true
+    log_warning "bitwarden-cli-bin lagging: pacstall ${pacstall_cli_version}, upstream ${upstream_cli_version}"
+  fi
+
+  if [[ $desktop_stale == false && $cli_stale == false ]]; then
+    log_success "Pacstall Bitwarden recipes are current"
+    return 0
+  fi
+
+  if ! bitwarden_upstream_fallback_supported_arch; then
+    return 0
+  fi
+
+  if [[ $desktop_stale == true ]]; then
+    if ! install_bitwarden_desktop_from_upstream "$upstream_desktop_version"; then
+      log_warning "Desktop fallback failed; keeping pacstall-installed version"
+    fi
+  fi
+
+  if [[ $cli_stale == true ]]; then
+    if ! install_bitwarden_cli_from_upstream "$upstream_cli_version"; then
+      log_warning "CLI fallback failed; keeping pacstall-installed version"
+    fi
+  fi
+
+  log_success "Bitwarden install path complete"
 }
 
 detect_miniconda_installer_url() {
@@ -808,55 +1015,6 @@ install_data_tools() {
   log_success "Data science toolset installed/updated"
 }
 
-install_1password() {
-  log_info "Installing 1Password..."
-
-  if dpkg -s 1password &>/dev/null; then
-    log_success "1Password already installed"
-    return 0
-  fi
-
-  if [[ $DRY_RUN == true ]]; then
-    log_dry "Download 1Password .deb and install"
-    log_dry "sudo apt install -y 1password 1password-cli"
-    return 0
-  fi
-
-  local arch
-  case "$(uname -m)" in
-    x86_64 | amd64) arch="amd64" ;;
-    aarch64 | arm64) arch="arm64" ;;
-    *)
-      log_error "Unsupported architecture for 1Password"
-      return 1
-      ;;
-  esac
-
-  local tmp_deb
-  tmp_deb=$(mktemp)
-
-  if ! curl -fsSL "https://downloads.1password.com/linux/debian/${arch}/stable/1password-latest.deb" -o "$tmp_deb"; then
-    log_error "Failed to download 1Password .deb"
-    rm -f "$tmp_deb"
-    return 1
-  fi
-
-  if ! sudo dpkg -i "$tmp_deb"; then
-    log_warning "dpkg failed; attempting to fix dependencies"
-    sudo apt -f install -y
-  fi
-
-  rm -f "$tmp_deb"
-
-  sudo apt update
-  if ! sudo apt install -y 1password 1password-cli; then
-    log_error "Failed to install 1Password packages"
-    return 1
-  fi
-
-  log_success "1Password installed"
-}
-
 install_wezterm() {
   log_info "Installing WezTerm..."
 
@@ -1040,7 +1198,7 @@ install_packages() {
   install_emacs_from_source
   install_wezterm
   install_pacstall_packages
-  install_1password
+  install_bitwarden_stack
   verify_required_language_tooling
 }
 
