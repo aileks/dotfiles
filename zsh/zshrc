@@ -3,6 +3,7 @@ export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 export EDITOR='emacsclient -t -a ""'
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$EDITOR"
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 
 source "$ZPLUG_HOME/init.zsh"
 zplug "MichaelAquilina/zsh-you-should-use"
