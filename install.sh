@@ -139,6 +139,7 @@ APT_PACKAGES=(
   cider
   zathura
   trash-cli
+  pipx
   clang-20
   clang-format-20
   latexmk
@@ -357,20 +358,60 @@ install_or_update_uv() {
   log_success "uv installed/updated"
 }
 
-resolve_uv_bin() {
-  local uv_bin
+setup_pipx() {
+  log_info "Configuring pipx..."
 
-  if uv_bin=$(command -v uv 2>/dev/null); then
-    echo "$uv_bin"
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "pipx ensurepath"
+    log_success "pipx ensurepath command queued"
     return 0
   fi
 
-  if [[ -x "$HOME/.local/bin/uv" ]]; then
-    echo "$HOME/.local/bin/uv"
+  if ! command_exists pipx; then
+    log_error "pipx not found (expected from apt package: pipx)"
+    return 1
+  fi
+
+  if ! pipx ensurepath; then
+    log_error "pipx ensurepath failed"
+    return 1
+  fi
+
+  log_success "pipx configured"
+}
+
+pipx_package_installed() {
+  local pkg="$1"
+
+  if pipx list --short 2>/dev/null | awk '{print $1}' | grep -qx "$pkg"; then
     return 0
   fi
 
-  return 1
+  pipx list 2>/dev/null | grep -Eq "^package[[:space:]]+${pkg}[[:space:]]"
+}
+
+install_or_update_pipx_tool() {
+  local pkg="$1"
+
+  if [[ $DRY_RUN == true ]]; then
+    log_dry "pipx install --force ${pkg}"
+    return 0
+  fi
+
+  if pipx_package_installed "$pkg"; then
+    if ! pipx upgrade "$pkg"; then
+      log_error "Failed to upgrade pipx package: ${pkg}"
+      return 1
+    fi
+    return 0
+  fi
+
+  if ! pipx install --force "$pkg"; then
+    log_error "Failed to install pipx package: ${pkg}"
+    return 1
+  fi
+
+  return 0
 }
 
 setup_clang_shims() {
@@ -416,30 +457,24 @@ setup_clang_shims() {
 install_required_language_tooling() {
   log_info "Installing required language tooling..."
 
-  if ! install_or_update_uv; then
+  if ! setup_pipx; then
     return 1
   fi
 
   if [[ $DRY_RUN == true ]]; then
-    log_dry "uv tool install --upgrade ruff"
-    log_dry "uv tool install --upgrade basedpyright"
+    log_dry "pipx install --force ruff"
+    log_dry "pipx install --force basedpyright"
     log_dry "Rscript --vanilla -e 'install.packages(\"languageserver\", repos=\"${R_CRAN_MIRROR}\")'"
     log_success "Required language tooling commands queued"
     return 0
   fi
 
-  local uv_bin
-  if ! uv_bin=$(resolve_uv_bin); then
-    log_error "uv binary not found after install/update"
-    return 1
-  fi
-
-  if ! "$uv_bin" tool install --upgrade ruff; then
+  if ! install_or_update_pipx_tool "ruff"; then
     log_error "Failed to install/update ruff"
     return 1
   fi
 
-  if ! "$uv_bin" tool install --upgrade basedpyright; then
+  if ! install_or_update_pipx_tool "basedpyright"; then
     log_error "Failed to install/update basedpyright"
     return 1
   fi
@@ -544,6 +579,16 @@ verify_required_language_tooling() {
   languageserver_version=$(Rscript --vanilla -e 'cat(as.character(utils::packageVersion("languageserver")), "\n")' 2>/dev/null || true)
   if [[ -n "${languageserver_version:-}" ]]; then
     log_success "languageserver version: ${languageserver_version}"
+  fi
+
+  if ! pipx_package_installed "ruff"; then
+    log_error "pipx package not found: ruff"
+    return 1
+  fi
+
+  if ! pipx_package_installed "basedpyright"; then
+    log_error "pipx package not found: basedpyright"
+    return 1
   fi
 
   log_success "Required language tooling verified"
