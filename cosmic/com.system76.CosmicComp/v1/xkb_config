@@ -3,7 +3,7 @@
     model: "pc105+inet",
     layout: "us",
     variant: "",
-    options: Some("terminate:ctrl_alt_bksp"),
+    options: Some("terminate:ctrl_alt_bksp,caps:ctrl_modifier"),
     repeat_delay: 250,
     repeat_rate: 40,
 )
