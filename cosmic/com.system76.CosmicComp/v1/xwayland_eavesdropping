@@ -1,4 +1,4 @@
 (
     keyboard: All,
-    pointer: false,
+    pointer: true,
 )
