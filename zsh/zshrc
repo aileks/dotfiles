@@ -58,6 +58,8 @@ alias gcl="git clone"
 alias gp="git push"
 alias gl="git pull"
 alias gf="git fetch"
+alias gm="git merge"
+alias gsw="git switch"
 
 # FZF settings
 export FZF_CTRL_T_OPTS="
@@ -127,3 +129,6 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+
+# opencode
+export PATH=/home/aileks/.opencode/bin:$PATH
