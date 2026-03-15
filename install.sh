@@ -161,7 +161,6 @@ PACSTALL_PACKAGES=(
   btop-bin
   bat-deb
   onlyoffice-desktopeditors-deb
-  keyd-deb
   fastfetch-git
   bitwarden-deb
   bitwarden-cli-bin
@@ -1394,23 +1393,6 @@ symlink_configs() {
   log_success "Config symlinks created"
 }
 
-setup_keyd() {
-  log_info "Setting up keyd..."
-
-  if [[ ! -f "$SCRIPT_DIR/keyd/default.conf" ]]; then
-    log_warning "keyd config not found: $SCRIPT_DIR/keyd/default.conf"
-    exit 1
-  fi
-
-  if log_dry "sudo mkdir -p /etc/keyd && sudo cp $SCRIPT_DIR/keyd/default.conf /etc/keyd/default.conf"; then
-    return 0
-  fi
-
-  sudo mkdir -p /etc/keyd
-  sudo cp "$SCRIPT_DIR/keyd/default.conf" /etc/keyd/default.conf
-  log_success "keyd config installed"
-}
-
 # ============================================================
 # Post-Install Tasks
 # ============================================================
@@ -1457,21 +1439,6 @@ setup_shell() {
     log_info 'Run manually: chsh -s $(which zsh)'
   else
     log_success "Default shell set to zsh"
-  fi
-}
-
-enable_services() {
-  log_info "Enabling system services..."
-
-  if log_dry "sudo systemctl enable keyd"; then
-    return 0
-  fi
-
-  if ! systemctl is-enabled keyd &>/dev/null; then
-    sudo systemctl enable --now keyd
-    log_success "keyd enabled"
-  else
-    log_success "keyd already enabled"
   fi
 }
 
@@ -1627,9 +1594,7 @@ main() {
       setup_emacs_config
       symlink_configs
       install_tpm
-      setup_keyd
       setup_shell
-      enable_services
       ;;
     symlink)
       install_zsh_setup

@@ -2,7 +2,7 @@ export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.juliaup/bin:$PATH"
 export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 export EDITOR='emacsclient -t -a ""'
 export VISUAL="$EDITOR"
-export SUDO_EDITOR="$EDITOR"
+export SUDO_EDITOR=vim
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 
 source "$ZPLUG_HOME/init.zsh"
