@@ -1,0 +1,313 @@
+// =============================================================================
+// niri config — aileks / Arch
+// =============================================================================
+
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+    GTK_CSD "0"
+    TERMINAL "wezterm"
+    XCURSOR_THEME "Adwaita"
+    XCURSOR_SIZE "32"
+}
+
+cursor {
+    hide-after-inactive-ms 2000
+    xcursor-theme "Adwaita"
+    xcursor-size 32
+}
+
+input {
+    mod-key "Super"
+
+    keyboard {
+        repeat-delay 300
+        repeat-rate 50
+        numlock
+    }
+
+    touchpad {
+        tap
+        natural-scroll
+        accel-profile "flat"
+        accel-speed 0.0
+    }
+
+    mouse {
+        accel-profile "flat"
+        accel-speed 0.0
+    }
+
+    focus-follows-mouse
+}
+
+// =============================================================================
+// Outputs
+// =============================================================================
+
+output "HDMI-A-2" {
+    mode "1920x1080@200"
+    transform "90"
+    position x=0 y=0
+}
+
+output "HDMI-A-1" {
+    mode "1920x1080@200"
+    position x=1080 y=420
+}
+
+// =============================================================================
+// Layout
+// =============================================================================
+
+layout {
+    gaps 2
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring { off; }
+
+    border {
+        width 1.5
+        active-color "#b14242"
+        inactive-color "#535353"
+        urgent-color "#df6464"
+    }
+
+    shadow {
+        on
+        softness 30
+        spread 5
+        offset x=0 y=2
+        draw-behind-window true
+        color "#12121299"
+        inactive-color "#12121280"
+    }
+
+    insert-hint {
+        on
+        color "#e5a72a66"
+    }
+}
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+prefer-no-csd
+screenshot-path "~/Pictures/screenshots/screenshot-%Y%m%d-%H%M%S.png"
+
+// =============================================================================
+// Animations
+// =============================================================================
+
+animations {
+    workspace-switch {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+    }
+
+    horizontal-view-movement {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+    }
+
+    window-movement {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+    }
+
+    window-resize {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+    }
+
+    window-open {
+        duration-ms 140
+        curve "ease-out-expo"
+    }
+
+    window-close {
+        duration-ms 140
+        curve "ease-out-quad"
+    }
+}
+
+// =============================================================================
+// Window rules
+// =============================================================================
+
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+window-rule {
+    match app-id=r#"^(imv|calendar-floating|btop-floating|volume-floating|qalculate-gtk)$"#
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#".*portal.*"#
+    open-floating true
+}
+
+window-rule {
+    match app-id="thunar" title=r#"Rename"#
+    open-floating true
+}
+
+window-rule {
+    match title=r#"About|Authentication|Confirm|Configuration|Dialog|Error|Open File|Options|Preferences|Properties|Save As|Save File|Select File|Select Folder|Settings|Warning"#
+    open-floating true
+}
+
+window-rule {
+    match app-id="Fastmail"
+    open-on-workspace "7"
+}
+
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+}
+
+// =============================================================================
+// Layer rules
+// =============================================================================
+
+layer-rule {
+    match namespace="^mako$"
+    match namespace="^notifications$"
+    shadow { off; }
+}
+
+layer-rule {
+    match namespace="^launcher$"
+    match namespace="^fuzzel$"
+    geometry-corner-radius 12
+    shadow {
+        on
+        softness 30
+        spread 6
+        offset x=0 y=8
+        color "#00000080"
+    }
+}
+
+// =============================================================================
+// Workspaces
+// =============================================================================
+
+workspace "1" { open-on-output "HDMI-A-1"; }
+workspace "2" { open-on-output "HDMI-A-1"; }
+workspace "3" { open-on-output "HDMI-A-1"; }
+workspace "4" { open-on-output "HDMI-A-1"; }
+workspace "5" { open-on-output "HDMI-A-1"; }
+workspace "6" { open-on-output "HDMI-A-1"; }
+workspace "7" { open-on-output "HDMI-A-1"; }
+
+// =============================================================================
+// Binds
+// =============================================================================
+
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    Mod+Q       { close-window; }
+    Mod+Shift+Q { quit; }
+
+    // Apps
+    Mod+Return     { spawn "wezterm"; }
+    Mod+D          { spawn "fuzzel"; }
+    Mod+Shift+E    { spawn "bemoji" "-t"; }
+    Mod+E          { spawn "thunar"; }
+    Mod+W          { spawn "zen-browser"; }
+    Mod+S          { spawn "signal-desktop"; }
+    Mod+C          { spawn "code"; }
+    Mod+Shift+X    { spawn "swaylock"; }
+    Mod+Shift+P    { spawn "wlogout"; }
+
+    // Focus
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+    Mod+H { focus-column-left; }
+    Mod+L { focus-column-right; }
+
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+L { move-column-right; }
+
+    // Layout
+    Mod+R           { switch-preset-column-width; }
+    Mod+Shift+R     { switch-preset-window-height; }
+    Mod+Ctrl+R      { reset-window-height; }
+    Mod+Shift+Return { maximize-column; }
+    Mod+F           { maximize-column; }
+    Mod+Shift+F     { fullscreen-window; }
+    Mod+Space       { toggle-window-floating; }
+    Mod+Shift+V     { toggle-overview; }
+
+    // Monitors
+    Mod+Comma       { focus-monitor-left; }
+    Mod+Period      { focus-monitor-right; }
+    Mod+Shift+Comma  { move-column-to-monitor-left; }
+    Mod+Shift+Period { move-column-to-monitor-right; }
+    Mod+Ctrl+Comma   { consume-or-expel-window-left; }
+    Mod+Ctrl+Period  { consume-or-expel-window-right; }
+
+    // Workspaces
+    Mod+1 { focus-workspace "1"; }
+    Mod+2 { focus-workspace "2"; }
+    Mod+3 { focus-workspace "3"; }
+    Mod+4 { focus-workspace "4"; }
+    Mod+5 { focus-workspace "5"; }
+    Mod+6 { focus-workspace "6"; }
+    Mod+7 { focus-workspace "7"; }
+
+    Mod+Shift+1 { move-column-to-workspace "1"; }
+    Mod+Shift+2 { move-column-to-workspace "2"; }
+    Mod+Shift+3 { move-column-to-workspace "3"; }
+    Mod+Shift+4 { move-column-to-workspace "4"; }
+    Mod+Shift+5 { move-column-to-workspace "5"; }
+    Mod+Shift+6 { move-column-to-workspace "6"; }
+    Mod+Shift+7 { move-column-to-workspace "7"; }
+
+    // Screenshots
+    Print       { screenshot; }
+    Shift+Print { screenshot-window; }
+    Mod+Print   { screenshot-screen; }
+    Mod+Shift+S { spawn-sh "grim -g \"$(slurp)\" - | satty --filename - --output-filename ~/Pictures/screenshots/annotated-$(date +%Y%m%d-%H%M%S).png"; }
+
+    // Media keys
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "pamixer -i 5"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "pamixer -d 5"; }
+    XF86AudioMute        allow-when-locked=true { spawn-sh "pamixer --toggle-mute"; }
+    XF86AudioMedia       allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
+    XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
+
+    // Brightness (useful on laptops; harmless on desktops)
+    XF86MonBrightnessUp   { spawn-sh "brightnessctl set +5%"; }
+    XF86MonBrightnessDown { spawn-sh "brightnessctl set 5%-"; }
+}
+
+// =============================================================================
+// Startup
+// =============================================================================
+// Note: polkit-gnome, swaybg, and swayidle are managed as systemd user units
+// (see ~/.config/systemd/user/) and start automatically with graphical-session.target.
+
+// Notifications
+spawn-at-startup "mako"
+
+// Bar
+spawn-at-startup "waybar"
+
+// Tray applets
+spawn-at-startup "nm-applet" "--indicator"
+spawn-at-startup "blueman-applet"
+spawn-at-startup "solaar" "-w" "hide"
+
+// Night-light (color temp) — adjust lat/lon or drop -l for geoclue
+spawn-at-startup "gammastep" "-O" "4500"
+
+// Apps
+spawn-at-startup "fastmail"

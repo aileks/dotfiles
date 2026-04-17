@@ -1,0 +1,92 @@
+export PATH="$HOME/.local/bin:$PATH"
+export EDITOR='emacsclient -t'
+export VISUAL="$EDITOR"
+export SUDO_EDITOR="$VISUAL"
+export MANPAGER="bat -plman"
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+
+source "$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh"
+source "$HOME/.zplug/init.zsh"
+
+zplug "plugins/archlinux", from:oh-my-zsh
+zplug "plugins/git", from:oh-my-zsh
+zplug "plugins/gh", from:oh-my-zsh
+zplug "zsh-users/zsh-autosuggestions"
+zplug "Aloxaf/fzf-tab"
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
+zplug "themes/refined", from:oh-my-zsh, as:theme
+
+if ! zplug check; then
+  zplug install
+fi
+zplug load
+
+source /usr/share/fzf/key-bindings.zsh
+
+eval "$(zoxide init zsh)"
+
+alias ls="eza --color=always --icons --group-directories-first"
+alias lt="eza -aT --color=always --icons --group-directories-first"
+alias rm="trash-put"
+alias c="clear"
+alias fzf="fzf --style full"
+alias ff="fastfetch"
+
+# Web dev stuff
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+[ -s "/home/aileks/.bun/_bun" ] && source "/home/aileks/.bun/_bun"
+
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# FZF settings
+export FZF_CTRL_T_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+export FZF_ALT_C_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'tree -C {}'"
+export FZF_DEFAULT_OPTS="
+  --multi
+  --border=top
+  --color=fg:#a7a7a7
+  --color=fg+:#d5d5d5
+  --color=bg:#121212
+  --color=bg+:#323232
+  --color=hl:#c4693d
+  --color=hl+:#e49a44
+  --color=info:#a7a7a7
+  --color=marker:#c4693d
+  --color=prompt:#c4693d
+  --color=spinner:#d87c4a
+  --color=pointer:#e5a72a
+  --color=header:#b14242
+  --color=border:#a7a7a7
+  --color=query:#d5d5d5
+  --color=gutter:#121212
+  --highlight-line
+  --info=inline-right
+  --layout=reverse
+  --pointer='█'
+  --scrollbar='▌'
+"
+export _ZO_FZF_OPTS="
+  $FZF_DEFAULT_OPTS
+  --height=50%
+  --preview 'ls --color=always {2..}'
+  --preview-window=down,border-top
+  --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
+  --bind 'ctrl-/:change-preview-window(right|hidden|)'"
+
+# opencode
+export PATH=/home/aileks/.opencode/bin:$PATH
