@@ -5,12 +5,6 @@ Arch setup built on Niri with the [Ashen](https://codeberg.org/ficd/ashen) color
 ## Quick Start
 
 ```bash
-curl -fsSL https://aileks.dev/dots | bash
-```
-
-Or manually:
-
-```bash
 git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup.sh
