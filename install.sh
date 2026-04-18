@@ -49,8 +49,7 @@ check_os() {
 # ============================================================
 
 PACMAN_PACKAGES=(
-  base-devel git curl wget
-  vim
+  curl wget vim
   openssh ufw man-db man-pages
   reflector pacman-contrib
   xdg-user-dirs
@@ -59,7 +58,7 @@ PACMAN_PACKAGES=(
   starship
   pipewire pipewire-pulse pipewire-alsa wireplumber
   pavucontrol pamixer playerctl
-  networkmanager
+  networkmanager bluez bluez-utils
   wezterm
   wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk
@@ -252,8 +251,14 @@ setup_services() {
   if systemctl is-enabled --quiet NetworkManager.service 2>/dev/null; then
     log_success "NetworkManager already enabled"
   else
-    sudo systemctl enable NetworkManager.service \
-      || record_error "Failed to enable NetworkManager"
+    sudo systemctl enable NetworkManager.service || record_error "Failed to enable NetworkManager"
+  fi
+
+  log_info "Enabling bluetooth..."
+  if systemctl is-enabled --quiet bluetooth.service 2>/dev/null; then
+    log_success "Bluetooth already enabled"
+  else
+    sudo systemctl enable bluetooth.service || record_error "Failed to enable NetworkManager"
   fi
 
   log_info "Configuring display manager..."
