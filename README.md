@@ -1,6 +1,6 @@
 # Arch Linux Dotfiles
 
-Arch setup built on Niri with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+Arch + COSMIC with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 
 ## Quick Start
 
