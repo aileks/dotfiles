@@ -53,7 +53,7 @@ check_os() {
 }
 
 # ============================================================
-# Bootstrap (curl usage)
+# Bootstrap
 # ============================================================
 
 bootstrap() {
@@ -95,7 +95,6 @@ bootstrap() {
     done
   fi
 
-  # Re-exec from the cloned copy so SCRIPT_DIR is correct
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     log_info "Restarting from cloned dotfiles..."
     exec bash "$DOTFILES_DIR/install.sh" < /dev/tty
@@ -286,6 +285,10 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/bat"           "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/bash/bashrc"   "$HOME/.bashrc"
   create_symlink "$SCRIPT_DIR/vim/vimrc"     "$HOME/.vimrc"
+
+  create_symlink "$SCRIPT_DIR/cosmic/com.system76.CosmicComp"               "$HOME/.config/cosmic/com.system76.CosmicComp"
+  create_symlink "$SCRIPT_DIR/cosmic/com.system76.CosmicSettings.Shortcuts"  "$HOME/.config/cosmic/com.system76.CosmicSettings.Shortcuts"
+  create_symlink "$SCRIPT_DIR/cosmic/com.system76.CosmicTk"                  "$HOME/.config/cosmic/com.system76.CosmicTk"
 }
 
 # ============================================================
