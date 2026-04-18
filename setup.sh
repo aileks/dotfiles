@@ -291,13 +291,8 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/bash/bashrc" "$HOME/.bashrc"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
+  create_symlink "$SCRIPT_DIR/cosmic" "$HOME/.config/cosmic"
 
-  for dir in "$SCRIPT_DIR"/cosmic/*/; do
-    [[ -d $dir ]] || continue
-    local target="$HOME/.config/cosmic/$(basename "$dir")"
-    [[ -d $target && ! -L $target ]] && rm -rf "$target"
-    create_symlink "$dir" "$target"
-  done
 }
 
 # ============================================================
