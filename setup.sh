@@ -112,7 +112,9 @@ bootstrap() {
 # ============================================================
 
 PACMAN_PACKAGES=(
-  curl wget vim
+  curl wget rsync
+  btrfs-assistant inotify-tools
+  vim snap-pac
   openssh ufw man-db man-pages
   reflector pacman-contrib
   xdg-user-dirs power-profiles-daemon
