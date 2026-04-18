@@ -13,7 +13,7 @@ export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 
 # General aliases
 alias ls="eza --color=always --icons --group-directories-first"
-alias ll="eza -al --color=always --icons --group-directories-first"
+alias la="eza -al --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
 alias rm="trash-put"
 alias c="clear"
@@ -35,14 +35,15 @@ alias gst="git status"
 alias glog="git log --oneline --decorate --graph"
 alias gsh="git stash"
 alias gsha="git stash apply"
+alias gcl="git clone"
 
 # Arch aliases
 alias pacin="sudo pacman -S"
 alias pacrem="sudo pacman -Rns"
 alias pacreps="pacman -Ss"
 alias pacls="pacman -Ql"
-alias yayi="yay -S"
-alias yays="yay -Ss"
+alias yayin="yay -S"
+alias yayreps="yay -Ss"
 alias update="yay -Syu"
 
 # FZF
