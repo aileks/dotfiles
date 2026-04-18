@@ -1,0 +1,77 @@
+[
+    (
+        output: (
+            name: "HDMI-A-1",
+            edid: Some((
+                manufacturer: ('A', 'C', 'R'),
+                product: 3782,
+                serial: Some(1413504669),
+                manufacture_week: 44,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("1cc7375"),
+    ),
+    (
+        output: (
+            name: "HDMI-A-1",
+            edid: Some((
+                manufacturer: ('A', 'C', 'R'),
+                product: 3782,
+                serial: Some(1413504669),
+                manufacture_week: 44,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("1fcec81"),
+    ),
+    (
+        output: (
+            name: "HDMI-A-1",
+            edid: Some((
+                manufacturer: ('A', 'C', 'R'),
+                product: 3782,
+                serial: Some(1413504669),
+                manufacture_week: 44,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("1e0c14a"),
+    ),
+    (
+        output: (
+            name: "HDMI-A-1",
+            edid: Some((
+                manufacturer: ('A', 'C', 'R'),
+                product: 3782,
+                serial: Some(1413504669),
+                manufacture_week: 44,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("1cf23fb"),
+    ),
+    (
+        output: (
+            name: "HDMI-A-1",
+            edid: Some((
+                manufacturer: ('A', 'C', 'R'),
+                product: 3782,
+                serial: Some(1413504669),
+                manufacture_week: 44,
+                manufacture_year: 2025,
+                model_year: None,
+            )),
+        ),
+        tiling_enabled: true,
+        id: Some("8fd477"),
+    ),
+]
