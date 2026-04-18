@@ -109,7 +109,7 @@ PACMAN_PACKAGES=(
   curl wget vim
   openssh ufw man-db man-pages
   reflector pacman-contrib
-  xdg-user-dirs
+  xdg-user-dirs power-profiles-daemon
   trash-cli shfmt jq
   fastfetch btop eza bat fd ripgrep fzf zoxide
   starship
