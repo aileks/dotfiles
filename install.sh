@@ -57,32 +57,20 @@ PACMAN_PACKAGES=(
   trash-cli shfmt jq
   fastfetch btop eza bat fd ripgrep fzf zoxide
   starship
-
-  pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
+  pipewire pipewire-pulse pipewire-alsa wireplumber
   pavucontrol pamixer playerctl
-  network-manager-applet blueman
-
+  networkmanager
   wezterm
   wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk
-  gnome-keyring
   libnotify
-
-  thunar thunar-volman thunar-archive-plugin
-  tumbler ffmpegthumbnailer
-  file-roller
-  gvfs gvfs-mtp gvfs-gphoto2 udiskie
-  yazi
-
-  ttf-jetbrains-mono-nerd
+  gvfs gvfs-mtp
   noto-fonts noto-fonts-emoji noto-fonts-cjk
   papirus-icon-theme
-
-  celluloid
+  cosmic cosmic-icon-theme
   signal-desktop
   bitwarden bitwarden-cli
-  code
-  calcurse
+  gnome-calendar
   solaar
 )
 
@@ -91,13 +79,12 @@ AUR_PACKAGES=(
   onlyoffice-bin
   fastmail
   notesnook-bin
-  bemoji
-  wiremix
-  ble-git
+  blesh-git
+  visual-studio-code-bin
 )
 
 # ============================================================
-# Yay (AUR helper)
+# AUR helper
 # ============================================================
 
 install_yay() {
@@ -260,6 +247,30 @@ setup_shell() {
   fi
 }
 
+setup_services() {
+  log_info "Enabling NetworkManager..."
+  if systemctl is-enabled --quiet NetworkManager.service 2>/dev/null; then
+    log_success "NetworkManager already enabled"
+  else
+    sudo systemctl enable NetworkManager.service \
+      || record_error "Failed to enable NetworkManager"
+  fi
+
+  log_info "Configuring display manager..."
+  local other_dm
+  other_dm=$(systemctl list-unit-files --state=enabled --type=service 2>/dev/null \
+    | awk '{print $1}' \
+    | grep -E '^(sddm|gdm|lightdm|lxdm)\.service$' \
+    | head -1)
+  if [[ -n $other_dm ]]; then
+    log_warning "Another display manager is enabled ($other_dm); skipping cosmic-greeter enable"
+  elif systemctl is-enabled --quiet cosmic-greeter.service 2>/dev/null; then
+    log_success "cosmic-greeter already enabled"
+  else
+    sudo systemctl enable cosmic-greeter.service || record_error "Failed to enable cosmic-greeter"
+  fi
+}
+
 setup_xdg_dirs() {
   if command_exists xdg-user-dirs-update; then
     xdg-user-dirs-update || record_error "Failed to update XDG user dirs"
@@ -274,7 +285,7 @@ main() {
   check_os
 
   echo -e "${LOG_RED}================================================================${LOG_NC}"
-  echo -e "${LOG_RED} WARNING: DESTRUCTION AHEAD!${LOG_NC}"
+  echo -e "${LOG_RED}      WARNING: DESTRUCTION AHEAD!${LOG_NC}"
   echo -e "${LOG_RED}================================================================${LOG_NC}"
   echo -e "${LOG_YELLOW}This will install packages, enable system services,"
   echo -e "and overwrite your dotfile symlinks.${LOG_NC}"
@@ -295,10 +306,11 @@ main() {
   setup_xdg_dirs
   symlink_configs
   setup_shell
+  setup_services
 
   echo
   log_success "═══════════════════════════════════════"
-  log_success "  Installation script finished!"
+  log_success "    Installation script finished!"
   log_success "═══════════════════════════════════════"
 
   if [[ -d $BACKUP_DIR ]] && [[ "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]]; then
