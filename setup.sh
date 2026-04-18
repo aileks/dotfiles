@@ -87,8 +87,12 @@ prompt_replace_repo() {
   echo
   echo "  1) Backup and replace"
   echo "  2) Cancel"
+  if [[ ! -r /dev/tty ]]; then
+    log_error "No TTY available; cannot prompt to replace repo. Aborting."
+    exit 1
+  fi
   while true; do
-    read -rp "Choice [1/2]: " choice
+    read -rp "Choice [1/2]: " choice < /dev/tty
     case "$choice" in
     1)
       mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"

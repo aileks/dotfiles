@@ -32,7 +32,12 @@ command_exists() { command -v "$1" &>/dev/null; }
 
 prompt_yes_no() {
   local prompt="$1" default="${2:-N}" reply
-  if ! read -r -p "$prompt [$default/y]: " reply; then reply="$default"; fi
+  if [[ ! -r /dev/tty ]]; then
+    log_warning "No TTY available; using default: $default"
+    [[ $default =~ ^[Yy]$ ]]
+    return
+  fi
+  if ! read -r -p "$prompt [$default/y]: " reply < /dev/tty; then reply="$default"; fi
   reply=${reply:-$default}
   [[ $reply =~ ^[Yy]$ ]]
 }
