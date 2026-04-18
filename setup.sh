@@ -21,10 +21,10 @@ declare -a SETUP_ERRORS=()
 # Logging
 # ============================================================
 
-log_info()    { echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
+log_info() { echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
 log_success() { echo -e "${LOG_GREEN}[OK]${LOG_NC} $1"; }
 log_warning() { echo -e "${LOG_YELLOW}[WARN]${LOG_NC} $1"; }
-log_error()   { echo -e "${LOG_RED}[ERROR]${LOG_NC} $1"; }
+log_error() { echo -e "${LOG_RED}[ERROR]${LOG_NC} $1"; }
 
 record_error() {
   log_error "$1"
@@ -40,7 +40,7 @@ prompt_yes_no() {
     [[ $default =~ ^[Yy]$ ]]
     return
   fi
-  if ! read -r -p "$prompt [$default/y]: " reply < /dev/tty; then reply="$default"; fi
+  if ! read -r -p "$prompt [$default/y]: " reply </dev/tty; then reply="$default"; fi
   reply=${reply:-$default}
   [[ $reply =~ ^[Yy]$ ]]
 }
@@ -59,7 +59,10 @@ check_os() {
 bootstrap() {
   log_info "Ensuring git is installed..."
   if ! command_exists git; then
-    sudo pacman -S --needed --noconfirm git || { log_error "Failed to install git"; exit 1; }
+    sudo pacman -S --needed --noconfirm git || {
+      log_error "Failed to install git"
+      exit 1
+    }
     log_success "git installed"
   else
     log_success "git already installed"
@@ -69,8 +72,8 @@ bootstrap() {
     log_info "Updating existing dotfiles repository..."
     git -C "$DOTFILES_DIR" fetch origin &>/dev/null || log_warning "Fetch failed, using local copy"
     local branch
-    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null \
-      | sed 's@^refs/remotes/origin/@@' || echo "main")
+    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null |
+      sed 's@^refs/remotes/origin/@@' || echo "main")
     local local_ref remote_ref
     local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2>/dev/null || echo "")
     remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2>/dev/null || echo "")
@@ -91,13 +94,16 @@ bootstrap() {
       log_warning "Clone failed (attempt $i/3)"
       [[ $i -lt 3 ]] && sleep 5
       i=$((i + 1))
-      [[ $i -gt 3 ]] && { log_error "Failed to clone after 3 attempts"; exit 1; }
+      [[ $i -gt 3 ]] && {
+        log_error "Failed to clone after 3 attempts"
+        exit 1
+      }
     done
   fi
 
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     log_info "Restarting from cloned dotfiles..."
-    exec bash "$DOTFILES_DIR/install.sh" < /dev/tty
+    exec bash "$DOTFILES_DIR/install.sh" </dev/tty
   fi
 }
 
@@ -234,8 +240,8 @@ install_data_tools() {
   fi
 
   if bash "$installer" -b -p "$MINIFORGE_PREFIX"; then
-    "$MINIFORGE_PREFIX/bin/conda" config --set auto_activate_base false \
-      || record_error "Failed to configure conda auto-activate"
+    "$MINIFORGE_PREFIX/bin/conda" config --set auto_activate_base false ||
+      record_error "Failed to configure conda auto-activate"
     log_success "Miniforge installed"
   else
     record_error "Failed to install Miniforge"
@@ -279,16 +285,19 @@ symlink_configs() {
   log_info "Creating config symlinks..."
   mkdir -p "$HOME/.config"
 
-  create_symlink "$SCRIPT_DIR/btop"          "$HOME/.config/btop"
-  create_symlink "$SCRIPT_DIR/wezterm"       "$HOME/.config/wezterm"
-  create_symlink "$SCRIPT_DIR/fastfetch"     "$HOME/.config/fastfetch"
-  create_symlink "$SCRIPT_DIR/bat"           "$HOME/.config/bat"
-  create_symlink "$SCRIPT_DIR/bash/bashrc"   "$HOME/.bashrc"
-  create_symlink "$SCRIPT_DIR/vim/vimrc"     "$HOME/.vimrc"
+  create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
+  create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
+  create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
+  create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
+  create_symlink "$SCRIPT_DIR/bash/bashrc" "$HOME/.bashrc"
+  create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
 
-  create_symlink "$SCRIPT_DIR/cosmic/com.system76.CosmicComp"               "$HOME/.config/cosmic/com.system76.CosmicComp"
-  create_symlink "$SCRIPT_DIR/cosmic/com.system76.CosmicSettings.Shortcuts"  "$HOME/.config/cosmic/com.system76.CosmicSettings.Shortcuts"
-  create_symlink "$SCRIPT_DIR/cosmic/com.system76.CosmicTk"                  "$HOME/.config/cosmic/com.system76.CosmicTk"
+  for dir in "$SCRIPT_DIR"/cosmic/*/; do
+    [[ -d $dir ]] || continue
+    local target="$HOME/.config/cosmic/$(basename "$dir")"
+    [[ -d $target && ! -L $target ]] && rm -rf "$target"
+    create_symlink "$dir" "$target"
+  done
 }
 
 # ============================================================
@@ -323,10 +332,10 @@ setup_services() {
 
   log_info "Configuring display manager..."
   local other_dm
-  other_dm=$(systemctl list-unit-files --state=enabled --type=service 2>/dev/null \
-    | awk '{print $1}' \
-    | grep -E '^(sddm|gdm|lightdm|lxdm)\.service$' \
-    | head -1)
+  other_dm=$(systemctl list-unit-files --state=enabled --type=service 2>/dev/null |
+    awk '{print $1}' |
+    grep -E '^(sddm|gdm|lightdm|lxdm)\.service$' |
+    head -1)
   if [[ -n $other_dm ]]; then
     log_warning "Another display manager is enabled ($other_dm); skipping cosmic-greeter enable"
   elif systemctl is-enabled --quiet cosmic-greeter.service 2>/dev/null; then
