@@ -232,7 +232,6 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/fastfetch"     "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/bat"           "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/bash/bashrc"   "$HOME/.bashrc"
-  create_symlink "$SCRIPT_DIR/git/gitconfig" "$HOME/.gitconfig"
   create_symlink "$SCRIPT_DIR/vim/vimrc"     "$HOME/.vimrc"
 }
 
