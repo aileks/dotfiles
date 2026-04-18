@@ -22,7 +22,7 @@ This installer will:
   3. Run the full install script
 
 Usage:
-  curl -fsSL https://aileks.dev/arch | bash
+  curl -fsSL https://aileks.dev/linux | bash
   # or locally:
   ./setup.sh [-h|--help]
 EOF
