@@ -28,7 +28,7 @@ record_error() {
   SETUP_ERRORS+=("$1")
 }
 
-command_exists()   { command -v "$1" &>/dev/null; }
+command_exists() { command -v "$1" &>/dev/null; }
 
 prompt_yes_no() {
   local prompt="$1" default="${2:-N}" reply
@@ -50,61 +50,50 @@ check_os() {
 
 PACMAN_PACKAGES=(
   base-devel git curl wget
-  zsh tmux vim satty
+  vim
   openssh ufw man-db man-pages
   reflector pacman-contrib
   xdg-user-dirs
   trash-cli shfmt jq
   fastfetch btop eza bat fd ripgrep fzf zoxide
+  starship
 
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   pavucontrol pamixer playerctl
   network-manager-applet blueman
 
-  niri xorg-xwayland xwayland-satellite
-  wezterm nwg-look
-  fuzzel mako swaybg swaylock swayidle
-  waybar
-  grim slurp wl-clipboard
-  xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
-  polkit-gnome
+  wezterm
+  wl-clipboard
+  xdg-desktop-portal xdg-desktop-portal-gtk
   gnome-keyring
-  libnotify gammastep
-  brightnessctl
-  ly
+  libnotify
 
   thunar thunar-volman thunar-archive-plugin
   tumbler ffmpegthumbnailer
   file-roller
   gvfs gvfs-mtp gvfs-gphoto2 udiskie
   yazi
-  imv qalculate-gtk zathura zathura-pdf-mupdf
-  wf-recorder
-  solaar
 
   ttf-jetbrains-mono-nerd
   noto-fonts noto-fonts-emoji noto-fonts-cjk
   papirus-icon-theme
-  qt5ct qt6ct kvantum
 
   celluloid
   signal-desktop
   bitwarden bitwarden-cli
   code
   calcurse
+  solaar
 )
 
 AUR_PACKAGES=(
   zen-browser-bin
   onlyoffice-bin
-  wlogout
   fastmail
   notesnook-bin
   bemoji
   wiremix
-  zplug
-  adw-gtk-theme
-  nwg-look-bin
+  ble-git
 )
 
 # ============================================================
@@ -168,13 +157,6 @@ install_aur_packages() {
   log_success "AUR packages installed"
 }
 
-setup_ly() {
-  log_info "Enabling system services..."
-  sudo systemctl disable getty@tty2.service
-  sudo systemctl enable ly@tty2.service
-}
-
-
 # ============================================================
 # Data Tools
 # ============================================================
@@ -219,24 +201,6 @@ install_data_tools() {
 }
 
 # ============================================================
-# Zsh Setup
-# ============================================================
-
-install_zsh_setup() {
-  log_info "Checking ashen_zsh_syntax_highlighting..."
-  local plugins_dir="$HOME/.zsh/plugins"
-  mkdir -p "$plugins_dir"
-  if [[ ! -f "$plugins_dir/ashen_zsh_syntax_highlighting.zsh" ]]; then
-    if ! curl -fsSL "https://codeberg.org/ficd/ashen/raw/branch/main/zsh/ashen_zsh_syntax_highlighting.zsh" \
-      -o "$plugins_dir/ashen_zsh_syntax_highlighting.zsh"; then
-      record_error "Failed to download ashen_zsh_syntax_highlighting"
-    fi
-  else
-    log_success "ashen_zsh_syntax_highlighting already present"
-  fi
-}
-
-# ============================================================
 # Symlinks
 # ============================================================
 
@@ -272,126 +236,27 @@ symlink_configs() {
   log_info "Creating config symlinks..."
   mkdir -p "$HOME/.config"
 
-  create_symlink "$SCRIPT_DIR/niri"      "$HOME/.config/niri"
-  create_symlink "$SCRIPT_DIR/waybar"    "$HOME/.config/waybar"
-  create_symlink "$SCRIPT_DIR/mako"      "$HOME/.config/mako"
-  create_symlink "$SCRIPT_DIR/fuzzel"    "$HOME/.config/fuzzel"
-  create_symlink "$SCRIPT_DIR/swaylock"  "$HOME/.config/swaylock"
-  create_symlink "$SCRIPT_DIR/btop"      "$HOME/.config/btop"
-  create_symlink "$SCRIPT_DIR/wezterm"   "$HOME/.config/wezterm"
-  create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
-  create_symlink "$SCRIPT_DIR/bat"       "$HOME/.config/bat"
-  create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+  create_symlink "$SCRIPT_DIR/btop"          "$HOME/.config/btop"
+  create_symlink "$SCRIPT_DIR/wezterm"       "$HOME/.config/wezterm"
+  create_symlink "$SCRIPT_DIR/fastfetch"     "$HOME/.config/fastfetch"
+  create_symlink "$SCRIPT_DIR/bat"           "$HOME/.config/bat"
+  create_symlink "$SCRIPT_DIR/bash/bashrc"   "$HOME/.bashrc"
   create_symlink "$SCRIPT_DIR/git/gitconfig" "$HOME/.gitconfig"
-  create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
-  create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
-}
-
-# ============================================================
-# Systemd user units
-# ============================================================
-
-install_systemd_units() {
-  local src_dir="$SCRIPT_DIR/systemd"
-  local dest_dir="$HOME/.config/systemd/user"
-
-  if [[ ! -d $src_dir ]]; then
-    log_warning "No systemd/ directory found; skipping user units"
-    return 0
-  fi
-
-  log_info "Linking systemd user units..."
-  mkdir -p "$dest_dir"
-
-  shopt -s nullglob
-  local unit_files=("$src_dir"/*.service "$src_dir"/*.target "$src_dir"/*.timer "$src_dir"/*.socket)
-  shopt -u nullglob
-
-  if [[ ${#unit_files[@]} -eq 0 ]]; then
-    log_warning "systemd/ is empty; skipping"
-    return 0
-  fi
-
-  local enabled_any=0
-  for unit in "${unit_files[@]}"; do
-    local name; name=$(basename "$unit")
-    create_symlink "$unit" "$dest_dir/$name"
-    enabled_any=1
-  done
-
-  if [[ $enabled_any -eq 1 ]]; then
-    systemctl --user daemon-reload || record_error "systemctl --user daemon-reload failed"
-    for unit in "${unit_files[@]}"; do
-      local name; name=$(basename "$unit")
-      [[ $name == *.service ]] || continue
-      if systemctl --user is-enabled --quiet "$name" 2>/dev/null; then
-        log_success "$name already enabled"
-      else
-        if ! systemctl --user enable "$name"; then
-          record_error "Failed to enable user unit: $name"
-        else
-          log_success "Enabled $name (will start with graphical-session.target)"
-        fi
-      fi
-    done
-  fi
-}
-
-# ============================================================
-# xdg-desktop-portal configuration
-# ============================================================
-
-install_portal_config() {
-  local src_dir="$SCRIPT_DIR/portals"
-  local dest_dir="$HOME/.config/xdg-desktop-portal"
-
-  if [[ ! -d $src_dir ]]; then
-    log_warning "No portals/ directory found; skipping portal config"
-    return 0
-  fi
-
-  log_info "Linking xdg-desktop-portal config..."
-  mkdir -p "$dest_dir"
-
-  shopt -s nullglob
-  local confs=("$src_dir"/*.conf)
-  shopt -u nullglob
-
-  if [[ ${#confs[@]} -eq 0 ]]; then
-    log_warning "portals/ is empty; skipping"
-    return 0
-  fi
-
-  for conf in "${confs[@]}"; do
-    create_symlink "$conf" "$dest_dir/$(basename "$conf")"
-  done
+  create_symlink "$SCRIPT_DIR/vim/vimrc"     "$HOME/.vimrc"
 }
 
 # ============================================================
 # Misc finalization
 # ============================================================
 
-install_tpm() {
-  local tpm_dir="$HOME/.tmux/plugins/tpm"
-  if [[ -d $tpm_dir ]]; then
-    log_success "tpm already installed"
-    return 0
-  fi
-  log_info "Installing Tmux Plugin Manager..."
-  mkdir -p "$HOME/.tmux/plugins"
-  if ! git clone https://github.com/tmux-plugins/tpm "$tpm_dir"; then
-    record_error "Failed to clone tpm"
-  fi
-}
-
 setup_shell() {
   log_info "Checking default shell..."
-  if [[ $SHELL == *"zsh"* ]]; then
-    log_success "Default shell is already zsh"
+  if [[ $SHELL == *"bash"* ]]; then
+    log_success "Default shell is already bash"
     return 0
   fi
-  if ! chsh -s "$(command -v zsh)"; then
-    record_error "Failed to change shell to zsh"
+  if ! chsh -s "$(command -v bash)"; then
+    record_error "Failed to change shell to bash"
   fi
 }
 
@@ -409,7 +274,7 @@ main() {
   check_os
 
   echo -e "${LOG_RED}================================================================${LOG_NC}"
-  echo -e "${LOG_RED} WARNING: ONE-SHOT DEPLOYMENT INITIATED${LOG_NC}"
+  echo -e "${LOG_RED} WARNING: DESTRUCTION AHEAD!${LOG_NC}"
   echo -e "${LOG_RED}================================================================${LOG_NC}"
   echo -e "${LOG_YELLOW}This will install packages, enable system services,"
   echo -e "and overwrite your dotfile symlinks.${LOG_NC}"
@@ -426,14 +291,9 @@ main() {
   install_pacman_packages
   install_yay
   install_aur_packages
-  setup_ly
   install_data_tools
   setup_xdg_dirs
-  install_zsh_setup
   symlink_configs
-  install_portal_config
-  install_systemd_units
-  install_tpm
   setup_shell
 
   echo
@@ -452,9 +312,6 @@ main() {
       echo -e "  - $err"
     done
     echo -e "${LOG_YELLOW}Review the errors; manual intervention may be needed.${LOG_NC}"
-  else
-    echo
-    log_success "Zero errors encountered. Reboot to pick up Ly + niri session."
   fi
 }
 
