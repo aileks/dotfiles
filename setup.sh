@@ -120,8 +120,8 @@ PACMAN_PACKAGES=(
   wezterm
   wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk
-  libnotify
-  gvfs gvfs-mtp
+  libnotify upower
+  gvfs gvfs-mtp ffmpeg
   noto-fonts noto-fonts-emoji noto-fonts-cjk
   papirus-icon-theme
   cosmic cosmic-icon-theme
