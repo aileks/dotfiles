@@ -3,6 +3,12 @@ function Test-Command {
     return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Update-SessionPath {
+    $machine = [Environment]::GetEnvironmentVariable('Path', 'Machine')
+    $user = [Environment]::GetEnvironmentVariable('Path', 'User')
+    $env:PATH = "$machine;$user"
+}
+
 function Confirm-Prompt {
     param(
         [string]$Prompt,

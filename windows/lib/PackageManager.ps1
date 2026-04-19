@@ -40,6 +40,7 @@ function Install-GitIfNeeded {
     Log-Info "Installing git via winget..."
     winget install --id Git.Git -e --source winget --silent --disable-interactivity `
                    --accept-source-agreements --accept-package-agreements | Out-Null
+    Update-SessionPath
     if ($LASTEXITCODE -eq 0 -and (Test-Command git)) {
         Log-Success "git installed"
         return $true
@@ -53,6 +54,7 @@ function Install-GitIfNeeded {
         Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
         Start-Process -FilePath $installer -ArgumentList '/VERYSILENT', '/NORESTART', '/NOCANCEL', '/SP-', '/CLOSEAPPLICATIONS', '/RESTARTAPPLICATIONS' -Wait
         Remove-Item $installer -Force -ErrorAction SilentlyContinue
+        Update-SessionPath
     } catch {
         Record-Error "Failed to install git: $_"
         return $false
