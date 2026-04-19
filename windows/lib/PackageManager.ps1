@@ -93,6 +93,12 @@ function Install-WingetPackage {
         [string]$Id
     )
 
+    winget list --id $Id --exact --accept-source-agreements | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Log-Success "$Name already installed"
+        return
+    }
+
     Log-Info "Installing $Name via winget ($Id)..."
     winget install --id $Id --exact --silent --disable-interactivity `
                    --accept-source-agreements --accept-package-agreements | Out-Null
@@ -108,6 +114,12 @@ function Install-ScoopPackage {
         [string]$Name,
         [string]$Package
     )
+
+    $installed = scoop list $Package 2>$null
+    if ($installed -match $Package) {
+        Log-Success "$Name already installed"
+        return
+    }
 
     Log-Info "Installing $Name via scoop ($Package)..."
     scoop install $Package | Out-Null
