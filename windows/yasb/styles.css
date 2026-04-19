@@ -1,0 +1,88 @@
+/* Ashen theme for YASB */
+
+:root {
+    --bg: #121212;
+    --bg-surface: #1d1d1d;
+    --bg-elevated: #212121;
+    --border: #323232;
+    --fg: #d5d5d5;
+    --fg-muted: #a7a7a7;
+    --fg-dim: #737373;
+    --accent-orange: #d87c4a;
+    --accent-ember: #b14242;
+    --accent-gold: #e5a72a;
+    --accent-teal: #4a8b8b;
+}
+
+* {
+    font-family: "CommitMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 12px;
+}
+
+.yasb-bar {
+    background-color: var(--bg);
+    border-bottom: 1px solid var(--border);
+    color: var(--fg);
+    padding: 0 4px;
+}
+
+/* Workspaces */
+.widget-komorebi-workspaces {
+    padding: 0 8px;
+}
+.widget-komorebi-workspaces .workspace {
+    padding: 2px 8px;
+    margin: 0 1px;
+    border-radius: 4px;
+    color: var(--fg-dim);
+    background-color: transparent;
+}
+.widget-komorebi-workspaces .workspace.active {
+    color: var(--accent-orange);
+    background-color: var(--bg-elevated);
+    font-weight: bold;
+}
+.widget-komorebi-workspaces .workspace.populated {
+    color: var(--fg-muted);
+}
+.widget-komorebi-workspaces .workspace.active.populated {
+    color: var(--accent-orange);
+}
+
+/* Layout */
+.widget-komorebi-layout {
+    padding: 0 8px;
+    color: var(--fg-dim);
+    font-size: 11px;
+}
+
+/* Active window */
+.widget-active-windows-title {
+    padding: 0 12px;
+    color: var(--fg-muted);
+}
+
+/* Clock */
+.widget-clock {
+    padding: 0 12px;
+    color: var(--fg);
+    font-weight: bold;
+}
+
+/* Volume */
+.widget-volume {
+    padding: 0 8px;
+    color: var(--fg-muted);
+}
+
+/* Battery */
+.widget-battery {
+    padding: 0 8px;
+    color: var(--fg-muted);
+}
+
+/* Power menu */
+.widget-power-menu {
+    padding: 0 4px;
+    color: var(--fg-dim);
+}

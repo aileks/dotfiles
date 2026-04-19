@@ -1,0 +1,118 @@
+watch_stylesheet: true
+watch_config: true
+debug: false
+update_check: true
+show_systray: true
+
+komorebi:
+  start_command: "komorebic start --whkd --bar"
+  stop_command: "komorebic stop --whkd --bar"
+  reload_command: "komorebic reload-configuration"
+
+bars:
+  status-bar:
+    enabled: true
+    screens: ["*"]
+    class_name: "yasb-bar"
+    alignment:
+      position: "top"
+      align: "center"
+    blur_effect:
+      enabled: true
+      acrylic: false
+      dark_mode: true
+      round_corners: false
+      border_color: "system"
+    window_flags:
+      always_on_top: false
+      windows_app_bar: true
+      hide_on_fullscreen: false
+    dimensions:
+      width: "100%"
+      height: 36
+    padding:
+      top: 4
+      left: 8
+      bottom: 4
+      right: 8
+    animation:
+      enabled: true
+      duration: 500
+    widgets:
+      left: ["komorebi_workspaces", "komorebi_layout", "active_window"]
+      center: ["clock"]
+      right: ["volume", "battery", "power_menu"]
+    layouts:
+      left:
+        alignment: "left"
+        stretch: true
+      center:
+        alignment: "center"
+        stretch: true
+      right:
+        alignment: "right"
+        stretch: true
+
+widgets:
+  komorebi_workspaces:
+    type: "komorebi.KomorebiWorkspaces"
+    options:
+      hide_empty_workspaces: false
+      label_zero: "○"
+      label_nonzero: "●"
+      tooltip: true
+
+  komorebi_layout:
+    type: "komorebi.KomorebiLayout"
+    options:
+      hide_if_offline: true
+
+  active_window:
+    type: "active_windows_title.ActiveWindowsTitle"
+    options:
+      max_length: 50
+      show_icon: true
+
+  clock:
+    type: "clock.Clock"
+    options:
+      format: "%a %b %d  %H:%M"
+      tooltip: true
+
+  volume:
+    type: "volume.Volume"
+    options:
+      label_unmuted: "󰕾 {volume}%"
+      label_muted: "󰖁 Muted"
+
+  battery:
+    type: "battery.Battery"
+    options:
+      label_charging: "󰂄 {percent}%"
+      label_discharging: "󰁹 {percent}%"
+      label_full: "󰁹 Full"
+
+  power_menu:
+    type: "power_menu.PowerMenu"
+    options:
+      blur: true
+      blur_dilation: 25
+      blur_intensity: 10
+      animation_duration: 200
+      button_row_gap: 16
+      buttons:
+        lock:
+          text: " 󰌾  Lock  "
+          action: "lock"
+        sleep:
+          text: " 󰤄  Sleep  "
+          action: "sleep"
+        signout:
+          text: " 󰗽  Sign Out  "
+          action: "signout"
+        restart:
+          text: " 󰜉  Restart  "
+          action: "restart"
+        shutdown:
+          text: " 󰐥  Shut Down  "
+          action: "shutdown"
