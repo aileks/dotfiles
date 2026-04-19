@@ -62,22 +62,43 @@ function Set-RegistryValue {
 }
 
 function Hide-Taskbar {
-    Log-Info "Auto-hiding taskbar..."
-    try {
-        $path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3'
-        if (Test-Path $path) {
-            $settings = (Get-ItemProperty $path).Settings
+    Log-Info "Configuring taskbar..."
+
+    # Auto-hide taskbar via StuckRects3
+    $stuckPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3'
+    if (Test-Path $stuckPath) {
+        try {
+            $settings = (Get-ItemProperty $stuckPath).Settings
             $settings[8] = 3
-            Set-ItemProperty $path -Name Settings -Value $settings
+            Set-ItemProperty $stuckPath -Name Settings -Value $settings -ErrorAction Stop
+        } catch {
+            Log-Warn "Could not set taskbar auto-hide: $_"
         }
-        $advPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
-        Set-RegistryValue $advPath TaskbarDa 0
-        Set-RegistryValue $advPath TaskbarMn 0
-        Set-RegistryValue $advPath ShowCopilotButton 0
-        Log-Success "Taskbar hidden, widgets/copilot disabled"
-    } catch {
-        Record-Error "Failed to hide taskbar: $_"
     }
+
+    # Disable Chat and Task View buttons
+    $advPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
+    try {
+        Set-ItemProperty $advPath -Name TaskbarMn -Value 0 -ErrorAction Stop
+    } catch {
+        Log-Warn "Could not disable Chat button: $_"
+    }
+    try {
+        Set-ItemProperty $advPath -Name ShowTaskViewButton -Value 0 -ErrorAction Stop
+    } catch {
+        Log-Warn "Could not disable Task View button: $_"
+    }
+
+    # Remove Widgets and Copilot via AppxPackage (avoids SYSTEM-owned registry keys)
+    Get-Process *Widget* -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Get-AppxPackage Microsoft.WidgetsPlatformRuntime -AllUsers -ErrorAction SilentlyContinue |
+        Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
+    Get-AppxPackage MicrosoftWindows.Client.WebExperience -AllUsers -ErrorAction SilentlyContinue |
+        Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
+    Get-AppxPackage -AllUsers *Copilot* -ErrorAction SilentlyContinue |
+        Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
+
+    Log-Success "Taskbar configured, widgets/copilot removed"
 }
 
 function Disable-WinLock {

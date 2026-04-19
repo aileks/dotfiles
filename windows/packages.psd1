@@ -5,7 +5,7 @@
     yasb        = 'AmN.yasb'
 
     # Terminal
-    wezterm     = 'wez.wezterm'
+    windowsterminal = 'Microsoft.WindowsTerminal'
 
     # Shell
     starship    = 'Starship.Starship'

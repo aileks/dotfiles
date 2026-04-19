@@ -64,17 +64,10 @@ function New-ConfigLinks {
         @{ Src = 'yasb\config.yaml';                  Tgt = "$HOME\.config\yasb\config.yaml" }
         @{ Src = 'yasb\styles.css';                   Tgt = "$HOME\.config\yasb\styles.css" }
         @{ Src = 'profiles\Microsoft.PowerShell_profile.ps1'; Tgt = "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1" }
-        @{ Src = 'wezterm\wezterm.lua';               Tgt = "$HOME\.config\wezterm\wezterm.lua" }
         @{ Src = 'fastfetch\config.jsonc';            Tgt = "$HOME\.config\fastfetch\config.jsonc" }
         @{ Src = 'bat\config';                        Tgt = "$HOME\.config\bat\config" }
         @{ Src = 'starship\starship.toml';             Tgt = "$HOME\.config\starship.toml" }
     )
-
-    # Shared ashen.lua from repo root
-    $ashenSrc = Join-Path -Path $DotfilesDir -ChildPath 'wezterm\ashen.lua'
-    if (Test-Path $ashenSrc) {
-        $links += @{ Src = ''; Tgt = "$HOME\.config\wezterm\ashen.lua"; AbsoluteSrc = $ashenSrc }
-    }
 
     foreach ($link in $links) {
         $src = if ($link.AbsoluteSrc) { $link.AbsoluteSrc } else { Join-Path -Path $ScriptDir -ChildPath $link.Src }
@@ -85,147 +78,41 @@ function New-ConfigLinks {
 # -- Phase 5: Autostart ----------------------------------------
 
 function Register-Autostart {
-    Log-Info "Setting up autostart..."
-
-    $startupDir = [System.Environment]::GetFolderPath('Startup')
-    $startupScript = Join-Path -Path $startupDir -ChildPath 'komorebi-startup.ps1'
-
-    $content = @'
-# Komorebi + whkd + yasb autostart
-komorebic start --whkd --bar
-Start-Process yasb -WindowStyle Hidden
-'@
-
-    Set-Content -Path $startupScript -Value $content -Encoding UTF8
-
-    $shell = if (Test-Command pwsh) { 'pwsh.exe' } else { 'powershell.exe' }
-
-    $ws = New-Object -ComObject WScript.Shell
-    $shortcut = $ws.CreateShortcut((Join-Path -Path $startupDir -ChildPath 'komorebi.lnk'))
-    $shortcut.TargetPath = $shell
-    $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$startupScript`""
-    $shortcut.WorkingDirectory = $HOME
-    $shortcut.Save()
-
-    Log-Success "Autostart shortcut created"
+    Log-Info "Setting up komorebi autostart..."
+    try {
+        komorebic enable-autostart --whkd
+        Log-Success "Komorebi autostart enabled"
+    } catch {
+        Record-Error "Failed to enable komorebi autostart: $_"
+    }
 }
 
-# -- Phase 6: WSL + Arch Linux ---------------------------------
+# -- Phase 6: WSL ---------------------------------
 
-function Install-WSLArch {
-    Log-Info "Setting up WSL..."
+function Enable-WSL {
+    Log-Info "Enabling WSL..."
 
-    # Check if WSL is already enabled
     $wslEnabled = $false
     try {
         $null = wsl --status 2>$null
         $wslEnabled = $true
     } catch {}
 
-    if (-not $wslEnabled) {
-        Log-Info "Enabling WSL..."
-        try {
-            wsl --install --no-distribution 2>$null
-            if ($LASTEXITCODE -ne 0) {
-                dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 2>$null
-                dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart 2>$null
-            }
-            Log-Success "WSL features enabled; reboot may be required"
-        } catch {
-            Record-Error "Failed to enable WSL: $_"
-            return
-        }
-    } else {
+    if ($wslEnabled) {
         Log-Success "WSL already enabled"
-    }
-
-    wsl --set-default-version 2 2>$null
-
-    # Check if Arch is already installed
-    $distributions = wsl --list --quiet 2>$null
-    if ($distributions -match 'Arch') {
-        Log-Success "Arch WSL already installed"
         return
     }
 
-    Log-Info "Installing Arch Linux..."
     try {
-        wsl --install -d Arch 2>$null
-        if ($LASTEXITCODE -eq 0) {
-            Log-Success "Arch WSL installed"
-        } else {
-            # Fallback for LTSC / no Store: manual import
-            Log-Warn "Store install failed, trying manual import..."
-            $tmpDir = "$env:TEMP\arch-wsl"
-            New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null
-
-            $url = 'https://geo.mirror.pkgbuild.com/iso/latest/archlinux-wsl-x86_64.tar.zst'
-            $tarball = Join-Path -Path $tmpDir -ChildPath 'arch-rootfs.tar.zst'
-
-            Log-Info "Downloading Arch rootfs..."
-            Invoke-WebRequest -Uri $url -OutFile $tarball -UseBasicParsing
-
-            $installDir = "$HOME\WSL\Arch"
-            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
-            wsl --import Arch $installDir $tarball 2>$null
-
-            if ($LASTEXITCODE -eq 0) {
-                Log-Success "Arch WSL imported manually"
-            } else {
-                Record-Error "Failed to import Arch WSL"
-            }
-
-            Remove-Item $tmpDir -Recurse -Force 2>$null
+        wsl --install --no-distribution 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 2>$null
+            dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart 2>$null
         }
+        wsl --set-default-version 2 2>$null
+        Log-Success "WSL features enabled; reboot may be required"
     } catch {
-        Record-Error "Arch WSL installation failed: $_"
-    }
-
-    # Basic Arch setup
-    $setupScript = @'
-pacman-key --init
-pacman-key --populate archlinux
-pacman -Syu --noconfirm
-pacman -S --noconfirm --needed base-devel sudo
-'@
-
-    Log-Info "Running initial Arch setup..."
-    try {
-        wsl -d Arch -- bash -c $setupScript 2>$null
-        Log-Success "Arch base system configured"
-    } catch {
-        Log-Warn "Could not run Arch setup; may need reboot first: $_"
-    }
-
-    # Prompt for username
-    $username = Read-Host "Enter username for Arch WSL, or press Enter to skip"
-    if ($username) {
-        $userScript = @"
-useradd -m -G wheel -s /bin/bash $username
-echo '$username ALL=(ALL:ALL) ALL' >> /etc/sudoers.d/$username
-"@
-        wsl -d Arch -- bash -c $userScript 2>$null
-
-        # Set password
-        Log-Info "Setting password for $username..."
-        wsl -d Arch -- bash -c "passwd $username" 2>$null
-
-        # Create wsl.conf
-        $wslConf = @"
-[user]
-default=$username
-
-[boot]
-systemd=true
-
-[interop]
-enabled=true
-appendWindowsPath=true
-"@
-        $wslConf | wsl -d Arch -- bash -c 'cat > /etc/wsl.conf'
-        wsl --terminate Arch 2>$null
-
-        Log-Success "Arch user '$username' created and set as default"
+        Record-Error "Failed to enable WSL: $_"
     }
 }
 
@@ -293,10 +180,8 @@ function Main {
     # Phase 6: autostart
     Register-Autostart
 
-    # Phase 7: WSL + Arch
-    if (Confirm-Prompt "Install Arch Linux on WSL2?" "Y") {
-        Install-WSLArch
-    }
+    # Phase 7: WSL
+    Enable-WSL
 
     # Phase 8: summary
     Show-Summary

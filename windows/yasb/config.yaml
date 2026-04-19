@@ -59,7 +59,7 @@ widgets:
       round_corners_type: "normal"
 
   komorebi_workspaces:
-    type: "komorebi.KomorebiWorkspaces"
+    type: "komorebi.workspaces.WorkspaceWidget"
     options:
       hide_empty_workspaces: false
       label_zero: "\u25cb"
@@ -67,7 +67,7 @@ widgets:
       tooltip: true
 
   komorebi_layout:
-    type: "komorebi.KomorebiLayout"
+    type: "komorebi.active_layout.ActiveLayoutWidget"
     options:
       hide_if_offline: true
 
@@ -131,11 +131,11 @@ widgets:
         max_artist_size: 40
         show_source: true
         show_volume_slider: true
-        media_menu_icons:
-          play: "\uF04B"
-          pause: "\uF04C"
-          prev_track: "\uF048"
-          next_track: "\uF051"
+      media_menu_icons:
+        play: "\uF04B"
+        pause: "\uF04C"
+        prev_track: "\uF048"
+        next_track: "\uF051"
       scrolling_label:
         enabled: false
         update_interval_ms: 13
@@ -354,7 +354,7 @@ widgets:
       show_network: true
 
   power_menu:
-    type: "power_menu.PowerMenu"
+    type: "yasb.power_menu.PowerMenuWidget"
     options:
       blur: true
       blur_dilation: 25
