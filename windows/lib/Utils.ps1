@@ -26,7 +26,7 @@ function Backup-File {
         New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
     }
 
-    $dest = Join-Path $backupDir (Split-Path $Path -Leaf)
+    $dest = Join-Path -Path $backupDir -ChildPath (Split-Path $Path -Leaf)
     Move-Item -Path $Path -Destination $dest -Force
     Log-Info "Backed up $Path -> $dest"
 }

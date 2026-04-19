@@ -23,10 +23,10 @@ $DotfilesDir = if ($ScriptDir -match '\\windows$') { Split-Path $ScriptDir } els
 $DotfilesRepo = 'https://codeberg.org/aileks/dotfiles.git'
 
 # -- Dot-source libraries -------------------------------------
-. (Join-Path $ScriptDir 'lib' 'Logging.ps1')
-. (Join-Path $ScriptDir 'lib' 'Utils.ps1')
-. (Join-Path $ScriptDir 'lib' 'PackageManager.ps1')
-. (Join-Path $ScriptDir 'lib' 'Tweaks.ps1')
+. "$ScriptDir\lib\Logging.ps1"
+. "$ScriptDir\lib\Utils.ps1"
+. "$ScriptDir\lib\PackageManager.ps1"
+. "$ScriptDir\lib\Tweaks.ps1"
 
 # -- Phase 0: Prerequisites ------------------------------------
 
@@ -81,7 +81,7 @@ function Bootstrap-Dotfiles {
 # -- Phase 2: Package Installation -----------------------------
 
 function Install-AllPackages {
-    $packagesFile = Join-Path $ScriptDir 'packages.psd1'
+    $packagesFile = Join-Path -Path $ScriptDir -ChildPath 'packages.psd1'
     $packages = Import-PowerShellDataFile $packagesFile
 
     foreach ($name in $packages.Keys) {
@@ -108,13 +108,13 @@ function New-ConfigLinks {
     )
 
     # Shared ashen.lua from repo root
-    $ashenSrc = Join-Path $DotfilesDir 'wezterm\ashen.lua'
+    $ashenSrc = Join-Path -Path $DotfilesDir -ChildPath 'wezterm\ashen.lua'
     if (Test-Path $ashenSrc) {
         $links += @{ Src = ''; Tgt = "$HOME\.config\wezterm\ashen.lua"; AbsoluteSrc = $ashenSrc }
     }
 
     foreach ($link in $links) {
-        $src = if ($link.AbsoluteSrc) { $link.AbsoluteSrc } else { Join-Path $ScriptDir $link.Src }
+        $src = if ($link.AbsoluteSrc) { $link.AbsoluteSrc } else { Join-Path -Path $ScriptDir -ChildPath $link.Src }
         New-Symlink -Source $src -Target $link.Tgt
     }
 }
@@ -125,7 +125,7 @@ function Register-Autostart {
     Log-Info "Setting up autostart..."
 
     $startupDir = [System.Environment]::GetFolderPath('Startup')
-    $startupScript = Join-Path $startupDir 'komorebi-startup.ps1'
+    $startupScript = Join-Path -Path $startupDir -ChildPath 'komorebi-startup.ps1'
 
     $content = @'
 # Komorebi + whkd + yasb autostart
@@ -136,7 +136,7 @@ Start-Process yasb -WindowStyle Hidden
     Set-Content -Path $startupScript -Value $content -Encoding UTF8
 
     $ws = New-Object -ComObject WScript.Shell
-    $shortcut = $ws.CreateShortcut((Join-Path $startupDir 'komorebi.lnk'))
+    $shortcut = $ws.CreateShortcut((Join-Path -Path $startupDir -ChildPath 'komorebi.lnk'))
     $shortcut.TargetPath = 'pwsh.exe'
     $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$startupScript`""
     $shortcut.WorkingDirectory = $HOME
@@ -195,7 +195,7 @@ function Install-WSLArch {
             New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null
 
             $url = 'https://geo.mirror.pkgbuild.com/iso/latest/archlinux-wsl-x86_64.tar.zst'
-            $tarball = Join-Path $tmpDir 'arch-rootfs.tar.zst'
+            $tarball = Join-Path -Path $tmpDir -ChildPath 'arch-rootfs.tar.zst'
 
             Log-Info "Downloading Arch rootfs..."
             Invoke-WebRequest -Uri $url -OutFile $tarball -UseBasicParsing
@@ -274,11 +274,11 @@ function Show-Summary {
     Write-Host ""
 
     if ($script:SetupErrors.Count -gt 0) {
-        Write-Host "`e[31mErrors during installation:`e[0m"
+        Log-Error "Errors during installation:"
         foreach ($err in $script:SetupErrors) {
             Write-Host "  - $err"
         }
-        Write-Host "`e[33mReview the errors; manual intervention may be needed.`e[0m"
+        Log-Warn "Review the errors; manual intervention may be needed."
         Write-Host ""
     }
 
@@ -309,11 +309,11 @@ function Main {
         }
     }
 
-    Write-Host "`e[31m================================================================`e[0m"
-    Write-Host "`e[31m      WARNING: DESTRUCTION AHEAD!`e[0m"
-    Write-Host "`e[31m================================================================`e[0m"
-    Write-Host "`e[33mThis will install packages, apply system tweaks,`e[0m"
-    Write-Host "`e[33mand overwrite your dotfile symlinks.`e[0m"
+    Write-Host "================================================================"
+    Write-Host "      WARNING: DESTRUCTION AHEAD!"
+    Write-Host "================================================================"
+    Write-Host "This will install packages, apply system tweaks,"
+    Write-Host "and overwrite your dotfile symlinks."
     Write-Host ""
 
     if (-not (Confirm-Prompt "Proceed?" "N")) {
