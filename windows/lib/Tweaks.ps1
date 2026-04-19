@@ -1,7 +1,8 @@
 function Enable-LongPaths {
     Log-Info "Enabling long path support..."
     try {
-        Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+        New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' `
+                         -Name 'LongPathsEnabled' -Value 1 -PropertyType DWord -Force | Out-Null
         Log-Success "Long paths enabled"
     } catch {
         Record-Error "Failed to enable long paths: $_"

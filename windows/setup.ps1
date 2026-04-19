@@ -8,7 +8,6 @@
     configures system tweaks, symlinks dotfiles, sets up autostart,
     and installs Arch Linux on WSL2.
 .EXAMPLE
-    irm https://aileks.dev/windows | iex
     .\windows\setup.ps1
 #>
 
@@ -18,9 +17,11 @@ param()
 $ErrorActionPreference = 'Continue'
 $script:SetupErrors = [System.Collections.Generic.List[string]]::new()
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# PS5 on older Win11 builds defaults to TLS 1.0/1.1; pin 1.2 for Invoke-*
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+$ScriptDir = $PSScriptRoot
 $DotfilesDir = if ($ScriptDir -match '\\windows$') { Split-Path $ScriptDir } else { $ScriptDir }
-$DotfilesRepo = 'https://codeberg.org/aileks/dotfiles.git'
 
 # -- Dot-source libraries -------------------------------------
 . "$ScriptDir\lib\Logging.ps1"
@@ -35,40 +36,6 @@ function Test-Windows11 {
     $product = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').EditionID
     if ($product -match 'LTSC|EnterpriseS') {
         Log-Warn "LTSC edition detected ($product) - winget may need manual installation"
-    }
-}
-
-function Bootstrap-Dotfiles {
-    if (Test-Path "$HOME\.dotfiles" -PathType Container) {
-        Log-Info "Updating existing dotfiles repository..."
-        Push-Location "$HOME\.dotfiles"
-        git fetch origin 2>$null
-        $local = git rev-parse HEAD 2>$null
-        $remote = git rev-parse '@{u}' 2>$null
-        if ($local -eq $remote) {
-            Log-Success "Already up to date"
-        } else {
-            git reset --hard '@{u}' 2>$null
-            Log-Success "Updated to latest"
-        }
-        Pop-Location
-    } else {
-        Log-Info "Cloning dotfiles..."
-        $attempts = 0
-        while ($attempts -lt 3) {
-            git clone $DotfilesRepo "$HOME\.dotfiles" 2>$null
-            if ($LASTEXITCODE -eq 0) {
-                Log-Success "Cloned"
-                break
-            }
-            $attempts++
-            Log-Warn "Clone failed (attempt $attempts/3)"
-            if ($attempts -ge 3) {
-                Log-Error "Failed to clone after 3 attempts"
-                exit 1
-            }
-            Start-Sleep -Seconds 5
-        }
     }
 }
 
@@ -129,9 +96,11 @@ Start-Process yasb -WindowStyle Hidden
 
     Set-Content -Path $startupScript -Value $content -Encoding UTF8
 
+    $shell = if (Test-Command pwsh) { 'pwsh.exe' } else { 'powershell.exe' }
+
     $ws = New-Object -ComObject WScript.Shell
     $shortcut = $ws.CreateShortcut((Join-Path -Path $startupDir -ChildPath 'komorebi.lnk'))
-    $shortcut.TargetPath = 'pwsh.exe'
+    $shortcut.TargetPath = $shell
     $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$startupScript`""
     $shortcut.WorkingDirectory = $HOME
     $shortcut.Save()
@@ -288,21 +257,6 @@ function Show-Summary {
 function Main {
     Test-Windows11
 
-    # Bootstrap if not running from dotfiles dir
-    if ($ScriptDir -notmatch '\.dotfiles' -and -not (Test-Path "$HOME\.dotfiles\windows\setup.ps1")) {
-        Bootstrap-Dotfiles
-    }
-
-    # Re-evaluate script dir if we just cloned
-    if (Test-Path "$HOME\.dotfiles\windows\setup.ps1") {
-        $actualScript = "$HOME\.dotfiles\windows\setup.ps1"
-        if ($MyInvocation.MyCommand.Path -ne $actualScript) {
-            Log-Info "Restarting from cloned dotfiles..."
-            & pwsh -NoProfile -ExecutionPolicy Bypass -File $actualScript
-            return
-        }
-    }
-
     Write-Host "================================================================"
     Write-Host "      WARNING: DESTRUCTION AHEAD!"
     Write-Host "================================================================"
@@ -320,7 +274,6 @@ function Main {
 
     # Phase 0: winget
     Install-WingetIfNeeded
-    Update-WingetIfNeeded
 
     # Phase 1: scoop
     Install-Scoop

@@ -4,13 +4,21 @@ function Install-WingetIfNeeded {
         return $true
     }
 
-    Log-Info "winget not found. Installing via asheroto/winget-install..."
-
+    Log-Info "Installing winget via asheroto/winget-install (PSGallery)..."
     try {
-        Invoke-RestMethod https://github.com/asheroto/winget-install/raw/main/winget-install.ps1 |
-            Invoke-Expression
+        $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 `
+                                        -Force -Scope CurrentUser -ErrorAction Stop
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction SilentlyContinue
+        Install-Script -Name winget-install -Force -Scope CurrentUser -ErrorAction Stop
+
+        $scriptsDir = "$env:USERPROFILE\Documents\WindowsPowerShell\Scripts"
+        if ($env:PATH -notlike "*$scriptsDir*") {
+            $env:PATH = "$scriptsDir;$env:PATH"
+        }
+
+        & winget-install -Force
     } catch {
-        Record-Error "winget-install script failed: $_"
+        Record-Error "winget-install failed: $_"
         return $false
     }
 
@@ -23,17 +31,6 @@ function Install-WingetIfNeeded {
     return $false
 }
 
-function Update-WingetIfNeeded {
-    Log-Info "Checking winget version..."
-    try {
-        winget source reset --force --accept-source-agreements 2>$null
-        $null = winget upgrade --id Microsoft.AppInstaller --accept-source-agreements --accept-package-agreements 2>$null
-        Log-Success "winget up to date"
-    } catch {
-        Log-Warn "Could not update winget: $_"
-    }
-}
-
 function Install-Scoop {
     if (Test-Command scoop) {
         Log-Success "scoop already installed"
@@ -41,12 +38,15 @@ function Install-Scoop {
     }
 
     Log-Info "Installing scoop..."
-    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-    Invoke-RestMethod get.scoop.sh | Invoke-Expression
+    Set-ExecutionPolicy RemoteSigned -Scope Process -Force
+    # -RunAsAdmin: scoop discourages this, but this setup script requires admin,
+    # so it's the only way to keep a single-process install.
+    Invoke-Expression "& { $(Invoke-RestMethod get.scoop.sh) } -RunAsAdmin"
 
     if (Test-Command scoop) {
-        scoop bucket add extras
-        Log-Success "scoop installed with extras bucket"
+        scoop bucket add extras | Out-Null
+        scoop bucket add nerd-fonts | Out-Null
+        Log-Success "scoop installed with extras and nerd-fonts buckets"
     } else {
         Record-Error "Failed to install scoop"
     }
@@ -61,7 +61,8 @@ function Install-Package {
 
     if ($WingetId) {
         Log-Info "Installing $Name via winget ($WingetId)..."
-        $result = winget install --id $WingetId --accept-source-agreements --accept-package-agreements 2>&1
+        winget install --id $WingetId --exact --silent --disable-interactivity `
+                       --accept-source-agreements --accept-package-agreements | Out-Null
         if ($LASTEXITCODE -eq 0) {
             Log-Success "$Name installed via winget"
             return
@@ -71,7 +72,7 @@ function Install-Package {
 
     if ($ScoopName) {
         Log-Info "Trying $Name via scoop ($ScoopName)..."
-        scoop install $ScoopName 2>$null
+        scoop install $ScoopName | Out-Null
         if ($LASTEXITCODE -eq 0) {
             Log-Success "$Name installed via scoop"
             return
