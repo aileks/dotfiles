@@ -51,36 +51,13 @@ function Set-RegistryValue {
     try {
         Set-ItemProperty $Path -Name $Name -Value $Value -ErrorAction Stop
     } catch [System.UnauthorizedAccessException] {
-        # Take ownership via .NET then retry
-        $subKey = $Path -replace '^HKCU:\\',''
-        $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
-
-        # Take ownership
-        $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey(
-            $subKey,
-            [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
-            [System.Security.AccessControl.RegistryRights]::TakeOwnership
-        )
-        $acl = $key.GetAccessControl([System.Security.AccessControl.AccessControlSections]::Owner)
-        $acl.SetOwner($currentUser)
-        $key.SetAccessControl($acl)
-        $key.Close()
-
-        # Grant FullControl
-        $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey(
-            $subKey,
-            [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
-            [System.Security.AccessControl.RegistryRights]::ChangePermissions
-        )
-        $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
-            $currentUser, 'FullControl', 'Allow'
-        )
-        $acl = $key.GetAccessControl([System.Security.AccessControl.AccessControlSections]::Access)
-        $acl.AddAccessRule($rule)
-        $key.SetAccessControl($acl)
-        $key.Close()
-
-        Set-ItemProperty $Path -Name $Name -Value $Value
+        # Fallback to reg.exe which works as admin regardless of key ownership
+        $hive = if ($Path -match '^HKLM:') { 'HKLM' } else { 'HKCU' }
+        $subKey = $Path -replace '^HK[LC]U:\\',''
+        reg.exe add "$hive\$subKey" /v $Name /t REG_DWORD /d $Value /f 2>$null | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw
+        }
     }
 }
 
