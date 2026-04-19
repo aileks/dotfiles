@@ -31,6 +31,42 @@ function Install-WingetIfNeeded {
     return $false
 }
 
+function Install-GitIfNeeded {
+    if (Test-Command git) {
+        Log-Success "git already available"
+        return $true
+    }
+
+    Log-Info "Installing git via winget..."
+    winget install --id Git.Git -e --source winget --silent --disable-interactivity `
+                   --accept-source-agreements --accept-package-agreements | Out-Null
+    if ($LASTEXITCODE -eq 0 -and (Test-Command git)) {
+        Log-Success "git installed via winget"
+        return $true
+    }
+
+    Log-Warn "winget install failed, downloading Git for Windows installer..."
+    $url = 'https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.3/Git-2.53.0.3-64-bit.exe'
+    $installer = Join-Path -Path $env:TEMP -ChildPath 'Git-2.53.0.3-64-bit.exe'
+
+    try {
+        Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
+        Start-Process -FilePath $installer -ArgumentList '/VERYSILENT', '/NORESTART', '/NOCANCEL', '/SP-', '/CLOSEAPPLICATIONS', '/RESTARTAPPLICATIONS' -Wait
+        Remove-Item $installer -Force -ErrorAction SilentlyContinue
+    } catch {
+        Record-Error "Failed to install git: $_"
+        return $false
+    }
+
+    if (Test-Command git) {
+        Log-Success "git installed"
+        return $true
+    }
+
+    Record-Error "git still not available after install attempt"
+    return $false
+}
+
 function Install-Scoop {
     if (Test-Command scoop) {
         Log-Success "scoop already installed"
@@ -45,45 +81,39 @@ function Install-Scoop {
 
     if (Test-Command scoop) {
         scoop bucket add extras | Out-Null
-        scoop bucket add nerd-fonts | Out-Null
-        Log-Success "scoop installed with extras and nerd-fonts buckets"
+        Log-Success "scoop installed with extras bucket"
     } else {
         Record-Error "Failed to install scoop"
     }
 }
 
-function Install-Package {
+function Install-WingetPackage {
     param(
         [string]$Name,
-        [string]$WingetId,
-        [string]$ScoopName
+        [string]$Id
     )
 
-    if ($WingetId) {
-        Log-Info "Installing $Name via winget ($WingetId)..."
-        winget install --id $WingetId --exact --silent --disable-interactivity `
-                       --accept-source-agreements --accept-package-agreements | Out-Null
-        if ($LASTEXITCODE -eq 0) {
-            Log-Success "$Name installed via winget"
-            return
-        }
-        Log-Warn "winget install failed for $Name (exit $LASTEXITCODE)"
+    Log-Info "Installing $Name via winget ($Id)..."
+    winget install --id $Id --exact --silent --disable-interactivity `
+                   --accept-source-agreements --accept-package-agreements | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Log-Success "$Name installed"
+    } else {
+        Record-Error "Failed to install $Name via winget (exit $LASTEXITCODE)"
     }
+}
 
-    if ($ScoopName) {
-        Log-Info "Trying $Name via scoop ($ScoopName)..."
-        scoop install $ScoopName | Out-Null
-        if ($LASTEXITCODE -eq 0) {
-            Log-Success "$Name installed via scoop"
-            return
-        }
-        Record-Error "Failed to install $Name (tried winget and scoop)"
-        return
-    }
+function Install-ScoopPackage {
+    param(
+        [string]$Name,
+        [string]$Package
+    )
 
-    if (-not $ScoopName -and -not $WingetId) {
-        Record-Error "No package source defined for $Name"
-    } elseif (-not $ScoopName) {
-        Record-Error "Failed to install $Name via winget, no scoop fallback defined"
+    Log-Info "Installing $Name via scoop ($Package)..."
+    scoop install $Package | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Log-Success "$Name installed"
+    } else {
+        Record-Error "Failed to install $Name via scoop (exit $LASTEXITCODE)"
     }
 }

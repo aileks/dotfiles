@@ -1,36 +1,33 @@
 @{
     # Window manager / bar
-    komorebi    = @{ WingetId = 'LGUG2Z.Komorebi';      ScoopName = '' }
-    whkd        = @{ WingetId = 'LGUG2Z.whkd';          ScoopName = '' }
-    yasb        = @{ WingetId = 'AmN.yasb';              ScoopName = 'yasb' }
+    komorebi    = 'LGUG2Z.komorebi'
+    whkd        = 'LGUG2Z.whkd'
+    yasb        = 'AmN.yasb'
 
     # Terminal
-    wezterm     = @{ WingetId = 'wez.wezterm';           ScoopName = '' }
+    wezterm     = 'wez.wezterm'
 
     # Shell
-    starship    = @{ WingetId = 'Starship.Starship';     ScoopName = '' }
-    pwsh        = @{ WingetId = 'Microsoft.PowerShell';  ScoopName = '' }
+    starship    = 'Starship.Starship'
+    pwsh        = 'Microsoft.PowerShell'
 
     # CLI tools
-    fastfetch   = @{ WingetId = '';                       ScoopName = 'fastfetch' }
-    bat         = @{ WingetId = 'sharkdp.bat';            ScoopName = '' }
-    fd          = @{ WingetId = 'sharkdp.fd';             ScoopName = '' }
-    ripgrep     = @{ WingetId = 'sharkdp.ripgrep';       ScoopName = '' }
-    fzf         = @{ WingetId = 'junegunn.fzf';           ScoopName = '' }
-    zoxide      = @{ WingetId = 'ajeetdsouza.zoxide';    ScoopName = '' }
-    eza         = @{ WingetId = '';                       ScoopName = 'eza' }
-    btop        = @{ WingetId = '';                       ScoopName = 'btop' }
+    fastfetch   = 'fastfetch.fastfetch'
+    bat         = 'sharkdp.bat'
+    fd          = 'sharkdp.fd'
+    ripgrep     = 'sharkdp.ripgrep'
+    fzf         = 'junegunn.fzf'
+    zoxide      = 'ajeetdsouza.zoxide'
+    eza         = 'eza-community.eza'
+    btop        = 'aristocratos.btop'
 
     # Dev
-    vscode      = @{ WingetId = 'Microsoft.VisualStudioCode'; ScoopName = '' }
-    uv          = @{ WingetId = 'astral-sh.uv';           ScoopName = '' }
+    vscode      = 'Microsoft.VisualStudioCode'
+    uv          = 'astral-sh.uv'
 
     # Apps
-    bitwarden   = @{ WingetId = 'Bitwarden.Bitwarden';   ScoopName = '' }
-    signal      = @{ WingetId = 'OpenWhisperSystems.Signal'; ScoopName = '' }
-    notesnook   = @{ WingetId = 'Notesnook.Notesnook';   ScoopName = '' }
-    zen         = @{ WingetId = 'Zen-Team.Zen-Browser';  ScoopName = '' }
-
-    # Fonts
-    commitmono  = @{ WingetId = '';                       ScoopName = 'nerd-fonts/CommitMono' }
+    bitwarden   = 'Bitwarden.Bitwarden'
+    signal      = 'OpenWhisperSystems.Signal'
+    notesnook   = 'Streetwriters.Notesnook'
+    zen         = 'Zen-Team.Zen-Browser'
 }

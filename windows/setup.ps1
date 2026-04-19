@@ -4,9 +4,8 @@
     Windows 11 dotfiles setup - komorebi + whkd + yasb
 .DESCRIPTION
     Automated setup for a tiling WM environment on Windows 11.
-    Installs packages via winget (primary) and scoop (fallback),
-    configures system tweaks, symlinks dotfiles, sets up autostart,
-    and installs Arch Linux on WSL2.
+    Installs packages via winget and scoop, configures system tweaks,
+    symlinks dotfiles, sets up autostart, and installs Arch Linux on WSL2.
 .EXAMPLE
     .\windows\setup.ps1
 #>
@@ -46,9 +45,11 @@ function Install-AllPackages {
     $packages = Import-PowerShellDataFile $packagesFile
 
     foreach ($name in $packages.Keys) {
-        $pkg = $packages[$name]
-        Install-Package -Name $name -WingetId $pkg.WingetId -ScoopName $pkg.ScoopName
+        Install-WingetPackage -Name $name -Id $packages[$name]
     }
+
+    # Scoop-only packages
+    Install-ScoopPackage -Name 'uutils-coreutils' -Package 'uutils-coreutils'
 }
 
 # -- Phase 4: Config Symlinks ----------------------------------
@@ -232,7 +233,7 @@ appendWindowsPath=true
 function Show-Summary {
     Write-Host ""
     Log-Success "========================================"
-    Log-Success "    Installation script finished!"
+    Log-Success "    Installation finished!"
     Log-Success "========================================"
     Write-Host ""
 
@@ -245,11 +246,9 @@ function Show-Summary {
         Write-Host ""
     }
 
-    Write-Host "Manual steps:"
-    Write-Host "  1. Log off/on or reboot for all changes to take effect"
-    Write-Host "  2. Run 'komorebic fetch-asc' to download app-specific configs"
-    Write-Host "  3. Run 'komorebic start --whkd --bar' to start the tiling WM"
-    Write-Host "  4. If WSL was just enabled, reboot before using 'wsl -d Arch'"
+    if (Confirm-Prompt "Reboot now to apply all changes?" "Y") {
+        Restart-Computer -Force
+    }
 }
 
 # -- Main -------------------------------------------------------
@@ -275,27 +274,30 @@ function Main {
     # Phase 0: winget
     Install-WingetIfNeeded
 
-    # Phase 1: scoop
+    # Phase 1: git
+    Install-GitIfNeeded
+
+    # Phase 2: scoop (for scoop-only packages)
     Install-Scoop
 
-    # Phase 2: packages
+    # Phase 3: packages
     Install-AllPackages
 
-    # Phase 3: system tweaks
+    # Phase 4: system tweaks
     Apply-AllTweaks
 
-    # Phase 4: symlinks
+    # Phase 5: symlinks
     New-ConfigLinks
 
-    # Phase 5: autostart
+    # Phase 6: autostart
     Register-Autostart
 
-    # Phase 6: WSL + Arch
+    # Phase 7: WSL + Arch
     if (Confirm-Prompt "Install Arch Linux on WSL2?" "Y") {
         Install-WSLArch
     }
 
-    # Phase 7: summary
+    # Phase 8: summary
     Show-Summary
 }
 
