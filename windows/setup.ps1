@@ -31,12 +31,6 @@ $DotfilesRepo = 'https://codeberg.org/aileks/dotfiles.git'
 # -- Phase 0: Prerequisites ------------------------------------
 
 function Test-Windows11 {
-    $build = [System.Environment]::OSVersion.Version.Build
-    if ($build -lt 22000) {
-        Log-Error "Unsupported OS. This script requires Windows 11 (build 22000+). Current: $build"
-        exit 1
-    }
-
     # Detect LTSC
     $product = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').EditionID
     if ($product -match 'LTSC|EnterpriseS') {
