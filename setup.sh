@@ -294,6 +294,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/bash/bashrc" "$HOME/.bashrc"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
   create_symlink "$SCRIPT_DIR/cosmic" "$HOME/.config/cosmic"
+  create_symlink "$SCRIPT_DIR/starship" "$HOME/.config/starship"
 
 }
 
