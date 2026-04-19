@@ -12,14 +12,14 @@
     pwsh        = 'Microsoft.PowerShell'
 
     # CLI tools
-    fastfetch   = 'fastfetch.fastfetch'
+    fastfetch   = 'Fastfetch-cli.Fastfetch'
     bat         = 'sharkdp.bat'
     fd          = 'sharkdp.fd'
-    ripgrep     = 'sharkdp.ripgrep'
+    ripgrep     = 'BurntSushi.ripgrep.MSVC'
     fzf         = 'junegunn.fzf'
     zoxide      = 'ajeetdsouza.zoxide'
     eza         = 'eza-community.eza'
-    btop        = 'aristocratos.btop'
+    btop        = 'aristocratos.btop4win'
 
     # Dev
     vscode      = 'Microsoft.VisualStudioCode'
