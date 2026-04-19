@@ -67,6 +67,7 @@ function New-ConfigLinks {
         @{ Src = 'wezterm\wezterm.lua';               Tgt = "$HOME\.config\wezterm\wezterm.lua" }
         @{ Src = 'fastfetch\config.jsonc';            Tgt = "$HOME\.config\fastfetch\config.jsonc" }
         @{ Src = 'bat\config';                        Tgt = "$HOME\.config\bat\config" }
+        @{ Src = 'starship\starship.toml';             Tgt = "$HOME\.config\starship.toml" }
     )
 
     # Shared ashen.lua from repo root
