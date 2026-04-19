@@ -51,25 +51,31 @@ function Set-RegistryValue {
     try {
         Set-ItemProperty $Path -Name $Name -Value $Value -ErrorAction Stop
     } catch [System.UnauthorizedAccessException] {
-        $key = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey(
-            $Path -replace '^HKCU:\\','',
+        # Take ownership via .NET then retry
+        $subKey = $Path -replace '^HKCU:\\',''
+        $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
+
+        # Take ownership
+        $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey(
+            $subKey,
             [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
             [System.Security.AccessControl.RegistryRights]::TakeOwnership
         )
-        $acl = $key.GetAccessControl()
-        $acl.SetOwner([System.Security.Principal.WindowsIdentity]::GetCurrent().User)
+        $acl = $key.GetAccessControl([System.Security.AccessControl.AccessControlSections]::Owner)
+        $acl.SetOwner($currentUser)
         $key.SetAccessControl($acl)
         $key.Close()
 
+        # Grant FullControl
         $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey(
-            $Path -replace '^HKCU:\\','',
-            $true
+            $subKey,
+            [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+            [System.Security.AccessControl.RegistryRights]::ChangePermissions
         )
         $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
-            [System.Security.Principal.WindowsIdentity]::GetCurrent().User,
-            'FullControl', 'Allow'
+            $currentUser, 'FullControl', 'Allow'
         )
-        $acl = $key.GetAccessControl()
+        $acl = $key.GetAccessControl([System.Security.AccessControl.AccessControlSections]::Access)
         $acl.AddAccessRule($rule)
         $key.SetAccessControl($acl)
         $key.Close()
@@ -98,20 +104,36 @@ function Hide-Taskbar {
 }
 
 function Disable-WinLock {
-    if (-not (Confirm-Prompt "Disable Win+L lock screen? (Needed for whkd Win key bindings)" "N")) {
+    if (-not (Confirm-Prompt "Disable Win+L lock screen? Needed for whkd Win key bindings" "N")) {
         return
     }
     try {
         $path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
         Set-ItemProperty $path -Name DisabledHotkeys -Value 'L'
-        Log-Success "Win+L disabled (requires logoff/logon)"
+        Log-Success "Win+L disabled; requires logoff/logon"
     } catch {
         Record-Error "Failed to disable Win+L: $_"
     }
 }
 
+function Enable-DeveloperMode {
+    Log-Info "Enabling Developer Mode..."
+    try {
+        $path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock'
+        if (-not (Test-Path $path)) {
+            New-Item -Path $path -Force | Out-Null
+        }
+        New-ItemProperty -Path $path -Name 'AllowDevelopmentWithoutDevLicense' -Value 1 `
+                         -PropertyType DWord -Force | Out-Null
+        Log-Success "Developer Mode enabled"
+    } catch {
+        Record-Error "Failed to enable Developer Mode: $_"
+    }
+}
+
 function Apply-AllTweaks {
     Enable-LongPaths
+    Enable-DeveloperMode
     Disable-Animations
     Set-DarkMode
     Set-ExplorerTweaks

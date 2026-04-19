@@ -34,7 +34,7 @@ function Test-Windows11 {
     # Detect LTSC
     $product = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').EditionID
     if ($product -match 'LTSC|EnterpriseS') {
-        Log-Warn "LTSC edition detected ($product) - winget may need manual installation"
+        Log-Warn "LTSC edition detected - winget may need manual installation"
     }
 }
 
@@ -129,7 +129,7 @@ function Install-WSLArch {
                 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 2>$null
                 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart 2>$null
             }
-            Log-Success "WSL features enabled (reboot may be required)"
+            Log-Success "WSL features enabled; reboot may be required"
         } catch {
             Record-Error "Failed to enable WSL: $_"
             return
@@ -193,11 +193,11 @@ pacman -S --noconfirm --needed base-devel sudo
         wsl -d Arch -- bash -c $setupScript 2>$null
         Log-Success "Arch base system configured"
     } catch {
-        Log-Warn "Could not run Arch setup (may need reboot first): $_"
+        Log-Warn "Could not run Arch setup; may need reboot first: $_"
     }
 
     # Prompt for username
-    $username = Read-Host "Enter username for Arch WSL (or press Enter to skip user creation)"
+    $username = Read-Host "Enter username for Arch WSL, or press Enter to skip"
     if ($username) {
         $userScript = @"
 useradd -m -G wheel -s /bin/bash $username

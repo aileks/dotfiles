@@ -1,8 +1,8 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/amnweb/yasb/main/schema.json
 watch_stylesheet: true
 watch_config: true
 debug: false
 update_check: true
-show_systray: true
 
 komorebi:
   start_command: "komorebic start --whkd --bar"
@@ -16,50 +16,54 @@ bars:
     class_name: "yasb-bar"
     alignment:
       position: "top"
-      align: "center"
+      center: false
     blur_effect:
-      enabled: true
+      enabled: false
       acrylic: false
       dark_mode: true
-      round_corners: false
-      border_color: "system"
+      border_color: "System"
     window_flags:
-      always_on_top: false
+      always_on_top: true
       windows_app_bar: true
-      hide_on_fullscreen: false
     dimensions:
       width: "100%"
-      height: 36
-    padding:
-      top: 4
-      left: 8
-      bottom: 4
-      right: 8
-    animation:
-      enabled: true
-      duration: 500
+      height: 32
     widgets:
-      left: ["komorebi_workspaces", "komorebi_layout", "active_window"]
+      left: ["home", "komorebi_workspaces", "komorebi_layout", "taskbar"]
       center: ["clock"]
-      right: ["volume", "battery", "power_menu"]
-    layouts:
-      left:
-        alignment: "left"
-        stretch: true
-      center:
-        alignment: "center"
-        stretch: true
-      right:
-        alignment: "right"
-        stretch: true
+      right: ["media", "sysinfo_toggle", "traffic_toggle", "volume", "systray", "power_menu"]
 
 widgets:
+  home:
+    type: "yasb.home.HomeWidget"
+    options:
+      label: "\ue70f"
+      keybindings:
+        - keys: "alt+h"
+          action: "toggle_menu"
+          screen: active
+      menu_labels:
+        about: "\uf449 About This PC"
+        system: "\U000F0493 System Settings"
+        task_manager: "\ueb03 Task Manager"
+      menu_list:
+        - { title: "\uf25d Registry Editor", path: "C:\\Windows\\regedit.exe" }
+        - { title: "\uF15C Event Viewer", path: "C:\\Windows\\System32\\eventvwr.msc" }
+        - { title: "\uF2DB Device Manager", path: "C:\\Windows\\System32\\devmgmt.msc" }
+        - { title: "\uF085 Services", path: "C:\\Windows\\System32\\services.msc" }
+        - { title: "\uF014 Add/Remove Programs", path: "C:\\Windows\\System32\\appwiz.cpl" }
+      system_menu: true
+      power_menu: false
+      blur: false
+      border_color: "System"
+      round_corners_type: "normal"
+
   komorebi_workspaces:
     type: "komorebi.KomorebiWorkspaces"
     options:
       hide_empty_workspaces: false
-      label_zero: "○"
-      label_nonzero: "●"
+      label_zero: "\u25cb"
+      label_nonzero: "\u25cf"
       tooltip: true
 
   komorebi_layout:
@@ -67,30 +71,287 @@ widgets:
     options:
       hide_if_offline: true
 
-  active_window:
-    type: "active_windows_title.ActiveWindowsTitle"
+  taskbar:
+    type: "yasb.taskbar.TaskbarWidget"
     options:
-      max_length: 50
-      show_icon: true
+      icon_size: 16
+      tooltip: false
+      show_only_visible: false
+      strict_filtering: false
+      monitor_exclusive: false
+      animation:
+        enabled: true
+      preview:
+        enabled: true
+        width: 450
+        delay: 400
+        padding: 12
+      ignore_apps:
+        processes: []
+        titles: []
+        classes: []
 
-  clock:
-    type: "clock.Clock"
+  media:
+    type: "yasb.media.MediaWidget"
     options:
-      format: "%a %b %d  %H:%M"
-      tooltip: true
+      keybindings:
+        - keys: "alt+m"
+          action: "toggle_play_pause"
+          screen: active
+      label: "{title} - {artist}"
+      hide_empty: true
+      callbacks:
+        on_left: "toggle_media_menu"
+        on_middle: "do_nothing"
+        on_right: "do_nothing"
+      max_field_size:
+        label: 20
+        label_alt: 20
+      show_thumbnail: false
+      controls_only: false
+      controls_left: true
+      controls_hide: false
+      icons:
+        prev_track: "\uF048"
+        next_track: "\uF051"
+        play: "\uF04B"
+        pause: "\uF04C"
+      media_menu:
+        blur: false
+        round_corners: false
+        round_corners_type: "normal"
+        border_color: "system"
+        alignment: "center"
+        direction: "down"
+        offset_top: 6
+        offset_left: 0
+        thumbnail_corner_radius: 8
+        thumbnail_size: 120
+        max_title_size: 90
+        max_artist_size: 40
+        show_source: true
+        show_volume_slider: true
+        media_menu_icons:
+          play: "\uF04B"
+          pause: "\uF04C"
+          prev_track: "\uF048"
+          next_track: "\uF051"
+      scrolling_label:
+        enabled: false
+        update_interval_ms: 13
+        style: "left"
+        separator: " | "
+        label_padding: 10
+
+  cpu:
+    type: "yasb.cpu.CpuWidget"
+    options:
+      label: "\uF4BC {info[percent][total]}%"
+      label_alt: "\uF4BC {info[freq][current]} MHz {info[histograms][cores]}"
+      update_interval: 2000
+      cpu_thresholds:
+        low: 25
+        medium: 50
+        high: 90
+      histogram_icons:
+        - "\u2581"
+        - "\u2581"
+        - "\u2582"
+        - "\u2583"
+        - "\u2584"
+        - "\u2585"
+        - "\u2586"
+        - "\u2587"
+        - "\u2588"
+      histogram_num_columns: 8
+      callbacks:
+        on_left: "do_nothing"
+        on_middle: "toggle_label"
+        on_right: "exec cmd /c Taskmgr"
+      label_shadow:
+        enabled: true
+        color: "black"
+        radius: 3
+        offset: [1, 1]
+
+  memory:
+    type: "yasb.memory.MemoryWidget"
+    options:
+      label: "\uEFC5 {virtual_mem_used}"
+      label_alt: "\uEFC5 VIRT: {virtual_mem_percent}% SWAP: {swap_mem_percent}%"
+      update_interval: 5000
+      callbacks:
+        on_left: "do_nothing"
+        on_middle: "toggle_label"
+        on_right: "exec cmd /c Taskmgr"
+      memory_thresholds:
+        low: 25
+        medium: 50
+        high: 90
+
+  disk:
+    type: "yasb.disk.DiskWidget"
+    options:
+      label: "{volume_label}: {space[used][percent]}"
+      label_alt: "{volume_label}: {space[used][gb]} / {space[total][gb]}"
+      volume_label: "C"
+      decimal_display: 1
+      update_interval: 60
+      group_label:
+        volume_labels: ["C"]
+      show_label_name: true
+      blur: false
+      round_corners: false
+      round_corners_type: "normal"
+      border_color: "System"
+      alignment: "center"
+      direction: "down"
+      callbacks:
+        on_left: "toggle_group"
+        on_middle: "toggle_label"
+        on_right: "exec explorer C:\\"
+      disk_thresholds:
+        low: 25
+        medium: 50
+        high: 90
+
+  sysinfo_toggle:
+    type: "yasb.grouper.GrouperWidget"
+    options:
+      keybindings:
+        - keys: "alt+s"
+          action: "toggle_collapse"
+          screen: active
+      class_name: "sysinfo-toggle"
+      widgets: ["disk", "memory", "cpu"]
+      collapse_options:
+        enabled: true
+        collapsed_label: "\uf449"
+        expanded_label: "\U000F178D"
+        label_position: "right"
+
+  traffic:
+    type: "yasb.traffic.TrafficWidget"
+    options:
+      keybindings:
+        - keys: "alt+t"
+          action: "toggle_menu"
+          screen: active
+      label: "\U000F0002"
+      label_alt: "\uDB83\uDC9D \uEAB4 {download_speed} | \uEAB7 {upload_speed}"
+      update_interval: 1000
+      menu:
+        blur: false
+        round_corners: false
+        round_corners_type: "normal"
+        border_color: "system"
+        alignment: "center"
+        direction: "down"
+      callbacks:
+        on_left: "toggle_menu"
+        on_middle: "toggle_label"
+        on_right: "exec cmd.exe /c start ms-settings:network-status"
+
+  bin:
+    type: "yasb.recycle_bin.RecycleBinWidget"
+    options:
+      keybindings:
+        - keys: "alt+b"
+          action: "open_bin"
+          screen: active
+      label: "{icon} Bin"
+      icons:
+        bin_empty: "\udb82\ude7a"
+        bin_filled: "\udb82\ude79"
+      callbacks:
+        on_left: "open_bin"
+        on_right: "toggle_label"
+        on_middle: "empty_bin"
+      show_confirmation: true
+      label_shadow:
+        enabled: true
+        color: "black"
+        radius: 3
+        offset: [1, 1]
+
+  traffic_toggle:
+    type: "yasb.grouper.GrouperWidget"
+    options:
+      keybindings:
+        - keys: "alt+t"
+          action: "toggle_collapse"
+          screen: active
+      class_name: "traffic-toggle"
+      widgets: ["traffic", "bin"]
+      collapse_options:
+        enabled: true
+        collapsed_label: "\uEB52"
+        expanded_label: "\U000F0206"
+        label_position: "right"
 
   volume:
-    type: "volume.Volume"
+    type: "yasb.volume.VolumeWidget"
     options:
-      label_unmuted: "󰕾 {volume}%"
-      label_muted: "󰖁 Muted"
+      keybindings:
+        - keys: "alt+v"
+          action: "toggle_volume_menu"
+          screen: active
+      label: "{icon} {level}"
+      tooltip: false
+      volume_icons:
+        - "\uEEE8"
+        - "\uF026"
+        - "\uF027"
+        - "\uF027"
+        - "\uF028"
+      callbacks:
+        on_middle: "toggle_mute"
+        on_right: "exec cmd.exe /c start ms-settings:sound"
+      audio_menu:
+        blur: false
+        round_corners: false
+        round_corners_type: "normal"
+        border_color: "System"
+        alignment: "center"
+        direction: "down"
 
-  battery:
-    type: "battery.Battery"
+  clock:
+    type: "yasb.clock.ClockWidget"
     options:
-      label_charging: "󰂄 {percent}%"
-      label_discharging: "󰁹 {percent}%"
-      label_full: "󰁹 Full"
+      keybindings:
+        - keys: "alt+c"
+          action: "toggle_calendar"
+          screen: active
+      label: "{%a %d %b %H:%M}"
+      label_alt: "{%A, %d %B %Y, %H:%M}"
+      timezones: []
+      callbacks:
+        on_middle: "next_timezone"
+        on_right: "exec cmd.exe /c start ms-clock:"
+      calendar:
+        blur: false
+        round_corners: false
+        round_corners_type: "normal"
+        border_color: "System"
+        alignment: "center"
+        direction: "down"
+        show_holidays: false
+        show_week_numbers: true
+
+  systray:
+    type: "yasb.systray.SystrayWidget"
+    options:
+      class_name: "systray"
+      label_collapsed: "\u25C0"
+      label_expanded: "\u25B6"
+      label_position: "right"
+      icon_size: 16
+      pin_click_modifier: "alt"
+      show_unpinned: false
+      show_unpinned_button: true
+      show_battery: false
+      show_volume: false
+      show_network: true
 
   power_menu:
     type: "power_menu.PowerMenu"

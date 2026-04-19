@@ -41,7 +41,7 @@ function Install-GitIfNeeded {
     winget install --id Git.Git -e --source winget --silent --disable-interactivity `
                    --accept-source-agreements --accept-package-agreements | Out-Null
     if ($LASTEXITCODE -eq 0 -and (Test-Command git)) {
-        Log-Success "git installed via winget"
+        Log-Success "git installed"
         return $true
     }
 
@@ -99,13 +99,13 @@ function Install-WingetPackage {
         return
     }
 
-    Log-Info "Installing $Name via winget ($Id)..."
+    Log-Info "Installing $Name via winget..."
     winget install --id $Id --exact --silent --disable-interactivity `
                    --accept-source-agreements --accept-package-agreements | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Log-Success "$Name installed"
     } else {
-        Record-Error "Failed to install $Name via winget (exit $LASTEXITCODE)"
+        Record-Error "Failed to install $Name via winget"
     }
 }
 
@@ -121,11 +121,11 @@ function Install-ScoopPackage {
         return
     }
 
-    Log-Info "Installing $Name via scoop ($Package)..."
+    Log-Info "Installing $Name via scoop..."
     scoop install $Package | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Log-Success "$Name installed"
     } else {
-        Record-Error "Failed to install $Name via scoop (exit $LASTEXITCODE)"
+        Record-Error "Failed to install $Name via scoop"
     }
 }
