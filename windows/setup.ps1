@@ -1,7 +1,7 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Windows 11 dotfiles setup — komorebi + whkd + yasb
+    Windows 11 dotfiles setup - komorebi + whkd + yasb
 .DESCRIPTION
     Automated setup for a tiling WM environment on Windows 11.
     Installs packages via winget (primary) and scoop (fallback),
@@ -22,13 +22,13 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DotfilesDir = if ($ScriptDir -match '\\windows$') { Split-Path $ScriptDir } else { $ScriptDir }
 $DotfilesRepo = 'https://codeberg.org/aileks/dotfiles.git'
 
-# ── Dot-source libraries ─────────────────────────────────────
+# -- Dot-source libraries -------------------------------------
 . (Join-Path $ScriptDir 'lib' 'Logging.ps1')
 . (Join-Path $ScriptDir 'lib' 'Utils.ps1')
 . (Join-Path $ScriptDir 'lib' 'PackageManager.ps1')
 . (Join-Path $ScriptDir 'lib' 'Tweaks.ps1')
 
-# ── Phase 0: Prerequisites ────────────────────────────────────
+# -- Phase 0: Prerequisites ------------------------------------
 
 function Test-Windows11 {
     $build = [System.Environment]::OSVersion.Version.Build
@@ -40,7 +40,7 @@ function Test-Windows11 {
     # Detect LTSC
     $product = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').EditionID
     if ($product -match 'LTSC|EnterpriseS') {
-        Log-Warn "LTSC edition detected ($product) — winget may need manual installation"
+        Log-Warn "LTSC edition detected ($product) - winget may need manual installation"
     }
 }
 
@@ -78,7 +78,7 @@ function Bootstrap-Dotfiles {
     }
 }
 
-# ── Phase 2: Package Installation ─────────────────────────────
+# -- Phase 2: Package Installation -----------------------------
 
 function Install-AllPackages {
     $packagesFile = Join-Path $ScriptDir 'packages.psd1'
@@ -90,7 +90,7 @@ function Install-AllPackages {
     }
 }
 
-# ── Phase 4: Config Symlinks ──────────────────────────────────
+# -- Phase 4: Config Symlinks ----------------------------------
 
 function New-ConfigLinks {
     Log-Info "Creating config symlinks..."
@@ -119,7 +119,7 @@ function New-ConfigLinks {
     }
 }
 
-# ── Phase 5: Autostart ────────────────────────────────────────
+# -- Phase 5: Autostart ----------------------------------------
 
 function Register-Autostart {
     Log-Info "Setting up autostart..."
@@ -145,7 +145,7 @@ Start-Process yasb -WindowStyle Hidden
     Log-Success "Autostart shortcut created"
 }
 
-# ── Phase 6: WSL + Arch Linux ─────────────────────────────────
+# -- Phase 6: WSL + Arch Linux ---------------------------------
 
 function Install-WSLArch {
     Log-Info "Setting up WSL..."
@@ -264,7 +264,7 @@ appendWindowsPath=true
     }
 }
 
-# ── Phase 7: Finalization ─────────────────────────────────────
+# -- Phase 7: Finalization -------------------------------------
 
 function Show-Summary {
     Write-Host ""
@@ -289,7 +289,7 @@ function Show-Summary {
     Write-Host "  4. If WSL was just enabled, reboot before using 'wsl -d Arch'"
 }
 
-# ── Main ───────────────────────────────────────────────────────
+# -- Main -------------------------------------------------------
 
 function Main {
     Test-Windows11
