@@ -717,6 +717,7 @@ main() {
   symlink_configs
 
   dconf load / < gsetting.dconf
+  cp "$SCRIPT_DIR/ubuntu-xdg-terminals.list" "$HOME/.config"
 
   echo
   log_success "═══════════════════════════════════════"
