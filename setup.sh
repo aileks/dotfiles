@@ -551,6 +551,7 @@ install_flatpak_apps() {
   flatpak_install_app com.bitwarden.desktop
   flatpak_install_app com.fastmail.Fastmail
   flatpak_install_app com.notesnook.Notesnook
+  flatpak_install_app org.onlyoffice.desktopeditors
 
   log_success "Flatpak app installation complete"
 }
