@@ -699,7 +699,7 @@ main() {
   fi
 
   echo -e "${LOG_RED}================================================================${LOG_NC}"
-  echo -e "${LOG_RED}      			WARNING: SYSTEM CHANGES AHEAD${LOG_NC}"
+  echo -e "${LOG_RED}           WARNING: SYSTEM CHANGES AHEAD${LOG_NC}"
   echo -e "${LOG_RED}================================================================${LOG_NC}"
   echo -e "${LOG_YELLOW}This will install packages, add apt repositories,"
   echo -e "optionally remove snapd, and overwrite dotfile symlinks.${LOG_NC}"
