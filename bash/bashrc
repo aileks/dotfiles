@@ -1,9 +1,9 @@
 # ble.sh deferred start
 [[ $- == *i* ]] && [[ -f /usr/share/blesh/ble.sh ]] && source /usr/share/blesh/ble.sh --noattach
 
-
 # PATH
-export PATH="$PATH:$HOME/.local/bin:$HOME/.local/share/pnpm:$HOME/.opencode/bin"
+export PATH="$PATH:$HOME/.local/bin"
+source -- ~/.local/share/blesh/ble.sh
 
 # Core environment
 export EDITOR='vim'
@@ -125,3 +125,5 @@ esac
 
 # ble.sh deferred attach
 [[ ${BLE_VERSION-} ]] && command -v ble-attach >/dev/null 2>&1 && ble-attach
+
+. "$HOME/.local/bin/env"

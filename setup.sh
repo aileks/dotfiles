@@ -2,13 +2,13 @@
 
 set -uo pipefail
 
-readonly LOG_RED='033[0;31m'
-readonly LOG_GREEN='033[0;32m'
-readonly LOG_YELLOW='033[1;33m'
-readonly LOG_BLUE='033[0;34m'
-readonly LOG_NC='033[0m'
+readonly LOG_RED=$'\033[0;31m'
+readonly LOG_GREEN=$'\033[0;32m'
+readonly LOG_YELLOW=$'\033[1;33m'
+readonly LOG_BLUE=$'\033[0;34m'
+readonly LOG_NC=$'\033[0m'
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 
 DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
@@ -106,7 +106,7 @@ apt_install_each() {
 
 write_root_file() {
   local path="$1" content="$2"
-  if ! printf '%sn' "$content" | sudo tee "$path" > /dev/null; then
+  if ! printf '%s\n' "$content" | sudo tee "$path" > /dev/null; then
     record_error "Failed to write file: $path"
     return 1
   fi
@@ -161,7 +161,7 @@ bootstrap() {
     log_info "Updating existing dotfiles repository..."
     git -C "$DOTFILES_DIR" fetch origin &> /dev/null || log_warning "Fetch failed, using local copy"
     local branch local_ref remote_ref
-    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2> /dev/null 
+    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2> /dev/null \
       | sed 's@^refs/remotes/origin/@@' || echo "main")
     local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2> /dev/null || echo "")
     remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2> /dev/null || echo "")
@@ -200,9 +200,14 @@ bootstrap() {
 # ===============================
 
 setup_docker_repo() {
+  if dpkg -s docker-ce &> /dev/null; then
+    log_success "Docker already installed, skipping repo setup"
+    return 0
+  fi
+
   log_info "Configuring Docker official apt repository..."
 
-  sudo DEBIAN_FRONTEND=noninteractive apt remove -y 
+  sudo DEBIAN_FRONTEND=noninteractive apt remove -y \
     docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc 2> /dev/null || true
 
   sudo install -m 0755 -d /etc/apt/keyrings || {
@@ -232,6 +237,11 @@ EOF
 }
 
 setup_wezterm_repo() {
+  if dpkg -s wezterm &> /dev/null; then
+    log_success "WezTerm already installed, skipping repo setup"
+    return 0
+  fi
+
   log_info "Configuring WezTerm Fury apt repository..."
 
   # Switched to /etc/apt/keyrings for consistency
@@ -259,6 +269,11 @@ setup_wezterm_repo() {
 }
 
 setup_mise_repo() {
+  if dpkg -s mise &> /dev/null; then
+    log_success "mise already installed, skipping repo setup"
+    return 0
+  fi
+
   log_info "Configuring mise apt repository..."
 
   sudo install -dm 755 /etc/apt/keyrings || {
@@ -271,7 +286,7 @@ setup_mise_repo() {
     return 1
   fi
 
-  if ! write_root_file "/etc/apt/sources.list.d/mise.list" 
+  if ! write_root_file "/etc/apt/sources.list.d/mise.list" \
     "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.asc] https://mise.jdx.dev/deb stable main"; then
     return 1
   fi
@@ -280,6 +295,11 @@ setup_mise_repo() {
 }
 
 setup_vscode_repo() {
+  if dpkg -s code &> /dev/null; then
+    log_success "VS Code already installed, skipping repo setup"
+    return 0
+  fi
+
   log_info "Configuring VS Code apt repository..."
 
   sudo install -dm 755 /etc/apt/keyrings || {
@@ -292,7 +312,7 @@ setup_vscode_repo() {
     return 1
   fi
 
-  if ! write_root_file "/etc/apt/sources.list.d/vscode.list" 
+  if ! write_root_file "/etc/apt/sources.list.d/vscode.list" \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"; then
     return 1
   fi
@@ -301,9 +321,13 @@ setup_vscode_repo() {
 }
 
 setup_signal_repo() {
+  if dpkg -s signal-desktop &> /dev/null; then
+    log_success "Signal already installed, skipping repo setup"
+    return 0
+  fi
+
   log_info "Configuring Signal apt repository..."
 
-  # Switched to /etc/apt/keyrings for consistency
   sudo install -dm 755 /etc/apt/keyrings || {
     record_error "Failed to create /etc/apt/keyrings"
     return 1
@@ -314,7 +338,7 @@ setup_signal_repo() {
     return 1
   fi
 
-  if ! write_root_file "/etc/apt/sources.list.d/signal-xenial.list" 
+  if ! write_root_file "/etc/apt/sources.list.d/signal-xenial.list" \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main"; then
     return 1
   fi
@@ -324,6 +348,11 @@ setup_signal_repo() {
 }
 
 setup_solaar_repo() {
+  if dpkg -s solaar &> /dev/null; then
+    log_success "Solaar already installed, skipping repo setup"
+    return 0
+  fi
+
   log_info "Configuring Solaar PPA repository..."
 
   if ! sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:solaar-unifying/stable; then
@@ -415,15 +444,50 @@ install_script_tools() {
     fi
   fi
 
-  if ! command_exists fastfetch; then
-    record_note "fastfetch unresolved: no official Ubuntu 24.04 package, no official vendor apt repo/script path used here, and no flatpak fallback."
+  if command_exists fastfetch; then
+    log_success "fastfetch already installed"
+  else
+    . /etc/os-release
+    if dpkg --compare-versions "${VERSION_ID:-0}" ge "25.10"; then
+      log_info "Installing fastfetch from official repos..."
+      if ! sudo DEBIAN_FRONTEND=noninteractive apt install -y fastfetch; then
+        record_error "Failed to install fastfetch"
+      else
+        log_success "fastfetch installed"
+      fi
+    else
+      log_info "Adding fastfetch PPA for Ubuntu ${VERSION_ID}..."
+      if ! sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:zhangsongcui3371/fastfetch; then
+        record_error "Failed to add fastfetch PPA"
+      else
+        sudo apt update || true
+        if ! sudo DEBIAN_FRONTEND=noninteractive apt install -y fastfetch; then
+          record_error "Failed to install fastfetch from PPA"
+        else
+          log_success "fastfetch installed from PPA"
+        fi
+      fi
+    fi
   fi
 
-  if [[ ! -f /usr/share/blesh/ble.sh ]]; then
-    record_note "blesh unresolved: no official Ubuntu package/repo/script fallback in this setup."
+  if [[ -f "$HOME/.local/share/blesh/ble.sh" ]]; then
+    log_success "ble.sh already installed"
+  else
+    log_info "Installing ble.sh (nightly)..."
+    local ble_tmp
+    ble_tmp=$(mktemp -d)
+    if curl -L https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz \
+      | tar xJf - -C "$ble_tmp"; then
+      if bash "$ble_tmp/ble-nightly/ble.sh" --install "$HOME/.local/share"; then
+        log_success "ble.sh installed to ~/.local/share/blesh"
+      else
+        record_error "ble.sh install step failed"
+      fi
+    else
+      record_error "Failed to download/extract ble.sh"
+    fi
+    rm -rf "$ble_tmp"
   fi
-
-  record_note "fastmail unresolved: no official Ubuntu/vendor apt repo, install script, or flatpak found by setup."
 }
 
 install_python_utilities() {
@@ -455,7 +519,6 @@ configure_flatpak() {
     return 1
   fi
 
-  # Changed to --user to avoid Polkit sudo prompts
   if ! flatpak remote-list --user --columns=name | grep -qx flathub; then
     if ! flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
       record_error "Failed to add Flathub remote"
@@ -498,24 +561,20 @@ install_flatpak_apps() {
 
 apply_no_snap_preferences() {
   local pref
-  pref=$(
-    cat << 'EOF'
-Package: snapd
+  pref="Package: snapd
 Pin: release a=*
-Pin-Priority: -10
-EOF
-  )
+Pin-Priority: -10"
 
   write_root_file "/etc/apt/preferences.d/no-snap.pref" "$pref"
 }
 
-remove_snaps_forward_compatible() {
+remove_snaps() {
   if ! prompt_yes_no "Remove snapd and block it from being reinstalled?" "N"; then
-    record_note "Skipping snap removal (declined by user)"
+    record_note "Skippeed snap removal"
     return 0
   fi
 
-  log_info "Removing and blocking snapd (forward-compatible mode)..."
+  log_info "Removing and blocking snapd..."
 
   apply_no_snap_preferences
 
@@ -546,11 +605,11 @@ remove_snaps_forward_compatible() {
   while read -r mount_point; do
     [[ -z $mount_point ]] && continue
     sudo umount -l "$mount_point" 2> /dev/null || sudo umount "$mount_point" 2> /dev/null || true
-  done < <(mount | awk '$3 ~ /^/snap|^\/var\/snap/ {print $3}' | sort -r)
+  done < <(mount | awk '$3 ~ /^\/snap|^\/var\/snap/ {print $3}' | sort -r)
 
   if dpkg -s snapd &> /dev/null; then
-    sudo DEBIAN_FRONTEND=noninteractive apt purge -y snapd 2> /dev/null 
-      || sudo DEBIAN_FRONTEND=noninteractive apt remove -y snapd 2> /dev/null 
+    sudo DEBIAN_FRONTEND=noninteractive apt purge -y snapd 2> /dev/null \
+      || sudo DEBIAN_FRONTEND=noninteractive apt remove -y snapd 2> /dev/null \
       || record_error "Failed to remove snapd package"
   fi
 
@@ -662,7 +721,7 @@ main() {
     kill -0 "$$" || exit
   done 2> /dev/null &
 
-  remove_snaps_forward_compatible
+  remove_snaps
   install_apt_packages
   setup_vendor_repositories
   install_vendor_packages
@@ -681,9 +740,6 @@ main() {
   if [[ -d $BACKUP_DIR ]] && [[ "$(ls -A "$BACKUP_DIR" 2> /dev/null)" ]]; then
     log_info "Old configs backed up to: $BACKUP_DIR"
   fi
-
-  # Automatically added note to address the pipx/PATH issue
-  record_note "Run 'source ~/.bashrc' or log out/in so pipx-installed apps (like trash-cli) are in your PATH."
 
   if [[ ${#SETUP_NOTES[@]} -gt 0 ]]; then
     echo
