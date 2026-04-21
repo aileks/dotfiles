@@ -44,6 +44,17 @@ DOCKER_PACKAGES=(
   docker-compose-plugin
 )
 
+FLATPAK_PACKAGES=(
+  com.mattjakeman.ExtensionManager
+  io.github.realmazharhussain.GdmSettings
+  com.bitwarden.desktop
+  com.fastmail.Fastmail
+  com.notesnook.Notesnook
+  org.onlyoffice.desktopeditors
+  org.gtk.Gtk3theme.adw-gtk3
+  org.gtk.Gtk3theme.adw-gtk3-dark
+)
+
 # ====================
 # 	Logging helpers
 # ====================
@@ -548,10 +559,10 @@ flatpak_install_app() {
 install_flatpak_apps() {
   log_info "Installing Flatpak apps from Flathub..."
 
-  flatpak_install_app com.bitwarden.desktop
-  flatpak_install_app com.fastmail.Fastmail
-  flatpak_install_app com.notesnook.Notesnook
-  flatpak_install_app org.onlyoffice.desktopeditors
+  local app_id
+  for app_id in "${FLATPAK_PACKAGES[@]}"; do
+    flatpak_install_app "$app_id"
+  done
 
   log_success "Flatpak app installation complete"
 }
