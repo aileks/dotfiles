@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -uo pipefail
 
@@ -10,16 +10,54 @@ readonly LOG_NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
-MINIFORGE_PREFIX="$HOME/miniforge3"
 
 DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 
 declare -a SETUP_ERRORS=()
+declare -a SETUP_NOTES=()
 
-# ============================================================
-# Logging
-# ============================================================
+# =====================
+# 	Package manifests
+# =====================
+
+APT_CORE_PACKAGES=(
+  ca-certificates curl wget rsync git gnupg lsb-release software-properties-common
+  vim openssh-client openssh-server ufw man-db manpages jq shfmt inotify-tools
+  xdg-user-dirs power-profiles-daemon
+  pipx python3-venv flatpak
+  btop eza bat fd-find ripgrep fzf zoxide tree
+  pipewire pipewire-pulse pipewire-alsa wireplumber
+  pavucontrol pamixer playerctl
+  network-manager bluez bluez-tools
+  wl-clipboard
+  xdg-desktop-portal xdg-desktop-portal-gtk
+  libnotify-bin upower
+  gvfs gvfs-backends ffmpeg
+  fonts-noto-core fonts-noto-cjk fonts-noto-color-emoji
+  papirus-icon-theme
+  gnome-calendar
+  solaar
+)
+
+VENDOR_APT_PACKAGES=(
+  mise
+  wezterm
+  code
+  signal-desktop
+)
+
+DOCKER_PACKAGES=(
+  docker-ce
+  docker-ce-cli
+  containerd.io
+  docker-buildx-plugin
+  docker-compose-plugin
+)
+
+# ====================
+# 	Logging helpers
+# ====================
 
 log_info() { echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
 log_success() { echo -e "${LOG_GREEN}[OK]${LOG_NC} $1"; }
@@ -31,7 +69,16 @@ record_error() {
   SETUP_ERRORS+=("$1")
 }
 
+record_note() {
+  log_warning "$1"
+  SETUP_NOTES+=("$1")
+}
+
 command_exists() { command -v "$1" &>/dev/null; }
+
+# ===================
+# 	Utility helpers
+# ===================
 
 prompt_yes_no() {
   local prompt="$1" default="${2:-N}" reply
@@ -45,21 +92,74 @@ prompt_yes_no() {
   [[ $reply =~ ^[Yy]$ ]]
 }
 
+apt_install_bundle() {
+  if ! sudo DEBIAN_FRONTEND=noninteractive apt install -y "$@"; then
+    record_error "Failed to install package bundle: $*"
+    return 1
+  fi
+  return 0
+}
+
+apt_install_each() {
+  local pkg
+  for pkg in "$@"; do
+    if dpkg -s "$pkg" &>/dev/null; then
+      log_success "$pkg already installed"
+      continue
+    fi
+    if ! sudo DEBIAN_FRONTEND=noninteractive apt install -y "$pkg"; then
+      record_error "Failed to install package: $pkg"
+    else
+      log_success "Installed package: $pkg"
+    fi
+  done
+}
+
+write_root_file() {
+  local path="$1" content="$2"
+  if ! printf '%s\n' "$content" | sudo tee "$path" >/dev/null; then
+    record_error "Failed to write file: $path"
+    return 1
+  fi
+  return 0
+}
+
+# =======================================
+# 	OS detection and dotfiles bootstrap
+# =======================================
+
 check_os() {
-  if ! [[ -r /etc/os-release ]] || ! grep -qiE '^ID=arch' /etc/os-release; then
-    log_error "Unsupported OS. This script requires Arch Linux."
+  if [[ ! -r /etc/os-release ]]; then
+    log_error "Cannot detect OS: /etc/os-release is missing"
+    exit 1
+  fi
+
+  . /etc/os-release
+
+  if [[ ${ID:-} != "ubuntu" ]]; then
+    log_error "Unsupported OS (${ID:-unknown}). This script supports Ubuntu 24.04+ only."
+    exit 1
+  fi
+
+  if [[ -n ${VERSION_ID:-} ]] && ! dpkg --compare-versions "$VERSION_ID" ge "24.04"; then
+    log_error "Unsupported Ubuntu version (${VERSION_ID}). Requires Ubuntu 24.04 or newer."
+    exit 1
+  fi
+
+  if ! command_exists apt; then
+    log_error "apt is required but not available"
     exit 1
   fi
 }
 
-# ============================================================
-# Bootstrap
-# ============================================================
-
 bootstrap() {
   log_info "Ensuring git is installed..."
   if ! command_exists git; then
-    sudo pacman -S --needed --noconfirm git || {
+    sudo apt update || {
+      log_error "Failed to update apt metadata"
+      exit 1
+    }
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y git || {
       log_error "Failed to install git"
       exit 1
     }
@@ -71,10 +171,9 @@ bootstrap() {
   if [[ -d $DOTFILES_DIR ]] && git -C "$DOTFILES_DIR" rev-parse --git-dir &>/dev/null; then
     log_info "Updating existing dotfiles repository..."
     git -C "$DOTFILES_DIR" fetch origin &>/dev/null || log_warning "Fetch failed, using local copy"
-    local branch
+    local branch local_ref remote_ref
     branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null |
       sed 's@^refs/remotes/origin/@@' || echo "main")
-    local local_ref remote_ref
     local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2>/dev/null || echo "")
     remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2>/dev/null || echo "")
     if [[ $local_ref == "$remote_ref" ]]; then
@@ -103,157 +202,338 @@ bootstrap() {
 
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     log_info "Restarting from cloned dotfiles..."
-    exec bash "$DOTFILES_DIR/install.sh" </dev/tty
+    exec bash "$DOTFILES_DIR/setup.sh" </dev/tty
   fi
 }
 
-# ============================================================
-# Package Lists
-# ============================================================
+# ===============================
+# 	Vendor apt repository setup
+# ===============================
 
-PACMAN_PACKAGES=(
-  curl wget rsync
-  btrfs-assistant inotify-tools
-  vim snap-pac
-  openssh ufw man-db man-pages
-  reflector pacman-contrib
-  xdg-user-dirs power-profiles-daemon
-  trash-cli shfmt jq
-  fastfetch btop eza bat fd ripgrep fzf zoxide
-  starship
-  pipewire pipewire-pulse pipewire-alsa wireplumber
-  pavucontrol pamixer playerctl
-  networkmanager bluez bluez-utils
-  wezterm
-  wl-clipboard
-  xdg-desktop-portal xdg-desktop-portal-gtk
-  libnotify upower
-  gvfs gvfs-mtp ffmpeg
-  noto-fonts noto-fonts-emoji noto-fonts-cjk
-  papirus-icon-theme
-  cosmic cosmic-icon-theme
-  signal-desktop
-  bitwarden bitwarden-cli
-  gnome-calendar
-  solaar
-)
+setup_docker_repo() {
+  log_info "Configuring Docker official apt repository..."
 
-AUR_PACKAGES=(
-  zen-browser-bin
-  onlyoffice-bin
-  fastmail
-  notesnook-bin
-  blesh-git
-  visual-studio-code-bin
-)
+  sudo DEBIAN_FRONTEND=noninteractive apt remove -y \
+    docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc 2>/dev/null || true
 
-# ============================================================
-# AUR helper
-# ============================================================
+  sudo install -m 0755 -d /etc/apt/keyrings || {
+    record_error "Failed to create /etc/apt/keyrings"
+    return 1
+  }
 
-install_yay() {
-  if command_exists yay; then
-    log_success "yay already installed"
-    return 0
+  if ! sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; then
+    record_error "Failed to download Docker GPG key"
+    return 1
   fi
+  sudo chmod a+r /etc/apt/keyrings/docker.asc || record_error "Failed to chmod Docker key"
 
-  log_info "Installing yay from AUR..."
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  if ! git clone https://aur.archlinux.org/yay-bin.git "$tmpdir/yay-bin"; then
-    record_error "Failed to clone yay-bin"
-    rm -rf "$tmpdir"
+  if ! sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+  then
+    record_error "Failed to write Docker apt source"
     return 1
   fi
 
-  pushd "$tmpdir/yay-bin" &>/dev/null || return 1
-  if ! makepkg -si --noconfirm; then
-    record_error "Failed to build/install yay"
-    popd &>/dev/null || true
-    rm -rf "$tmpdir"
-    return 1
-  fi
-  popd &>/dev/null || true
-  rm -rf "$tmpdir"
-  log_success "yay installed"
+  log_success "Docker repository configured"
 }
 
-# ============================================================
-# Package Installation
-# ============================================================
+setup_wezterm_repo() {
+  log_info "Configuring WezTerm Fury apt repository..."
 
-install_pacman_packages() {
-  log_info "Refreshing pacman databases..."
-  sudo pacman -Sy --noconfirm || record_error "Failed to sync pacman databases"
-
-  log_info "Installing pacman packages..."
-  if ! sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"; then
-    record_error "Failed to install some pacman packages"
+  if ! curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg; then
+    record_error "Failed to install WezTerm Fury key"
     return 1
   fi
-  log_success "pacman packages installed"
+
+  if ! echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list >/dev/null; then
+    record_error "Failed to write WezTerm apt source"
+    return 1
+  fi
+
+  if ! sudo chmod 644 /usr/share/keyrings/wezterm-fury.gpg; then
+    record_error "Failed to chmod WezTerm keyring"
+    return 1
+  fi
+
+  log_success "WezTerm repository configured"
 }
 
-install_aur_packages() {
-  if ! command_exists yay; then
-    record_error "yay unavailable; skipping AUR packages"
+setup_mise_repo() {
+  log_info "Configuring mise apt repository..."
+
+  sudo install -dm 755 /etc/apt/keyrings || {
+    record_error "Failed to create /etc/apt/keyrings"
+    return 1
+  }
+
+  if ! curl -fSs https://mise.jdx.dev/gpg-key.pub | sudo tee /etc/apt/keyrings/mise-archive-keyring.asc >/dev/null; then
+    record_error "Failed to install mise key"
     return 1
   fi
 
-  log_info "Installing AUR packages..."
-  if ! yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"; then
-    record_error "Failed to install some AUR packages"
+  if ! write_root_file "/etc/apt/sources.list.d/mise.list" \
+    "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.asc] https://mise.jdx.dev/deb stable main"; then
     return 1
   fi
-  log_success "AUR packages installed"
+
+  log_success "mise repository configured"
 }
 
-# ============================================================
-# Data Tools
-# ============================================================
+setup_vscode_repo() {
+  log_info "Configuring VS Code apt repository..."
 
-install_data_tools() {
-  log_info "Setting up data science tools..."
+  sudo install -dm 755 /etc/apt/keyrings || {
+    record_error "Failed to create /etc/apt/keyrings"
+    return 1
+  }
+
+  if ! curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --yes --dearmor -o /etc/apt/keyrings/packages.microsoft.gpg; then
+    record_error "Failed to install VS Code key"
+    return 1
+  fi
+
+  if ! write_root_file "/etc/apt/sources.list.d/vscode.list" \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"; then
+    return 1
+  fi
+
+  log_success "VS Code repository configured"
+}
+
+setup_signal_repo() {
+  log_info "Configuring Signal apt repository..."
+
+  if ! curl -fsSL https://updates.signal.org/desktop/apt/keys.asc | sudo gpg --yes --dearmor -o /usr/share/keyrings/signal-desktop-keyring.gpg; then
+    record_error "Failed to install Signal key"
+    return 1
+  fi
+
+  if ! write_root_file "/etc/apt/sources.list.d/signal-xenial.list" \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main"; then
+    return 1
+  fi
+
+  sudo chmod 644 /usr/share/keyrings/signal-desktop-keyring.gpg || record_error "Failed to chmod Signal keyring"
+  log_success "Signal repository configured"
+}
+
+# ========================
+# 	Package installation
+# ========================
+
+install_apt_packages() {
+  log_info "Refreshing apt metadata..."
+  sudo apt update || {
+    record_error "Failed to update apt package lists"
+    return 1
+  }
+
+  log_info "Installing Ubuntu apt packages..."
+  apt_install_bundle "${APT_CORE_PACKAGES[@]}"
+}
+
+setup_vendor_repositories() {
+  setup_docker_repo
+  setup_wezterm_repo
+  setup_mise_repo
+  setup_vscode_repo
+  setup_signal_repo
+
+  log_info "Refreshing apt metadata after adding vendor repositories..."
+  sudo apt update || record_error "Failed to update apt after vendor repos"
+}
+
+install_vendor_packages() {
+  log_info "Installing vendor-repository packages..."
+  apt_install_each "${VENDOR_APT_PACKAGES[@]}"
+
+  log_info "Installing Docker from the official Docker repository..."
+  apt_install_bundle "${DOCKER_PACKAGES[@]}"
+
+  if getent group docker &>/dev/null; then
+    sudo usermod -aG docker "$USER" || record_note "Could not add $USER to docker group"
+	sudo systemctl enable --now docker.service || record_note "Could not enable/start Docker service"
+  else
+	record_note "Docker group not found; skipping usermod and service enable steps"
+  fi
+}
+
+# =======================
+# 	Non-apt installers
+# =======================
+
+install_script_tools() {
+  log_info "Installing tools via official install scripts when needed..."
 
   if command_exists uv; then
     log_success "uv already installed"
   else
-    log_info "Installing uv..."
     if ! curl -LsSf https://astral.sh/uv/install.sh | sh; then
       record_error "Failed to install uv"
+    else
+      log_success "uv installed"
     fi
   fi
 
-  if [[ -x "$MINIFORGE_PREFIX/bin/conda" ]]; then
-    log_success "Miniforge already installed"
-    return 0
+  if command_exists starship; then
+    log_success "starship already installed"
+  else
+    if ! curl -sS https://starship.rs/install.sh | sh -s -- -y; then
+      record_error "Failed to install starship"
+    else
+      log_success "starship installed"
+    fi
   fi
 
-  log_info "Installing Miniforge..."
-  local tmpdir installer url
-  tmpdir=$(mktemp -d)
-  installer="$tmpdir/Miniforge3-$(uname)-$(uname -m).sh"
-  url="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+  if ! command_exists fastfetch; then
+    record_note "fastfetch unresolved: no official Ubuntu 24.04 package, no official vendor apt repo/script path used here, and no flatpak fallback."
+  fi
 
-  if ! curl -L -o "$installer" "$url"; then
-    record_error "Failed to download Miniforge installer"
-    rm -rf "$tmpdir"
+  if [[ ! -f /usr/share/blesh/ble.sh ]]; then
+    record_note "blesh unresolved: no official Ubuntu package/repo/script fallback in this setup."
+  fi
+
+  record_note "fastmail unresolved: no official Ubuntu/vendor apt repo, install script, or flatpak found by setup."
+}
+
+install_python_utilities() {
+  log_info "Installing Python CLI utilities via pipx..."
+
+  if ! command_exists pipx; then
+    record_error "pipx is not available"
     return 1
   fi
 
-  if bash "$installer" -b -p "$MINIFORGE_PREFIX"; then
-    "$MINIFORGE_PREFIX/bin/conda" config --set auto_activate_base false ||
-      record_error "Failed to configure conda auto-activate"
-    log_success "Miniforge installed"
+  pipx ensurepath >/dev/null 2>&1 || true
+
+  if ! pipx install --force trash-cli; then
+    record_error "Failed to install trash-cli via pipx"
   else
-    record_error "Failed to install Miniforge"
+    log_success "trash-cli installed via pipx"
   fi
-  rm -rf "$tmpdir"
 }
 
-# ============================================================
-# Symlinks
-# ============================================================
+# ======================
+# 	Flatpak & Flathub
+# ======================
+
+configure_flatpak() {
+  log_info "Configuring Flatpak and Flathub..."
+
+  if ! command_exists flatpak; then
+    record_error "flatpak is not installed"
+    return 1
+  fi
+
+  if ! flatpak remote-list --columns=name | grep -qx flathub; then
+    if ! sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+      record_error "Failed to add Flathub remote"
+      return 1
+    fi
+  fi
+
+  log_success "Flathub is configured"
+}
+
+flatpak_install_app() {
+  local app_id="$1"
+  if flatpak info "$app_id" &>/dev/null; then
+    log_success "Flatpak app already installed: $app_id"
+    return 0
+  fi
+
+  if ! flatpak install -y flathub "$app_id"; then
+    record_error "Failed to install flatpak app: $app_id"
+    return 1
+  fi
+
+  log_success "Installed flatpak app: $app_id"
+  return 0
+}
+
+# =============================
+# 	Snap removal and blocking
+# =============================
+
+apply_no_snap_preferences() {
+  local pref
+  pref=$(cat <<'EOF'
+Package: snapd
+Pin: release a=*
+Pin-Priority: -10
+EOF
+)
+
+  write_root_file "/etc/apt/preferences.d/no-snap.pref" "$pref"
+}
+
+remove_snaps_forward_compatible() {
+  if ! prompt_yes_no "Remove snapd and block it from being reinstalled?" "N"; then
+    record_note "Skipping snap removal (declined by user)"
+    return 0
+  fi
+
+  log_info "Removing and blocking snapd (forward-compatible mode)..."
+
+  apply_no_snap_preferences
+
+  if command_exists systemctl; then
+    local unit
+    for unit in snapd.service snapd.socket snapd.seeded.service; do
+      sudo systemctl stop "$unit" 2>/dev/null || true
+      sudo systemctl disable "$unit" 2>/dev/null || true
+      sudo systemctl mask "$unit" 2>/dev/null || true
+    done
+
+    while read -r unit; do
+      [[ -z "$unit" ]] && continue
+      sudo systemctl stop "$unit" 2>/dev/null || true
+      sudo systemctl disable "$unit" 2>/dev/null || true
+      sudo systemctl mask "$unit" 2>/dev/null || true
+    done < <(systemctl list-unit-files --type=mount --no-legend 2>/dev/null | awk '/snap/ {print $1}')
+  fi
+
+  if command_exists snap; then
+    local snap_name
+    while read -r snap_name; do
+      [[ -z "$snap_name" ]] && continue
+      sudo snap remove --purge "$snap_name" 2>/dev/null || true
+    done < <(snap list --all 2>/dev/null | awk 'NR>1 {print $1}' | sort -u)
+  fi
+
+  while read -r mount_point; do
+    [[ -z "$mount_point" ]] && continue
+    sudo umount -l "$mount_point" 2>/dev/null || sudo umount "$mount_point" 2>/dev/null || true
+  done < <(mount | awk '$3 ~ /^\/snap|^\/var\/snap/ {print $3}' | sort -r)
+
+  if dpkg -s snapd &>/dev/null; then
+    sudo DEBIAN_FRONTEND=noninteractive apt purge -y snapd 2>/dev/null ||
+      sudo DEBIAN_FRONTEND=noninteractive apt remove -y snapd 2>/dev/null ||
+      record_error "Failed to remove snapd package"
+  fi
+
+  sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y 2>/dev/null || true
+
+  sudo rm -rf /var/cache/snapd /var/lib/snapd /snap /var/snap /root/.snap /root/snap 2>/dev/null || true
+  rm -rf "$HOME/.snap" 2>/dev/null || true
+  sudo rm -f /etc/apparmor.d/usr.lib.snapd.snap-confine* /etc/apparmor.d/usr.lib.snapd.* 2>/dev/null || true
+
+  if command_exists systemctl; then
+    sudo systemctl daemon-reload 2>/dev/null || true
+  fi
+
+  log_success "Snap removal and pinning complete"
+}
+
+# ====================
+# 	Dotfile symlinks
+# ====================
 
 create_symlink() {
   local source="$1" target="$2"
@@ -293,14 +573,12 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/bash/bashrc" "$HOME/.bashrc"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
-  create_symlink "$SCRIPT_DIR/cosmic" "$HOME/.config/cosmic"
   create_symlink "$SCRIPT_DIR/starship" "$HOME/.config/starship"
-
 }
 
-# ============================================================
-# Misc finalization
-# ============================================================
+# ===============
+# 	Shell setup
+# ===============
 
 setup_shell() {
   log_info "Checking default shell..."
@@ -308,65 +586,28 @@ setup_shell() {
     log_success "Default shell is already bash"
     return 0
   fi
+
   if ! chsh -s "$(command -v bash)"; then
     record_error "Failed to change shell to bash"
   fi
 }
 
-setup_services() {
-  log_info "Enabling NetworkManager..."
-  if systemctl is-enabled --quiet NetworkManager.service 2>/dev/null; then
-    log_success "NetworkManager already enabled"
-  else
-    sudo systemctl enable NetworkManager.service || record_error "Failed to enable NetworkManager"
-  fi
-
-  log_info "Enabling bluetooth..."
-  if systemctl is-enabled --quiet bluetooth.service 2>/dev/null; then
-    log_success "Bluetooth already enabled"
-  else
-    sudo systemctl enable bluetooth.service || record_error "Failed to enable bluetooth"
-  fi
-
-  log_info "Configuring display manager..."
-  local other_dm
-  other_dm=$(systemctl list-unit-files --state=enabled --type=service 2>/dev/null |
-    awk '{print $1}' |
-    grep -E '^(sddm|gdm|lightdm|lxdm)\.service$' |
-    head -1)
-  if [[ -n $other_dm ]]; then
-    log_warning "Another display manager is enabled ($other_dm); skipping cosmic-greeter enable"
-  elif systemctl is-enabled --quiet cosmic-greeter.service 2>/dev/null; then
-    log_success "cosmic-greeter already enabled"
-  else
-    sudo systemctl enable cosmic-greeter.service || record_error "Failed to enable cosmic-greeter"
-  fi
-}
-
-setup_xdg_dirs() {
-  if command_exists xdg-user-dirs-update; then
-    xdg-user-dirs-update || record_error "Failed to update XDG user dirs"
-  fi
-}
-
-# ============================================================
-# Main
-# ============================================================
+# ===============
+# 	Entry point
+# ===============
 
 main() {
   check_os
 
-  # If not running from inside the dotfiles directory, bootstrap first
-  # (i.e. invoked via curl or from outside the repo)
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     bootstrap
   fi
 
   echo -e "${LOG_RED}================================================================${LOG_NC}"
-  echo -e "${LOG_RED}      WARNING: DESTRUCTION AHEAD!${LOG_NC}"
+  echo -e "${LOG_RED}      			WARNING: SYSTEM CHANGES AHEAD${LOG_NC}"
   echo -e "${LOG_RED}================================================================${LOG_NC}"
-  echo -e "${LOG_YELLOW}This will install packages, enable system services,"
-  echo -e "and overwrite your dotfile symlinks.${LOG_NC}"
+  echo -e "${LOG_YELLOW}This will install packages, add apt repositories,"
+  echo -e "optionally remove snapd, and overwrite dotfile symlinks.${LOG_NC}"
   echo
 
   if ! prompt_yes_no "Proceed?" "N"; then
@@ -375,12 +616,18 @@ main() {
   fi
 
   echo
-  log_info "Starting full installation pipeline..."
+  log_info "Starting Ubuntu 24.04+ installation pipeline..."
 
-  install_pacman_packages
-  install_yay
-  install_aur_packages
-  install_data_tools
+  remove_snaps_forward_compatible
+  install_apt_packages
+  setup_vendor_repositories
+  install_vendor_packages
+  install_script_tools
+  install_python_utilities
+
+  configure_flatpak
+  install_flatpak_apps
+
   setup_xdg_dirs
   symlink_configs
   setup_shell
@@ -388,16 +635,26 @@ main() {
 
   echo
   log_success "═══════════════════════════════════════"
-  log_success "    Installation script finished!"
+  log_success " 	   Ubuntu setup finished!"
   log_success "═══════════════════════════════════════"
 
   if [[ -d $BACKUP_DIR ]] && [[ "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]]; then
     log_info "Old configs backed up to: $BACKUP_DIR"
   fi
 
+  if [[ ${#SETUP_NOTES[@]} -gt 0 ]]; then
+    echo
+    echo -e "${LOG_YELLOW}Notes:${LOG_NC}"
+    local note
+    for note in "${SETUP_NOTES[@]}"; do
+      echo -e "  - $note"
+    done
+  fi
+
   if [[ ${#SETUP_ERRORS[@]} -gt 0 ]]; then
     echo
     echo -e "${LOG_RED}Errors during installation:${LOG_NC}"
+    local err
     for err in "${SETUP_ERRORS[@]}"; do
       echo -e "  - $err"
     done

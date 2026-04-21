@@ -1,6 +1,6 @@
-# Arch Linux Dotfiles
+# Dotfiles
 
-Arch + COSMIC with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+Ubuntu 24.04+ dotfiles with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 
 ## Quick Start
 

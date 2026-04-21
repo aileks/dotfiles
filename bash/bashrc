@@ -1,5 +1,6 @@
 # ble.sh deferred start
-[[ $- == *i* ]] && source /usr/share/blesh/ble.sh --noattach
+[[ $- == *i* ]] && [[ -f /usr/share/blesh/ble.sh ]] && source /usr/share/blesh/ble.sh --noattach
+
 
 # PATH
 export PATH="$PATH:$HOME/.local/bin:$HOME/.local/share/pnpm:$HOME/.opencode/bin"
@@ -8,7 +9,11 @@ export PATH="$PATH:$HOME/.local/bin:$HOME/.local/share/pnpm:$HOME/.opencode/bin"
 export EDITOR='vim'
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
-export MANPAGER="bat -plman"
+if command -v bat >/dev/null 2>&1; then
+  export MANPAGER="bat -plman"
+elif command -v batcat >/dev/null 2>&1; then
+  export MANPAGER="batcat -plman"
+fi
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 
 # General aliases
@@ -19,6 +24,13 @@ alias rm="trash-put"
 alias c="clear"
 alias fzf="fzf --style full"
 alias ff="fastfetch"
+
+if command -v batcat >/dev/null 2>&1 && ! command -v bat >/dev/null 2>&1; then
+  alias bat="batcat"
+fi
+if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+  alias fd="fdfind"
+fi
 
 # Git aliases
 alias ga="git add"
@@ -37,14 +49,13 @@ alias gsh="git stash"
 alias gsha="git stash apply"
 alias gcl="git clone"
 
-# Arch aliases
-alias pacin="sudo pacman -S"
-alias pacrem="sudo pacman -Rns"
-alias pacreps="pacman -Ss"
-alias pacls="pacman -Ql"
-alias yayin="yay -S"
-alias yayreps="yay -Ss"
-alias update="yay -Syu"
+# Package manager aliases
+alias agi="sudo apt install"
+alias agr="sudo apt remove"
+alias agar="sudo apt autoremove"
+alias ase="apt search"
+alias ash="apt show"
+alias agug="sudo apt update && sudo apt upgrade"
 
 # FZF
 export FZF_CTRL_T_OPTS="
@@ -90,6 +101,9 @@ export _ZO_FZF_OPTS="
 eval "$(fzf --bash)"
 eval "$(zoxide init bash)"
 eval "$(starship init bash)"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
 
 # Lazy load nvm
 _load_nvm() {
@@ -110,4 +124,4 @@ case ":$PATH:" in
 esac
 
 # ble.sh deferred attach
-[[ ${BLE_VERSION-} ]] && ble-attach
+[[ ${BLE_VERSION-} ]] && command -v ble-attach >/dev/null 2>&1 && ble-attach
