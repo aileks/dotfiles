@@ -22,22 +22,10 @@ declare -a SETUP_NOTES=()
 # =====================
 
 APT_CORE_PACKAGES=(
-  ca-certificates curl wget rsync git gnupg lsb-release software-properties-common
-  vim openssh-client openssh-server ufw man-db manpages jq shfmt inotify-tools
-  xdg-user-dirs power-profiles-daemon
-  pipx python3-venv flatpak
-  btop eza bat fd-find ripgrep fzf zoxide tree
-  pipewire pipewire-pulse pipewire-alsa wireplumber
-  pavucontrol pamixer playerctl
-  network-manager bluez bluez-tools
-  wl-clipboard
-  xdg-desktop-portal xdg-desktop-portal-gtk
-  libnotify-bin upower
-  gvfs gvfs-backends ffmpeg
-  fonts-noto-core fonts-noto-cjk fonts-noto-color-emoji
-  papirus-icon-theme
-  gnome-calendar
-  solaar
+  ca-certificates curl rsync git build-essential
+  software-properties-common ubuntu-restricted-extras
+  vim jq shfmt btop eza bat fd-find ripgrep
+  fzf zoxide tree pipx flatpak ffmpeg
 )
 
 VENDOR_APT_PACKAGES=(
@@ -45,6 +33,7 @@ VENDOR_APT_PACKAGES=(
   wezterm
   code
   signal-desktop
+  solaar
 )
 
 DOCKER_PACKAGES=(
@@ -74,7 +63,7 @@ record_note() {
   SETUP_NOTES+=("$1")
 }
 
-command_exists() { command -v "$1" &>/dev/null; }
+command_exists() { command -v "$1" &> /dev/null; }
 
 # ===================
 # 	Utility helpers
@@ -87,7 +76,7 @@ prompt_yes_no() {
     [[ $default =~ ^[Yy]$ ]]
     return
   fi
-  if ! read -r -p "$prompt [$default/y]: " reply </dev/tty; then reply="$default"; fi
+  if ! read -r -p "$prompt [$default/y]: " reply < /dev/tty; then reply="$default"; fi
   reply=${reply:-$default}
   [[ $reply =~ ^[Yy]$ ]]
 }
@@ -103,7 +92,7 @@ apt_install_bundle() {
 apt_install_each() {
   local pkg
   for pkg in "$@"; do
-    if dpkg -s "$pkg" &>/dev/null; then
+    if dpkg -s "$pkg" &> /dev/null; then
       log_success "$pkg already installed"
       continue
     fi
@@ -117,7 +106,7 @@ apt_install_each() {
 
 write_root_file() {
   local path="$1" content="$2"
-  if ! printf '%s\n' "$content" | sudo tee "$path" >/dev/null; then
+  if ! printf '%s\n' "$content" | sudo tee "$path" > /dev/null; then
     record_error "Failed to write file: $path"
     return 1
   fi
@@ -168,18 +157,18 @@ bootstrap() {
     log_success "git already installed"
   fi
 
-  if [[ -d $DOTFILES_DIR ]] && git -C "$DOTFILES_DIR" rev-parse --git-dir &>/dev/null; then
+  if [[ -d $DOTFILES_DIR ]] && git -C "$DOTFILES_DIR" rev-parse --git-dir &> /dev/null; then
     log_info "Updating existing dotfiles repository..."
-    git -C "$DOTFILES_DIR" fetch origin &>/dev/null || log_warning "Fetch failed, using local copy"
+    git -C "$DOTFILES_DIR" fetch origin &> /dev/null || log_warning "Fetch failed, using local copy"
     local branch local_ref remote_ref
-    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null |
-      sed 's@^refs/remotes/origin/@@' || echo "main")
-    local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2>/dev/null || echo "")
-    remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2>/dev/null || echo "")
+    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2> /dev/null \
+      | sed 's@^refs/remotes/origin/@@' || echo "main")
+    local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2> /dev/null || echo "")
+    remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2> /dev/null || echo "")
     if [[ $local_ref == "$remote_ref" ]]; then
       log_success "Already up to date"
     else
-      git -C "$DOTFILES_DIR" reset --hard "origin/$branch" &>/dev/null
+      git -C "$DOTFILES_DIR" reset --hard "origin/$branch" &> /dev/null
       log_success "Updated to latest"
     fi
   else
@@ -202,7 +191,7 @@ bootstrap() {
 
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     log_info "Restarting from cloned dotfiles..."
-    exec bash "$DOTFILES_DIR/setup.sh" </dev/tty
+    exec bash "$DOTFILES_DIR/setup.sh" < /dev/tty
   fi
 }
 
@@ -214,7 +203,7 @@ setup_docker_repo() {
   log_info "Configuring Docker official apt repository..."
 
   sudo DEBIAN_FRONTEND=noninteractive apt remove -y \
-    docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc 2>/dev/null || true
+    docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc 2> /dev/null || true
 
   sudo install -m 0755 -d /etc/apt/keyrings || {
     record_error "Failed to create /etc/apt/keyrings"
@@ -227,7 +216,7 @@ setup_docker_repo() {
   fi
   sudo chmod a+r /etc/apt/keyrings/docker.asc || record_error "Failed to chmod Docker key"
 
-  if ! sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
+  if ! sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null << EOF; then
 Types: deb
 URIs: https://download.docker.com/linux/ubuntu
 Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
@@ -235,7 +224,6 @@ Components: stable
 Architectures: $(dpkg --print-architecture)
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
-  then
     record_error "Failed to write Docker apt source"
     return 1
   fi
@@ -251,7 +239,7 @@ setup_wezterm_repo() {
     return 1
   fi
 
-  if ! echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list >/dev/null; then
+  if ! echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list > /dev/null; then
     record_error "Failed to write WezTerm apt source"
     return 1
   fi
@@ -272,7 +260,7 @@ setup_mise_repo() {
     return 1
   }
 
-  if ! curl -fSs https://mise.jdx.dev/gpg-key.pub | sudo tee /etc/apt/keyrings/mise-archive-keyring.asc >/dev/null; then
+  if ! curl -fSs https://mise.jdx.dev/gpg-key.pub | sudo tee /etc/apt/keyrings/mise-archive-keyring.asc > /dev/null; then
     record_error "Failed to install mise key"
     return 1
   fi
@@ -323,6 +311,17 @@ setup_signal_repo() {
   log_success "Signal repository configured"
 }
 
+setup_solaar_repo() {
+  log_info "Configuring Solaar PPA repository..."
+
+  if ! sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:solaar-unifying/stable; then
+    record_error "Failed to configure Solaar PPA"
+    return 1
+  fi
+
+  log_success "Solaar PPA repository configured"
+}
+
 # ========================
 # 	Package installation
 # ========================
@@ -339,11 +338,13 @@ install_apt_packages() {
 }
 
 setup_vendor_repositories() {
+  setup_bitwarden_repo
   setup_docker_repo
   setup_wezterm_repo
   setup_mise_repo
   setup_vscode_repo
   setup_signal_repo
+  setup_solaar_repo
 
   log_info "Refreshing apt metadata after adding vendor repositories..."
   sudo apt update || record_error "Failed to update apt after vendor repos"
@@ -356,11 +357,11 @@ install_vendor_packages() {
   log_info "Installing Docker from the official Docker repository..."
   apt_install_bundle "${DOCKER_PACKAGES[@]}"
 
-  if getent group docker &>/dev/null; then
+  if getent group docker &> /dev/null; then
     sudo usermod -aG docker "$USER" || record_note "Could not add $USER to docker group"
-	sudo systemctl enable --now docker.service || record_note "Could not enable/start Docker service"
+    sudo systemctl enable --now docker.service || record_note "Could not enable/start Docker service"
   else
-	record_note "Docker group not found; skipping usermod and service enable steps"
+    record_note "Docker group not found; skipping usermod and service enable steps"
   fi
 }
 
@@ -410,7 +411,7 @@ install_python_utilities() {
     return 1
   fi
 
-  pipx ensurepath >/dev/null 2>&1 || true
+  pipx ensurepath > /dev/null 2>&1 || true
 
   if ! pipx install --force trash-cli; then
     record_error "Failed to install trash-cli via pipx"
@@ -443,7 +444,7 @@ configure_flatpak() {
 
 flatpak_install_app() {
   local app_id="$1"
-  if flatpak info "$app_id" &>/dev/null; then
+  if flatpak info "$app_id" &> /dev/null; then
     log_success "Flatpak app already installed: $app_id"
     return 0
   fi
@@ -457,18 +458,29 @@ flatpak_install_app() {
   return 0
 }
 
+install_flatpak_apps() {
+  log_info "Installing Flatpak apps from Flathub..."
+
+  flatpak_install_app com.bitwarden.desktop
+  flatpak_install_app com.fastmail.Fastmail
+  flatpak_install_app com.notesnook.Notesnook
+
+  log_success "Flatpak app installation complete"
+}
+
 # =============================
 # 	Snap removal and blocking
 # =============================
 
 apply_no_snap_preferences() {
   local pref
-  pref=$(cat <<'EOF'
+  pref=$(
+    cat << 'EOF'
 Package: snapd
 Pin: release a=*
 Pin-Priority: -10
 EOF
-)
+  )
 
   write_root_file "/etc/apt/preferences.d/no-snap.pref" "$pref"
 }
@@ -486,46 +498,46 @@ remove_snaps_forward_compatible() {
   if command_exists systemctl; then
     local unit
     for unit in snapd.service snapd.socket snapd.seeded.service; do
-      sudo systemctl stop "$unit" 2>/dev/null || true
-      sudo systemctl disable "$unit" 2>/dev/null || true
-      sudo systemctl mask "$unit" 2>/dev/null || true
+      sudo systemctl stop "$unit" 2> /dev/null || true
+      sudo systemctl disable "$unit" 2> /dev/null || true
+      sudo systemctl mask "$unit" 2> /dev/null || true
     done
 
     while read -r unit; do
-      [[ -z "$unit" ]] && continue
-      sudo systemctl stop "$unit" 2>/dev/null || true
-      sudo systemctl disable "$unit" 2>/dev/null || true
-      sudo systemctl mask "$unit" 2>/dev/null || true
-    done < <(systemctl list-unit-files --type=mount --no-legend 2>/dev/null | awk '/snap/ {print $1}')
+      [[ -z $unit ]] && continue
+      sudo systemctl stop "$unit" 2> /dev/null || true
+      sudo systemctl disable "$unit" 2> /dev/null || true
+      sudo systemctl mask "$unit" 2> /dev/null || true
+    done < <(systemctl list-unit-files --type=mount --no-legend 2> /dev/null | awk '/snap/ {print $1}')
   fi
 
   if command_exists snap; then
     local snap_name
     while read -r snap_name; do
-      [[ -z "$snap_name" ]] && continue
-      sudo snap remove --purge "$snap_name" 2>/dev/null || true
-    done < <(snap list --all 2>/dev/null | awk 'NR>1 {print $1}' | sort -u)
+      [[ -z $snap_name ]] && continue
+      sudo snap remove --purge "$snap_name" 2> /dev/null || true
+    done < <(snap list --all 2> /dev/null | awk 'NR>1 {print $1}' | sort -u)
   fi
 
   while read -r mount_point; do
-    [[ -z "$mount_point" ]] && continue
-    sudo umount -l "$mount_point" 2>/dev/null || sudo umount "$mount_point" 2>/dev/null || true
+    [[ -z $mount_point ]] && continue
+    sudo umount -l "$mount_point" 2> /dev/null || sudo umount "$mount_point" 2> /dev/null || true
   done < <(mount | awk '$3 ~ /^\/snap|^\/var\/snap/ {print $3}' | sort -r)
 
-  if dpkg -s snapd &>/dev/null; then
-    sudo DEBIAN_FRONTEND=noninteractive apt purge -y snapd 2>/dev/null ||
-      sudo DEBIAN_FRONTEND=noninteractive apt remove -y snapd 2>/dev/null ||
-      record_error "Failed to remove snapd package"
+  if dpkg -s snapd &> /dev/null; then
+    sudo DEBIAN_FRONTEND=noninteractive apt purge -y snapd 2> /dev/null \
+      || sudo DEBIAN_FRONTEND=noninteractive apt remove -y snapd 2> /dev/null \
+      || record_error "Failed to remove snapd package"
   fi
 
-  sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y 2>/dev/null || true
+  sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y 2> /dev/null || true
 
-  sudo rm -rf /var/cache/snapd /var/lib/snapd /snap /var/snap /root/.snap /root/snap 2>/dev/null || true
-  rm -rf "$HOME/.snap" 2>/dev/null || true
-  sudo rm -f /etc/apparmor.d/usr.lib.snapd.snap-confine* /etc/apparmor.d/usr.lib.snapd.* 2>/dev/null || true
+  sudo rm -rf /var/cache/snapd /var/lib/snapd /snap /var/snap /root/.snap /root/snap 2> /dev/null || true
+  rm -rf "$HOME/.snap" 2> /dev/null || true
+  sudo rm -f /etc/apparmor.d/usr.lib.snapd.snap-confine* /etc/apparmor.d/usr.lib.snapd.* 2> /dev/null || true
 
   if command_exists systemctl; then
-    sudo systemctl daemon-reload 2>/dev/null || true
+    sudo systemctl daemon-reload 2> /dev/null || true
   fi
 
   log_success "Snap removal and pinning complete"
@@ -624,21 +636,17 @@ main() {
   install_vendor_packages
   install_script_tools
   install_python_utilities
-
   configure_flatpak
   install_flatpak_apps
-
-  setup_xdg_dirs
   symlink_configs
   setup_shell
-  setup_services
 
   echo
   log_success "═══════════════════════════════════════"
   log_success " 	   Ubuntu setup finished!"
   log_success "═══════════════════════════════════════"
 
-  if [[ -d $BACKUP_DIR ]] && [[ "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]]; then
+  if [[ -d $BACKUP_DIR ]] && [[ "$(ls -A "$BACKUP_DIR" 2> /dev/null)" ]]; then
     log_info "Old configs backed up to: $BACKUP_DIR"
   fi
 
