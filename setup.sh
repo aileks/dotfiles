@@ -234,17 +234,23 @@ EOF
 setup_wezterm_repo() {
   log_info "Configuring WezTerm Fury apt repository..."
 
-  if ! curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg; then
+  # Switched to /etc/apt/keyrings for consistency
+  sudo install -dm 755 /etc/apt/keyrings || {
+    record_error "Failed to create /etc/apt/keyrings"
+    return 1
+  }
+
+  if ! curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg; then
     record_error "Failed to install WezTerm Fury key"
     return 1
   fi
 
-  if ! echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list > /dev/null; then
+  if ! echo 'deb [signed-by=/etc/apt/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list > /dev/null; then
     record_error "Failed to write WezTerm apt source"
     return 1
   fi
 
-  if ! sudo chmod 644 /usr/share/keyrings/wezterm-fury.gpg; then
+  if ! sudo chmod 644 /etc/apt/keyrings/wezterm-fury.gpg; then
     record_error "Failed to chmod WezTerm keyring"
     return 1
   fi
@@ -297,17 +303,23 @@ setup_vscode_repo() {
 setup_signal_repo() {
   log_info "Configuring Signal apt repository..."
 
-  if ! curl -fsSL https://updates.signal.org/desktop/apt/keys.asc | sudo gpg --yes --dearmor -o /usr/share/keyrings/signal-desktop-keyring.gpg; then
+  # Switched to /etc/apt/keyrings for consistency
+  sudo install -dm 755 /etc/apt/keyrings || {
+    record_error "Failed to create /etc/apt/keyrings"
+    return 1
+  }
+
+  if ! curl -fsSL https://updates.signal.org/desktop/apt/keys.asc | sudo gpg --yes --dearmor -o /etc/apt/keyrings/signal-desktop-keyring.gpg; then
     record_error "Failed to install Signal key"
     return 1
   fi
 
   if ! write_root_file "/etc/apt/sources.list.d/signal-xenial.list" \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main"; then
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main"; then
     return 1
   fi
 
-  sudo chmod 644 /usr/share/keyrings/signal-desktop-keyring.gpg || record_error "Failed to chmod Signal keyring"
+  sudo chmod 644 /etc/apt/keyrings/signal-desktop-keyring.gpg || record_error "Failed to chmod Signal keyring"
   log_success "Signal repository configured"
 }
 
@@ -338,7 +350,6 @@ install_apt_packages() {
 }
 
 setup_vendor_repositories() {
-  setup_bitwarden_repo
   setup_docker_repo
   setup_wezterm_repo
   setup_mise_repo
@@ -362,6 +373,18 @@ install_vendor_packages() {
     sudo systemctl enable --now docker.service || record_note "Could not enable/start Docker service"
   else
     record_note "Docker group not found; skipping usermod and service enable steps"
+  fi
+
+  log_info "Installing Zen Browser (tarball method)..."
+
+  if [[ -f "$HOME/.tarball-installations/zen/zen" ]]; then
+    log_success "Zen Browser is already installed"
+  else
+    if ! curl -fsSL https://github.com/zen-browser/updates-server/raw/refs/heads/main/install.sh | bash > /dev/null; then
+      record_error "Failed to install Zen Browser"
+    else
+      log_success "Zen Browser installed"
+    fi
   fi
 }
 
@@ -432,8 +455,9 @@ configure_flatpak() {
     return 1
   fi
 
-  if ! flatpak remote-list --columns=name | grep -qx flathub; then
-    if ! sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+  # Changed to --user to avoid Polkit sudo prompts
+  if ! flatpak remote-list --user --columns=name | grep -qx flathub; then
+    if ! flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
       record_error "Failed to add Flathub remote"
       return 1
     fi
@@ -449,7 +473,7 @@ flatpak_install_app() {
     return 0
   fi
 
-  if ! flatpak install -y flathub "$app_id"; then
+  if ! flatpak install --user -y flathub "$app_id"; then
     record_error "Failed to install flatpak app: $app_id"
     return 1
   fi
@@ -630,6 +654,14 @@ main() {
   echo
   log_info "Starting Ubuntu 24.04+ installation pipeline..."
 
+  log_info "Caching sudo credentials for uninterrupted installation..."
+  sudo -v
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2> /dev/null &
+
   remove_snaps_forward_compatible
   install_apt_packages
   setup_vendor_repositories
@@ -649,6 +681,9 @@ main() {
   if [[ -d $BACKUP_DIR ]] && [[ "$(ls -A "$BACKUP_DIR" 2> /dev/null)" ]]; then
     log_info "Old configs backed up to: $BACKUP_DIR"
   fi
+
+  # Automatically added note to address the pipx/PATH issue
+  record_note "Run 'source ~/.bashrc' or log out/in so pipx-installed apps (like trash-cli) are in your PATH."
 
   if [[ ${#SETUP_NOTES[@]} -gt 0 ]]; then
     echo
