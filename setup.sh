@@ -24,7 +24,7 @@ declare -a SETUP_NOTES=()
 APT_CORE_PACKAGES=(
   ca-certificates curl rsync git build-essential
   software-properties-common ubuntu-restricted-extras
-  vim jq shfmt btop eza bat fd-find ripgrep
+  vim jq shfmt btop eza bat fd-find ripgrep libopengl0
   fzf zoxide tree pipx flatpak ffmpeg
 )
 
@@ -666,26 +666,10 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
+  create_symlink "$SCRIPT_DIR/starship" "$HOME/.config/starship"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/bash/bashrc" "$HOME/.bashrc"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
-  create_symlink "$SCRIPT_DIR/starship" "$HOME/.config/starship"
-}
-
-# ===============
-# 	Shell setup
-# ===============
-
-setup_shell() {
-  log_info "Checking default shell..."
-  if [[ $SHELL == *"bash"* ]]; then
-    log_success "Default shell is already bash"
-    return 0
-  fi
-
-  if ! chsh -s "$(command -v bash)"; then
-    record_error "Failed to change shell to bash"
-  fi
 }
 
 # ===============
@@ -731,7 +715,8 @@ main() {
   configure_flatpak
   install_flatpak_apps
   symlink_configs
-  setup_shell
+
+  dconf load / < gsetting.dconf
 
   echo
   log_success "═══════════════════════════════════════"
