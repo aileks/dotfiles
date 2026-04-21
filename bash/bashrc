@@ -6,7 +6,7 @@ export PATH="$PATH:$HOME/.local/bin"
 source -- ~/.local/share/blesh/ble.sh
 
 # Core environment
-export EDITOR='vim'
+export EDITOR="vim"
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 if command -v bat >/dev/null 2>&1; then
@@ -14,7 +14,7 @@ if command -v bat >/dev/null 2>&1; then
 elif command -v batcat >/dev/null 2>&1; then
   export MANPAGER="batcat -plman"
 fi
-export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+export SSH_AUTH_SOCK="/home/aileks/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
 
 # General aliases
 alias ls="eza --color=always --icons --group-directories-first"
@@ -55,6 +55,7 @@ alias agr="sudo apt remove"
 alias agar="sudo apt autoremove"
 alias ase="apt search"
 alias ash="apt show"
+alias agu="sudo apt update"
 alias agug="sudo apt update && sudo apt upgrade"
 
 # FZF
