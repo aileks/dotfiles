@@ -2,11 +2,11 @@
 
 set -uo pipefail
 
-readonly LOG_RED='\033[0;31m'
-readonly LOG_GREEN='\033[0;32m'
-readonly LOG_YELLOW='\033[1;33m'
-readonly LOG_BLUE='\033[0;34m'
-readonly LOG_NC='\033[0m'
+readonly LOG_RED='033[0;31m'
+readonly LOG_GREEN='033[0;32m'
+readonly LOG_YELLOW='033[1;33m'
+readonly LOG_BLUE='033[0;34m'
+readonly LOG_NC='033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
@@ -106,7 +106,7 @@ apt_install_each() {
 
 write_root_file() {
   local path="$1" content="$2"
-  if ! printf '%s\n' "$content" | sudo tee "$path" > /dev/null; then
+  if ! printf '%sn' "$content" | sudo tee "$path" > /dev/null; then
     record_error "Failed to write file: $path"
     return 1
   fi
@@ -161,7 +161,7 @@ bootstrap() {
     log_info "Updating existing dotfiles repository..."
     git -C "$DOTFILES_DIR" fetch origin &> /dev/null || log_warning "Fetch failed, using local copy"
     local branch local_ref remote_ref
-    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2> /dev/null \
+    branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2> /dev/null 
       | sed 's@^refs/remotes/origin/@@' || echo "main")
     local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2> /dev/null || echo "")
     remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2> /dev/null || echo "")
@@ -202,7 +202,7 @@ bootstrap() {
 setup_docker_repo() {
   log_info "Configuring Docker official apt repository..."
 
-  sudo DEBIAN_FRONTEND=noninteractive apt remove -y \
+  sudo DEBIAN_FRONTEND=noninteractive apt remove -y 
     docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc 2> /dev/null || true
 
   sudo install -m 0755 -d /etc/apt/keyrings || {
@@ -271,7 +271,7 @@ setup_mise_repo() {
     return 1
   fi
 
-  if ! write_root_file "/etc/apt/sources.list.d/mise.list" \
+  if ! write_root_file "/etc/apt/sources.list.d/mise.list" 
     "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.asc] https://mise.jdx.dev/deb stable main"; then
     return 1
   fi
@@ -292,7 +292,7 @@ setup_vscode_repo() {
     return 1
   fi
 
-  if ! write_root_file "/etc/apt/sources.list.d/vscode.list" \
+  if ! write_root_file "/etc/apt/sources.list.d/vscode.list" 
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"; then
     return 1
   fi
@@ -314,7 +314,7 @@ setup_signal_repo() {
     return 1
   fi
 
-  if ! write_root_file "/etc/apt/sources.list.d/signal-xenial.list" \
+  if ! write_root_file "/etc/apt/sources.list.d/signal-xenial.list" 
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main"; then
     return 1
   fi
@@ -546,18 +546,18 @@ remove_snaps_forward_compatible() {
   while read -r mount_point; do
     [[ -z $mount_point ]] && continue
     sudo umount -l "$mount_point" 2> /dev/null || sudo umount "$mount_point" 2> /dev/null || true
-  done < <(mount | awk '$3 ~ /^\/snap|^\/var\/snap/ {print $3}' | sort -r)
+  done < <(mount | awk '$3 ~ /^/snap|^\/var\/snap/ {print $3}' | sort -r)
 
   if dpkg -s snapd &> /dev/null; then
-    sudo DEBIAN_FRONTEND=noninteractive apt purge -y snapd 2> /dev/null \
-      || sudo DEBIAN_FRONTEND=noninteractive apt remove -y snapd 2> /dev/null \
+    sudo DEBIAN_FRONTEND=noninteractive apt purge -y snapd 2> /dev/null 
+      || sudo DEBIAN_FRONTEND=noninteractive apt remove -y snapd 2> /dev/null 
       || record_error "Failed to remove snapd package"
   fi
 
   sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y 2> /dev/null || true
 
   sudo rm -rf /var/cache/snapd /var/lib/snapd /snap /var/snap /root/.snap /root/snap 2> /dev/null || true
-  rm -rf "$HOME/.snap" 2> /dev/null || true
+  rm -rf "$HOME/.snap" "$HOME/snap" 2> /dev/null || true
   sudo rm -f /etc/apparmor.d/usr.lib.snapd.snap-confine* /etc/apparmor.d/usr.lib.snapd.* 2> /dev/null || true
 
   if command_exists systemctl; then
