@@ -99,9 +99,20 @@ ensure_command_line_tools() {
   log_success "Xcode Command Line Tools installed"
 }
 
+persist_brew_shellenv() {
+  local line='eval "$(/opt/homebrew/bin/brew shellenv)"'
+  local zprofile="$HOME/.zprofile"
+  if [[ -f $zprofile ]] && grep -qF "$line" "$zprofile"; then
+    return 0
+  fi
+  printf '\n%s\n' "$line" >> "$zprofile"
+  log_info "Added brew shellenv to ~/.zprofile"
+}
+
 ensure_homebrew() {
   if command_exists brew; then
     log_success "Homebrew already installed"
+    persist_brew_shellenv
     return 0
   fi
 
@@ -111,11 +122,8 @@ ensure_homebrew() {
     exit 1
   fi
 
-  if [[ -x /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [[ -x /usr/local/bin/brew ]]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  persist_brew_shellenv
   log_success "Homebrew installed"
 }
 
