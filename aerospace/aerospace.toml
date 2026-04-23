@@ -1,4 +1,4 @@
-after-startup-command = []
+after-startup-command = ['exec-and-forget /opt/homebrew/bin/borders']
 start-at-login = true
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true

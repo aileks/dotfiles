@@ -200,6 +200,7 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
   create_symlink "$SCRIPT_DIR/aerospace" "$HOME/.config/aerospace"
+  create_symlink "$SCRIPT_DIR/borders" "$HOME/.config/borders"
   create_symlink "$SCRIPT_DIR/starship" "$HOME/.config/starship"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
@@ -208,6 +209,31 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/zsh/zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
 
   mkdir -p "$HOME/.vim/backup" "$HOME/.vim/swap" "$HOME/.vim/undo"
+}
+
+# =======================
+# 	macOS defaults
+# =======================
+
+apply_macos_defaults() {
+  log_info "Applying macOS defaults..."
+
+  # Key repeat on hold instead of the accent-chooser popover.
+  defaults write -g ApplePressAndHoldEnabled -bool false
+
+  # Drag any window by cmd+ctrl+clicking anywhere on it (AeroSpace-friendly).
+  defaults write -g NSWindowShouldDragOnGesture -bool true
+
+  # Kill zoom/minimize window animations.
+  defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
+
+  # Faster key repeat. Units are 15ms/tick. 15 → ~225ms initial delay;
+  # 2 → ~30ms between repeats (~33/sec). System Settings caps KeyRepeat at 2;
+  # drop to 1 (~66/sec) if you want noticeably faster.
+  defaults write -g InitialKeyRepeat -int 15
+  defaults write -g KeyRepeat -int 2
+
+  log_success "macOS defaults applied (log out / log in for key-repeat to take effect)"
 }
 
 # =======================
@@ -260,28 +286,13 @@ main() {
   ensure_homebrew
   install_from_brewfile
   symlink_configs
+  apply_macos_defaults
   prime_antidote_cache
 
   print
   log_success "═══════════════════════════════════════"
   log_success " 	    macOS setup finished!"
   log_success "═══════════════════════════════════════"
-
-  cat << 'EOF'
-
-Next steps:
-  1. First-launch each cask GUI app (Kitty, Bitwarden, Docker Desktop, ...).
-     macOS Tahoe will block them on first open — approve each under
-     System Settings → Privacy & Security → "Open anyway".
-  2. Sign into Bitwarden desktop and enable the SSH agent
-     (Settings → SSH agent → enable) so $SSH_AUTH_SOCK has a live socket.
-  3. Change your login shell to brew-zsh if you want the newer zsh:
-       sudo chsh -s "$(brew --prefix)/bin/zsh" "$USER"
-     (Apple's system zsh at /bin/zsh is fine too — no action needed.)
-  4. Open a new Kitty window so ~/.zshrc loads antidote + starship.
-  5. mise use -g node@lts   # if you want Node managed by mise instead of nvm.
-
-EOF
 
   if [[ -d $BACKUP_DIR ]] && [[ -n "$(ls -A "$BACKUP_DIR" 2> /dev/null)" ]]; then
     log_info "Old configs backed up to: $BACKUP_DIR"

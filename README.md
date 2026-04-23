@@ -2,6 +2,10 @@
 
 macOS dotfiles with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 
+Installs Xcode Command Line Tools, Homebrew, every package from [`Brewfile`](./Brewfile),
+and symlinks configs into `~/.config` and `$HOME`. Uses `zsh` with antidote, and the
+Ashen theme across kitty, bat, btop, starship, and fzf.
+
 ## Install
 
 ```bash
@@ -14,16 +18,4 @@ Or manually:
 git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup.sh
-```
-
-Installs Xcode Command Line Tools, Homebrew, every package from `Brewfile`
-(CLI tools + GUI casks + Nerd Font), and symlinks configs into `~/.config`
-and `$HOME`. Uses `zsh` (antidote) with the Ashen theme across kitty, bat,
-btop, starship, and fzf.
-
-## Manual package sync
-
-```bash
-brew bundle install --file=~/.dotfiles/Brewfile   # install anything missing
-brew bundle cleanup --file=~/.dotfiles/Brewfile   # show what's extra
 ```
