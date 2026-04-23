@@ -135,7 +135,7 @@ bootstrap() {
 
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     log_info "Restarting from cloned dotfiles..."
-    exec zsh "$DOTFILES_DIR/setup.sh" < /dev/tty
+    exec zsh "$DOTFILES_DIR/setup.zsh" < /dev/tty
   fi
 }
 
