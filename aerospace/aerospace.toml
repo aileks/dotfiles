@@ -14,16 +14,17 @@ persistent-workspaces = ["1", "2", "3", "4", "5", "6", "7"]
 preset = 'qwerty'
 
 [gaps]
-inner.horizontal = 6
-inner.vertical = 6
-outer.left = 6
-outer.bottom = 6
-outer.top = 6
-outer.right = 6
+inner.horizontal = 8
+inner.vertical = 8
+outer.left = 8
+outer.bottom = 8
+outer.top = 8
+outer.right = 8
 
 [mode.main.binding]
 cmd-alt-ctrl-slash = 'layout tiles horizontal vertical'
 cmd-alt-ctrl-shift-space = 'layout floating tiling'
+cmd-alt-ctrl-r = ['flatten-workspace-tree', 'balance-sizes']
 
 cmd-alt-ctrl-h = 'focus left'
 cmd-alt-ctrl-j = 'focus down'
@@ -55,3 +56,15 @@ cmd-alt-ctrl-shift-6 = 'move-node-to-workspace 6'
 cmd-alt-ctrl-shift-7 = 'move-node-to-workspace 7'
 cmd-alt-ctrl-shift-8 = 'move-node-to-workspace 8'
 cmd-alt-ctrl-shift-9 = 'move-node-to-workspace 9'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.bitwarden.desktop'
+run = 'layout floating'
+
+[workspace-to-monitor-force-assignment]
+8 = 'XV240Y X1 \(2\)'
+9 = 'XV240Y X1 \(1\)'

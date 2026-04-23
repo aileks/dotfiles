@@ -35,20 +35,18 @@ export FZF_ALT_C_OPTS="
   --walker-skip .git,node_modules,target
   --preview 'tree -C {}'"
 export FZF_DEFAULT_OPTS="
-  --multi
-  --border=top
   --color=fg:#a7a7a7
   --color=fg+:#d5d5d5
   --color=bg:#121212
   --color=bg+:#323232
-  --color=hl:#c4693d
-  --color=hl+:#e49a44
+  --color=hl:#C4693D
+  --color=hl+:#E49A44
   --color=info:#a7a7a7
-  --color=marker:#c4693d
-  --color=prompt:#c4693d
-  --color=spinner:#d87c4a
-  --color=pointer:#e5a72a
-  --color=header:#b14242
+  --color=marker:#C4693D
+  --color=prompt:#C4693D
+  --color=spinner:#D87C4A
+  --color=pointer:#E5A72A
+  --color=header:#B14242
   --color=border:#a7a7a7
   --color=query:#d5d5d5
   --color=gutter:#121212
@@ -57,6 +55,8 @@ export FZF_DEFAULT_OPTS="
   --layout=reverse
   --pointer='█'
   --scrollbar='▌'
+  --multi
+  --border=top
 "
 export _ZO_FZF_OPTS="
   $FZF_DEFAULT_OPTS

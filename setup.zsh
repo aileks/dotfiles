@@ -252,21 +252,31 @@ symlink_configs() {
 apply_macos_defaults() {
   log_info "Applying macOS defaults..."
 
-  # Key repeat on hold instead of the accent-chooser popover
   defaults write -g ApplePressAndHoldEnabled -bool false
-
-  # Drag any window by cmd+ctrl+clicking anywhere on it
   defaults write -g NSWindowShouldDragOnGesture -bool true
-
-  # Kill zoom/minimize window animations
   defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
-
-  # Faster key repeat
   defaults write -g InitialKeyRepeat -int 15
   defaults write -g KeyRepeat -int 2
-
-  # Aerospace fix for Mission Control
   defaults write com.apple.dock expose-group-apps -bool true
+
+  defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+  defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
+  defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
+  defaults write com.apple.finder ShowMountedServersOnDesktop -bool false
+  defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
+  defaults write com.apple.finder AppleShowAllFiles -bool true
+  defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+  defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
+
+  defaults write com.apple.dock autohide -bool true
+  defaults write com.apple.dock mru-spaces -bool false
+  defaults write com.apple.spaces spans-displays -bool false
+
+  defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+  defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+  defaults write com.apple.LaunchServices LSQuarantine -bool false
+
+  defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool YES
 
   log_success "macOS defaults applied"
 }
@@ -388,6 +398,9 @@ main() {
     done
     print -r -- "${LOG_YELLOW}Review the errors; manual intervention may be needed.${LOG_NC}"
   fi
+
+  print
+  log_warning "Log out and log back in for all settings to take full effect."
 }
 
 main "$@"
