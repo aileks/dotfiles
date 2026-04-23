@@ -67,16 +67,35 @@ check_os() {
 }
 
 ensure_command_line_tools() {
-  if xcode-select -p &> /dev/null; then
+  # Homebrew's install.sh uses this exact check: xcode-select -p can be truthy
+  # before the tools are fully present (e.g. when only Xcode.app is installed).
+  local clt_git=/Library/Developer/CommandLineTools/usr/bin/git
+
+  if [[ -e $clt_git ]]; then
     log_success "Xcode Command Line Tools already installed"
     return 0
   fi
+
   log_info "Installing Xcode Command Line Tools..."
-  xcode-select --install 2> /dev/null || true
-  log_warning "Complete the GUI prompt for Command Line Tools, then re-run this script."
-  while ! xcode-select -p &> /dev/null; do
-    sleep 10
+  log_warning "A system dialog will appear. Click 'Install' and accept the"
+  log_warning "license. This script will resume automatically when done."
+
+  xcode-select --install &> /dev/null || true
+
+  local waited=0 heartbeat=30 timeout=1800
+  while [[ ! -e $clt_git ]]; do
+    if (( waited >= timeout )); then
+      log_error "Timed out after $((timeout / 60)) min waiting for Command Line Tools."
+      log_error "Finish the install manually, then re-run this script."
+      exit 1
+    fi
+    sleep 5
+    (( waited += 5 ))
+    if (( waited % heartbeat == 0 )); then
+      log_info "Still waiting for Command Line Tools install... (${waited}s elapsed)"
+    fi
   done
+
   log_success "Xcode Command Line Tools installed"
 }
 
@@ -218,22 +237,20 @@ symlink_configs() {
 apply_macos_defaults() {
   log_info "Applying macOS defaults..."
 
-  # Key repeat on hold instead of the accent-chooser popover.
+  # Key repeat on hold instead of the accent-chooser popover
   defaults write -g ApplePressAndHoldEnabled -bool false
 
-  # Drag any window by cmd+ctrl+clicking anywhere on it (AeroSpace-friendly).
+  # Drag any window by cmd+ctrl+clicking anywhere on it
   defaults write -g NSWindowShouldDragOnGesture -bool true
 
-  # Kill zoom/minimize window animations.
+  # Kill zoom/minimize window animations
   defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
 
-  # Faster key repeat. Units are 15ms/tick. 15 → ~225ms initial delay;
-  # 2 → ~30ms between repeats (~33/sec). System Settings caps KeyRepeat at 2;
-  # drop to 1 (~66/sec) if you want noticeably faster.
+  # Faster key repeat
   defaults write -g InitialKeyRepeat -int 15
   defaults write -g KeyRepeat -int 2
 
-  log_success "macOS defaults applied (log out / log in for key-repeat to take effect)"
+  log_success "macOS defaults applied"
 }
 
 # =======================
@@ -262,6 +279,7 @@ prime_antidote_cache() {
 
 main() {
   check_os
+  ensure_command_line_tools
 
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     bootstrap
@@ -282,7 +300,6 @@ main() {
   print
   log_info "Starting macOS installation pipeline..."
 
-  ensure_command_line_tools
   ensure_homebrew
   install_from_brewfile
   symlink_configs
