@@ -14,19 +14,18 @@
     },
     {
       "type": "host",
-      "key": " PC",
+      "key": " PC",
       "keyColor": "green"
     },
     {
       "type": "cpu",
-      "key": "│ ├",
+      "key": "│ ├",
       "showPeCoreCount": true,
       "keyColor": "green"
     },
     {
       "type": "gpu",
-      "key": "│ ├",
-      "detectionMethod": "pci",
+      "key": "│ ├",
       "keyColor": "green"
     },
     {
@@ -41,7 +40,7 @@
     },
     {
       "type": "memory",
-      "key": "│ ├",
+      "key": "│ ├",
       "keyColor": "green"
     },
     {
@@ -60,12 +59,12 @@
     },
     {
       "type": "os",
-      "key": " OS",
+      "key": " OS",
       "keyColor": "yellow"
     },
     {
       "type": "kernel",
-      "key": "│ ├",
+      "key": "│ ├",
       "keyColor": "yellow"
     },
     {
@@ -75,7 +74,7 @@
     },
     {
       "type": "shell",
-      "key": "└ └",
+      "key": "└ └",
       "keyColor": "yellow"
     },
     "break",
@@ -86,32 +85,17 @@
     },
     {
       "type": "wm",
-      "key": "│ ├",
-      "keyColor": "blue"
-    },
-    {
-      "type": "wmtheme",
-      "key": "│ ├󰉼",
-      "keyColor": "blue"
-    },
-    {
-      "type": "icons",
-      "key": "│ ├󰀻",
-      "keyColor": "blue"
-    },
-    {
-      "type": "cursor",
-      "key": "│ ├",
+      "key": "│ ├",
       "keyColor": "blue"
     },
     {
       "type": "terminalfont",
-      "key": "│ ├",
+      "key": "│ ├",
       "keyColor": "blue"
     },
     {
       "type": "terminal",
-      "key": "└ └",
+      "key": "└ └",
       "keyColor": "blue"
     },
     {
@@ -127,7 +111,7 @@
       "type": "command",
       "key": "  OS Age ",
       "keyColor": "red",
-      "text": "birth_install=$(stat -c %W /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
+      "text": "birth_install=$(stat -f %B /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
     },
     {
       "type": "uptime",

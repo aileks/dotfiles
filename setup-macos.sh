@@ -17,29 +17,6 @@ DOTFILES_DIR="$HOME/.dotfiles"
 declare -a SETUP_ERRORS=()
 declare -a SETUP_NOTES=()
 
-# =====================
-# 	Package manifests
-# =====================
-
-BREW_FORMULAE=(
-  git vim jq shfmt btop eza bat fd ripgrep
-  fzf zoxide tree pipx ffmpeg
-  mise uv starship fastfetch trash
-  antidote
-)
-
-BREW_CASKS=(
-  wezterm
-  visual-studio-code
-  bitwarden
-  signal
-  zen
-  notesnook
-  fastmail
-  docker
-  font-commit-mono-nerd-font
-)
-
 # ====================
 # 	Logging helpers
 # ====================
@@ -165,34 +142,22 @@ bootstrap() {
 # 	Package installation
 # ========================
 
-install_brew_formulae() {
+install_from_brewfile() {
+  local brewfile="$SCRIPT_DIR/Brewfile"
+  if [[ ! -f $brewfile ]]; then
+    record_error "Brewfile not found at $brewfile"
+    return 1
+  fi
+
   log_info "Updating Homebrew..."
   brew update || record_note "brew update reported issues; continuing"
 
-  log_info "Installing Homebrew formulae..."
-  if ! brew install "${BREW_FORMULAE[@]}"; then
-    record_error "One or more brew formulae failed to install"
+  log_info "Installing from Brewfile..."
+  if ! brew bundle install --file="$brewfile"; then
+    record_error "brew bundle reported failures; review the output above"
   else
-    log_success "Brew formulae installed"
+    log_success "Brewfile packages installed"
   fi
-}
-
-install_brew_casks() {
-  log_info "Installing Homebrew casks (GUI apps + fonts)..."
-  # Casks can fail individually (e.g., already installed via drag-and-drop);
-  # install one at a time so a single failure doesn't abort the whole batch.
-  local cask
-  for cask in "${BREW_CASKS[@]}"; do
-    if brew list --cask "$cask" &> /dev/null; then
-      log_success "Cask already installed: $cask"
-      continue
-    fi
-    if ! brew install --cask "$cask"; then
-      record_error "Failed to install cask: $cask"
-    else
-      log_success "Cask installed: $cask"
-    fi
-  done
 }
 
 # ====================
@@ -232,20 +197,13 @@ symlink_configs() {
   mkdir -p "$HOME/.config"
 
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
-  create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm"
+  create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
   create_symlink "$SCRIPT_DIR/starship" "$HOME/.config/starship"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
+  create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   create_symlink "$SCRIPT_DIR/zsh/zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
-
-  # fastfetch: link the directory, then point config.jsonc at the macOS variant
-  create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
-  if [[ -f "$SCRIPT_DIR/fastfetch/config-macos.jsonc" ]]; then
-    ln -sf "$SCRIPT_DIR/fastfetch/config-macos.jsonc" "$HOME/.config/fastfetch/config.jsonc" \
-      && log_success "fastfetch: pointing config.jsonc at config-macos.jsonc" \
-      || record_error "Failed to symlink fastfetch macOS config"
-  fi
 
   mkdir -p "$HOME/.vim/backup" "$HOME/.vim/swap" "$HOME/.vim/undo"
 }
@@ -298,8 +256,7 @@ main() {
 
   ensure_command_line_tools
   ensure_homebrew
-  install_brew_formulae
-  install_brew_casks
+  install_from_brewfile
   symlink_configs
   prime_antidote_cache
 
@@ -311,13 +268,16 @@ main() {
   cat << 'EOF'
 
 Next steps:
-  1. Sign into Bitwarden desktop and enable the SSH agent
+  1. First-launch each cask GUI app (Kitty, Bitwarden, Docker Desktop, ...).
+     macOS Tahoe will block them on first open — approve each under
+     System Settings → Privacy & Security → "Open anyway".
+  2. Sign into Bitwarden desktop and enable the SSH agent
      (Settings → SSH agent → enable) so $SSH_AUTH_SOCK has a live socket.
-  2. Change your login shell to brew-zsh if you want the newer zsh:
+  3. Change your login shell to brew-zsh if you want the newer zsh:
        sudo chsh -s "$(brew --prefix)/bin/zsh" "$USER"
      (Apple's system zsh at /bin/zsh is fine too — no action needed.)
-  3. Open a new terminal so ~/.zshrc loads antidote + starship.
-  4. mise use -g node@lts   # if you want Node managed by mise instead of nvm.
+  4. Open a new Kitty window so ~/.zshrc loads antidote + starship.
+  5. mise use -g node@lts   # if you want Node managed by mise instead of nvm.
 
 EOF
 
