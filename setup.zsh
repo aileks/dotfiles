@@ -239,6 +239,8 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/vim/vimrc" "$HOME/.vimrc"
+  create_symlink "$SCRIPT_DIR/zed/keymap.json" "$HOME/.config/zed/keymap.json"
+  create_symlink "$SCRIPT_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   create_symlink "$SCRIPT_DIR/zsh/zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
 
