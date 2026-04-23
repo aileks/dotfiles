@@ -1,3 +1,5 @@
+tap "nikitabobko/tap"
+
 brew "git"
 brew "vim"
 brew "jq"
@@ -28,3 +30,4 @@ cask "zen"
 cask "notesnook"
 cask "fastmail"
 cask "orbstack"
+cask "aerospace"

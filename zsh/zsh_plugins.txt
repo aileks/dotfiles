@@ -1,5 +1,4 @@
 zsh-users/zsh-completions
-Aloxaf/fzf-tab
 ohmyzsh/ohmyzsh path:plugins/brew
 zsh-users/zsh-autosuggestions
 zsh-users/zsh-syntax-highlighting

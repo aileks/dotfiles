@@ -199,6 +199,7 @@ symlink_configs() {
 
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
+  create_symlink "$SCRIPT_DIR/aerospace" "$HOME/.config/aerospace"
   create_symlink "$SCRIPT_DIR/starship" "$HOME/.config/starship"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
