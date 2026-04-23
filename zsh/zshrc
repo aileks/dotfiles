@@ -1,7 +1,7 @@
 # PATH
 export PATH="$PATH:$HOME/.local/bin"
 
-# Homebrew (Apple Silicon default; falls back silently on Intel)
+# Homebrew
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ -x /usr/local/bin/brew ]]; then
@@ -15,7 +15,7 @@ export SUDO_EDITOR="$VISUAL"
 if command -v bat >/dev/null 2>&1; then
   export MANPAGER="bat -plman"
 fi
-export SSH_AUTH_SOCK="$HOME/Library/Containers/com.bitwarden.desktop/Data/.bitwarden-ssh-agent.sock"
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 
 # General aliases
 alias ls="eza --color=always --icons --group-directories-first"
@@ -25,33 +25,6 @@ alias rm="trash"
 alias c="clear"
 alias fzf="fzf --style full"
 alias ff="fastfetch"
-
-# Git aliases
-alias ga="git add"
-alias gaa="git add --all"
-alias gb="git branch"
-alias gco="git checkout"
-alias gcb="git checkout -b"
-alias gcmsg="git commit -m"
-alias gd="git diff"
-alias gf="git fetch"
-alias gl="git pull"
-alias gp="git push"
-alias gst="git status"
-alias glog="git log --oneline --decorate --graph"
-alias gsh="git stash"
-alias gsha="git stash apply"
-alias gcl="git clone"
-
-# Package manager aliases (brew)
-alias bi="brew install"
-alias bri="brew reinstall"
-alias brm="brew uninstall"
-alias bs="brew search"
-alias bin="brew info"
-alias bu="brew update"
-alias bug="brew update && brew upgrade"
-alias bc="brew cleanup"
 
 # FZF
 export FZF_CTRL_T_OPTS="
@@ -124,5 +97,3 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-
-[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"

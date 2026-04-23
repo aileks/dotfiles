@@ -180,6 +180,13 @@ install_from_brewfile() {
   log_info "Updating Homebrew..."
   brew update || record_note "brew update reported issues; continuing"
 
+  log_info "Ensuring Brewfile taps are installed..."
+  local tap_name
+  while IFS= read -r tap_name; do
+    [[ -z $tap_name ]] && continue
+    brew tap "$tap_name" || record_note "failed to tap $tap_name; continuing"
+  done < <(awk '/^[[:space:]]*tap[[:space:]]+"/{gsub(/"/, "", $2); print $2}' "$brewfile")
+
   log_info "Installing from Brewfile..."
   if ! brew bundle install --file="$brewfile"; then
     record_error "brew bundle reported failures; review the output above"
@@ -258,6 +265,9 @@ apply_macos_defaults() {
   defaults write -g InitialKeyRepeat -int 15
   defaults write -g KeyRepeat -int 2
 
+  # Aerospace fix for Mission Control
+  defaults write com.apple.dock expose-group-apps -bool true
+
   log_success "macOS defaults applied"
 }
 
@@ -281,12 +291,48 @@ prime_antidote_cache() {
   fi
 }
 
+# =======================
+# 	sudo keep-alive
+# =======================
+
+SUDO_KEEPALIVE_PID=""
+
+start_sudo_keepalive() {
+  if [[ ! -r /dev/tty ]]; then
+    record_note "No TTY available; skipping sudo credential caching"
+    return 0
+  fi
+
+  log_info "Caching sudo credentials (enter your password once)..."
+  if ! sudo -v < /dev/tty; then
+    record_error "Failed to obtain sudo credentials"
+    exit 1
+  fi
+
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 $$ 2> /dev/null || exit
+  done &> /dev/null &
+  SUDO_KEEPALIVE_PID=$!
+  log_success "sudo credentials cached"
+}
+
+stop_sudo_keepalive() {
+  if [[ -n $SUDO_KEEPALIVE_PID ]] && kill -0 "$SUDO_KEEPALIVE_PID" 2> /dev/null; then
+    kill "$SUDO_KEEPALIVE_PID" 2> /dev/null || true
+    SUDO_KEEPALIVE_PID=""
+  fi
+  sudo -k &> /dev/null || true
+}
+
 # ===============
 # 	Entry point
 # ===============
 
 main() {
   check_os
+  trap stop_sudo_keepalive EXIT INT TERM
   ensure_command_line_tools
 
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
@@ -308,6 +354,7 @@ main() {
   print
   log_info "Starting macOS installation pipeline..."
 
+  start_sudo_keepalive
   ensure_homebrew
   install_from_brewfile
   symlink_configs
