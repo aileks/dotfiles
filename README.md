@@ -5,9 +5,15 @@ macOS dotfiles with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
 ## Install
 
 ```bash
+curl -fsSL https://aileks.dev/mac | bash
+```
+
+Or manually:
+
+```bash
 git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./setup-macos.sh
+./setup.sh
 ```
 
 Installs Xcode Command Line Tools, Homebrew, every package from `Brewfile`
@@ -21,9 +27,3 @@ btop, starship, and fzf.
 brew bundle install --file=~/.dotfiles/Brewfile   # install anything missing
 brew bundle cleanup --file=~/.dotfiles/Brewfile   # show what's extra
 ```
-
-## Tahoe notes
-
-- First launch of each cask app: approve in System Settings → Privacy & Security.
-- If Homebrew breaks after a macOS upgrade, check `/Users/Shared/Relocated Items/`
-  and run `brew update-reset`.

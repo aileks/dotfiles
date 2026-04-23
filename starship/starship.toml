@@ -95,6 +95,7 @@ threshold = 1
 style = "#e49a44"
 format = '[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style) '
 symbol = ""
+detect_env_vars = ["VIRTUAL_ENV", "CONDA_DEFAULT_ENV"]
 
 [nodejs]
 style = "#4a8b8b"

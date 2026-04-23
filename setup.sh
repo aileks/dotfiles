@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
-set -uo pipefail
+setopt NO_UNSET PIPE_FAIL
 
 readonly LOG_RED=$'\033[0;31m'
 readonly LOG_GREEN=$'\033[0;32m'
@@ -8,23 +8,23 @@ readonly LOG_YELLOW=$'\033[1;33m'
 readonly LOG_BLUE=$'\033[0;34m'
 readonly LOG_NC=$'\033[0m'
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
+SCRIPT_DIR="${0:A:h}"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 
 DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 
-declare -a SETUP_ERRORS=()
-declare -a SETUP_NOTES=()
+typeset -a SETUP_ERRORS=()
+typeset -a SETUP_NOTES=()
 
 # ====================
 # 	Logging helpers
 # ====================
 
-log_info() { echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
-log_success() { echo -e "${LOG_GREEN}[OK]${LOG_NC} $1"; }
-log_warning() { echo -e "${LOG_YELLOW}[WARN]${LOG_NC} $1"; }
-log_error() { echo -e "${LOG_RED}[ERROR]${LOG_NC} $1"; }
+log_info() { print -r -- "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
+log_success() { print -r -- "${LOG_GREEN}[OK]${LOG_NC} $1"; }
+log_warning() { print -r -- "${LOG_YELLOW}[WARN]${LOG_NC} $1"; }
+log_error() { print -r -- "${LOG_RED}[ERROR]${LOG_NC} $1"; }
 
 record_error() {
   log_error "$1"
@@ -43,13 +43,14 @@ command_exists() { command -v "$1" &> /dev/null; }
 # ===================
 
 prompt_yes_no() {
-  local prompt="$1" default="${2:-N}" reply
+  local prompt="$1" default="${2:-N}" reply=""
   if [[ ! -r /dev/tty ]]; then
     log_warning "No TTY available; using default: $default"
     [[ $default =~ ^[Yy]$ ]]
     return
   fi
-  if ! read -r -p "$prompt [$default/y]: " reply < /dev/tty; then reply="$default"; fi
+  print -n -- "$prompt [$default/y]: " > /dev/tty
+  if ! read -r reply < /dev/tty; then reply="$default"; fi
   reply=${reply:-$default}
   [[ $reply =~ ^[Yy]$ ]]
 }
@@ -105,9 +106,9 @@ bootstrap() {
     git -C "$DOTFILES_DIR" fetch origin &> /dev/null || log_warning "Fetch failed, using local copy"
     local branch local_ref remote_ref
     branch=$(git -C "$DOTFILES_DIR" symbolic-ref refs/remotes/origin/HEAD 2> /dev/null \
-      | sed 's@^refs/remotes/origin/@@' || echo "main")
-    local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2> /dev/null || echo "")
-    remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2> /dev/null || echo "")
+      | sed 's@^refs/remotes/origin/@@' || print -r -- "main")
+    local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2> /dev/null || print -r -- "")
+    remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2> /dev/null || print -r -- "")
     if [[ $local_ref == "$remote_ref" ]]; then
       log_success "Already up to date"
     else
@@ -117,24 +118,24 @@ bootstrap() {
   else
     log_info "Cloning dotfiles..."
     local i=1
-    while [[ $i -le 3 ]]; do
+    while (( i <= 3 )); do
       if git clone "$DOTFILES_REPO" "$DOTFILES_DIR"; then
         log_success "Cloned"
         break
       fi
       log_warning "Clone failed (attempt $i/3)"
-      [[ $i -lt 3 ]] && sleep 5
-      i=$((i + 1))
-      [[ $i -gt 3 ]] && {
+      (( i < 3 )) && sleep 5
+      (( i++ ))
+      if (( i > 3 )); then
         log_error "Failed to clone after 3 attempts"
         exit 1
-      }
+      fi
     done
   fi
 
   if [[ $SCRIPT_DIR != "$DOTFILES_DIR" ]]; then
     log_info "Restarting from cloned dotfiles..."
-    exec bash "$DOTFILES_DIR/setup-macos.sh" < /dev/tty
+    exec zsh "$DOTFILES_DIR/setup.sh" < /dev/tty
   fi
 }
 
@@ -181,10 +182,10 @@ create_symlink() {
     rm "$target"
   elif [[ -e $target ]]; then
     mkdir -p "$BACKUP_DIR"
-    mv "$target" "$BACKUP_DIR/$(basename "$target")"
+    mv "$target" "$BACKUP_DIR/${target:t}"
   fi
 
-  mkdir -p "$(dirname "$target")"
+  mkdir -p "${target:h}"
   if ! ln -sf "$source" "$target"; then
     record_error "Failed to link $target -> $source"
   else
@@ -239,19 +240,19 @@ main() {
     bootstrap
   fi
 
-  echo -e "${LOG_RED}================================================================${LOG_NC}"
-  echo -e "${LOG_RED}           WARNING: SYSTEM CHANGES AHEAD${LOG_NC}"
-  echo -e "${LOG_RED}================================================================${LOG_NC}"
-  echo -e "${LOG_YELLOW}This will install Homebrew, CLI packages, GUI casks,"
-  echo -e "a Nerd Font, and overwrite dotfile symlinks in \$HOME.${LOG_NC}"
-  echo
+  print -r -- "${LOG_RED}================================================================${LOG_NC}"
+  print -r -- "${LOG_RED}           WARNING: SYSTEM CHANGES AHEAD${LOG_NC}"
+  print -r -- "${LOG_RED}================================================================${LOG_NC}"
+  print -r -- "${LOG_YELLOW}This will install Homebrew, CLI packages, GUI casks,"
+  print -r -- "a Nerd Font, and overwrite dotfile symlinks in \$HOME.${LOG_NC}"
+  print
 
   if ! prompt_yes_no "Proceed?" "N"; then
     log_info "Aborted by user."
     exit 0
   fi
 
-  echo
+  print
   log_info "Starting macOS installation pipeline..."
 
   ensure_command_line_tools
@@ -260,7 +261,7 @@ main() {
   symlink_configs
   prime_antidote_cache
 
-  echo
+  print
   log_success "═══════════════════════════════════════"
   log_success " 	    macOS setup finished!"
   log_success "═══════════════════════════════════════"
@@ -281,27 +282,27 @@ Next steps:
 
 EOF
 
-  if [[ -d $BACKUP_DIR ]] && [[ "$(ls -A "$BACKUP_DIR" 2> /dev/null)" ]]; then
+  if [[ -d $BACKUP_DIR ]] && [[ -n "$(ls -A "$BACKUP_DIR" 2> /dev/null)" ]]; then
     log_info "Old configs backed up to: $BACKUP_DIR"
   fi
 
-  if [[ ${#SETUP_NOTES[@]} -gt 0 ]]; then
-    echo
-    echo -e "${LOG_YELLOW}Notes:${LOG_NC}"
+  if (( ${#SETUP_NOTES[@]} > 0 )); then
+    print
+    print -r -- "${LOG_YELLOW}Notes:${LOG_NC}"
     local note
     for note in "${SETUP_NOTES[@]}"; do
-      echo -e "  - $note"
+      print -r -- "  - $note"
     done
   fi
 
-  if [[ ${#SETUP_ERRORS[@]} -gt 0 ]]; then
-    echo
-    echo -e "${LOG_RED}Errors during installation:${LOG_NC}"
+  if (( ${#SETUP_ERRORS[@]} > 0 )); then
+    print
+    print -r -- "${LOG_RED}Errors during installation:${LOG_NC}"
     local err
     for err in "${SETUP_ERRORS[@]}"; do
-      echo -e "  - $err"
+      print -r -- "  - $err"
     done
-    echo -e "${LOG_YELLOW}Review the errors; manual intervention may be needed.${LOG_NC}"
+    print -r -- "${LOG_YELLOW}Review the errors; manual intervention may be needed.${LOG_NC}"
   fi
 }
 

@@ -1,4 +1,3 @@
-# Formulae
 brew "git"
 brew "vim"
 brew "jq"
@@ -19,8 +18,8 @@ brew "starship"
 brew "fastfetch"
 brew "trash"
 brew "antidote"
+brew "bash"
 
-# GUI apps
 cask "kitty"
 cask "visual-studio-code"
 cask "bitwarden"
@@ -28,7 +27,4 @@ cask "signal"
 cask "zen"
 cask "notesnook"
 cask "fastmail"
-cask "docker-desktop"
-
-# Fonts
-cask "font-commit-mono-nerd-font"
+cask "orbstack"
