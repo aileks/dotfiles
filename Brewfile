@@ -26,7 +26,6 @@ brew "bash"
 brew "borders"
 
 cask "kitty"
-cask "visual-studio-code"
 cask "bitwarden"
 cask "signal"
 cask "zen"
