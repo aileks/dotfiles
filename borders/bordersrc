@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-# JankyBorders config — picked up automatically when `borders` is invoked
-# with no arguments. Colors are 0xAARRGGBB.
 
 options=(
   style=round
-  width=6.0
-  hidpi=on
-  active_color=0xffd87c4a   # Ashen orange (matches starship git_branch)
-  inactive_color=0x00000000 # transparent
+  width=3
+  active_color=0xffd87c4a
+  inactive_color=0xb3737373
 )
 
 borders "${options[@]}"
