@@ -2,7 +2,7 @@ tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
 
 brew "git"
-brew "vim"
+brew "neovim"
 brew "jq"
 brew "shfmt"
 brew "btop"

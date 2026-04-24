@@ -9,7 +9,7 @@ elif [[ -x /usr/local/bin/brew ]]; then
 fi
 
 # Core environment
-export EDITOR="vim"
+export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 if command -v bat >/dev/null 2>&1; then
@@ -25,6 +25,7 @@ alias rm="trash"
 alias c="clear"
 alias fzf="fzf --style full"
 alias ff="fastfetch"
+alias vim="nvim"
 
 # FZF
 export FZF_CTRL_T_OPTS="
