@@ -24,6 +24,7 @@ brew "trash"
 brew "antidote"
 brew "bash"
 brew "borders"
+brew "trash"
 
 cask "kitty"
 cask "bitwarden"
