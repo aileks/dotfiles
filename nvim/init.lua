@@ -29,6 +29,7 @@ vim.opt.updatetime = 300
 vim.opt.timeoutlen = 500
 vim.opt.undofile = true
 vim.opt.backup = true
+vim.opt.backupdir:remove('.')
 vim.opt.mousemodel = 'extend'
 vim.opt.errorbells = false
 vim.opt.splitbelow = true
