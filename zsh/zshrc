@@ -26,6 +26,7 @@ alias c="clear"
 alias fzf="fzf --style full"
 alias ff="fastfetch"
 alias vim="nvim"
+alias rm="trash"
 
 # FZF
 export FZF_CTRL_T_OPTS="
@@ -80,17 +81,6 @@ eval "$(starship init zsh)"
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
-
-# Lazy load nvm
-_load_nvm() {
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
-}
-nvm()  { _load_nvm; unset -f nvm node npm npx; nvm "$@"; }
-node() { _load_nvm; unset -f nvm node npm npx; node "$@"; }
-npm()  { _load_nvm; unset -f nvm node npm npx; npm "$@"; }
-npx()  { _load_nvm; unset -f nvm node npm npx; npx "$@"; }
 
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
