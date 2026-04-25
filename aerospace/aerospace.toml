@@ -8,7 +8,7 @@ default-root-container-layout = 'tiles'
 default-root-container-orientation = 'auto'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 automatically-unhide-macos-hidden-apps = true
-persistent-workspaces = ["1", "2", "3", "4", "5", "6", "7"]
+persistent-workspaces = ["1", "2", "3", "4", "5"]
 
 [key-mapping]
 preset = 'qwerty'
@@ -49,8 +49,6 @@ cmd-alt-ctrl-4 = 'workspace 4'
 cmd-alt-ctrl-5 = 'workspace 5'
 cmd-alt-ctrl-6 = 'workspace 6'
 cmd-alt-ctrl-7 = 'workspace 7'
-cmd-alt-ctrl-8 = 'workspace 8'
-cmd-alt-ctrl-9 = 'workspace 9'
 
 cmd-alt-ctrl-shift-1 = 'move-node-to-workspace 1'
 cmd-alt-ctrl-shift-2 = 'move-node-to-workspace 2'
@@ -59,8 +57,6 @@ cmd-alt-ctrl-shift-4 = 'move-node-to-workspace 4'
 cmd-alt-ctrl-shift-5 = 'move-node-to-workspace 5'
 cmd-alt-ctrl-shift-6 = 'move-node-to-workspace 6'
 cmd-alt-ctrl-shift-7 = 'move-node-to-workspace 7'
-cmd-alt-ctrl-shift-8 = 'move-node-to-workspace 8'
-cmd-alt-ctrl-shift-9 = 'move-node-to-workspace 9'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
@@ -71,5 +67,5 @@ if.app-id = 'com.bitwarden.desktop'
 run = 'layout floating'
 
 [workspace-to-monitor-force-assignment]
-8 = 'XV240Y X1 \(2\)'
-9 = 'XV240Y X1 \(1\)'
+6 = 'XV240Y X1 \(2\)'
+7 = 'XV240Y X1 \(1\)'
