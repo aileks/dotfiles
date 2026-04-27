@@ -59,11 +59,7 @@ cmd-alt-ctrl-shift-6 = 'move-node-to-workspace 6'
 cmd-alt-ctrl-shift-7 = 'move-node-to-workspace 7'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.finder'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.bitwarden.desktop'
+if.app-name-regex-substring = 'Finder|Bitwarden|FINAL FANTASY XIV'
 run = 'layout floating'
 
 [workspace-to-monitor-force-assignment]
