@@ -40,6 +40,9 @@ local map = vim.keymap.set
 
 map('n', '<Esc>', '<cmd>nohlsearch<CR>', { silent = true })
 
+map('n', 'j', 'gj')
+map('n', 'k', 'gk')
+
 map('n', '<C-h>', '<C-w>h')
 map('n', '<C-j>', '<C-w>j')
 map('n', '<C-k>', '<C-w>k')
