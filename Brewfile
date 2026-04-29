@@ -22,7 +22,7 @@ brew "starship"
 brew "trash"
 brew "tree"
 brew "uv"
-brew "watchman"
+brew "watchexec"
 brew "zoxide"
 brew "borders"
 
