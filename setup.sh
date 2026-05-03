@@ -256,7 +256,7 @@ PACMAN_PACKAGES=(
   noto-fonts noto-fonts-emoji noto-fonts-cjk
   papirus-icon-theme
   qt5ct qt6ct kvantum
-
+  adw-gtk-theme
   celluloid
   signal-desktop
   bitwarden
@@ -271,7 +271,6 @@ AUR_PACKAGES=(
   notesnook-bin
   bemoji
   wiremix
-  adw-gtk-theme
   ttf-ms-win10-auto
 )
 
