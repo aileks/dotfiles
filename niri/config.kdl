@@ -2,6 +2,8 @@
 // General
 // =============================================================================
 
+prefer-no-csd
+
 environment {
     XDG_CURRENT_DESKTOP "niri"
     GTK_CSD "0"
@@ -93,12 +95,18 @@ hotkey-overlay {
     skip-at-startup
 }
 
-prefer-no-csd
 screenshot-path "~/Pictures/screenshots/screenshot-%Y%m%d-%H%M%S.png"
 
 // =============================================================================
-// Animations
+// Effects
 // =============================================================================
+
+blur {
+    passes 3
+    offset 3
+    noise 0.02
+    saturation 1.5
+}
 
 animations {
     workspace-switch {

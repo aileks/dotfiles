@@ -88,13 +88,4 @@ eval "$(starship init zsh)"
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
-
-# Key bindings (emacs mode + kitty word/home/end/delete)
 bindkey -e
-bindkey "^[b"      backward-word     # Alt+B
-bindkey "^[f"      forward-word      # Alt+F
-bindkey "^[[1;5D"  backward-word     # Ctrl+Left
-bindkey "^[[1;5C"  forward-word      # Ctrl+Right
-bindkey "^[[H"     beginning-of-line # Home
-bindkey "^[[F"     end-of-line       # End
-bindkey "^[[3~"    delete-char       # Delete
