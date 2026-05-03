@@ -1,5 +1,5 @@
 // =============================================================================
-// niri config — aileks / Arch
+// General
 // =============================================================================
 
 environment {
@@ -7,13 +7,13 @@ environment {
     GTK_CSD "0"
     TERMINAL "kitty"
     XCURSOR_THEME "Adwaita"
-    XCURSOR_SIZE "32"
+    XCURSOR_SIZE "24"
 }
 
 cursor {
     hide-after-inactive-ms 2000
     xcursor-theme "Adwaita"
-    xcursor-size 32
+    xcursor-size 24
 }
 
 input {
@@ -44,15 +44,15 @@ input {
 // Outputs
 // =============================================================================
 
-output "HDMI-A-2" {
+output "DP-2" {
     mode "1920x1080@200"
     transform "90"
     position x=0 y=0
 }
 
-output "HDMI-A-1" {
+output "DP-3" {
     mode "1920x1080@200"
-    position x=1080 y=420
+    position x=1080 y=280
 }
 
 // =============================================================================
@@ -203,7 +203,6 @@ workspace "7" { open-on-output "HDMI-A-1"; }
 
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
-
     Mod+Q       { close-window; }
     Mod+Shift+Q { quit; }
 
@@ -271,12 +270,12 @@ binds {
     Mod+Print   { screenshot-screen; }
     Mod+Shift+S { spawn-sh "grim -g \"$(slurp)\" - | satty --filename - --output-filename ~/Pictures/screenshots/annotated-$(date +%Y%m%d-%H%M%S).png"; }
 
-    // Screen recording (re-run the same bind to stop)
+    // Screen recording
     Mod+Alt+R   { spawn "screenrecord" "area"; }
     Mod+Alt+W   { spawn "screenrecord" "window"; }
     Mod+Alt+F   { spawn "screenrecord" "fullscreen"; }
 
-    // Replay buffer (Shadowplay-style)
+    // Replay buffer
     Mod+Alt+B   { spawn "screenrecord" "replay"; }
     Mod+Alt+S   { spawn "screenrecord" "save-replay"; }
 
@@ -292,7 +291,7 @@ binds {
     XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
     XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
 
-    // Brightness (useful on laptops; harmless on desktops)
+    // Brightness
     XF86MonBrightnessUp   { spawn-sh "brightnessctl set +5%"; }
     XF86MonBrightnessDown { spawn-sh "brightnessctl set 5%-"; }
 }
@@ -300,19 +299,10 @@ binds {
 // =============================================================================
 // Startup
 // =============================================================================
-// Note: polkit-gnome, swaybg, and swayidle are managed as systemd user units
-// (see ~/.config/systemd/user/) and start automatically with graphical-session.target.
 
-// Notifications
+spawn-at-startup "swaybg -i ~/Pictures/Wallpapers/wallpaper.jpg -m fill"
 spawn-at-startup "mako"
-
-// Bar
 spawn-at-startup "waybar"
-
-// Tray applets
 spawn-at-startup "nm-applet" "--indicator"
 spawn-at-startup "blueman-applet"
 spawn-at-startup "solaar" "-w" "hide"
-
-// Night-light (color temp) — adjust lat/lon or drop -l for geoclue
-spawn-at-startup "gammastep" "-O" "4500"

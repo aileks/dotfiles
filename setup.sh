@@ -12,7 +12,6 @@ DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
-MINIFORGE_PREFIX="$HOME/miniforge3"
 
 SCRIPT_DIR=""
 
@@ -271,7 +270,7 @@ AUR_PACKAGES=(
   notesnook-bin
   bemoji
   wiremix
-  ttf-ms-win10-auto
+  #ttf-ms-win10-auto
 )
 
 # ============================================================
@@ -364,32 +363,6 @@ install_data_tools() {
       record_error "Failed to install uv"
     fi
   fi
-
-  if [[ -x "$MINIFORGE_PREFIX/bin/conda" ]]; then
-    log_success "Miniforge already installed"
-    return 0
-  fi
-
-  log_info "Installing Miniforge..."
-  local tmpdir installer url
-  tmpdir=$(mktemp -d)
-  installer="$tmpdir/Miniforge3-$(uname)-$(uname -m).sh"
-  url="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-
-  if ! curl -L -o "$installer" "$url"; then
-    record_error "Failed to download Miniforge installer"
-    rm -rf "$tmpdir"
-    return 1
-  fi
-
-  if bash "$installer" -b -p "$MINIFORGE_PREFIX"; then
-    "$MINIFORGE_PREFIX/bin/conda" config --set auto_activate_base false \
-      || record_error "Failed to configure conda auto-activate"
-    log_success "Miniforge installed"
-  else
-    record_error "Failed to install Miniforge"
-  fi
-  rm -rf "$tmpdir"
 }
 
 # ============================================================
