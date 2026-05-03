@@ -236,33 +236,31 @@ PACMAN_PACKAGES=(
   libnotify gammastep
   brightnessctl
   ly
+  tesseract-data-eng
 
   nvidia-open-dkms nvidia-utils nvidia-settings libva-nvidia-driver
   egl-wayland linux-headers dkms
-
+  xarchiver
   flatpak
 
   thunar thunar-volman thunar-archive-plugin
   tumbler ffmpegthumbnailer
-  file-roller
-  gvfs gvfs-mtp gvfs-gphoto2 udiskie
+  
+  gvfs gvfs-mtp udiskie
   yazi
   imv qalculate-gtk zathura zathura-pdf-mupdf
   gpu-screen-recorder
   nvtop
   solaar
 
-  ttf-jetbrains-mono-nerd
   noto-fonts noto-fonts-emoji noto-fonts-cjk
   papirus-icon-theme
   qt5ct qt6ct kvantum
 
-  tesseract-data-eng
-
   celluloid
   signal-desktop
   bitwarden
-  code zed
+  zed
   calcurse
 )
 
@@ -274,6 +272,7 @@ AUR_PACKAGES=(
   bemoji
   wiremix
   adw-gtk-theme
+  ttf-ms-win10-auto
 )
 
 # ============================================================
