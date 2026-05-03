@@ -1,0 +1,41 @@
+daemonize
+ignore-empty-password
+show-failed-attempts
+indicator-idle-visible
+indicator-radius=100
+indicator-thickness=8
+fade-in=0.3
+font=JetBrainsMono Nerd Font
+
+color=121212
+
+# Text
+text-color=ffffff
+text-clear-color=ffffff
+text-ver-color=ffffff
+text-wrong-color=ffffff
+
+# Ring
+ring-color=535353
+ring-clear-color=b14242
+ring-ver-color=b14242
+ring-wrong-color=df6464
+
+# Inner
+inside-color=121212aa
+inside-clear-color=535353aa
+inside-ver-color=535353aa
+inside-wrong-color=df6464aa
+
+# Lines
+line-color=00000000
+line-clear-color=00000000
+line-ver-color=00000000
+line-wrong-color=00000000
+separator-color=00000000
+
+# Backspace/key highlights
+key-hl-color=b14242
+bs-hl-color=df6464
+caps-lock-key-hl-color=e5a72a
+caps-lock-bs-hl-color=df6464
