@@ -221,17 +221,17 @@ PACMAN_PACKAGES=(
   fastfetch btop eza bat fd ripgrep fzf zoxide
 
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
-  pavucontrol pamixer playerctl
+  pavucontrol playerctl
   networkmanager bluez bluez-utils blueman
 
   niri xorg-xwayland xwayland-satellite
   kitty nwg-look
-  fuzzel swaybg swaylock
+  swaybg
   grim slurp wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
-  polkit-gnome
+  polkit
   gnome-keyring
-  libnotify gammastep
+  libnotify
   brightnessctl
   upower power-profiles-daemon imagemagick cliphist wlsunset
   ly
@@ -268,7 +268,6 @@ AUR_PACKAGES=(
   onlyoffice-bin
   fastmail
   notesnook-bin
-  bemoji
   wiremix
   noctalia-shell
   noctalia-qs
@@ -574,8 +573,6 @@ symlink_configs() {
   mkdir -p "$HOME/.config"
 
   create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
-  create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
-  create_symlink "$SCRIPT_DIR/swaylock" "$HOME/.config/swaylock"
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
   create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
@@ -674,7 +671,7 @@ install_portal_config() {
 
 disable_legacy_user_units() {
   local unit_dir="$HOME/.config/systemd/user"
-  for unit in swayidle.service; do
+  for unit in swayidle.service polkit.service; do
     if systemctl --user is-enabled --quiet "$unit" 2>/dev/null; then
       systemctl --user disable --now "$unit" 2>/dev/null || true
       log_success "Disabled legacy unit: $unit"
@@ -683,13 +680,48 @@ disable_legacy_user_units() {
   done
   systemctl --user daemon-reload 2>/dev/null || true
 
-  for legacy in waybar mako; do
+  pkill -x polkit-gnome-authentication-agent-1 2>/dev/null || true
+
+  for legacy in waybar mako swaylock fuzzel; do
     local target="$HOME/.config/$legacy"
     if [[ -L $target ]]; then
       rm -f "$target"
       log_success "Removed legacy config symlink: $target"
     fi
   done
+
+  for stale in power-menu; do
+    local target="$HOME/.local/bin/$stale"
+    if [[ -L $target && ! -e $target ]]; then
+      rm -f "$target"
+      log_success "Removed stale script symlink: $target"
+    fi
+  done
+}
+
+install_noctalia_plugins() {
+  local plugins_repo="$HOME/.local/share/noctalia-plugins"
+  local plugins_dir="$HOME/.config/noctalia/plugins"
+
+  if [[ -d "$plugins_repo/.git" ]]; then
+    log_info "Updating noctalia-plugins..."
+    if ! git -C "$plugins_repo" pull --ff-only --quiet; then
+      record_error "Failed to update noctalia-plugins"
+    fi
+  elif [[ -e $plugins_repo ]]; then
+    record_error "$plugins_repo exists but is not a git checkout; remove it manually"
+    return 1
+  else
+    log_info "Cloning noctalia-plugins..."
+    mkdir -p "$(dirname "$plugins_repo")"
+    if ! git clone --depth=1 https://github.com/noctalia-dev/noctalia-plugins.git "$plugins_repo"; then
+      record_error "Failed to clone noctalia-plugins"
+      return 1
+    fi
+  fi
+
+  mkdir -p "$plugins_dir"
+  create_symlink "$plugins_repo/polkit-agent" "$plugins_dir/polkit-agent"
 }
 
 seed_noctalia_config() {
@@ -793,6 +825,7 @@ main() {
   migrate_zsh_legacy
   symlink_configs
   symlink_user_scripts
+  install_noctalia_plugins
   seed_noctalia_config
   install_portal_config
   install_systemd_units
