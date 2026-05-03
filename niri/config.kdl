@@ -103,9 +103,9 @@ screenshot-path "~/Pictures/screenshots/screenshot-%Y%m%d-%H%M%S.png"
 
 blur {
     passes 3
-    offset 3
-    noise 0.02
-    saturation 1.5
+    offset 3.0
+    noise 0.03
+    saturation 1.0
 }
 
 animations {
@@ -139,6 +139,12 @@ animations {
 // =============================================================================
 // Window rules
 // =============================================================================
+
+window-rule {
+  background-effect {
+    blur true
+  }
+}
 
 window-rule {
     match app-id=r#"^(imv|calendar-floating|btop-floating|volume-floating|qalculate-gtk|network-floating)$"#
@@ -189,6 +195,13 @@ layer-rule {
         offset x=0 y=8
         color "#00000080"
     }
+}
+
+layer-rule {
+  match namespace="^noctalia-(background|launcher-overlay|dock)-.*$"
+  background-effect {
+    blur true
+  }
 }
 
 // =============================================================================
