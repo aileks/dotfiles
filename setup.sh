@@ -213,7 +213,7 @@ resolve_script_dir() {
 
 PACMAN_PACKAGES=(
   base-devel git curl wget
-  zsh tmux vim neovim satty starship
+  zsh vim neovim satty starship
   openssh ufw man-db man-pages
   reflector pacman-contrib
   xdg-user-dirs
@@ -584,7 +584,6 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
-  create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 }
 
 # ============================================================
@@ -735,19 +734,6 @@ seed_noctalia_config() {
 # ============================================================
 # Misc finalization
 # ============================================================
-
-install_tpm() {
-  local tpm_dir="$HOME/.tmux/plugins/tpm"
-  if [[ -d $tpm_dir ]]; then
-    log_success "tpm already installed"
-    return 0
-  fi
-  log_info "Installing Tmux Plugin Manager..."
-  mkdir -p "$HOME/.tmux/plugins"
-  if ! git clone https://github.com/tmux-plugins/tpm "$tpm_dir"; then
-    record_error "Failed to clone tpm"
-  fi
-}
 
 setup_shell() {
   log_info "Checking default shell..."
