@@ -62,7 +62,13 @@ output "DP-3" {
 // =============================================================================
 
 layout {
-    gaps 2
+    gaps 6
+    struts {
+      top 0
+      left -3
+      right -3
+      bottom -3
+    }
 
     default-column-width { proportion 0.5; }
 

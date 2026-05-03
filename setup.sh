@@ -226,13 +226,12 @@ PACMAN_PACKAGES=(
 
   niri xorg-xwayland xwayland-satellite
   kitty nwg-look
-  swaybg
   grim slurp wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
   polkit
   gnome-keyring
   libnotify
-  brightnessctl
+  brightnessctl ddcutil
   upower power-profiles-daemon imagemagick cliphist wlsunset
   ly
   tesseract-data-eng
@@ -333,6 +332,42 @@ install_aur_packages() {
     return 1
   fi
   log_success "AUR packages installed"
+}
+
+setup_ddc() {
+  if ! pacman -Q ddcutil &>/dev/null; then
+    log_warning "ddcutil not installed; skipping DDC/CI setup"
+    return 0
+  fi
+
+  local conf=/etc/modules-load.d/i2c-dev.conf
+  if [[ -f $conf ]] && grep -q '^i2c-dev$' "$conf"; then
+    log_success "i2c-dev module already configured"
+  else
+    log_info "Configuring i2c-dev module to load at boot..."
+    if printf 'i2c-dev\n' | sudo tee "$conf" >/dev/null; then
+      log_success "Wrote $conf"
+      sudo modprobe i2c-dev 2>/dev/null || true
+    else
+      record_error "Failed to write $conf"
+    fi
+  fi
+
+  if ! getent group i2c >/dev/null; then
+    log_info "Creating i2c group..."
+    sudo groupadd -r i2c || record_error "Failed to create i2c group"
+  fi
+
+  if id -nG "$USER" | grep -qw i2c; then
+    log_success "$USER already in i2c group"
+  else
+    log_info "Adding $USER to i2c group (effective after relog)..."
+    if sudo usermod -aG i2c "$USER"; then
+      log_success "Added $USER to i2c group"
+    else
+      record_error "Failed to add $USER to i2c group"
+    fi
+  fi
 }
 
 setup_ly() {
@@ -671,7 +706,7 @@ install_portal_config() {
 
 disable_legacy_user_units() {
   local unit_dir="$HOME/.config/systemd/user"
-  for unit in swayidle.service polkit.service; do
+  for unit in swayidle.service polkit.service swaybg.service; do
     if systemctl --user is-enabled --quiet "$unit" 2>/dev/null; then
       systemctl --user disable --now "$unit" 2>/dev/null || true
       log_success "Disabled legacy unit: $unit"
@@ -722,6 +757,23 @@ install_noctalia_plugins() {
 
   mkdir -p "$plugins_dir"
   create_symlink "$plugins_repo/polkit-agent" "$plugins_dir/polkit-agent"
+}
+
+seed_noctalia_colorschemes() {
+  local src_dir="$SCRIPT_DIR/noctalia/colorschemes"
+  local dest_dir="$HOME/.config/noctalia/colorschemes"
+
+  [[ -d $src_dir ]] || return 0
+
+  log_info "Linking Noctalia colorschemes..."
+  mkdir -p "$dest_dir"
+
+  shopt -s nullglob
+  for scheme in "$src_dir"/*; do
+    [[ -d $scheme ]] || continue
+    create_symlink "$scheme" "$dest_dir/$(basename "$scheme")"
+  done
+  shopt -u nullglob
 }
 
 seed_noctalia_config() {
@@ -818,6 +870,7 @@ main() {
   install_aur_packages
   disable_legacy_user_units
   setup_nvidia
+  setup_ddc
   setup_ly
   install_data_tools
   setup_xdg_dirs
@@ -826,6 +879,7 @@ main() {
   symlink_configs
   symlink_user_scripts
   install_noctalia_plugins
+  seed_noctalia_colorschemes
   seed_noctalia_config
   install_portal_config
   install_systemd_units
