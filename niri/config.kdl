@@ -20,7 +20,7 @@ input {
     mod-key "Super"
 
     keyboard {
-        repeat-delay 300
+        repeat-delay 250
         repeat-rate 50
         numlock
     }

@@ -5,8 +5,28 @@ export SUDO_EDITOR="$VISUAL"
 export MANPAGER="bat -plman"
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=10000
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_VERIFY
+setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
+
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+zsh_plugins_src="$HOME/.dotfiles/zsh/zsh_plugins.txt"
+zsh_plugins_cache="$HOME/.zsh_plugins.zsh"
+
 source /usr/share/zsh-antidote/antidote.zsh
-antidote load "$HOME/.dotfiles/zsh/zsh_plugins.txt"
+[[ -e $zsh_plugins_cache ]] || touch "$zsh_plugins_cache"
+if [[ ! $zsh_plugins_cache -nt $zsh_plugins_src ]]; then
+  antidote bundle <"$zsh_plugins_src" >|"$zsh_plugins_cache"
+fi
+source "$zsh_plugins_cache"
 
 bindkey -e
 bindkey "^[b"      backward-word     # Alt+B
@@ -20,6 +40,7 @@ bindkey "^[[3~"    delete-char       # Delete
 source /usr/share/fzf/key-bindings.zsh
 
 eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"
 
 alias ls="eza --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
