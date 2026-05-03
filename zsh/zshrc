@@ -18,10 +18,10 @@ setopt INC_APPEND_HISTORY
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
-zsh_plugins_src="$HOME/.dotfiles/zsh/zsh_plugins.txt"
+zsh_plugins_src="${${(%):-%N}:A:h}/zsh_plugins.txt"
 zsh_plugins_cache="$HOME/.zsh_plugins.zsh"
 
-source /usr/share/zsh-antidote/antidote.zsh
+source "${ZDOTDIR:-$HOME}/.antidote/antidote.zsh"
 [[ -e $zsh_plugins_cache ]] || touch "$zsh_plugins_cache"
 if [[ ! $zsh_plugins_cache -nt $zsh_plugins_src ]]; then
   antidote bundle <"$zsh_plugins_src" >|"$zsh_plugins_cache"
