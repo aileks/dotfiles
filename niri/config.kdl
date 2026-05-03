@@ -308,7 +308,6 @@ binds {
 // Startup
 // =============================================================================
 
-spawn-at-startup "swaybg -i ~/Pictures/Wallpapers/wallpaper.jpg -m fill"
 spawn-at-startup "mako"
 spawn-at-startup "waybar"
 spawn-at-startup "nm-applet" "--indicator"

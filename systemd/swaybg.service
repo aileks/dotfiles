@@ -5,7 +5,7 @@ After=graphical-session.target
 Requisite=graphical-session.target
 
 [Service]
-ExecStart=/usr/bin/sh -c 'swaybg -o HDMI-A-1 -i "%h/Pictures/Wallpaper/current.jpg" -m fill & swaybg -o HDMI-A-2 -i "%h/Pictures/Wallpaper/current.jpg" -m fill & wait'
+ExecStart=/usr/bin/sh -c 'swaybg -o DP-3 -i "%h/Pictures/Wallpaper/wallpaper.jpg" -m fill & swaybg -o DP-2 -i "%h/Pictures/Wallpaper/wallpaper.jpg" -m fill & wait'
 Restart=on-failure
 
 [Install]
