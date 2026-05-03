@@ -216,8 +216,8 @@ binds {
     Mod+S          { spawn "signal-desktop"; }
     Mod+M          { spawn "fastmail"; }
     Mod+C          { spawn "code"; }
-    Mod+Shift+X    { spawn "swaylock"; }
-    Mod+Shift+P    { spawn "wlogout"; }
+    Mod+Shift+X    { spawn "lock"; }
+    Mod+Shift+P    { spawn "power-menu"; }
 
     // Focus
     Mod+J { focus-window-down; }
@@ -270,6 +270,18 @@ binds {
     Shift+Print { screenshot-window; }
     Mod+Print   { screenshot-screen; }
     Mod+Shift+S { spawn-sh "grim -g \"$(slurp)\" - | satty --filename - --output-filename ~/Pictures/screenshots/annotated-$(date +%Y%m%d-%H%M%S).png"; }
+
+    // Screen recording (re-run the same bind to stop)
+    Mod+Alt+R   { spawn "screenrecord" "area"; }
+    Mod+Alt+W   { spawn "screenrecord" "window"; }
+    Mod+Alt+F   { spawn "screenrecord" "fullscreen"; }
+
+    // Replay buffer (Shadowplay-style)
+    Mod+Alt+B   { spawn "screenrecord" "replay"; }
+    Mod+Alt+S   { spawn "screenrecord" "save-replay"; }
+
+    // Color picker
+    Mod+Shift+C { spawn "pick-color"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "pamixer -i 5"; }

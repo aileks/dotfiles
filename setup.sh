@@ -22,10 +22,10 @@ declare -a SETUP_ERRORS=()
 # Logging
 # ============================================================
 
-log_info()    { echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
+log_info() { echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
 log_success() { echo -e "${LOG_GREEN}[OK]${LOG_NC} $1"; }
 log_warning() { echo -e "${LOG_YELLOW}[WARN]${LOG_NC} $1"; }
-log_error()   { echo -e "${LOG_RED}[ERROR]${LOG_NC} $1"; }
+log_error() { echo -e "${LOG_RED}[ERROR]${LOG_NC} $1"; }
 
 record_error() {
   log_error "$1"
@@ -36,7 +36,7 @@ record_error() {
 # Helpers
 # ============================================================
 
-command_exists()   { command -v "$1" &>/dev/null; }
+command_exists() { command -v "$1" &>/dev/null; }
 pacman_installed() { pacman -Q "$1" &>/dev/null; }
 
 prompt_yes_no() {
@@ -124,13 +124,16 @@ prompt_replace_repo() {
   while true; do
     read -rp "Choice [1/2]: " choice
     case "$choice" in
-    1)
-      mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
-      log_success "Backed up to: ${DOTFILES_DIR}${BACKUP_SUFFIX}"
-      return 0
-      ;;
-    2) log_info "Cancelled"; exit 0 ;;
-    *) log_error "Invalid choice: $choice" ;;
+      1)
+        mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
+        log_success "Backed up to: ${DOTFILES_DIR}${BACKUP_SUFFIX}"
+        return 0
+        ;;
+      2)
+        log_info "Cancelled"
+        exit 0
+        ;;
+      *) log_error "Invalid choice: $choice" ;;
     esac
   done
 }
@@ -138,7 +141,11 @@ prompt_replace_repo() {
 update_existing_repo() {
   log_info "Updating existing dotfiles repository..."
   cd "$DOTFILES_DIR" || return 1
-  git fetch origin &>/dev/null || { log_warning "Fetch failed, using local"; cd - &>/dev/null; return 0; }
+  git fetch origin &>/dev/null || {
+    log_warning "Fetch failed, using local"
+    cd - &>/dev/null
+    return 0
+  }
   local branch
   branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
   local local_ref remote_ref
@@ -198,7 +205,7 @@ resolve_script_dir() {
 
   log_info "Re-launching from cloned repo..."
   echo
-  exec bash "$DOTFILES_DIR/setup.sh" "$@" < /dev/tty
+  exec bash "$DOTFILES_DIR/setup.sh" "$@" </dev/tty
 }
 
 # ============================================================
@@ -241,7 +248,8 @@ PACMAN_PACKAGES=(
   gvfs gvfs-mtp gvfs-gphoto2 udiskie
   yazi
   imv qalculate-gtk zathura zathura-pdf-mupdf
-  wf-recorder
+  gpu-screen-recorder
+  nvtop
   solaar
 
   ttf-jetbrains-mono-nerd
@@ -261,7 +269,6 @@ PACMAN_PACKAGES=(
 AUR_PACKAGES=(
   zen-browser-bin
   onlyoffice-bin
-  wlogout
   fastmail
   notesnook-bin
   bemoji
@@ -388,7 +395,7 @@ install_data_tools() {
 }
 
 # ============================================================
-# NVIDIA post-install reminder
+# NVIDIA: app profiles + modprobe + initramfs modules
 # ============================================================
 
 setup_nvidia() {
@@ -399,7 +406,7 @@ setup_nvidia() {
     log_success "NVIDIA niri VRAM profile already present"
   else
     log_info "Installing NVIDIA niri VRAM-mitigation profile..."
-    if sudo install -d -m 0755 "$profile_dir" && sudo tee "$profile_file" >/dev/null <<'EOF'
+    if sudo install -d -m 0755 "$profile_dir" && sudo tee "$profile_file" >/dev/null <<'EOF'; then
 {
     "rules": [
         {
@@ -423,24 +430,67 @@ setup_nvidia() {
     ]
 }
 EOF
-    then
       log_success "NVIDIA niri VRAM profile installed"
     else
       record_error "Failed to install NVIDIA niri VRAM profile"
     fi
   fi
 
-  echo
-  log_warning "NVIDIA driver installed (nvidia-open-dkms)."
-  log_warning "Manual steps required before reboot:"
-  echo -e "  ${LOG_YELLOW}1.${LOG_NC} Add ${LOG_GREEN}nvidia-drm.modeset=1${LOG_NC} to your kernel cmdline."
-  echo -e "     (GRUB: /etc/default/grub GRUB_CMDLINE_LINUX_DEFAULT, then grub-mkconfig.)"
-  echo -e "     (systemd-boot: /boot/loader/entries/*.conf options line.)"
-  echo -e "  ${LOG_YELLOW}2.${LOG_NC} In /etc/mkinitcpio.conf set:"
-  echo -e "     ${LOG_GREEN}MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)${LOG_NC}"
-  echo -e "     then run: ${LOG_GREEN}sudo mkinitcpio -P${LOG_NC}"
-  echo -e "  ${LOG_YELLOW}3.${LOG_NC} Reboot."
-  echo
+  setup_nvidia_modprobe
+  setup_nvidia_mkinitcpio
+}
+
+setup_nvidia_modprobe() {
+  local conf=/etc/modprobe.d/nvidia.conf
+  local desired='options nvidia_drm modeset=1 fbdev=1'
+
+  if [[ -f $conf ]] && grep -qE '^[[:space:]]*options[[:space:]]+nvidia_drm[[:space:]]+.*modeset=1' "$conf"; then
+    log_success "nvidia_drm modeset already configured ($conf)"
+    return 0
+  fi
+
+  log_info "Writing $conf (nvidia_drm modeset=1 fbdev=1)..."
+  if printf '%s\n' "$desired" | sudo tee "$conf" >/dev/null; then
+    log_success "Wrote $conf"
+  else
+    record_error "Failed to write $conf"
+  fi
+}
+
+setup_nvidia_mkinitcpio() {
+  local conf=/etc/mkinitcpio.conf
+  local want='MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)'
+
+  if [[ ! -f $conf ]]; then
+    log_warning "$conf not found; skipping initramfs module wiring"
+    return 0
+  fi
+
+  if grep -qE '^MODULES=\([^)]*nvidia_drm' "$conf"; then
+    log_success "nvidia modules already in $conf"
+    return 0
+  fi
+
+  log_info "Adding nvidia modules to $conf..."
+  local backup="${conf}.backup.$(date +%Y%m%d_%H%M%S)"
+  if ! sudo cp "$conf" "$backup"; then
+    record_error "Failed to back up $conf"
+    return 1
+  fi
+  log_success "Backed up to $backup"
+
+  if ! sudo sed -i -E "s|^MODULES=\([^)]*\)|$want|" "$conf"; then
+    record_error "Failed to edit $conf"
+    return 1
+  fi
+  log_success "Updated MODULES in $conf"
+
+  log_info "Rebuilding initramfs (mkinitcpio -P)..."
+  if ! sudo mkinitcpio -P; then
+    record_error "mkinitcpio -P failed"
+    return 1
+  fi
+  log_success "Initramfs rebuilt"
 }
 
 # ============================================================
@@ -520,22 +570,48 @@ create_symlink() {
   fi
 }
 
+symlink_user_scripts() {
+  local src_dir="$SCRIPT_DIR/scripts"
+  local dest_dir="$HOME/.local/bin"
+
+  if [[ ! -d $src_dir ]]; then
+    log_warning "No scripts/ directory found; skipping user scripts"
+    return 0
+  fi
+
+  log_info "Linking user scripts to $dest_dir..."
+  mkdir -p "$dest_dir"
+
+  shopt -s nullglob
+  local linked_any=0
+  for f in "$src_dir"/*; do
+    [[ -f $f && -x $f ]] || continue
+    create_symlink "$f" "$dest_dir/$(basename "$f")"
+    linked_any=1
+  done
+  shopt -u nullglob
+
+  if [[ $linked_any -eq 0 ]]; then
+    log_warning "scripts/ contained no executable files"
+  fi
+}
+
 symlink_configs() {
   log_info "Creating config symlinks..."
   mkdir -p "$HOME/.config"
 
-  create_symlink "$SCRIPT_DIR/niri"      "$HOME/.config/niri"
-  create_symlink "$SCRIPT_DIR/waybar"    "$HOME/.config/waybar"
-  create_symlink "$SCRIPT_DIR/mako"      "$HOME/.config/mako"
-  create_symlink "$SCRIPT_DIR/fuzzel"    "$HOME/.config/fuzzel"
-  create_symlink "$SCRIPT_DIR/swaylock"  "$HOME/.config/swaylock"
-  create_symlink "$SCRIPT_DIR/btop"      "$HOME/.config/btop"
-  create_symlink "$SCRIPT_DIR/kitty"     "$HOME/.config/kitty"
-  create_symlink "$SCRIPT_DIR/nvim"      "$HOME/.config/nvim"
-  create_symlink "$SCRIPT_DIR/zed"       "$HOME/.config/zed"
+  create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
+  create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
+  create_symlink "$SCRIPT_DIR/mako" "$HOME/.config/mako"
+  create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
+  create_symlink "$SCRIPT_DIR/swaylock" "$HOME/.config/swaylock"
+  create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
+  create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
+  create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
+  create_symlink "$SCRIPT_DIR/zed" "$HOME/.config/zed"
   create_symlink "$SCRIPT_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
-  create_symlink "$SCRIPT_DIR/bat"       "$HOME/.config/bat"
+  create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   create_symlink "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 }
@@ -567,7 +643,8 @@ install_systemd_units() {
 
   local enabled_any=0
   for unit in "${unit_files[@]}"; do
-    local name; name=$(basename "$unit")
+    local name
+    name=$(basename "$unit")
     create_symlink "$unit" "$dest_dir/$name"
     enabled_any=1
   done
@@ -575,7 +652,8 @@ install_systemd_units() {
   if [[ $enabled_any -eq 1 ]]; then
     systemctl --user daemon-reload || record_error "systemctl --user daemon-reload failed"
     for unit in "${unit_files[@]}"; do
-      local name; name=$(basename "$unit")
+      local name
+      name=$(basename "$unit")
       [[ $name == *.service ]] || continue
       if systemctl --user is-enabled --quiet "$name" 2>/dev/null; then
         log_success "$name already enabled"
@@ -659,7 +737,10 @@ setup_xdg_dirs() {
 # ============================================================
 
 main() {
-  [[ $# -gt 0 && ( $1 == "-h" || $1 == "--help" ) ]] && { show_help; exit 0; }
+  [[ $# -gt 0 && ($1 == "-h" || $1 == "--help") ]] && {
+    show_help
+    exit 0
+  }
 
   check_os
   resolve_script_dir "$@"
@@ -690,6 +771,7 @@ main() {
   install_antidote
   migrate_zsh_legacy
   symlink_configs
+  symlink_user_scripts
   install_portal_config
   install_systemd_units
   install_tpm
