@@ -222,18 +222,18 @@ PACMAN_PACKAGES=(
 
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   pavucontrol pamixer playerctl
-  network-manager-applet blueman
+  networkmanager bluez bluez-utils blueman
 
   niri xorg-xwayland xwayland-satellite
   kitty nwg-look
-  fuzzel mako swaybg swaylock swayidle
-  waybar
+  fuzzel swaybg swaylock
   grim slurp wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
   polkit-gnome
   gnome-keyring
   libnotify gammastep
   brightnessctl
+  upower power-profiles-daemon imagemagick cliphist wlsunset
   ly
   tesseract-data-eng
 
@@ -270,6 +270,8 @@ AUR_PACKAGES=(
   notesnook-bin
   bemoji
   wiremix
+  noctalia-shell
+  noctalia-qs
   #ttf-ms-win10-auto
 )
 
@@ -572,8 +574,6 @@ symlink_configs() {
   mkdir -p "$HOME/.config"
 
   create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
-  create_symlink "$SCRIPT_DIR/waybar" "$HOME/.config/waybar"
-  create_symlink "$SCRIPT_DIR/mako" "$HOME/.config/mako"
   create_symlink "$SCRIPT_DIR/fuzzel" "$HOME/.config/fuzzel"
   create_symlink "$SCRIPT_DIR/swaylock" "$HOME/.config/swaylock"
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
@@ -670,6 +670,69 @@ install_portal_config() {
 }
 
 # ============================================================
+# Noctalia
+# ============================================================
+
+disable_legacy_user_units() {
+  local unit_dir="$HOME/.config/systemd/user"
+  for unit in swayidle.service; do
+    if systemctl --user is-enabled --quiet "$unit" 2>/dev/null; then
+      systemctl --user disable --now "$unit" 2>/dev/null || true
+      log_success "Disabled legacy unit: $unit"
+    fi
+    rm -f "$unit_dir/$unit"
+  done
+  systemctl --user daemon-reload 2>/dev/null || true
+
+  for legacy in waybar mako; do
+    local target="$HOME/.config/$legacy"
+    if [[ -L $target ]]; then
+      rm -f "$target"
+      log_success "Removed legacy config symlink: $target"
+    fi
+  done
+}
+
+seed_noctalia_config() {
+  local src="$SCRIPT_DIR/noctalia/settings.json"
+  local dest_dir="$HOME/.config/noctalia"
+  local dest="$dest_dir/settings.json"
+
+  if [[ ! -f $src ]]; then
+    log_warning "noctalia/settings.json seed missing; skipping (capture from a live install per noctalia/README.md)"
+    return 0
+  fi
+
+  mkdir -p "$dest_dir"
+
+  if [[ ! -e $dest ]]; then
+    if cp "$src" "$dest"; then
+      log_success "Seeded $dest"
+    else
+      record_error "Failed to seed $dest"
+    fi
+    return 0
+  fi
+
+  if cmp -s "$src" "$dest"; then
+    log_success "Noctalia settings.json already matches seed"
+    return 0
+  fi
+
+  mkdir -p "$BACKUP_DIR"
+  if mv "$dest" "$BACKUP_DIR/settings.json"; then
+    log_info "Backed up existing Noctalia settings.json to $BACKUP_DIR"
+    if cp "$src" "$dest"; then
+      log_success "Re-seeded $dest"
+    else
+      record_error "Failed to copy seed to $dest"
+    fi
+  else
+    record_error "Failed to back up existing $dest; not overwriting"
+  fi
+}
+
+# ============================================================
 # Misc finalization
 # ============================================================
 
@@ -735,6 +798,7 @@ main() {
   install_pacman_packages
   install_yay
   install_aur_packages
+  disable_legacy_user_units
   setup_nvidia
   setup_ly
   install_data_tools
@@ -743,6 +807,7 @@ main() {
   migrate_zsh_legacy
   symlink_configs
   symlink_user_scripts
+  seed_noctalia_config
   install_portal_config
   install_systemd_units
   install_tpm

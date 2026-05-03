@@ -175,14 +175,14 @@ window-rule {
 // =============================================================================
 
 layer-rule {
-    match namespace="^mako$"
-    match namespace="^notifications$"
+    match namespace="^noctalia-notification"
     shadow { off; }
 }
 
 layer-rule {
     match namespace="^launcher$"
     match namespace="^fuzzel$"
+    match namespace="^noctalia-launcher"
     geometry-corner-radius 12
     shadow {
         on
@@ -216,7 +216,7 @@ binds {
 
     // Apps
     Mod+Return     { spawn "kitty"; }
-    Mod+D          { spawn "fuzzel"; }
+    Mod+D          { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
     Mod+Shift+E    { spawn "bemoji" "-t"; }
     Mod+E          { spawn "thunar"; }
     Mod+W          { spawn "zen-browser"; }
@@ -308,8 +308,5 @@ binds {
 // Startup
 // =============================================================================
 
-spawn-at-startup "mako"
-spawn-at-startup "waybar"
-spawn-at-startup "nm-applet" "--indicator"
-spawn-at-startup "blueman-applet"
+spawn-at-startup "qs" "-c" "noctalia-shell"
 spawn-at-startup "solaar" "-w" "hide"
