@@ -253,7 +253,7 @@ PACMAN_PACKAGES=(
 
   celluloid
   signal-desktop
-  bitwarden bitwarden-cli
+  bitwarden
   code zed
   calcurse
 )
