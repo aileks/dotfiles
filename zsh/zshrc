@@ -1,5 +1,5 @@
 export PATH="$HOME/.local/bin:$PATH"
-export EDITOR='emacsclient -t'
+export EDITOR='nvim'
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 export MANPAGER="bat -plman"
@@ -42,6 +42,7 @@ source /usr/share/fzf/key-bindings.zsh
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
 
+alias vim="nvim"
 alias ls="eza --color=always --icons --group-directories-first"
 alias lt="eza -aT --color=always --icons --group-directories-first"
 alias rm="trash-put"
