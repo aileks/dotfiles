@@ -92,6 +92,8 @@ PACMAN_PACKAGES=(
   papirus-icon-theme
   qt5ct qt6ct kvantum
 
+  tesseract-data-eng
+
   celluloid
   signal-desktop
   bitwarden bitwarden-cli
@@ -108,9 +110,7 @@ AUR_PACKAGES=(
   bemoji
   wiremix
   zsh-antidote
-  ttf-commit-mono-nerd
   adw-gtk-theme
-  nwg-look-bin
 )
 
 # ============================================================
