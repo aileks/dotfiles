@@ -270,7 +270,7 @@ AUR_PACKAGES=(
   wiremix
   noctalia-shell
   noctalia-qs
-  #ttf-ms-win10-auto
+  # ttf-ms-win10-auto
 )
 
 # ============================================================
@@ -608,6 +608,7 @@ symlink_configs() {
   mkdir -p "$HOME/.config"
 
   create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
+  create_symlink "$SCRIPT_DIR/noctalia" "$HOME/.config/noctalia"
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
   create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
@@ -760,62 +761,6 @@ install_noctalia_plugins() {
   create_symlink "$plugins_repo/polkit-agent" "$plugins_dir/polkit-agent"
 }
 
-seed_noctalia_colorschemes() {
-  local src_dir="$SCRIPT_DIR/noctalia/colorschemes"
-  local dest_dir="$HOME/.config/noctalia/colorschemes"
-
-  [[ -d $src_dir ]] || return 0
-
-  log_info "Linking Noctalia colorschemes..."
-  mkdir -p "$dest_dir"
-
-  shopt -s nullglob
-  for scheme in "$src_dir"/*; do
-    [[ -d $scheme ]] || continue
-    create_symlink "$scheme" "$dest_dir/$(basename "$scheme")"
-  done
-  shopt -u nullglob
-}
-
-seed_noctalia_config() {
-  local src="$SCRIPT_DIR/noctalia/settings.json"
-  local dest_dir="$HOME/.config/noctalia"
-  local dest="$dest_dir/settings.json"
-
-  if [[ ! -f $src ]]; then
-    log_warning "noctalia/settings.json seed missing; skipping (capture from a live install per noctalia/README.md)"
-    return 0
-  fi
-
-  mkdir -p "$dest_dir"
-
-  if [[ ! -e $dest ]]; then
-    if cp "$src" "$dest"; then
-      log_success "Seeded $dest"
-    else
-      record_error "Failed to seed $dest"
-    fi
-    return 0
-  fi
-
-  if cmp -s "$src" "$dest"; then
-    log_success "Noctalia settings.json already matches seed"
-    return 0
-  fi
-
-  mkdir -p "$BACKUP_DIR"
-  if mv "$dest" "$BACKUP_DIR/settings.json"; then
-    log_info "Backed up existing Noctalia settings.json to $BACKUP_DIR"
-    if cp "$src" "$dest"; then
-      log_success "Re-seeded $dest"
-    else
-      record_error "Failed to copy seed to $dest"
-    fi
-  else
-    record_error "Failed to back up existing $dest; not overwriting"
-  fi
-}
-
 # ============================================================
 # Misc finalization
 # ============================================================
@@ -880,11 +825,8 @@ main() {
   symlink_configs
   symlink_user_scripts
   install_noctalia_plugins
-  seed_noctalia_colorschemes
-  seed_noctalia_config
   install_portal_config
   install_systemd_units
-  install_tpm
   setup_shell
 
   echo
