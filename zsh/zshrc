@@ -88,4 +88,7 @@ eval "$(starship init zsh)"
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
+
+# Fix Linux zsh weirdness
 bindkey -e
+bindkey "^[[3~" delete-char
