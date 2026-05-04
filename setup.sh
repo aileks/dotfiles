@@ -389,7 +389,7 @@ setup_ly() {
 # ============================================================
 
 install_data_tools() {
-  log_info "Setting up data science tools..."
+  log_info "Setting up uv..."
 
   if command_exists uv; then
     log_success "uv already installed"
@@ -611,7 +611,8 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
   create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
-  create_symlink "$SCRIPT_DIR/zed" "$HOME/.config/zed"
+  create_symlink "$SCRIPT_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
+  create_symlink "$SCRIPT_DIR/zed/keymap.json" "$HOME/.config/zed/keymap.json"
   create_symlink "$SCRIPT_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
