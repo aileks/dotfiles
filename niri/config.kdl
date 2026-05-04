@@ -24,14 +24,6 @@ input {
     keyboard {
         repeat-delay 250
         repeat-rate 50
-        numlock
-    }
-
-    touchpad {
-        tap
-        natural-scroll
-        accel-profile "flat"
-        accel-speed 0.0
     }
 
     mouse {
@@ -46,15 +38,15 @@ input {
 // Outputs
 // =============================================================================
 
+output "DP-3" {
+    mode "2560x1440@200"
+    position x=1080 y=200
+}
+
 output "DP-2" {
     mode "1920x1080@200"
     transform "90"
     position x=0 y=0
-}
-
-output "DP-3" {
-    mode "1920x1080@200"
-    position x=1080 y=280
 }
 
 // =============================================================================
@@ -75,8 +67,8 @@ layout {
     focus-ring { off; }
 
     border {
-        width 1.5
-        active-color "#c4693d"
+        width 1
+        active-color "#b14242"
         inactive-color "#535353"
         urgent-color "#df6464"
     }
@@ -315,6 +307,3 @@ binds {
 
 spawn-at-startup "qs" "-c" "noctalia-shell"
 spawn-at-startup "solaar" "-w" "hide"
-
-include "./noctalia.kdl"
-
