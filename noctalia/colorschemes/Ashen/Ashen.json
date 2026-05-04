@@ -1,8 +1,8 @@
 {
   "dark": {
-    "mPrimary": "#b14242",
+    "mPrimary": "#c4693d",
     "mOnPrimary": "#d5d5d5",
-    "mSecondary": "#c4693d",
+    "mSecondary": "#d87c4a",
     "mOnSecondary": "#121212",
     "mTertiary": "#4a8b8b",
     "mOnTertiary": "#121212",
@@ -20,8 +20,8 @@
       "normal": {
         "black": "#121212",
         "red": "#b14242",
-        "green": "#d87c4a",
-        "yellow": "#e49a44",
+        "green": "#89492a",
+        "yellow": "#e5a72a",
         "blue": "#4a8b8b",
         "magenta": "#a7a7a7",
         "cyan": "#b4b4b4",
@@ -30,8 +30,8 @@
       "bright": {
         "black": "#949494",
         "red": "#b14242",
-        "green": "#d87c4a",
-        "yellow": "#e49a44",
+        "green": "#89492a",
+        "yellow": "#e5a72a",
         "blue": "#4a8b8b",
         "magenta": "#a7a7a7",
         "cyan": "#b4b4b4",
