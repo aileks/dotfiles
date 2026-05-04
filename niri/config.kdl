@@ -153,22 +153,10 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(imv|qalculate-gtk|XIVLauncher)$"#
-    open-floating true
-}
-
-window-rule {
+    match app-id=r#"^(imv|qalculate-gtk|XIVLauncher\.Core)$"#
     match app-id=r#".*portal.*"#
-    open-floating true
-}
-
-window-rule {
     match app-id="thunar" title=r#"Rename"#
-    open-floating true
-}
-
-window-rule {
-    match title=r#"About|Authentication|Confirm|Configuration|Dialog|Error|Open File|Options|Preferences|Properties|Save As|Save File|Select File|Select Folder|Settings|Warning"#
+    match title=r#"About|Authentication|File Operation Progress|Confirm|Configuration|Dialog|Error|Open File|Options|Preferences|Properties|Save As|Save File|Select File|Select Folder|Settings|Warning"#
     open-floating true
 }
 
