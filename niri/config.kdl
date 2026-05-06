@@ -55,19 +55,13 @@ output "DP-2" {
 
 layout {
     gaps 6
-    struts {
-      top 0
-      left -3
-      right -3
-      bottom -3
-    }
 
     default-column-width { proportion 0.5; }
 
     focus-ring { off; }
 
     border {
-        width 1
+        width 2
         active-color "#b14242"
         inactive-color "#535353"
         urgent-color "#df6464"
@@ -187,6 +181,7 @@ layer-rule {
   match namespace="^noctalia-(background|launcher-overlay|dock)-.*$"
   background-effect {
     blur true
+    xray false
   }
 }
 
@@ -212,16 +207,15 @@ binds {
     Mod+Shift+Q { quit; }
 
     // Apps
-    Mod+Return     { spawn "kitty"; }
     Mod+D          { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
     Mod+Shift+E    { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "emoji"; }
+    Mod+Shift+P    { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "sessionMenu" "toggle"; }
+    Mod+Return     { spawn "kitty"; }
     Mod+E          { spawn "thunar"; }
     Mod+W          { spawn "zen-browser"; }
     Mod+S          { spawn "signal-desktop"; }
     Mod+M          { spawn "fastmail"; }
     Mod+V          { spawn "zeditor"; }
-    Mod+Shift+X    { spawn "lock"; }
-    Mod+Shift+P    { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "sessionMenu" "toggle"; }
 
     // Focus
     Mod+J { focus-window-down; }
@@ -238,7 +232,6 @@ binds {
     Mod+R           { switch-preset-column-width; }
     Mod+Shift+R     { switch-preset-window-height; }
     Mod+Ctrl+R      { reset-window-height; }
-    Mod+Shift+Return { maximize-column; }
     Mod+F           { maximize-column; }
     Mod+Shift+F     { fullscreen-window; }
     Mod+Space       { toggle-window-floating; }
@@ -284,8 +277,6 @@ binds {
     Mod+Alt+B   { spawn "screenrecord" "replay"; }
     Mod+Alt+S   { spawn "screenrecord" "save-replay"; }
 
-    // Color picker
-    Mod+Shift+C { spawn "pick-color"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "increase"; }

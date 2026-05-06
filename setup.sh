@@ -270,7 +270,6 @@ AUR_PACKAGES=(
   wiremix
   noctalia-shell
   noctalia-qs
-  # ttf-ms-win10-auto
 )
 
 # ============================================================

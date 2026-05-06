@@ -6,7 +6,7 @@ export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 if command -v bat >/dev/null 2>&1; then
-  export MANPAGER="bat -plman"
+  export MANPAGER='bat  --theme="ashen" -plman'
 fi
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 

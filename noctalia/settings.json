@@ -177,9 +177,7 @@
                         "useDistroLogo": false
                     },
                     "id": "plugin:arch-updater"
-                }
-            ],
-            "right": [
+                },
                 {
                     "compactMode": false,
                     "hideMode": "hidden",
@@ -195,7 +193,9 @@
                     "textColor": "none",
                     "useFixedWidth": false,
                     "visualizerType": "linear"
-                },
+                }
+            ],
+            "right": [
                 {
                     "defaultSettings": {
                         "arrowType": "caret",
@@ -524,7 +524,7 @@
         "bluetoothRssiPollIntervalMs": 60000,
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
-        "networkPanelView": "wifi",
+        "networkPanelView": "ethernet",
         "wifiDetailsViewMode": "grid"
     },
     "nightLight": {
@@ -541,14 +541,14 @@
         "disableWallpaper": true
     },
     "notifications": {
-        "backgroundOpacity": 0.5,
+        "backgroundOpacity": 0.8,
         "clearDismissed": true,
         "criticalUrgencyDuration": 15,
         "density": "default",
         "enableBatteryToast": true,
         "enableKeyboardLayoutToast": true,
         "enableMarkdown": true,
-        "enableMediaToast": true,
+        "enableMediaToast": false,
         "enabled": true,
         "location": "top_right",
         "lowUrgencyDuration": 3,
@@ -565,7 +565,7 @@
         },
         "sounds": {
             "criticalSoundFile": "",
-            "enabled": true,
+            "enabled": false,
             "excludedApps": "discord,firefox,chrome,chromium,edge",
             "lowSoundFile": "",
             "normalSoundFile": "",
@@ -575,7 +575,7 @@
     },
     "osd": {
         "autoHideMs": 2000,
-        "backgroundOpacity": 0.5,
+        "backgroundOpacity": 0.8,
         "enabled": true,
         "enabledTypes": [
             0,
