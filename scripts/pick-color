@@ -9,7 +9,7 @@ notify() {
   local urgency="${2:-normal}"
 
   if command -v notify-send >/dev/null 2>&1; then
-    notify-send -a niri -u "$urgency" "󰄭 Color" "$message"
+    notify-send -a niri -u "$urgency" "Color Picker" "$message"
   else
     printf '%s\n' "$message" >&2
   fi

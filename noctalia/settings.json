@@ -524,17 +524,17 @@
         "bluetoothRssiPollIntervalMs": 60000,
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
-        "networkPanelView": "ethernet",
+        "networkPanelView": "wifi",
         "wifiDetailsViewMode": "grid"
     },
     "nightLight": {
-        "autoSchedule": false,
+        "autoSchedule": true,
         "dayTemp": "6500",
         "enabled": true,
         "forced": false,
         "manualSunrise": "06:30",
         "manualSunset": "19:30",
-        "nightTemp": "5003"
+        "nightTemp": "4670"
     },
     "noctaliaPerformance": {
         "disableDesktopWidgets": true,
@@ -695,10 +695,6 @@
             },
             {
                 "enabled": true,
-                "id": "gtk"
-            },
-            {
-                "enabled": true,
                 "id": "qt"
             },
             {
@@ -712,6 +708,10 @@
             {
                 "enabled": true,
                 "id": "kcolorscheme"
+            },
+            {
+                "enabled": true,
+                "id": "gtk"
             }
         ],
         "enableUserTheming": false
