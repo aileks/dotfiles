@@ -524,8 +524,8 @@
         "bluetoothRssiPollIntervalMs": 60000,
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
-        "networkPanelView": "wifi",
-        "wifiDetailsViewMode": "grid"
+        "networkPanelView": "ethernet",
+        "wifiDetailsViewMode": "list"
     },
     "nightLight": {
         "autoSchedule": true,
