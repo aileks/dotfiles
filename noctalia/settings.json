@@ -60,6 +60,7 @@
         "middleClickCommand": "",
         "middleClickFollowMouse": false,
         "monitors": [
+            "DP-3"
         ],
         "mouseWheelAction": "none",
         "mouseWheelWrap": true,
@@ -262,6 +263,9 @@
                     "icon": "settings",
                     "id": "ControlCenter",
                     "useDistroLogo": false
+                },
+                {
+                    "id": "plugin:privacy-indicator"
                 },
                 {
                     "clockColor": "none",
