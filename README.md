@@ -1,6 +1,6 @@
 # Arch Linux Dotfiles
 
-Arch setup built on Niri with the [Ashen](https://codeberg.org/ficd/ashen) colorscheme.
+CachyOS specific dotfiles. To have the setup script work on vanilla Arch, enable [CachyOS's repos](https://wiki.cachyos.org/features/optimized_repos/#adding-our-repositories-to-an-existing-arch-linux-install).
 
 ## Quick Start
 
@@ -15,4 +15,3 @@ git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup.sh
 ```
-
