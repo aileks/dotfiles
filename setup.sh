@@ -54,7 +54,7 @@ check_os() {
 
 show_help() {
   cat <<EOF
-Niri Dotfiles Installer (Arch Linux)
+KDE Plasma Dotfiles Installer (CachyOS)
 
 Run modes:
   curl -fsSL https://aileks.dev/arch | bash    # bootstrap from network
@@ -185,7 +185,7 @@ resolve_script_dir() {
     self_dir="$(cd "$(dirname "$self_path")" 2>/dev/null && pwd)" || self_dir=""
   fi
 
-  if [[ -n $self_dir && -d "$self_dir/niri" && -d "$self_dir/zsh" ]]; then
+  if [[ -n $self_dir && -f "$self_dir/setup.sh" && -d "$self_dir/zsh" ]]; then
     SCRIPT_DIR="$self_dir"
     return 0
   fi
@@ -213,7 +213,7 @@ resolve_script_dir() {
 
 PACMAN_PACKAGES=(
   base-devel git curl wget
-  zsh vim neovim satty starship
+  zsh vim neovim starship
   openssh ufw man-db man-pages
   reflector pacman-contrib
   xdg-user-dirs
@@ -221,20 +221,17 @@ PACMAN_PACKAGES=(
   fastfetch btop eza bat fd ripgrep fzf zoxide
 
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
-  pavucontrol playerctl
+  playerctl
   networkmanager bluez bluez-utils blueman
 
-  niri xorg-xwayland xwayland-satellite
-  kitty nwg-look
-  grim slurp wl-clipboard
-  xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
+  kitty
+  xdg-desktop-portal xdg-desktop-portal-gtk
   polkit
   gnome-keyring
-  libnotify
-  brightnessctl ddcutil
-  upower power-profiles-daemon imagemagick cliphist wlsunset
-  ly
+  ddcutil
+  upower power-profiles-daemon imagemagick
   tesseract-data-eng
+  kscreen
 
   nvidia-open-dkms nvidia-utils nvidia-settings libva-nvidia-driver
   egl-wayland linux-headers dkms
@@ -243,13 +240,11 @@ PACMAN_PACKAGES=(
 
   thunar thunar-volman thunar-archive-plugin
   tumbler ffmpegthumbnailer
-  
+
   gvfs gvfs-mtp udiskie
   yazi
   imv qalculate-gtk zathura zathura-pdf-mupdf
-  gpu-screen-recorder
   nvtop
-  solaar
 
   noto-fonts noto-fonts-emoji noto-fonts-cjk
   papirus-icon-theme
@@ -267,9 +262,7 @@ AUR_PACKAGES=(
   onlyoffice-bin
   fastmail
   notesnook-bin
-  wiremix
-  noctalia-shell
-  noctalia-qs
+  polonium
 )
 
 # ============================================================
@@ -369,20 +362,6 @@ setup_ddc() {
   fi
 }
 
-setup_ly() {
-  if ! pacman -Q ly &>/dev/null; then
-    log_warning "ly not installed; skipping login manager setup"
-    return 0
-  fi
-  log_info "Enabling system services..."
-  sudo systemctl disable getty@tty2.service 2>/dev/null || true
-  if sudo systemctl enable ly@tty2.service; then
-    log_success "ly@tty2.service enabled"
-  else
-    record_error "Failed to enable ly@tty2.service"
-  fi
-}
-
 # ============================================================
 # Data Tools
 # ============================================================
@@ -401,47 +380,10 @@ install_data_tools() {
 }
 
 # ============================================================
-# NVIDIA: app profiles + modprobe + initramfs modules
+# NVIDIA: modprobe + initramfs modules
 # ============================================================
 
 setup_nvidia() {
-  local profile_dir=/etc/nvidia/nvidia-application-profiles-rc.d
-  local profile_file="$profile_dir/50-limit-free-buffer-pool-in-wayland-compositors.json"
-
-  if [[ -f $profile_file ]]; then
-    log_success "NVIDIA niri VRAM profile already present"
-  else
-    log_info "Installing NVIDIA niri VRAM-mitigation profile..."
-    if sudo install -d -m 0755 "$profile_dir" && sudo tee "$profile_file" >/dev/null <<'EOF'; then
-{
-    "rules": [
-        {
-            "pattern": {
-                "feature": "procname",
-                "matches": "niri"
-            },
-            "profile": "Limit Free Buffer Pool On Wayland Compositors"
-        }
-    ],
-    "profiles": [
-        {
-            "name": "Limit Free Buffer Pool On Wayland Compositors",
-            "settings": [
-                {
-                    "key": "GLVidHeapReuseRatio",
-                    "value": 0
-                }
-            ]
-        }
-    ]
-}
-EOF
-      log_success "NVIDIA niri VRAM profile installed"
-    else
-      record_error "Failed to install NVIDIA niri VRAM profile"
-    fi
-  fi
-
   setup_nvidia_modprobe
   setup_nvidia_mkinitcpio
 }
@@ -576,38 +518,10 @@ create_symlink() {
   fi
 }
 
-symlink_user_scripts() {
-  local src_dir="$SCRIPT_DIR/scripts"
-  local dest_dir="$HOME/.local/bin"
-
-  if [[ ! -d $src_dir ]]; then
-    log_warning "No scripts/ directory found; skipping user scripts"
-    return 0
-  fi
-
-  log_info "Linking user scripts to $dest_dir..."
-  mkdir -p "$dest_dir"
-
-  shopt -s nullglob
-  local linked_any=0
-  for f in "$src_dir"/*; do
-    [[ -f $f && -x $f ]] || continue
-    create_symlink "$f" "$dest_dir/$(basename "$f")"
-    linked_any=1
-  done
-  shopt -u nullglob
-
-  if [[ $linked_any -eq 0 ]]; then
-    log_warning "scripts/ contained no executable files"
-  fi
-}
-
 symlink_configs() {
   log_info "Creating config symlinks..."
   mkdir -p "$HOME/.config"
 
-  create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
-  create_symlink "$SCRIPT_DIR/noctalia" "$HOME/.config/noctalia"
   create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
   create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
@@ -672,37 +586,7 @@ install_systemd_units() {
 }
 
 # ============================================================
-# xdg-desktop-portal configuration
-# ============================================================
-
-install_portal_config() {
-  local src_dir="$SCRIPT_DIR/portals"
-  local dest_dir="$HOME/.config/xdg-desktop-portal"
-
-  if [[ ! -d $src_dir ]]; then
-    log_warning "No portals/ directory found; skipping portal config"
-    return 0
-  fi
-
-  log_info "Linking xdg-desktop-portal config..."
-  mkdir -p "$dest_dir"
-
-  shopt -s nullglob
-  local confs=("$src_dir"/*.conf)
-  shopt -u nullglob
-
-  if [[ ${#confs[@]} -eq 0 ]]; then
-    log_warning "portals/ is empty; skipping"
-    return 0
-  fi
-
-  for conf in "${confs[@]}"; do
-    create_symlink "$conf" "$dest_dir/$(basename "$conf")"
-  done
-}
-
-# ============================================================
-# Noctalia
+# Legacy cleanup
 # ============================================================
 
 disable_legacy_user_units() {
@@ -718,7 +602,7 @@ disable_legacy_user_units() {
 
   pkill -x polkit-gnome-authentication-agent-1 2>/dev/null || true
 
-  for legacy in waybar mako swaylock fuzzel; do
+  for legacy in niri noctalia waybar mako swaylock fuzzel; do
     local target="$HOME/.config/$legacy"
     if [[ -L $target ]]; then
       rm -f "$target"
@@ -735,30 +619,6 @@ disable_legacy_user_units() {
   done
 }
 
-install_noctalia_plugins() {
-  local plugins_repo="$HOME/.local/share/noctalia-plugins"
-  local plugins_dir="$HOME/.config/noctalia/plugins"
-
-  if [[ -d "$plugins_repo/.git" ]]; then
-    log_info "Updating noctalia-plugins..."
-    if ! git -C "$plugins_repo" pull --ff-only --quiet; then
-      record_error "Failed to update noctalia-plugins"
-    fi
-  elif [[ -e $plugins_repo ]]; then
-    record_error "$plugins_repo exists but is not a git checkout; remove it manually"
-    return 1
-  else
-    log_info "Cloning noctalia-plugins..."
-    mkdir -p "$(dirname "$plugins_repo")"
-    if ! git clone --depth=1 https://github.com/noctalia-dev/noctalia-plugins.git "$plugins_repo"; then
-      record_error "Failed to clone noctalia-plugins"
-      return 1
-    fi
-  fi
-
-  mkdir -p "$plugins_dir"
-  create_symlink "$plugins_repo/polkit-agent" "$plugins_dir/polkit-agent"
-}
 
 # ============================================================
 # Misc finalization
@@ -778,6 +638,30 @@ setup_shell() {
 setup_xdg_dirs() {
   if command_exists xdg-user-dirs-update; then
     xdg-user-dirs-update || record_error "Failed to update XDG user dirs"
+  fi
+}
+
+# ============================================================
+# KDE Plasma settings
+# ============================================================
+
+setup_kde() {
+  if ! command_exists kwriteconfig6; then
+    log_warning "kwriteconfig6 not found; skipping KDE settings"
+    return 0
+  fi
+
+  log_info "Applying KDE Plasma settings..."
+
+  kwriteconfig6 --file kcminputrc --group Mouse --key PointerAcceleration flat
+  log_success "Mouse acceleration: flat"
+
+  kwriteconfig6 --file kcminputrc --group Keyboard --key RepeatDelay 250
+  kwriteconfig6 --file kcminputrc --group Keyboard --key RepeatRate 50
+  log_success "Keyboard repeat: delay=250 rate=50"
+
+  if command_exists kcminit; then
+    kcminit kcm_mouse 2>/dev/null || true
   fi
 }
 
@@ -816,16 +700,13 @@ main() {
   disable_legacy_user_units
   setup_nvidia
   setup_ddc
-  setup_ly
   install_data_tools
   setup_xdg_dirs
   install_antidote
   migrate_zsh_legacy
   symlink_configs
-  symlink_user_scripts
-  install_noctalia_plugins
-  install_portal_config
   install_systemd_units
+  setup_kde
   setup_shell
 
   echo
@@ -846,7 +727,7 @@ main() {
     echo -e "${LOG_YELLOW}Review the errors; manual intervention may be needed.${LOG_NC}"
   else
     echo
-    log_success "Zero errors encountered. Reboot to pick up Ly + niri session."
+    log_success "Zero errors encountered. Reboot to pick up KDE Plasma session."
   fi
 }
 
