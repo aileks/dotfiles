@@ -46,7 +46,7 @@ prompt_yes_no() {
 }
 
 check_os() {
-  if ! [[ -r /etc/os-release ]] || ! grep -qiE '^ID=arch' /etc/os-release; then
+  if ! [[ -r /etc/os-release ]] || ! grep -qiE '^(ID|ID_LIKE)=.*(arch|cachyos)' /etc/os-release; then
     log_error "Unsupported OS. This script requires Arch Linux."
     exit 1
   fi
@@ -233,8 +233,8 @@ PACMAN_PACKAGES=(
   tesseract-data-eng
   kscreen
 
-  nvidia-open-dkms nvidia-utils nvidia-settings libva-nvidia-driver
-  egl-wayland linux-headers dkms
+  nvidia-utils nvidia-settings libva-nvidia-driver
+  egl-wayland
   xarchiver
   flatpak
 
@@ -258,43 +258,13 @@ PACMAN_PACKAGES=(
 )
 
 AUR_PACKAGES=(
+  linux-cachyos-nvidia-open
   zen-browser-bin
   onlyoffice-bin
   fastmail
   notesnook-bin
   polonium
 )
-
-# ============================================================
-# Yay (AUR helper)
-# ============================================================
-
-install_yay() {
-  if command_exists yay; then
-    log_success "yay already installed"
-    return 0
-  fi
-
-  log_info "Installing yay from AUR..."
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  if ! git clone https://aur.archlinux.org/yay-bin.git "$tmpdir/yay-bin"; then
-    record_error "Failed to clone yay-bin"
-    rm -rf "$tmpdir"
-    return 1
-  fi
-
-  pushd "$tmpdir/yay-bin" &>/dev/null || return 1
-  if ! makepkg -si --noconfirm; then
-    record_error "Failed to build/install yay"
-    popd &>/dev/null || true
-    rm -rf "$tmpdir"
-    return 1
-  fi
-  popd &>/dev/null || true
-  rm -rf "$tmpdir"
-  log_success "yay installed"
-}
 
 # ============================================================
 # Package Installation
@@ -313,13 +283,18 @@ install_pacman_packages() {
 }
 
 install_aur_packages() {
-  if ! command_exists yay; then
-    record_error "yay unavailable; skipping AUR packages"
+  local aur_helper=""
+  if command_exists paru; then
+    aur_helper="paru"
+  elif command_exists yay; then
+    aur_helper="yay"
+  else
+    record_error "No AUR helper found (paru or yay); skipping AUR packages"
     return 1
   fi
 
-  log_info "Installing AUR packages..."
-  if ! yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"; then
+  log_info "Installing AUR packages via $aur_helper..."
+  if ! $aur_helper -S --needed --noconfirm "${AUR_PACKAGES[@]}"; then
     record_error "Failed to install some AUR packages"
     return 1
   fi
@@ -327,7 +302,7 @@ install_aur_packages() {
 }
 
 setup_ddc() {
-  if ! pacman -Q ddcutil &>/dev/null; then
+  if ! pacman_installed ddcutil; then
     log_warning "ddcutil not installed; skipping DDC/CI setup"
     return 0
   fi
@@ -385,7 +360,7 @@ install_data_tools() {
 
 setup_nvidia() {
   setup_nvidia_modprobe
-  setup_nvidia_mkinitcpio
+  setup_nvidia_initramfs
 }
 
 setup_nvidia_modprobe() {
@@ -405,40 +380,25 @@ setup_nvidia_modprobe() {
   fi
 }
 
-setup_nvidia_mkinitcpio() {
-  local conf=/etc/mkinitcpio.conf
-  local want='MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)'
-
-  if [[ ! -f $conf ]]; then
-    log_warning "$conf not found; skipping initramfs module wiring"
+setup_nvidia_initramfs() {
+  if command_exists chwd; then
+    log_info "CachyOS detected — using chwd for NVIDIA initramfs configuration..."
+    if sudo chwd -a 2>/dev/null; then
+      log_success "chwd configured NVIDIA modules"
+    else
+      log_warning "chwd failed; CachyOS pacman hooks should handle initramfs on install"
+    fi
     return 0
   fi
 
-  if grep -qE '^MODULES=\([^)]*nvidia_drm' "$conf"; then
-    log_success "nvidia modules already in $conf"
-    return 0
+  if [[ -f /etc/mkinitcpio.conf ]]; then
+    local conf=/etc/mkinitcpio.conf
+    if grep -qE '^MODULES=\([^)]*nvidia_drm' "$conf"; then
+      log_success "nvidia modules already in $conf"
+      return 0
+    fi
+    log_warning "nvidia modules not found in $conf — manual intervention may be needed"
   fi
-
-  log_info "Adding nvidia modules to $conf..."
-  local backup="${conf}.backup.$(date +%Y%m%d_%H%M%S)"
-  if ! sudo cp "$conf" "$backup"; then
-    record_error "Failed to back up $conf"
-    return 1
-  fi
-  log_success "Backed up to $backup"
-
-  if ! sudo sed -i -E "s|^MODULES=\([^)]*\)|$want|" "$conf"; then
-    record_error "Failed to edit $conf"
-    return 1
-  fi
-  log_success "Updated MODULES in $conf"
-
-  log_info "Rebuilding initramfs (mkinitcpio -P)..."
-  if ! sudo mkinitcpio -P; then
-    record_error "mkinitcpio -P failed"
-    return 1
-  fi
-  log_success "Initramfs rebuilt"
 }
 
 # ============================================================
@@ -619,7 +579,6 @@ disable_legacy_user_units() {
   done
 }
 
-
 # ============================================================
 # Misc finalization
 # ============================================================
@@ -695,7 +654,6 @@ main() {
   log_info "Starting full installation pipeline..."
 
   install_pacman_packages
-  install_yay
   install_aur_packages
   disable_legacy_user_units
   setup_nvidia
