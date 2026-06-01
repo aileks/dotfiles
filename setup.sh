@@ -47,34 +47,13 @@ prompt_yes_no() {
 
 check_os() {
     if ! [[ -r /etc/os-release ]] || ! grep -qiE '^ID=cachyos' /etc/os-release; then
-        log_error "Unsupported OS. This script requires CachyOS."
+        log_error "Unsupported OS. This script requires Arch."
         exit 1
     fi
 }
 
-show_help() {
-    cat <<EOF
-KDE Plasma Dotfiles Installer (CachyOS)
-
-Run modes:
-  curl -fsSL https://aileks.dev/arch | bash    # bootstrap from network
-  ./setup.sh                                    # run from a local clone
-
-When invoked outside a clone of the dotfiles repo, this script will:
-  1. Ensure base packages (git, base-devel) are installed
-  2. Clone or update the repo at ~/.dotfiles
-  3. Re-exec itself from the cloned location
-
-When invoked from inside a clone, it skips bootstrap and proceeds
-straight to package install + symlink wiring.
-
-Flags:
-  -h, --help    Show this message
-EOF
-}
-
 # ============================================================
-# Bootstrap (only runs when not already inside a clone)
+# Bootstrap
 # ============================================================
 
 ensure_base_packages() {
@@ -221,7 +200,6 @@ AUR_PACKAGES=(
     onlyoffice-bin
     fastmail
     notesnook-bin
-    kwin-polonium
 )
 
 # ============================================================
@@ -336,24 +314,6 @@ install_antidote() {
 }
 
 # ============================================================
-# Zsh legacy cleanup
-# ============================================================
-
-migrate_zsh_legacy() {
-    local zplug_dir="$HOME/.zplug"
-    local ashen_plugin="$HOME/.zsh/plugins/ashen_zsh_syntax_highlighting.zsh"
-
-    if [[ -d $zplug_dir ]]; then
-        log_info "Removing legacy ~/.zplug (replaced by antidote)..."
-        rm -rf "$zplug_dir" || record_error "Failed to remove $zplug_dir"
-    fi
-    if [[ -f $ashen_plugin ]]; then
-        log_info "Removing legacy ashen syntax highlighting plugin..."
-        rm -f "$ashen_plugin" || record_error "Failed to remove $ashen_plugin"
-    fi
-}
-
-# ============================================================
 # Symlinks
 # ============================================================
 
@@ -401,92 +361,6 @@ symlink_configs() {
 }
 
 # ============================================================
-# Systemd user units
-# ============================================================
-
-install_systemd_units() {
-    local src_dir="$SCRIPT_DIR/systemd"
-    local dest_dir="$HOME/.config/systemd/user"
-
-    if [[ ! -d $src_dir ]]; then
-        log_warning "No systemd/ directory found; skipping user units"
-        return 0
-    fi
-
-    log_info "Linking systemd user units..."
-    mkdir -p "$dest_dir"
-
-    shopt -s nullglob
-    local unit_files=("$src_dir"/*.service "$src_dir"/*.target "$src_dir"/*.timer "$src_dir"/*.socket)
-    shopt -u nullglob
-
-    if [[ ${#unit_files[@]} -eq 0 ]]; then
-        log_warning "systemd/ is empty; skipping"
-        return 0
-    fi
-
-    local enabled_any=0
-    for unit in "${unit_files[@]}"; do
-        local name
-        name=$(basename "$unit")
-        create_symlink "$unit" "$dest_dir/$name"
-        enabled_any=1
-    done
-
-    if [[ $enabled_any -eq 1 ]]; then
-        systemctl --user daemon-reload || record_error "systemctl --user daemon-reload failed"
-        for unit in "${unit_files[@]}"; do
-            local name
-            name=$(basename "$unit")
-            [[ $name == *.service ]] || continue
-            if systemctl --user is-enabled --quiet "$name" 2>/dev/null; then
-                log_success "$name already enabled"
-            else
-                if ! systemctl --user enable "$name"; then
-                    record_error "Failed to enable user unit: $name"
-                else
-                    log_success "Enabled $name (will start with graphical-session.target)"
-                fi
-            fi
-        done
-    fi
-}
-
-# ============================================================
-# Legacy cleanup
-# ============================================================
-
-disable_legacy_user_units() {
-    local unit_dir="$HOME/.config/systemd/user"
-    for unit in swayidle.service polkit.service swaybg.service; do
-        if systemctl --user is-enabled --quiet "$unit" 2>/dev/null; then
-            systemctl --user disable --now "$unit" 2>/dev/null || true
-            log_success "Disabled legacy unit: $unit"
-        fi
-        rm -f "$unit_dir/$unit"
-    done
-    systemctl --user daemon-reload 2>/dev/null || true
-
-    pkill -x polkit-gnome-authentication-agent-1 2>/dev/null || true
-
-    for legacy in niri noctalia waybar mako swaylock fuzzel; do
-        local target="$HOME/.config/$legacy"
-        if [[ -L $target ]]; then
-            rm -f "$target"
-            log_success "Removed legacy config symlink: $target"
-        fi
-    done
-
-    for stale in power-menu; do
-        local target="$HOME/.local/bin/$stale"
-        if [[ -L $target && ! -e $target ]]; then
-            rm -f "$target"
-            log_success "Removed stale script symlink: $target"
-        fi
-    done
-}
-
-# ============================================================
 # Misc finalization
 # ============================================================
 
@@ -511,7 +385,7 @@ setup_xdg_dirs() {
 # KDE Plasma settings
 # ============================================================
 
-setup_kde() {
+setup_plasma() {
     if ! command_exists kwriteconfig6; then
         log_warning "kwriteconfig6 not found; skipping KDE settings"
         return 0
@@ -562,15 +436,12 @@ main() {
 
     install_pacman_packages
     install_aur_packages
-    disable_legacy_user_units
     setup_ddc
     install_uv
     setup_xdg_dirs
     install_antidote
-    migrate_zsh_legacy
     symlink_configs
-    install_systemd_units
-    setup_kde
+    setup_plasma
     setup_shell
 
     echo
