@@ -191,15 +191,15 @@ PACMAN_PACKAGES=(
     neovim starship trash-cli shfmt jq
     fastfetch btop eza bat fd ripgrep fzf zoxide
     kitty linux-cachyos-nvidia-open obs-studio
-    papirus-icon-theme adw-gtk-theme
+    papirus-icon-theme adw-gtk-theme zotero
     signal-desktop bitwarden zed ddcutil
 )
 
 AUR_PACKAGES=(
-    zen-browser-bin
-    onlyoffice-bin
     fastmail
-    notesnook-bin
+    logseq-desktop-bin
+    onlyoffice-bin
+    zen-browser-bin
 )
 
 # ============================================================
