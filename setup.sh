@@ -21,10 +21,10 @@ declare -a SETUP_ERRORS=()
 # Logging
 # ============================================================
 
-log_info() { echo -e "${LOG_BLUE}[INFO]${LOG_NC} $1"; }
+log_info() { echo -e "${LOG_BLUE}[I]${LOG_NC} $1"; }
 log_success() { echo -e "${LOG_GREEN}[OK]${LOG_NC} $1"; }
-log_warning() { echo -e "${LOG_YELLOW}[WARN]${LOG_NC} $1"; }
-log_error() { echo -e "${LOG_RED}[ERROR]${LOG_NC} $1"; }
+log_warning() { echo -e "${LOG_YELLOW}[W]${LOG_NC} $1"; }
+log_error() { echo -e "${LOG_RED}[E]${LOG_NC} $1"; }
 
 record_error() {
     log_error "$1"
