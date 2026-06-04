@@ -200,6 +200,7 @@ AUR_PACKAGES=(
     onlyoffice-bin
     zen-browser-bin
     zotero-bin
+    kwin-scripts-krohnkite
 )
 
 FLATPAK_PACKAGES=(
