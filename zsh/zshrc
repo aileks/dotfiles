@@ -35,6 +35,7 @@ alias fzf="fzf --style full"
 alias ff="fastfetch"
 alias vim="nvim"
 alias docker="podman"
+alias zed="zeditor"
 
 # FZF
 export FZF_CTRL_T_OPTS="

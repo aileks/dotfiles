@@ -1,4 +1,10 @@
 {
+  "git_panel": {
+    "dock": "left"
+  },
+  "project_panel": {
+    "dock": "left"
+  },
   "telemetry": { "diagnostics": false, "metrics": false },
   "restore_on_startup": "launchpad",
   "ui_font_family": "Adwaita Sans",
