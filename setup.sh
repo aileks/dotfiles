@@ -195,19 +195,17 @@ PACMAN_PACKAGES=(
 )
 
 AUR_PACKAGES=(
-    fastmail
-    logseq-desktop-bin
-    onlyoffice-bin
-    zen-browser-bin
-    zotero-bin
+    fastmail papirus-folders
+    logseq-desktop-bin zotero-bin
     kwin-scripts-krohnkite
+    zen-browser-bin onlyoffice-bin
 )
 
 FLATPAK_PACKAGES=(
     com.obsproject.Studio
     com.obsproject.Studio.Plugin.OBSVkCapture
-    org.freedesktop.Platform.VulkanLayer.OBSVkCapture
     com.obsproject.Studio.Plugin.OBSPWVideo
+    org.freedesktop.Platform.VulkanLayer.OBSVkCapture
 )
 
 # ============================================================
