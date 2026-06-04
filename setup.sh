@@ -46,8 +46,8 @@ prompt_yes_no() {
 }
 
 check_os() {
-    if ! [[ -r /etc/os-release ]] || ! grep -qiE '^ID=cachyos' /etc/os-release; then
-        log_error "Unsupported OS. This script requires Arch."
+    if ! [[ -r /etc/os-release ]] || ! grep -qiE '^ID=arch$' /etc/os-release; then
+        log_error "Unsupported OS. This script requires Arch Linux."
         exit 1
     fi
 }
@@ -57,7 +57,7 @@ check_os() {
 # ============================================================
 
 ensure_base_packages() {
-    log_info "Checking base packages (git, base-devel)..."
+    log_info "Checking base packages..."
     local missing=()
     command_exists git || missing+=("git")
     pacman_installed base-devel || missing+=("base-devel")
@@ -190,8 +190,8 @@ resolve_script_dir() {
 PACMAN_PACKAGES=(
     neovim starship trash-cli shfmt jq
     fastfetch btop eza bat fd ripgrep fzf zoxide
-    kitty linux-cachyos-nvidia-open obs-studio
-    papirus-icon-theme adw-gtk-theme zotero
+    kitty nvidia-open-dkms flatpak
+    papirus-icon-theme adw-gtk-theme
     signal-desktop bitwarden zed ddcutil
 )
 
@@ -200,6 +200,14 @@ AUR_PACKAGES=(
     logseq-desktop-bin
     onlyoffice-bin
     zen-browser-bin
+    zotero-bin
+)
+
+FLATPAK_PACKAGES=(
+    com.obsproject.Studio
+    com.obsproject.Studio.Plugin.OBSVkCapture
+    org.freedesktop.Platform.VulkanLayer.OBSVkCapture
+    com.obsproject.Studio.Plugin.OBSPWVideo
 )
 
 # ============================================================
@@ -218,23 +226,60 @@ install_pacman_packages() {
     log_success "pacman packages installed"
 }
 
-install_aur_packages() {
-    local aur_helper=""
+install_aur_helper() {
     if command_exists paru; then
-        aur_helper="paru"
-    elif command_exists yay; then
-        aur_helper="yay"
+        log_success "paru already installed"
+        return 0
+    fi
+
+    log_info "Installing paru..."
+    local tmpdir
+    tmpdir=$(mktemp -d /tmp/paru-build.XXXXXX)
+    if git clone --depth=1 https://aur.archlinux.org/paru.git "$tmpdir"; then
+        (cd "$tmpdir" && makepkg -si --noconfirm --needed)
     else
-        record_error "No AUR helper found (paru or yay); skipping AUR packages"
+        record_error "Failed to clone paru from AUR"
+    fi
+    rm -rf "$tmpdir"
+}
+
+install_aur_packages() {
+    if ! command_exists paru; then
+        record_error "paru not found; skipping AUR packages"
         return 1
     fi
 
-    log_info "Installing AUR packages via $aur_helper..."
-    if ! $aur_helper -S --needed --noconfirm "${AUR_PACKAGES[@]}"; then
+    log_info "Installing AUR packages via paru..."
+    if ! paru -S --needed --noconfirm "${AUR_PACKAGES[@]}"; then
         record_error "Failed to install some AUR packages"
         return 1
     fi
     log_success "AUR packages installed"
+}
+
+install_flatpak_packages() {
+    if ! command_exists flatpak; then
+        log_warning "flatpak not installed; skipping Flatpak packages"
+        return 0
+    fi
+
+    if ! flatpak remotes --show-disabled | grep -q '^flathub'; then
+        log_info "Adding Flathub remote..."
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    fi
+
+    log_info "Installing Flatpak packages..."
+    for pkg in "${FLATPAK_PACKAGES[@]}"; do
+        if flatpak list --app --columns=ref | grep -q "$pkg"; then
+            log_success "Already installed: $pkg"
+        else
+            if flatpak install --noninteractive flathub "$pkg"; then
+                log_success "Installed: $pkg"
+            else
+                record_error "Failed to install Flatpak: $pkg"
+            fi
+        fi
+    done
 }
 
 setup_ddc() {
@@ -264,7 +309,7 @@ setup_ddc() {
     if id -nG "$USER" | grep -qw i2c; then
         log_success "$USER already in i2c group"
     else
-        log_info "Adding $USER to i2c group (effective after relog)..."
+        log_info "Adding $USER to i2c group..."
         if sudo usermod -aG i2c "$USER"; then
             log_success "Added $USER to i2c group"
         else
@@ -435,7 +480,9 @@ main() {
     log_info "Starting full installation pipeline..."
 
     install_pacman_packages
+    install_aur_helper
     install_aur_packages
+    install_flatpak_packages
     setup_ddc
     install_uv
     setup_xdg_dirs
@@ -462,7 +509,7 @@ main() {
         echo -e "${LOG_YELLOW}Review the errors; manual intervention may be needed.${LOG_NC}"
     else
         echo
-        log_success "Zero errors encountered. Reboot to pick up KDE Plasma session."
+        log_success "Zero errors encountered. Reboot to apply all changes."
     fi
 }
 

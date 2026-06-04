@@ -1,6 +1,6 @@
 # Arch Linux Dotfiles
 
-CachyOS specific dotfiles. To have the setup script work on vanilla Arch, enable [CachyOS's repos](https://wiki.cachyos.org/features/optimized_repos/#adding-our-repositories-to-an-existing-arch-linux-install).
+My personal dotfiles for Arch Linux.
 
 ## Quick Start
 
