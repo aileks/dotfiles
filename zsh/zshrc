@@ -93,3 +93,5 @@ fi
 # Fix Linux zsh weirdness
 bindkey -e
 bindkey "^[[3~" delete-char
+
+. "$HOME/.local/bin/env"
