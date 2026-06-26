@@ -60,6 +60,7 @@ ensure_base_packages() {
     log_info "Checking base packages..."
     local missing=()
     command_exists git || missing+=("git")
+    command_exists curl || missing+=("curl")
     pacman_installed base-devel || missing+=("base-devel")
 
     if [[ ${#missing[@]} -eq 0 ]]; then
@@ -118,10 +119,10 @@ prompt_replace_repo() {
 
 update_existing_repo() {
     log_info "Updating existing dotfiles repository..."
-    cd "$DOTFILES_DIR" || return 1
+    pushd "$DOTFILES_DIR" &>/dev/null || return 1
     git fetch origin &>/dev/null || {
         log_warning "Fetch failed, using local"
-        cd - &>/dev/null
+        popd &>/dev/null || true
         return 0
     }
     local branch
@@ -129,13 +130,21 @@ update_existing_repo() {
     local local_ref remote_ref
     local_ref=$(git rev-parse HEAD 2>/dev/null || echo "")
     remote_ref=$(git rev-parse "origin/$branch" 2>/dev/null || echo "")
-    if [[ $local_ref == "$remote_ref" ]]; then
+
+    if [[ -z $remote_ref ]]; then
+        log_warning "Remote branch origin/$branch not found; using local"
+    elif [[ $local_ref == "$remote_ref" ]]; then
         log_success "Already up to date"
+    elif git merge-base --is-ancestor HEAD "origin/$branch"; then
+        if git merge --ff-only "origin/$branch" &>/dev/null; then
+            log_success "Fast-forwarded to latest"
+        else
+            log_warning "Fast-forward failed; using local"
+        fi
     else
-        git reset --hard "origin/$branch" &>/dev/null
-        log_success "Updated to latest"
+        log_warning "Local repo is ahead or diverged; using local"
     fi
-    cd - &>/dev/null || true
+    popd &>/dev/null || true
 }
 
 clone_repo() {
@@ -188,7 +197,7 @@ resolve_script_dir() {
 # ============================================================
 
 PACMAN_PACKAGES=(
-    neovim starship trash-cli shfmt jq zed fastfetch btop eza bat fd ripgrep fzf ark
+    neovim starship zsh trash-cli shfmt jq zed fastfetch btop eza bat fd ripgrep fzf ark
     power-profiles-daemon kitty nvidia-open flatpak zoxide ffmpegthumbs partitionmanager
     adw-gtk-theme vlc signal-desktop bitwarden ddcutil kcalc papirus-icon-theme dolphin
     dolphin-plugins gwenview kcharselect kcolorchooser kolourpaint kweather okular
@@ -204,11 +213,8 @@ AUR_PACKAGES=(
 # ============================================================
 
 install_pacman_packages() {
-    log_info "Refreshing pacman databases..."
-    sudo pacman -Sy --noconfirm || record_error "Failed to sync pacman databases"
-
-    log_info "Installing pacman packages..."
-    if ! sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"; then
+    log_info "Upgrading system and installing pacman packages..."
+    if ! sudo pacman -Syu --needed --noconfirm "${PACMAN_PACKAGES[@]}"; then
         record_error "Failed to install some pacman packages"
         return 1
     fi
@@ -244,31 +250,6 @@ install_aur_packages() {
         return 1
     fi
     log_success "AUR packages installed"
-}
-
-install_flatpak_packages() {
-    if ! command_exists flatpak; then
-        log_warning "flatpak not installed; skipping Flatpak packages"
-        return 0
-    fi
-
-    if ! flatpak remotes --show-disabled | grep -q '^flathub'; then
-        log_info "Adding Flathub remote..."
-        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    fi
-
-    log_info "Installing Flatpak packages..."
-    for pkg in "${FLATPAK_PACKAGES[@]}"; do
-        if flatpak list --app --columns=ref | grep -q "$pkg"; then
-            log_success "Already installed: $pkg"
-        else
-            if flatpak install --noninteractive flathub "$pkg"; then
-                log_success "Installed: $pkg"
-            else
-                record_error "Failed to install Flatpak: $pkg"
-            fi
-        fi
-    done
 }
 
 setup_ddc() {
@@ -434,7 +415,9 @@ setup_plasma() {
     kwriteconfig6 --file kcminputrc --group Keyboard --key RepeatRate 50
     log_success "Keyboard repeat: delay=250 rate=50"
 
-    if command_exists kcminit; then
+    if command_exists kcminit6; then
+        kcminit6 kcm_mouse 2>/dev/null || true
+    elif command_exists kcminit; then
         kcminit kcm_mouse 2>/dev/null || true
     fi
 }
@@ -444,18 +427,13 @@ setup_plasma() {
 # ============================================================
 
 main() {
-    [[ $# -gt 0 && ($1 == "-h" || $1 == "--help") ]] && {
-        show_help
-        exit 0
-    }
-
     check_os
     resolve_script_dir "$@"
 
     echo -e "${LOG_RED}================================================================${LOG_NC}"
     echo -e "${LOG_RED} WARNING: ONE-SHOT DEPLOYMENT INITIATED${LOG_NC}"
     echo -e "${LOG_RED}================================================================${LOG_NC}"
-    echo -e "${LOG_YELLOW}This will install packages, enable system services,"
+    echo -e "${LOG_YELLOW}This will install packages, make system-level changes,"
     echo -e "and overwrite your dotfile symlinks.${LOG_NC}"
     echo -e "Source tree: ${LOG_GREEN}$SCRIPT_DIR${LOG_NC}"
     echo
@@ -468,10 +446,10 @@ main() {
     echo
     log_info "Starting full installation pipeline..."
 
+    ensure_base_packages
     install_pacman_packages
     install_aur_helper
     install_aur_packages
-    install_flatpak_packages
     setup_ddc
     install_uv
     setup_xdg_dirs
