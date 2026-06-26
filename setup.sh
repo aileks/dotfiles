@@ -198,7 +198,7 @@ resolve_script_dir() {
 
 PACMAN_PACKAGES=(
     neovim starship zsh trash-cli shfmt jq zed fastfetch btop eza bat fd ripgrep fzf ark
-    power-profiles-daemon kitty nvidia-open flatpak zoxide ffmpegthumbs partitionmanager
+    power-profiles-daemon kitty nvidia-open-dkms flatpak zoxide ffmpegthumbs partitionmanager
     adw-gtk-theme vlc signal-desktop bitwarden ddcutil kcalc papirus-icon-theme dolphin
     dolphin-plugins gwenview kcharselect kcolorchooser kolourpaint kweather okular
 )
