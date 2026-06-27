@@ -197,10 +197,10 @@ resolve_script_dir() {
 # ============================================================
 
 PACMAN_PACKAGES=(
-    neovim starship zsh trash-cli shfmt jq zed fastfetch btop eza bat fd ripgrep fzf ark
-    power-profiles-daemon kitty nvidia-open-dkms flatpak zoxide ffmpegthumbs partitionmanager
-    adw-gtk-theme vlc signal-desktop bitwarden ddcutil kcalc papirus-icon-theme dolphin
-    dolphin-plugins gwenview kcharselect kcolorchooser kolourpaint kweather okular
+    kde-system-meta kde-graphics-meta neovim starship zsh trash-cli shfmt jq alacritty
+    fastfetch btop eza bat fd ripgrep fzf ark power-profiles-daemon flatpak zoxide
+    ffmpegthumbs adw-gtk-theme vlc vlc-plugins-base vlc-plugins-extra signal-desktop
+    bitwarden ddcutil papirus-icon-theme dolphin-plugins wl-clipboard
 )
 
 AUR_PACKAGES=(
@@ -365,10 +365,8 @@ symlink_configs() {
     mkdir -p "$HOME/.config"
 
     create_symlink "$SCRIPT_DIR/btop" "$HOME/.config/btop"
-    create_symlink "$SCRIPT_DIR/kitty" "$HOME/.config/kitty"
+    create_symlink "$SCRIPT_DIR/alacritty" "$HOME/.config/alacritty"
     create_symlink "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
-    create_symlink "$SCRIPT_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
-    create_symlink "$SCRIPT_DIR/zed/keymap.json" "$HOME/.config/zed/keymap.json"
     create_symlink "$SCRIPT_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
     create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
     create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"

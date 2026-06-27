@@ -1,0 +1,26 @@
+[general]
+import = ["~/.config/alacritty/ashen.toml"]
+
+[env]
+SHLVL = "0"
+
+[font]
+size = 13.0
+
+[font.normal]
+family = "CommitMono Nerd Font Mono"
+
+[window]
+decorations = "None"
+opacity = 0.9
+blur = true
+
+[window.padding]
+x = 10
+y = 10
+
+[cursor.style]
+shape = "Block"
+
+[scrolling]
+history = 10000
