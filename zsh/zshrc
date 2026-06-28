@@ -86,10 +86,6 @@ source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
 
-# Fix Linux zsh weirdness
-bindkey -e
-bindkey "^[[3~" delete-char
-
 if [[ -r "$HOME/.local/bin/env" ]]; then
   . "$HOME/.local/bin/env"
 fi

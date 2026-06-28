@@ -8,12 +8,10 @@ SHLVL = "0"
 size = 13.0
 
 [font.normal]
-family = "CommitMono Nerd Font Mono"
+family = "AdwaitaMono Nerd Font Mono"
 
 [window]
-decorations = "None"
 opacity = 0.9
-blur = true
 
 [window.padding]
 x = 10

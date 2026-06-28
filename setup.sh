@@ -199,13 +199,14 @@ resolve_script_dir() {
 PACMAN_PACKAGES=(
     kde-system-meta kde-graphics-meta neovim starship zsh trash-cli shfmt jq alacritty
     fastfetch btop eza bat fd ripgrep fzf ark power-profiles-daemon flatpak zoxide
-    ffmpegthumbs adw-gtk-theme vlc vlc-plugins-base vlc-plugins-extra signal-desktop
-    bitwarden ddcutil papirus-icon-theme dolphin-plugins wl-clipboard
+    ffmpegthumbs adw-gtk-theme vlc vlc-plugins-all signal-desktop less wl-clipboard
+    bitwarden ddcutil papirus-icon-theme dolphin-plugins 
 )
 
 AUR_PACKAGES=(
     fastmail papirus-folders
     zen-browser-bin onlyoffice-bin
+    visual-studio-code-bin
 )
 
 # ============================================================
