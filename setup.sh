@@ -200,13 +200,14 @@ PACMAN_PACKAGES=(
     kde-system-meta kde-graphics-meta neovim starship zsh trash-cli shfmt jq alacritty
     fastfetch btop eza bat fd ripgrep fzf ark power-profiles-daemon flatpak zoxide
     ffmpegthumbs adw-gtk-theme vlc vlc-plugins-all signal-desktop less wl-clipboard
-    bitwarden ddcutil papirus-icon-theme dolphin-plugins merkuro kweather
+    bitwarden ddcutil papirus-icon-theme dolphin-plugins merkuro kweather kdialog
 )
 
 AUR_PACKAGES=(
     fastmail papirus-folders
     zen-browser-bin onlyoffice-bin
     visual-studio-code-bin
+    ttf-adwaitamono-nerd
 )
 
 # ============================================================
