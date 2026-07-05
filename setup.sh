@@ -197,10 +197,10 @@ resolve_script_dir() {
 # ============================================================
 
 PACMAN_PACKAGES=(
-    kde-system-meta kde-graphics-meta less usbutils neovim starship zsh trash-cli shfmt
+    kde-system-meta kde-graphics-meta less usbutils neovim starship zsh trash-cli kdialog
     jq alacritty fastfetch btop eza bat fd ripgrep fzf ark power-profiles-daemon flatpak
-    zoxide ffmpegthumbs adw-gtk-theme vlc vlc-plugins-all signal-desktop ddcutil kdialog
-    kweather bitwarden papirus-icon-theme dolphin-plugins merkuro wl-clipboard
+    zoxide ffmpegthumbs adw-gtk-theme vlc vlc-plugins-all dolphin-plugins  signal-desktop
+    kweather bitwarden papirus-icon-theme merkuro wl-clipboard pacman-contrib ddcutil shfmt
 )
 
 AUR_PACKAGES=(
