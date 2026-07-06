@@ -1,6 +1,6 @@
-# Arch Linux Dotfiles
+# Pop!_OS Dotfiles
 
-My personal dotfiles for Arch Linux.
+My personal dotfiles for Pop!_OS 24.04.
 
 ## Quick Start
 
