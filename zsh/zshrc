@@ -6,8 +6,7 @@ export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 export MANPAGER='bat --theme="ashen" -plman'
-export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
-
+export SSH_AUTH_SOCK="$HOME/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
 bindkey -e
 
 # History
@@ -92,7 +91,7 @@ if [[ -r "$HOME/.local/bin/env" ]]; then
 fi
 
 # pnpm
-export PNPM_HOME="/home/aileks/.local/share/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME/bin:"*) ;;
   *) export PATH="$PNPM_HOME/bin:$PATH" ;;
@@ -102,3 +101,9 @@ esac
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# Added by dbt Fusion extension (ensure dbt binary dir on PATH)
+if [[ ":$PATH:" != *":/home/caspian/.local/bin:"* ]]; then
+  export PATH=/home/caspian/.local/bin:"$PATH"
+fi
+# Added by dbt Fusion extension
+alias dbtf=/home/caspian/.local/bin/dbt
