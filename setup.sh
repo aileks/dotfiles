@@ -15,6 +15,7 @@ BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
 
 SCRIPT_DIR=""
 
+declare -a EXTRA_FLATPAK_APPS=()
 declare -a SETUP_ERRORS=()
 
 # ============================================================
@@ -36,7 +37,20 @@ record_error() {
 # ============================================================
 
 command_exists() { command -v "$1" &>/dev/null; }
-pacman_installed() { pacman -Q "$1" &>/dev/null; }
+
+apt_installed() {
+    dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "install ok installed"
+}
+
+apt_has_candidate() {
+    local candidate
+    candidate=$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')
+    [[ -n ${candidate:-} && $candidate != "(none)" ]]
+}
+
+flatpak_installed() {
+    command_exists flatpak && flatpak info "$1" &>/dev/null
+}
 
 prompt_yes_no() {
     local prompt="$1" default="${2:-N}" reply
@@ -46,9 +60,23 @@ prompt_yes_no() {
 }
 
 check_os() {
-    if ! [[ -r /etc/os-release ]] || ! grep -qiE '^ID=arch$' /etc/os-release; then
-        log_error "Unsupported OS. This script requires Arch Linux."
+    if ! [[ -r /etc/os-release ]]; then
+        log_error "Unsupported OS. This script targets Pop!_OS."
         exit 1
+    fi
+
+    source /etc/os-release
+
+    if [[ ${ID:-} != "pop" ]]; then
+        log_error "Unsupported OS. This script targets Pop!_OS; detected: ${PRETTY_NAME:-unknown}."
+        exit 1
+    fi
+
+    local codename="${UBUNTU_CODENAME:-${VERSION_CODENAME:-unknown}}"
+    if [[ $codename != "noble" ]]; then
+        log_warning "This script was verified for Pop!_OS 24.04 / Ubuntu Noble; detected codename: $codename"
+    else
+        log_success "Detected Pop!_OS 24.04 / Ubuntu Noble base"
     fi
 }
 
@@ -58,18 +86,32 @@ check_os() {
 
 ensure_base_packages() {
     log_info "Checking base packages..."
+    local packages=(
+        ca-certificates
+        curl
+        git
+        gpg
+        software-properties-common
+        wget
+        build-essential
+    )
     local missing=()
-    command_exists git || missing+=("git")
-    command_exists curl || missing+=("curl")
-    pacman_installed base-devel || missing+=("base-devel")
+
+    for pkg in "${packages[@]}"; do
+        apt_installed "$pkg" || missing+=("$pkg")
+    done
 
     if [[ ${#missing[@]} -eq 0 ]]; then
         log_success "Base packages already installed"
         return 0
     fi
 
-    log_info "Installing: ${missing[*]}"
-    if ! sudo pacman -S --needed --noconfirm "${missing[@]}"; then
+    log_info "Installing base packages: ${missing[*]}"
+    if ! sudo apt update; then
+        log_error "Failed to refresh APT metadata"
+        exit 1
+    fi
+    if ! sudo apt install -y "${missing[@]}"; then
         log_error "Failed to install base packages"
         exit 1
     fi
@@ -170,12 +212,12 @@ resolve_script_dir() {
         self_dir="$(cd "$(dirname "$self_path")" 2>/dev/null && pwd)" || self_dir=""
     fi
 
-    if [[ -n $self_dir && -f "$self_dir/setup.sh" && -d "$self_dir/zsh" ]]; then
+    if [[ -n $self_dir && -d "$self_dir/zsh" ]]; then
         SCRIPT_DIR="$self_dir"
         return 0
     fi
 
-    log_info "Starting Arch bootstrap..."
+    log_info "Starting Pop!_OS dotfiles bootstrap..."
     ensure_base_packages
 
     if verify_dotfiles_repo; then
@@ -187,75 +229,249 @@ resolve_script_dir() {
         clone_repo || exit 1
     fi
 
-    log_info "Re-launching from cloned repo..."
-    echo
-    exec bash "$DOTFILES_DIR/setup.sh" "$@" </dev/tty
+    if [[ ! -d "$DOTFILES_DIR/zsh" ]]; then
+        log_error "Dotfiles checkout is missing expected zsh directory: $DOTFILES_DIR/zsh"
+        exit 1
+    fi
+
+    SCRIPT_DIR="$DOTFILES_DIR"
+    log_success "Using dotfiles from: $SCRIPT_DIR"
 }
 
 # ============================================================
 # Package Lists
 # ============================================================
 
-PACMAN_PACKAGES=(
-    kde-system-meta kde-graphics-meta less usbutils neovim starship zsh trash-cli kdialog
-    jq alacritty fastfetch btop eza bat fd ripgrep fzf ark power-profiles-daemon flatpak
-    zoxide ffmpegthumbs adw-gtk-theme vlc vlc-plugins-all dolphin-plugins  signal-desktop
-    kweather bitwarden papirus-icon-theme merkuro wl-clipboard pacman-contrib ddcutil shfmt
+APT_PACKAGES=(
+    usbutils zsh trash-cli jq alacritty btop
+    eza bat fd-find ripgrep wl-clipboard fzf
+    ffmpegthumbnailer ffmpeg flatpak zoxide
+    shfmt papirus-icon-theme ddcutil
 )
 
-AUR_PACKAGES=(
-    fastmail papirus-folders
-    zen-browser-bin onlyoffice-bin
-    visual-studio-code-bin
-    ttf-adwaitamono-nerd
+PPA_PACKAGES=(
+    fastfetch
+    papirus-folders
+)
+
+declare -A PPA_PACKAGE_SOURCE=(
+    [fastfetch]="ppa:zhangsongcui3371/fastfetch"
+    [papirus-folders]="ppa:papirus/papirus"
+)
+
+PACSTALL_PACKAGES=(
+    starship-bin zen-browser-bin vscode-deb
+    onlyoffice-desktopeditors-deb neovim
+    signal-desktop-deb
+)
+
+declare -A PACSTALL_FLATPAK_FALLBACKS=(
+    [zen-browser-bin]="app.zen_browser.zen"
+    [vscode-deb]="com.visualstudio.code"
+    [onlyoffice-desktopeditors-deb]="org.onlyoffice.desktopeditors"
+    [signal-desktop-deb]="org.signal.Signal"
+)
+
+FLATPAK_APPS=(
+    com.bitwarden.desktop
+    com.fastmail.Fastmail
 )
 
 # ============================================================
 # Package Installation
 # ============================================================
 
-install_pacman_packages() {
-    log_info "Upgrading system and installing pacman packages..."
-    if ! sudo pacman -Syu --needed --noconfirm "${PACMAN_PACKAGES[@]}"; then
-        record_error "Failed to install some pacman packages"
-        return 1
-    fi
-    log_success "pacman packages installed"
-}
+add_ppa_once() {
+    local ppa="$1"
+    local marker="${ppa#ppa:}"
 
-install_aur_helper() {
-    if command_exists paru; then
-        log_success "paru already installed"
+    if grep -Rqs "$marker" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
+        log_success "PPA already present: $ppa"
         return 0
     fi
 
-    log_info "Installing paru..."
-    local tmpdir
-    tmpdir=$(mktemp -d /tmp/paru-build.XXXXXX)
-    if git clone --depth=1 https://aur.archlinux.org/paru.git "$tmpdir"; then
-        (cd "$tmpdir" && makepkg -si --noconfirm --needed)
-    else
-        record_error "Failed to clone paru from AUR"
+    log_info "Adding PPA: $ppa"
+    if sudo add-apt-repository -y "$ppa"; then
+        log_success "Added PPA: $ppa"
+        return 0
     fi
-    rm -rf "$tmpdir"
+
+    record_error "Failed to add PPA: $ppa"
+    return 1
 }
 
-install_aur_packages() {
-    if ! command_exists paru; then
-        record_error "paru not found; skipping AUR packages"
+add_ppas_for_missing_packages() {
+    local update_needed=0
+    local pkg ppa
+
+    for pkg in "${PPA_PACKAGES[@]}"; do
+        if apt_has_candidate "$pkg"; then
+            log_success "APT candidate already available: $pkg"
+            continue
+        fi
+
+        ppa="${PPA_PACKAGE_SOURCE[$pkg]:-}"
+        if [[ -z $ppa ]]; then
+            record_error "No PPA mapping for package: $pkg"
+            continue
+        fi
+
+        if add_ppa_once "$ppa"; then
+            update_needed=1
+        fi
+    done
+
+    if [[ $update_needed -eq 1 ]]; then
+        log_info "Refreshing APT metadata after adding PPAs..."
+        sudo apt update || record_error "Failed to refresh APT metadata after adding PPAs"
+    fi
+}
+
+install_apt_packages() {
+    log_info "Refreshing APT metadata..."
+    if ! sudo apt update; then
+        record_error "APT update failed"
         return 1
     fi
 
-    log_info "Installing AUR packages via paru..."
-    if ! paru -S --needed --noconfirm "${AUR_PACKAGES[@]}"; then
-        record_error "Failed to install some AUR packages"
+    add_ppas_for_missing_packages
+
+    log_info "Upgrading system packages..."
+    sudo apt full-upgrade -y || record_error "APT full-upgrade failed"
+
+    local requested=("${APT_PACKAGES[@]}" "${PPA_PACKAGES[@]}")
+    local available=()
+    local missing=()
+    local pkg
+
+    for pkg in "${requested[@]}"; do
+        if apt_has_candidate "$pkg"; then
+            available+=("$pkg")
+        else
+            missing+=("$pkg")
+        fi
+    done
+
+    if [[ ${#available[@]} -gt 0 ]]; then
+        log_info "Installing APT packages: ${available[*]}"
+        if ! sudo apt install -y "${available[@]}"; then
+            record_error "Failed to install some APT/PPA packages"
+        else
+            log_success "APT/PPA packages installed"
+        fi
+    fi
+
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        record_error "No APT candidate found for: ${missing[*]}"
+    fi
+}
+
+install_pacstall() {
+    if command_exists pacstall; then
+        log_success "Pacstall already installed"
+        return 0
+    fi
+
+    log_info "Installing Pacstall from the official installer..."
+    if sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install || wget -q https://pacstall.dev/q/install -O -)"; then
+        log_success "Pacstall installed"
+        return 0
+    fi
+
+    record_error "Failed to install Pacstall"
+    return 1
+}
+
+queue_flatpak_fallback() {
+    local app_id="$1"
+    [[ -n $app_id ]] || return 0
+    log_warning "Queuing Flatpak fallback: $app_id"
+    EXTRA_FLATPAK_APPS+=("$app_id")
+}
+
+install_pacstall_packages() {
+    if [[ ${#PACSTALL_PACKAGES[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    install_pacstall || {
+        record_error "Pacstall unavailable; skipping Pacstall packages"
+        return 1
+    }
+
+    local pkg fallback
+    for pkg in "${PACSTALL_PACKAGES[@]}"; do
+        log_info "Installing Pacstall package: $pkg"
+        if pacstall -PI "$pkg"; then
+            log_success "Installed via Pacstall: $pkg"
+        else
+            fallback="${PACSTALL_FLATPAK_FALLBACKS[$pkg]:-}"
+            if [[ -n $fallback ]]; then
+                record_error "Pacstall install failed for $pkg; will try Flatpak fallback: $fallback"
+                queue_flatpak_fallback "$fallback"
+            else
+                record_error "Pacstall install failed for $pkg and no Flatpak fallback is configured"
+            fi
+        fi
+    done
+}
+
+install_flatpak_apps() {
+    if ! command_exists flatpak; then
+        record_error "flatpak command not found; skipping Flatpak apps"
         return 1
     fi
-    log_success "AUR packages installed"
+
+    log_info "Configuring Flathub remote..."
+    if ! sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+        record_error "Failed to configure Flathub remote"
+        return 1
+    fi
+
+    local apps=("${FLATPAK_APPS[@]}" "${EXTRA_FLATPAK_APPS[@]}")
+    local app_id seen_key
+    declare -A seen_flatpaks=()
+
+    for app_id in "${apps[@]}"; do
+        [[ -n $app_id ]] || continue
+        seen_key="$app_id"
+        if [[ -n ${seen_flatpaks[$seen_key]:-} ]]; then
+            continue
+        fi
+        seen_flatpaks[$seen_key]=1
+
+        if flatpak_installed "$app_id"; then
+            log_success "Flatpak already installed: $app_id"
+            continue
+        fi
+
+        log_info "Installing Flatpak: $app_id"
+        if flatpak install -y flathub "$app_id"; then
+            log_success "Installed Flatpak: $app_id"
+        else
+            record_error "Failed to install Flatpak: $app_id"
+        fi
+    done
+}
+
+setup_debian_cli_names() {
+    mkdir -p "$HOME/.local/bin"
+
+    if ! command_exists bat && command_exists batcat && [[ ! -e "$HOME/.local/bin/bat" ]]; then
+        ln -s "$(command -v batcat)" "$HOME/.local/bin/bat" \
+            && log_success "Created ~/.local/bin/bat -> batcat" \
+            || record_error "Failed to create bat alias symlink"
+    fi
+
+    if ! command_exists fd && command_exists fdfind && [[ ! -e "$HOME/.local/bin/fd" ]]; then
+        ln -s "$(command -v fdfind)" "$HOME/.local/bin/fd" \
+            && log_success "Created ~/.local/bin/fd -> fdfind" \
+            || record_error "Failed to create fd alias symlink"
+    fi
 }
 
 setup_ddc() {
-    if ! pacman_installed ddcutil; then
+    if ! apt_installed ddcutil; then
         log_warning "ddcutil not installed; skipping DDC/CI setup"
         return 0
     fi
@@ -304,7 +520,7 @@ install_uv() {
 }
 
 # ============================================================
-# Antidote (official install per upstream README)
+# Antidote
 # ============================================================
 
 install_antidote() {
@@ -385,6 +601,10 @@ setup_shell() {
         log_success "Default shell is already zsh"
         return 0
     fi
+    if ! command_exists zsh; then
+        record_error "zsh is not installed; cannot change default shell"
+        return 1
+    fi
     if ! chsh -s "$(command -v zsh)"; then
         record_error "Failed to change shell to zsh"
     fi
@@ -397,32 +617,6 @@ setup_xdg_dirs() {
 }
 
 # ============================================================
-# KDE Plasma settings
-# ============================================================
-
-setup_plasma() {
-    if ! command_exists kwriteconfig6; then
-        log_warning "kwriteconfig6 not found; skipping KDE settings"
-        return 0
-    fi
-
-    log_info "Applying KDE Plasma settings..."
-
-    kwriteconfig6 --file kcminputrc --group Mouse --key PointerAcceleration flat
-    log_success "Mouse acceleration: flat"
-
-    kwriteconfig6 --file kcminputrc --group Keyboard --key RepeatDelay 250
-    kwriteconfig6 --file kcminputrc --group Keyboard --key RepeatRate 50
-    log_success "Keyboard repeat: delay=250 rate=50"
-
-    if command_exists kcminit6; then
-        kcminit6 kcm_mouse 2>/dev/null || true
-    elif command_exists kcminit; then
-        kcminit kcm_mouse 2>/dev/null || true
-    fi
-}
-
-# ============================================================
 # Main
 # ============================================================
 
@@ -431,9 +625,9 @@ main() {
     resolve_script_dir "$@"
 
     echo -e "${LOG_RED}================================================================${LOG_NC}"
-    echo -e "${LOG_RED} WARNING: ONE-SHOT DEPLOYMENT INITIATED${LOG_NC}"
+    echo -e "${LOG_RED}       WARNING: ONE-SHOT POP!_OS DEPLOYMENT INITIATED${LOG_NC}"
     echo -e "${LOG_RED}================================================================${LOG_NC}"
-    echo -e "${LOG_YELLOW}This will install packages, make system-level changes,"
+    echo -e "${LOG_YELLOW}This will install packages, add selected community sources,"
     echo -e "and overwrite your dotfile symlinks.${LOG_NC}"
     echo -e "Source tree: ${LOG_GREEN}$SCRIPT_DIR${LOG_NC}"
     echo
@@ -447,15 +641,15 @@ main() {
     log_info "Starting full installation pipeline..."
 
     ensure_base_packages
-    install_pacman_packages
-    install_aur_helper
-    install_aur_packages
+    install_apt_packages
+    setup_debian_cli_names
+    install_pacstall_packages
+    install_flatpak_apps
     setup_ddc
     install_uv
     setup_xdg_dirs
     install_antidote
     symlink_configs
-    setup_plasma
     setup_shell
 
     echo
