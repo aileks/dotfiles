@@ -29,7 +29,6 @@ declare -a QUEUED_FLATPAKS=()
 declare -a QUEUED_APPIMAGES=()
 
 declare -A ITEM_NAME=()
-declare -A ITEM_CATEGORY=()
 declare -A ITEM_DESC=()
 declare -A ITEM_ARCH=()
 declare -A ITEM_FEDORA=()
@@ -103,6 +102,30 @@ has_tty() {
   [[ -r /dev/tty && -w /dev/tty ]] && (: < /dev/tty) &> /dev/null
 }
 
+flush_tty_input() {
+  has_tty || return 0
+  while IFS= read -r -s -t 0.05 -n 1 < /dev/tty; do
+    :
+  done
+}
+
+sanitize_tty_line() {
+  local raw="$1"
+  printf '%s' "$raw" |
+    sed -E $'s/\x1B\\[[0-9;?]*[A-Za-z~]//g; s/\x1B.//g' |
+    tr -d '\000-\010\013\014\016-\037\177'
+}
+
+read_tty_line() {
+  local __target="$1" default="${2:-}" raw
+  if has_tty; then
+    IFS= read -r raw < /dev/tty || raw="$default"
+  else
+    raw="$default"
+  fi
+  printf -v "$__target" '%s' "$(sanitize_tty_line "$raw")"
+}
+
 run_cmd() {
   if [[ $DRY_RUN -eq 1 ]]; then
     dry_run "$*"
@@ -119,25 +142,48 @@ sudo_cmd() {
   sudo "$@"
 }
 
+run_tty_cmd() {
+  if [[ $DRY_RUN -eq 1 ]]; then
+    dry_run "$*"
+    return 0
+  fi
+  flush_tty_input
+  "$@" < /dev/tty
+}
+
+dnf_install_cmd() {
+  sudo_cmd dnf install -y --allowerasing "$@"
+}
+
 prompt_yes_no() {
-  local prompt="$1" default="${2:-N}" reply suffix
+  local prompt="$1" default="${2:-N}" reply suffix normalized
   if [[ $default =~ ^[Yy]$ ]]; then
     suffix="[Y/n]"
+    default="Y"
   else
     suffix="[y/N]"
+    default="N"
   fi
 
-  if has_tty; then
-    printf "%s %s " "$prompt" "$suffix" > /dev/tty
-    if ! IFS= read -r reply < /dev/tty; then
+  while true; do
+    if ! has_tty; then
       reply="$default"
+      break
     fi
-  else
-    reply="$default"
-  fi
+    flush_tty_input
+    printf "%s %s " "$prompt" "$suffix" > /dev/tty
+    read_tty_line reply "$default"
+    reply=${reply:-$default}
+    normalized="${reply,,}"
 
-  reply=${reply:-$default}
-  [[ $reply =~ ^[Yy]$ ]]
+    case "$normalized" in
+      y | yes) return 0 ;;
+      n | no) return 1 ;;
+      *) log_error "Please answer y or n." ;;
+    esac
+  done
+
+  [[ $reply == "Y" ]]
 }
 
 join_by() {
@@ -213,7 +259,7 @@ detect_distro() {
       ;;
   esac
 
-  log_success "Detected $DISTRO_NAME ($DISTRO)"
+  log_success "Detected $DISTRO_NAME"
 }
 
 package_manager() {
@@ -301,7 +347,7 @@ install_native_packages() {
   log_info "Installing native packages: ${missing[*]}"
   case "$DISTRO" in
     arch) sudo_cmd pacman -S --needed --noconfirm "${missing[@]}" ;;
-    fedora) sudo_cmd dnf install -y "${missing[@]}" ;;
+    fedora) dnf_install_cmd "${missing[@]}" ;;
     ubuntu) sudo_cmd apt install -y "${missing[@]}" ;;
   esac
 }
@@ -404,8 +450,9 @@ prompt_replace_repo() {
   echo "  2) Cancel"
   while true; do
     if has_tty; then
+      flush_tty_input
       printf "Choice [1/2]: " > /dev/tty
-      IFS= read -r choice < /dev/tty || choice=2
+      read_tty_line choice 2
     else
       choice=2
     fi
@@ -508,9 +555,8 @@ resolve_script_dir() {
 # ============================================================
 
 catalog_item() {
-  local id="$1" category="$2" name="$3" desc="$4" arch="$5" fedora="$6" ubuntu="$7" flatpak="${8:-}" app_repo="${9:-}" app_pattern="${10:-}" vendor="${11:-}"
+  local id="$1" name="$3" desc="$4" arch="$5" fedora="$6" ubuntu="$7" flatpak="${8:-}" app_repo="${9:-}" app_pattern="${10:-}" vendor="${11:-}"
   ITEM_NAME[$id]="$name"
-  ITEM_CATEGORY[$id]="$category"
   ITEM_DESC[$id]="$desc"
   ITEM_ARCH[$id]="$arch"
   ITEM_FEDORA[$id]="$fedora"
@@ -637,8 +683,9 @@ bash_category_select() {
   } > "$out"
 
   if has_tty; then
+    flush_tty_input
     printf "Categories: " > /dev/tty
-    IFS= read -r raw < /dev/tty || raw=""
+    read_tty_line raw ""
   else
     raw=""
   fi
@@ -674,7 +721,7 @@ select_categories() {
 }
 
 bash_multi_select() {
-  local category="$1" id choices raw choice selected=()
+  local category="$1" id raw choice selected=()
   local out="/dev/stderr"
   local i=1
   local ids=()
@@ -691,8 +738,9 @@ bash_multi_select() {
     done
   } > "$out"
   if has_tty; then
+    flush_tty_input
     printf "Selection: " > /dev/tty
-    IFS= read -r raw < /dev/tty || raw=""
+    read_tty_line raw ""
   else
     raw=""
   fi
@@ -722,8 +770,9 @@ bash_single_select() {
     done
   } > "$out"
   if has_tty; then
+    flush_tty_input
     printf "Selection [4]: " > /dev/tty
-    IFS= read -r raw < /dev/tty || raw="4"
+    read_tty_line raw "4"
   else
     raw="4"
   fi
@@ -745,7 +794,7 @@ select_category_items() {
         args+=("$id" "${ITEM_NAME[$id]} - ${ITEM_DESC[$id]}" "$default_state")
       done
       result=$(whiptail_radiolist "${CATEGORY_NAME[$category]}" "Choose one desktop option." "${args[@]}") || result="desktop_none"
-      echo "$(normalize_whiptail_selection <<< "$result")"
+      normalize_whiptail_selection <<< "$result"
       return 0
     fi
 
@@ -769,8 +818,7 @@ select_software() {
   local selected_categories=()
   SELECTED_ITEMS=()
 
-  # shellcheck disable=SC2206
-  selected_categories=($(select_categories))
+  read -r -a selected_categories <<< "$(select_categories)"
 
   for category in "${selected_categories[@]}"; do
     selection=$(select_category_items "$category")
@@ -820,7 +868,7 @@ apt_install_deb_url() {
 
 dnf_install_rpm_url() {
   local url="$1"
-  sudo_cmd dnf install -y "$url"
+  dnf_install_cmd "$url"
 }
 
 setup_vscode_repo() {
@@ -879,7 +927,7 @@ setup_brave_repo() {
       if [[ $DRY_RUN -eq 1 ]]; then
         dry_run "dnf config-manager addrepo Brave repository"
       else
-        sudo dnf install -y dnf-plugins-core || return 1
+        dnf_install_cmd dnf-plugins-core || return 1
         sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo || return 1
         sudo rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc || return 1
       fi
@@ -936,7 +984,7 @@ setup_helium_repo() {
       if [[ $DRY_RUN -eq 1 ]]; then
         dry_run "dnf copr enable imput/helium"
       else
-        sudo dnf install -y 'dnf-command(copr)' || true
+        dnf_install_cmd 'dnf-command(copr)' || true
         sudo dnf copr enable -y imput/helium || return 1
       fi
       refresh_native_metadata && install_native_packages helium-bin
@@ -1270,7 +1318,7 @@ install_dev_tools() {
     arch)
       packages=(
         base-devel ca-certificates curl wget git gnupg zsh trash-cli jq eza fd ripgrep
-        wl-clipboard ddcutil ffmpegthumbnailer papirus-icon-theme ffmpeg shfmt bat fzf
+        wl-clipboard ddcutil ffmpegthumbnailer ffmpeg shfmt shellcheck bat fzf
         zoxide btop fastfetch starship
       )
       ;;
@@ -1278,14 +1326,14 @@ install_dev_tools() {
       packages=(
         ca-certificates curl wget git gnupg2 gcc gcc-c++ make automake autoconf
         pkgconf-pkg-config zsh trash-cli jq eza fd-find ripgrep wl-clipboard ddcutil
-        ffmpegthumbnailer papirus-icon-theme ffmpeg shfmt bat fzf zoxide btop fastfetch starship
+        ffmpegthumbnailer ffmpeg shfmt ShellCheck bat fzf zoxide btop fastfetch starship
       )
       ;;
     ubuntu)
       packages=(
         ca-certificates curl wget git gpg software-properties-common build-essential
         zsh trash-cli jq eza fd-find ripgrep wl-clipboard ddcutil ffmpegthumbnailer
-        papirus-icon-theme ffmpeg shfmt bat fzf zoxide btop fastfetch starship
+        ffmpeg shfmt shellcheck bat fzf zoxide btop fastfetch starship
       )
       ;;
   esac
@@ -1388,15 +1436,19 @@ setup_debian_cli_names() {
   mkdir -p "$HOME/.local/bin"
 
   if ! command_exists bat && command_exists batcat && [[ ! -e "$HOME/.local/bin/bat" ]]; then
-    run_cmd ln -s "$(command -v batcat)" "$HOME/.local/bin/bat" &&
-      log_success "Created ~/.local/bin/bat -> batcat" ||
+    if run_cmd ln -s "$(command -v batcat)" "$HOME/.local/bin/bat"; then
+      log_success "Created ~/.local/bin/bat -> batcat"
+    else
       record_error "Failed to create bat alias symlink"
+    fi
   fi
 
   if ! command_exists fd && command_exists fdfind && [[ ! -e "$HOME/.local/bin/fd" ]]; then
-    run_cmd ln -s "$(command -v fdfind)" "$HOME/.local/bin/fd" &&
-      log_success "Created ~/.local/bin/fd -> fdfind" ||
+    if run_cmd ln -s "$(command -v fdfind)" "$HOME/.local/bin/fd"; then
+      log_success "Created ~/.local/bin/fd -> fdfind"
+    else
       record_error "Failed to create fd alias symlink"
+    fi
   fi
 }
 
@@ -1434,9 +1486,11 @@ install_antidote() {
     return 1
   fi
   log_info "Cloning antidote..."
-  run_cmd git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir" &&
-    log_success "antidote installed at $antidote_dir" ||
+  if run_cmd git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir"; then
+    log_success "antidote installed at $antidote_dir"
+  else
     record_error "Failed to clone antidote"
+  fi
 }
 
 create_symlink() {
@@ -1486,6 +1540,7 @@ symlink_configs() {
 }
 
 setup_shell() {
+  local target_user
   log_info "Checking default shell..."
   if [[ ${SHELL:-} == *"zsh"* ]]; then
     log_success "Default shell is already zsh"
@@ -1495,8 +1550,14 @@ setup_shell() {
     record_error "zsh is not installed; cannot change default shell"
     return 1
   fi
+  target_user="${SUDO_USER:-${USER:-}}"
+  target_user="${target_user:-$(id -un 2> /dev/null || true)}"
+  if [[ -z $target_user ]]; then
+    record_error "Could not determine user for zsh shell change"
+    return 1
+  fi
   if prompt_yes_no "Change your default shell to zsh?" "N"; then
-    run_cmd chsh -s "$(command -v zsh)" || record_error "Failed to change shell to zsh"
+    run_tty_cmd sudo chsh -s "$(command -v zsh)" "$target_user" || record_error "Failed to change shell to zsh"
   fi
 }
 
@@ -1531,8 +1592,7 @@ main() {
   ensure_tui
 
   echo
-  echo -e "${LOG_YELLOW}This installer can add software, configure vendor/community package sources,"
-  echo -e "install Flatpaks only when needed, and optionally symlink opinionated dotfiles.${LOG_NC}"
+  echo -e "${LOG_YELLOW}WARNING: Script is destructive!${LOG_NC}"
   echo -e "Source tree: ${LOG_GREEN}$SCRIPT_DIR${LOG_NC}"
   echo
 
