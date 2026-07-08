@@ -995,6 +995,36 @@ setup_helium_repo() {
   esac
 }
 
+install_starship_fedora() {
+  [[ $DISTRO == "fedora" ]] || return 1
+  if native_installed starship; then
+    log_success "Already installed: starship"
+    return 0
+  fi
+
+  log_info "Configuring Starship COPR repository..."
+  if [[ $DRY_RUN -eq 1 ]]; then
+    dry_run "dnf copr enable atim/starship"
+  else
+    dnf_install_cmd 'dnf-command(copr)' || true
+    sudo dnf copr enable -y atim/starship || return 1
+  fi
+
+  refresh_native_metadata && install_native_packages starship
+}
+
+install_starship() {
+  if native_installed starship; then
+    log_success "Already installed: starship"
+    return 0
+  fi
+
+  case "$DISTRO" in
+    fedora) install_starship_fedora ;;
+    arch | ubuntu) install_native_packages starship ;;
+  esac
+}
+
 setup_onepassword_repo() {
   case "$DISTRO" in
     ubuntu)
@@ -1319,21 +1349,21 @@ install_dev_tools() {
       packages=(
         base-devel ca-certificates curl wget git gnupg zsh trash-cli jq eza fd ripgrep
         wl-clipboard ddcutil ffmpegthumbnailer ffmpeg shfmt shellcheck bat fzf
-        zoxide btop fastfetch starship
+        zoxide btop fastfetch
       )
       ;;
     fedora)
       packages=(
         ca-certificates curl wget git gnupg2 gcc gcc-c++ make automake autoconf
         pkgconf-pkg-config zsh trash-cli jq eza fd-find ripgrep wl-clipboard ddcutil
-        ffmpegthumbnailer ffmpeg shfmt ShellCheck bat fzf zoxide btop fastfetch starship
+        ffmpegthumbnailer ffmpeg shfmt ShellCheck bat fzf zoxide btop fastfetch
       )
       ;;
     ubuntu)
       packages=(
         ca-certificates curl wget git gpg software-properties-common build-essential
         zsh trash-cli jq eza fd-find ripgrep wl-clipboard ddcutil ffmpegthumbnailer
-        ffmpeg shfmt shellcheck bat fzf zoxide btop fastfetch starship
+        ffmpeg shfmt shellcheck bat fzf zoxide btop fastfetch
       )
       ;;
   esac
@@ -1566,6 +1596,7 @@ run_personal_setup_prompt() {
   echo "This repo includes my opinionated dotfile configuration for zsh, Neovim,"
   echo "Alacritty, Starship, btop, bat, and fastfetch."
   if prompt_yes_no "Symlink these configs into your home directory? Choosing No leaves you with a blank slate." "N"; then
+    install_starship || record_error "Failed to install starship"
     install_antidote
     symlink_configs
     setup_shell
