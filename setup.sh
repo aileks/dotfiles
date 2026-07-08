@@ -618,18 +618,78 @@ normalize_whiptail_selection() {
   tr -d '"' | xargs
 }
 
-bash_multi_select() {
-  local category="$1" id choices raw choice selected=()
-  echo
-  echo "${CATEGORY_NAME[$category]}"
-  echo "Enter one or more numbers separated by spaces, or press Enter to skip."
+bash_category_select() {
+  local category raw choice selected=()
   local i=1
   local ids=()
-  for id in ${CATEGORY_ITEMS[$category]}; do
-    ids+=("$id")
-    printf "  %2d) %s - %s\n" "$i" "${ITEM_NAME[$id]}" "${ITEM_DESC[$id]}"
-    i=$((i + 1))
+  local out="/dev/stderr"
+
+  has_tty && out="/dev/tty"
+  {
+    echo
+    echo "Categories"
+    echo "Enter category numbers separated by spaces, press Enter for all, or type none to skip software selection."
+    for category in "${CATEGORIES[@]}"; do
+      ids+=("$category")
+      printf "  %2d) %s\n" "$i" "${CATEGORY_NAME[$category]}"
+      i=$((i + 1))
+    done
+  } > "$out"
+
+  if has_tty; then
+    printf "Categories: " > /dev/tty
+    IFS= read -r raw < /dev/tty || raw=""
+  else
+    raw=""
+  fi
+
+  raw=${raw:-all}
+  [[ $raw == "none" ]] && return 0
+  if [[ $raw == "all" ]]; then
+    echo "${CATEGORIES[*]}"
+    return 0
+  fi
+
+  for choice in $raw; do
+    if [[ $choice =~ ^[0-9]+$ && $choice -ge 1 && $choice -le ${#ids[@]} ]]; then
+      selected+=("${ids[$((choice - 1))]}")
+    fi
   done
+  echo "${selected[*]}"
+}
+
+select_categories() {
+  local category result args=()
+
+  if [[ $TUI_BACKEND == "whiptail" ]]; then
+    for category in "${CATEGORIES[@]}"; do
+      args+=("$category" "${CATEGORY_NAME[$category]}" "ON")
+    done
+    result=$(whiptail_checklist "Categories" "Choose categories to configure. Uncheck any category you want to skip." "${args[@]}") || result=""
+    normalize_whiptail_selection <<< "$result"
+    return 0
+  fi
+
+  bash_category_select
+}
+
+bash_multi_select() {
+  local category="$1" id choices raw choice selected=()
+  local out="/dev/stderr"
+  local i=1
+  local ids=()
+
+  has_tty && out="/dev/tty"
+  {
+    echo
+    echo "${CATEGORY_NAME[$category]}"
+    echo "Enter one or more numbers separated by spaces, or press Enter to skip."
+    for id in ${CATEGORY_ITEMS[$category]}; do
+      ids+=("$id")
+      printf "  %2d) %s - %s\n" "$i" "${ITEM_NAME[$id]}" "${ITEM_DESC[$id]}"
+      i=$((i + 1))
+    done
+  } > "$out"
   if has_tty; then
     printf "Selection: " > /dev/tty
     IFS= read -r raw < /dev/tty || raw=""
@@ -647,15 +707,20 @@ bash_multi_select() {
 
 bash_single_select() {
   local category="$1" id raw
-  echo
-  echo "${CATEGORY_NAME[$category]}"
+  local out="/dev/stderr"
   local i=1
   local ids=()
-  for id in ${CATEGORY_ITEMS[$category]}; do
-    ids+=("$id")
-    printf "  %2d) %s - %s\n" "$i" "${ITEM_NAME[$id]}" "${ITEM_DESC[$id]}"
-    i=$((i + 1))
-  done
+
+  has_tty && out="/dev/tty"
+  {
+    echo
+    echo "${CATEGORY_NAME[$category]}"
+    for id in ${CATEGORY_ITEMS[$category]}; do
+      ids+=("$id")
+      printf "  %2d) %s - %s\n" "$i" "${ITEM_NAME[$id]}" "${ITEM_DESC[$id]}"
+      i=$((i + 1))
+    done
+  } > "$out"
   if has_tty; then
     printf "Selection [4]: " > /dev/tty
     IFS= read -r raw < /dev/tty || raw="4"
@@ -701,9 +766,13 @@ select_category_items() {
 
 select_software() {
   local category selection id
+  local selected_categories=()
   SELECTED_ITEMS=()
 
-  for category in "${CATEGORIES[@]}"; do
+  # shellcheck disable=SC2206
+  selected_categories=($(select_categories))
+
+  for category in "${selected_categories[@]}"; do
     selection=$(select_category_items "$category")
     for id in $selection; do
       [[ $id == "desktop_none" ]] && continue
