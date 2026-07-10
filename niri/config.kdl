@@ -6,6 +6,9 @@ gestures {
 
 input {
   keyboard {
+    xkb {
+      layout "us"
+    }
     repeat-rate 50
     repeat-delay 250
     numlock
@@ -14,6 +17,9 @@ input {
   mouse {
     accel-profile "flat"
   }
+
+  warp-mouse-to-focus
+  focus-follows-mouse max-scroll-amount="0%"
 }
 
 layout {
@@ -40,11 +46,6 @@ layout {
   }
   struts {
   }
-}
-
-layer-rule {
-  match namespace="^quickshell$"
-  place-within-backdrop true
 }
 
 overview {
@@ -115,6 +116,22 @@ include "dms/alttab.kdl"
 include "dms/binds.kdl"
 include "dms/outputs.kdl"
 include "dms/cursor.kdl"
+include "dms/windowrules.kdl"
+include "dms/wpblur.kdl"
+
+blur {
+    passes 2
+    offset 5
+    noise 0.02
+    saturation 1.5
+}
+
+window-rule {
+    background-effect {
+        blur true
+        xray true
+    }
+}
 
 workspace "1" {
     open-on-output "DP-1"
