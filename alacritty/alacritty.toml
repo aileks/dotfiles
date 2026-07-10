@@ -20,6 +20,7 @@ style = "Italic"
 [font.bold_italic]
 family = "AdwaitaMono Nerd Font Mono"
 style = "Bold Italic"
+
 [window]
 opacity = 0.95
 decorations = "None"
