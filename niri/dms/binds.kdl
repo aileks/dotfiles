@@ -21,7 +21,7 @@ binds {
     Mod+W repeat=false hotkey-overlay-title="Open Zen Browser" { spawn "zen-browser"; }
     Mod+S repeat=false hotkey-overlay-title="Open Signal" { spawn "signal-desktop"; }
     Mod+F repeat=false hotkey-overlay-title="Open Fastmail" { spawn "fastmail"; }
-    Mod+E repeat=false hotkey-overlay-title="Open Thunar" { spawn "thunar"; }
+    Mod+E repeat=false hotkey-overlay-title="Open File Manager" { spawn "nautilus"; }
     Mod+Space hotkey-overlay-title="Application Launcher" {
         spawn "dms" "ipc" "call" "spotlight" "toggle";
     }
