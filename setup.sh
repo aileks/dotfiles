@@ -568,6 +568,10 @@ catalog_item() {
 }
 
 init_catalog() {
+  if [[ $DISTRO == "arch" ]]; then
+    CATEGORY_ITEMS[desktop]="desktop_gnome desktop_kde desktop_cosmic desktop_niri desktop_none"
+  fi
+
   catalog_item vscode editors "VS Code" "Microsoft code editor" "code" "" "" "com.visualstudio.code" "" "" "vscode"
   catalog_item neovim editors "Neovim" "Terminal-native editor" "neovim" "neovim" "neovim"
   catalog_item zed editors "Zed" "High-performance editor" "zed" "" "" "dev.zed.Zed"
@@ -581,6 +585,7 @@ init_catalog() {
   catalog_item desktop_gnome desktop "GNOME" "GNOME desktop with GDM" "gnome gdm" "gnome-shell gdm gnome-control-center gnome-terminal nautilus" "ubuntu-desktop gdm3"
   catalog_item desktop_kde desktop "KDE Plasma" "KDE Plasma with display manager" "plasma sddm" "plasma-desktop sddm dolphin konsole systemsettings" "kde-plasma-desktop sddm"
   catalog_item desktop_cosmic desktop "COSMIC" "COSMIC desktop with bundled greeter" "cosmic" "cosmic-desktop" "cosmic-session cosmic-greeter" "" "" "" "cosmic"
+  catalog_item desktop_niri desktop "Niri + DMS" "Niri with Dank Material Shell and DMS Greeter (Arch only)" "niri dms-shell-niri xwayland-satellite xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty matugen cava qt6-multimedia-ffmpeg" "" ""
   catalog_item desktop_none desktop "None" "Do not install a desktop environment" "" "" ""
 
   catalog_item zen browsers "Zen Browser" "Firefox-based browser" "" "" "" "app.zen_browser.zen"
@@ -754,7 +759,7 @@ bash_multi_select() {
 }
 
 bash_single_select() {
-  local category="$1" id raw
+  local category="$1" id raw default_choice=""
   local out="/dev/stderr"
   local i=1
   local ids=()
@@ -766,17 +771,19 @@ bash_single_select() {
     for id in ${CATEGORY_ITEMS[$category]}; do
       ids+=("$id")
       printf "  %2d) %s - %s\n" "$i" "${ITEM_NAME[$id]}" "${ITEM_DESC[$id]}"
+      [[ $id == "desktop_none" ]] && default_choice="$i"
       i=$((i + 1))
     done
   } > "$out"
+  default_choice="${default_choice:-1}"
   if has_tty; then
     flush_tty_input
-    printf "Selection [4]: " > /dev/tty
-    read_tty_line raw "4"
+    printf "Selection [%s]: " "$default_choice" > /dev/tty
+    read_tty_line raw "$default_choice"
   else
-    raw="4"
+    raw="$default_choice"
   fi
-  raw=${raw:-4}
+  raw=${raw:-$default_choice}
   if [[ $raw =~ ^[0-9]+$ && $raw -ge 1 && $raw -le ${#ids[@]} ]]; then
     echo "${ids[$((raw - 1))]}"
   else
@@ -1438,6 +1445,30 @@ install_selected_software() {
   install_queued_appimages
 }
 
+configure_niri_desktop() {
+  if [[ $DRY_RUN -eq 0 ]] && ! command_exists dms; then
+    record_error "dms is unavailable; cannot configure the Niri desktop"
+    return 1
+  fi
+
+  if [[ ! -s "$HOME/.config/niri/config.kdl" ]]; then
+    log_info "Generating the default DMS compositor configuration..."
+    run_cmd dms setup || record_error "Failed to generate the default DMS compositor configuration"
+  else
+    log_info "Existing Niri configuration found; skipping DMS config generation"
+  fi
+
+  if [[ $DRY_RUN -eq 1 ]] || command_exists systemctl; then
+    log_info "Binding Dank Material Shell to the Niri session..."
+    run_cmd systemctl --user add-wants niri.service dms || record_error "Failed to bind DMS to the Niri session"
+  else
+    record_error "systemctl is unavailable; cannot bind DMS to the Niri session"
+  fi
+
+  log_info "Installing and activating DMS Greeter..."
+  run_tty_cmd dms greeter install --yes || record_error "Failed to install DMS Greeter"
+}
+
 configure_desktop_manager() {
   local id="$1" service=""
   case "$id" in
@@ -1449,6 +1480,10 @@ configure_desktop_manager() {
       ;;
     desktop_kde) service="sddm" ;;
     desktop_cosmic) service="cosmic-greeter" ;;
+    desktop_niri)
+      configure_niri_desktop
+      return
+      ;;
     *) return 0 ;;
   esac
 
@@ -1567,6 +1602,10 @@ symlink_configs() {
   create_symlink "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
   create_symlink "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   create_symlink "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+
+  if command_exists niri; then
+    create_symlink "$SCRIPT_DIR/niri" "$HOME/.config/niri"
+  fi
 }
 
 setup_shell() {
@@ -1594,7 +1633,7 @@ setup_shell() {
 run_personal_setup_prompt() {
   echo
   echo "This repo includes my opinionated dotfile configuration for zsh, Neovim,"
-  echo "Alacritty, Starship, btop, bat, and fastfetch."
+  echo "Alacritty, Starship, btop, bat, fastfetch, and niri when it is installed."
   if prompt_yes_no "Symlink these configs into your home directory? Choosing No leaves you with a blank slate." "N"; then
     install_starship || record_error "Failed to install starship"
     install_antidote

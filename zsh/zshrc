@@ -6,7 +6,7 @@ export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 export MANPAGER='bat --theme="ashen" -plman'
-export SSH_AUTH_SOCK="$HOME/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 bindkey -e
 
 # Terminal line editing
