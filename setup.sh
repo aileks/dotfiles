@@ -606,7 +606,7 @@ init_catalog() {
   catalog_item onlyoffice office "OnlyOffice" "Desktop office suite" "onlyoffice-desktopeditors" "" "" "org.onlyoffice.desktopeditors"
   catalog_item libreoffice office "LibreOffice" "Desktop office suite" "libreoffice-fresh" "libreoffice" "libreoffice" "org.libreoffice.LibreOffice"
 
-  catalog_item dev_tools devtools "Core dev tools" "CLI/dev bundle from this repo" "" "" ""
+  catalog_item dev_tools devtools "CLI tools" "CLI bundle from this repo" "" "" ""
 
   ITEM_AUR[vscode]="visual-studio-code-bin"
   ITEM_AUR[zed]="zed-git"
