@@ -1356,7 +1356,7 @@ install_dev_tools() {
       packages=(
         base-devel ca-certificates curl wget git gnupg zsh trash-cli jq eza fd ripgrep
         wl-clipboard ddcutil ffmpegthumbnailer ffmpeg shfmt shellcheck bat fzf
-        zoxide btop fastfetch
+        zoxide btop fastfetch less
       )
       ;;
     fedora)

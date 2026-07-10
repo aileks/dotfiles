@@ -140,44 +140,19 @@ animations {
         spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
     }
 }
-// Window rules let you adjust behavior for individual windows.
-// Find more information on the wiki:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
-// Work around WezTerm's initial configure bug
-// by setting an empty default-column-width.
+// === App Compatibility ===
+// Work around WezTerm's initial configure bug.
 window-rule {
-    // This regular expression is intentionally made as specific as possible,
-    // since this is the default config, and we want no false positives.
-    // You can get away with just app-id="wezterm" if you want.
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     default-column-width {}
 }
+
+// === App Decorations ===
 window-rule {
     match app-id=r#"^org\.gnome\."#
     draw-border-with-background false
     geometry-corner-radius 12
     clip-to-geometry true
-}
-window-rule {
-    match app-id=r#"^gnome-control-center$"#
-    match app-id=r#"^pavucontrol$"#
-    match app-id=r#"^nm-connection-editor$"#
-    default-column-width { proportion 0.5; }
-    open-floating false
-}
-window-rule {
-    match app-id=r#"^org\.gnome\.Calculator$"#
-    match app-id=r#"^gnome-calculator$"#
-    match app-id=r#"^galculator$"#
-    match app-id=r#"^blueman-manager$"#
-    match app-id=r#"^org\.gnome\.Nautilus$"#
-    match app-id=r#"^xdg-desktop-portal$"#
-    open-floating true
-}
-window-rule {
-    match app-id=r#"^steam$"# title=r#"^notificationtoasts_\d+_desktop$"#
-    default-floating-position x=10 y=10 relative-to="bottom-right"
-    open-focused false
 }
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
@@ -187,12 +162,55 @@ window-rule {
     match app-id="kitty"
     draw-border-with-background false
 }
+
+// === System Utilities ===
 window-rule {
-    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-    match app-id="zoom"
+    match app-id=r#"^(gnome-control-center|pavucontrol|nm-connection-editor|system-config-printer|nwg-look|qt6ct)$"#
+    match app-id=r#"^(org\.gnome\.Calculator|gnome-calculator|galculator|blueman-manager)$"#
+    match app-id=r#"^xdg-desktop-portal.*$"#
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.7; }
     open-floating true
 }
-// Open dms windows as floating by default
+
+// === File Managers ===
+window-rule {
+    match app-id=r#"^(org\.gnome\.Nautilus|org\.xfce\.Thunar|thunar|Thunar)$"#
+    open-floating false
+}
+
+// === File Operations ===
+window-rule {
+    match app-id=r#"^(org\.xfce\.Thunar|thunar|Thunar)$"# title=r#"^File Operation Progress$"#
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.35; }
+    open-floating true
+}
+
+// === Notifications ===
+window-rule {
+    match app-id=r#"^steam$"# title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+    open-focused false
+}
+
+// === Picture-in-Picture ===
+window-rule {
+    match app-id=r#"^(firefox|org\.mozilla\.firefox|zen|app\.zen_browser\.zen)$"# title=r#"^Picture-in-Picture$"#
+    default-column-width { fixed 480; }
+    default-window-height { fixed 270; }
+    default-floating-position x=24 y=24 relative-to="bottom-right"
+    open-floating true
+    open-focused false
+}
+
+// === Communications ===
+window-rule {
+    match app-id=r#"^(zoom|us\.zoom\.Zoom)$"#
+    open-floating true
+}
+
+// === DMS Windows ===
 window-rule {
     match app-id=r#"org.quickshell$"#
     match app-id=r#"com.danklinux.dms$"#
@@ -220,4 +238,4 @@ include "dms/binds.kdl"
 include "dms/outputs.kdl"
 include "dms/cursor.kdl"
 
-spawn-at-startup "dcal" "run"
+spawn-at-startup "dcal" "daemon"
