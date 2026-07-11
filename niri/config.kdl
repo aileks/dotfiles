@@ -119,46 +119,63 @@ include "dms/cursor.kdl"
 include "dms/windowrules.kdl"
 include "dms/wpblur.kdl"
 
+
+output "HDMI-A-1" {
+  layout {
+    default-column-width { proportion 1.0; }
+
+    preset-column-widths {
+      proportion 1.0
+    }
+
+    preset-window-heights {
+      proportion 0.33333
+      proportion 0.5
+      proportion 0.66667
+    }
+  }
+}
+
 blur {
-    passes 2
-    offset 5
-    noise 0.02
-    saturation 1.5
+  passes 2
+  offset 5
+  noise 0.02
+  saturation 1.5
 }
 
 window-rule {
-    background-effect {
-        blur true
-        xray true
-    }
+  background-effect {
+    blur true
+    xray true
+  }
 }
 
 workspace "1" {
-    open-on-output "DP-1"
+  open-on-output "DP-1"
 }
 
 workspace "2" {
-    open-on-output "DP-1"
+  open-on-output "DP-1"
 }
 
 workspace "3" {
-    open-on-output "DP-1"
+  open-on-output "DP-1"
 }
 
 workspace "4" {
-    open-on-output "DP-1"
+  open-on-output "DP-1"
 }
 
 workspace "5" {
-    open-on-output "DP-1"
+  open-on-output "DP-1"
 }
 
 workspace "6" {
-    open-on-output "DP-1"
+  open-on-output "DP-1"
 }
 
 workspace "7" {
-    open-on-output "DP-1"
+  open-on-output "DP-1"
 }
 
 workspace "8" {
