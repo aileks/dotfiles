@@ -4,11 +4,6 @@
 // ! PLACE YOUR CUSTOM CONFIGURATION ELSEWHERE !
 
 layer-rule {
-  match namespace="^quickshell$"
-  place-within-backdrop true
-}
-
-layer-rule {
     match namespace="dms:blurwallpaper"
     place-within-backdrop true
 }
