@@ -8,7 +8,6 @@ $python\
 $nodejs\
 $cmd_duration\
 $jobs\
-$shlvl\
 $status\
 $line_break\
 $character"""
