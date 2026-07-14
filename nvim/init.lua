@@ -70,6 +70,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 local plugins = {
+  { src = 'https://codeberg.org/aileks/cinder-grove.nvim.git' },
   { src = 'https://github.com/nvim-lualine/lualine.nvim' },
   { src = 'https://github.com/lukas-reineke/indent-blankline.nvim' },
   { src = 'https://github.com/YousefHadder/markdown-plus.nvim' },
