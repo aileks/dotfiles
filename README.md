@@ -1,31 +1,20 @@
-# Dotfiles
+# dotfiles
 
-Personal dotfiles plus a distro-aware software installer for Arch-based, Fedora-based, and Ubuntu-based Linux systems.
+Opinionated setup for an existing Ubuntu 26.04+ installation.
 
-## Installer Behavior
+## What it does
 
-The installer detects the distro family from `/etc/os-release`, installs `git` first if it is missing, then uses a TUI to choose software by category.
+- Installs desktop software and command-line tools using `apt`, [pacstall](https://pacstall.dev/), and flatpak.
+- Installs GNOME extensions and applies workspace, keyboard, mouse, and shortcut settings.
+- Installs nerd fonts.
+- Removes Snap packages, Snap data, and `snapd`.
+- Configures DDC/CI monitor controls.
+- Symlinks the included zsh, neovim, alacritty, and other dotfiles, backing up conflicts first.
 
-It supports Arch-based, Fedora-based, and Ubuntu-based distros. Unsupported systems exit before installing software.
-
-## Quick Start
-
-```bash
-curl -fsSL https://aileks.dev/linux | bash
-```
-
-Or manually:
+## Usage
 
 ```bash
 git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup.sh
-```
-
-## Options
-
-```bash
-./setup.sh --list
-./setup.sh --dry-run
-./setup.sh --no-tui
 ```

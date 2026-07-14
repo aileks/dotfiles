@@ -69,12 +69,30 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
-vim.pack.add({
+local plugins = {
   { src = 'https://github.com/ficd0/ashen.nvim' },
   { src = 'https://github.com/nvim-lualine/lualine.nvim' },
   { src = 'https://github.com/lukas-reineke/indent-blankline.nvim' },
   { src = 'https://github.com/YousefHadder/markdown-plus.nvim' },
-})
+}
+
+if vim.pack then
+  vim.pack.add(plugins)
+else
+  local package_root = vim.fn.stdpath('data') .. '/site/pack/dotfiles/opt'
+  vim.fn.mkdir(package_root, 'p')
+  for _, plugin in ipairs(plugins) do
+    local name = plugin.src:match('/([^/]+)$')
+    local path = package_root .. '/' .. name
+    if vim.fn.isdirectory(path) == 0 then
+      vim.fn.system({ 'git', 'clone', '--filter=blob:none', '--depth=1', plugin.src, path })
+      if vim.v.shell_error ~= 0 then
+        error('Failed to install Neovim plugin: ' .. name)
+      end
+    end
+    vim.cmd.packadd(name)
+  end
+end
 
 require('ashen').setup({ transparent = true })
 vim.cmd.colorscheme('ashen')

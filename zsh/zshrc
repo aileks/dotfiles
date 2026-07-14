@@ -52,7 +52,6 @@ alias c="clear"
 alias fzf="fzf --style full"
 alias ff="fastfetch"
 alias vim="nvim"
-alias docker="podman"
 
 # FZF
 export FZF_CTRL_T_OPTS="
@@ -95,8 +94,8 @@ export _ZO_FZF_OPTS="
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
 
 # antidote plugin manager
-if [[ -f "${ZDOTDIR:-$HOME}/.antidote/antidote.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.antidote/antidote.zsh"
+if [[ -f /usr/share/zsh-antidote/antidote.zsh ]]; then
+  source /usr/share/zsh-antidote/antidote.zsh
   antidote load "${${(%):-%N}:A:h}/zsh_plugins.txt"
 fi
 
