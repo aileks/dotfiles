@@ -633,7 +633,6 @@ install_pacstall_packages() {
 configure_default_browser() {
   local selected
   info "setting Zen Browser as the default browser"
-  run_apt purge -y helium-bin
   run_cmd xdg-settings set default-web-browser zen-browser.desktop
 
   ((DRY_RUN)) && return 0
@@ -832,9 +831,13 @@ configure_custom_shortcuts() {
   local base="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
   local legacy_browser="$base/dotfiles-browser/"
   local legacy_home="$base/dotfiles-home/"
+  local brightness_down="$base/dotfiles-brightness-down/"
+  local brightness_up="$base/dotfiles-brightness-up/"
   local signal="$base/dotfiles-signal/"
   local fastmail="$base/dotfiles-fastmail/"
   local -a managed=(
+    "$brightness_down"
+    "$brightness_up"
     "$signal"
     "$fastmail"
   )
@@ -858,6 +861,10 @@ configure_custom_shortcuts() {
       "$(gvariant_array "${merged[@]}")"
   fi
 
+  set_custom_shortcut "$brightness_down" "Brightness down" \
+    "$HOME/.local/bin/monitor-brightness down" 'XF86MonBrightnessDown'
+  set_custom_shortcut "$brightness_up" "Brightness up" \
+    "$HOME/.local/bin/monitor-brightness up" 'XF86MonBrightnessUp'
   set_custom_shortcut "$signal" Signal signal-desktop '<Super>s'
   set_custom_shortcut "$fastmail" Fastmail \
     'flatpak run com.fastmail.Fastmail' '<Super>m'
@@ -877,6 +884,8 @@ configure_shortcut_preferences() {
   gs_set "$shell" toggle-message-tray "['<Super>v']"
   gs_set "$shell" toggle-overview "['<Super>space']"
   gs_set "$shell" toggle-quick-settings '[]'
+  gs_set "$shell" screen-brightness-down '[]'
+  gs_set "$shell" screen-brightness-up '[]'
   gs_set "$wm" close "['<Super>q']"
   gs_set "$wm" minimize '[]'
   gs_set "$wm" panel-run-dialog '[]'
@@ -1007,6 +1016,7 @@ configure_dotfiles() {
 
   link_path /usr/bin/batcat "$HOME/.local/bin/bat"
   link_path /usr/bin/fdfind "$HOME/.local/bin/fd"
+  link_path "$SCRIPT_DIR/bin/monitor-brightness" "$HOME/.local/bin/monitor-brightness"
 
   local current_shell
   current_shell=$(getent passwd "$USER" | cut -d: -f7)
