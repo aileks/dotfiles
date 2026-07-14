@@ -94,6 +94,7 @@ else
   end
 end
 
+require('cinder-grove').setup({ transparent = true })
 vim.cmd.colorscheme('cinder-grove')
 
 require('lualine').setup({
