@@ -933,7 +933,7 @@ configure_custom_shortcuts() {
 configure_gnome() {
   info "configuring GNOME"
   gs_set org.gnome.shell disable-user-extensions false
-  run_cmd dconf write /org/gnome/desktop/interface/accent-color "'#B14242'"
+  run_cmd dconf write /org/gnome/desktop/interface/accent-color "'#B34A45'"
   gs_set org.gnome.desktop.interface color-scheme prefer-dark
   gs_set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
   gs_set org.gnome.desktop.peripherals.keyboard repeat true
