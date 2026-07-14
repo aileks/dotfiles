@@ -6,7 +6,7 @@ Opinionated setup for an existing Ubuntu 26.04 installation.
 
 - Installs desktop software and command-line tools using `apt`, [Pacstall](https://pacstall.dev/), and Flatpak.
 - Installs `uv`, `nvm`, and common CLI utilities.
-- Installs GNOME extensions and updates settings for better QoL.
+- Installs GNOME Extension Manager and configures GNOME preferences.
 - Installs Adwaita and JetBrains nerd fonts.
 - Completely nukes Snaps and `snapd`.
 - Configures DDC/CI monitor controls.

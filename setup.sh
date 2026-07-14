@@ -39,7 +39,6 @@ readonly -a APT_PACKAGES=(
   git
   gnome-firmware
   gnome-shell-extension-manager
-  gnome-shell-extension-prefs
   gnome-shell-ubuntu-extensions
   gnome-software
   gnome-software-plugin-flatpak
@@ -60,11 +59,18 @@ readonly -a APT_PACKAGES=(
   unzip
   wget
   wl-clipboard
+  xdg-terminal-exec
   xdg-utils
   xz-utils
   zoxide
   zsh
   zsh-antidote
+)
+
+readonly -a PACSTALL_PACKAGES=(
+  neovim
+  nerd-fonts-jetbrains-mono
+  onlyoffice-desktopeditors-deb
 )
 
 readonly -a FLATPAK_APPS=(
@@ -75,26 +81,6 @@ readonly -a FLATPAK_APPS=(
 readonly -a FLATPAK_THEMES=(
   org.gtk.Gtk3theme.adw-gtk3
   org.gtk.Gtk3theme.adw-gtk3-dark
-)
-
-readonly -a EXTENSION_IDS=(3193 9875 3843 1007 10319 8084)
-readonly -a EXTENSION_UUIDS=(
-  blur-my-shell@aunetx
-  o-tiling@oliwebd.github.com
-  just-perfection-desktop@just-perfection
-  windowIsReady_Remover@nunofarruca@gmail.com
-  window-title-pro@eprahemi.github.io
-  adw-gtk3-colorizer@NiffirgkcaJ.github.com
-)
-
-readonly APPINDICATOR_UUID="ubuntu-appindicators@ubuntu.com"
-readonly -a DISABLED_UBUNTU_EXTENSIONS=(
-  ding@rastersoft.com
-  snapd-prompting@canonical.com
-  snapd-search-provider@canonical.com
-  tiling-assistant@ubuntu.com
-  ubuntu-dock@ubuntu.com
-  web-search-provider@ubuntu.com
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -426,6 +412,11 @@ purge_snap() {
   fi
 
   run_sudo systemctl disable --now snapd.socket snapd.service snapd.seeded.service 2>/dev/null || true
+  if ((DRY_RUN)); then
+    info "unmount /var/snap if mounted"
+  elif findmnt --mountpoint /var/snap >/dev/null; then
+    run_sudo umount --recursive /var/snap
+  fi
   run_apt purge -y snapd
   run_sudo rm -rf \
     /snap \
@@ -485,6 +476,7 @@ Signed-By: /usr/share/keyrings/signal-desktop-keyring.gpg
 install_apt_software() {
   info "installing Ubuntu and vendor APT packages"
   run_apt update
+  run_apt purge -y gnome-shell-extension-prefs
   run_apt install -y "${APT_PACKAGES[@]}" code signal-desktop
 }
 
@@ -603,33 +595,40 @@ select_release_asset() {
 }
 
 install_pacstall() {
+  if command -v pacstall >/dev/null; then
+    log "Pacstall already installed"
+    return 0
+  fi
+
   if ((DRY_RUN)); then
-    info "resolve latest stable Pacstall .deb, verify GitHub digest, install with APT"
+    printf '  $ sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"\n'
     return 0
   fi
 
-  local json="$TEMP_DIR/pacstall-release.json"
-  local tag name url digest installed deb asset
-  fetch https://api.github.com/repos/pacstall/pacstall/releases/latest "$json"
-  tag=$(jq -r '.tag_name | ltrimstr("v")' "$json")
-  asset=$(select_release_asset "$json" '^pacstall_.+_all[.]deb$' 'Pacstall all-architecture .deb')
-  IFS=$'\t' read -r name url digest <<<"$asset"
-
-  installed=$(dpkg_installed_version pacstall || true)
-  if [[ $installed == "$tag" || $installed == "$tag-"* ]]; then
-    log "Pacstall $tag already installed"
-    return 0
-  fi
-
-  deb="$TEMP_DIR/$name"
-  fetch "$url" "$deb"
-  verify_file "$deb" "$digest"
-  run_apt install -y "$deb"
+  sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+  command -v pacstall >/dev/null || die "Pacstall installation failed"
 }
 
-install_neovim() {
-  info "installing Neovim from Pacstall"
-  run_cmd pacstall -P -I neovim
+install_pacstall_packages() {
+  local package output
+  local -a installed=()
+
+  if command -v pacstall >/dev/null; then
+    output=$(pacstall -L 2>/dev/null) || die "could not list installed Pacstall packages"
+    mapfile -t installed <<<"$output"
+  elif ((!DRY_RUN)); then
+    die "Pacstall is unavailable"
+  fi
+
+  info "installing Pacstall packages"
+  for package in "${PACSTALL_PACKAGES[@]}"; do
+    if array_contains "$package" "${installed[@]}"; then
+      log "$package already installed"
+      continue
+    fi
+    run_cmd pacstall -P -I "$package"
+    installed+=("$package")
+  done
 }
 
 nerd_fonts_release() {
@@ -684,72 +683,25 @@ install_archive_font() {
 
 install_fonts() {
   if ((DRY_RUN)); then
-    info "install current nerd-fonts-jetbrains-mono from Pacstall"
     info "install verified AdwaitaMono.tar.xz per-user"
     format_command fc-cache -f "$HOME/.local/share/fonts"
     return 0
   fi
 
   local release_json="$TEMP_DIR/nerd-fonts-release.json"
-  local package_json="$TEMP_DIR/jetbrains-pacstall.json"
-  local latest_version recipe_version recipe_checksum recipe_source upstream_checksum checksums_url
+  local latest_version
   nerd_fonts_release "$release_json"
   latest_version=$(jq -r '.tag_name | ltrimstr("v")' "$release_json")
 
-  fetch https://pacstall.dev/api/packages/nerd-fonts-jetbrains-mono "$package_json"
-  recipe_version=$(jq -r '.sourceVersion // empty' "$package_json")
-  recipe_checksum=$(jq -r '.sha256sums[0].value // empty' "$package_json")
-  recipe_source=$(jq -r '.source[0].value // empty' "$package_json")
-  checksums_url=$(jq -r '.assets[] | select(.name == "SHA-256.txt") | .browser_download_url' "$release_json")
-  fetch "$checksums_url" "$TEMP_DIR/nerd-fonts-SHA-256.txt"
-  upstream_checksum=$(awk '$2 == "JetBrainsMono.tar.xz" {print $1}' \
-    "$TEMP_DIR/nerd-fonts-SHA-256.txt")
-
-  if pacstall_recipe_matches \
-    "$recipe_version" "$recipe_checksum" "$recipe_source" \
-    "$latest_version" "$upstream_checksum"; then
-    local installed_jetbrains
-    installed_jetbrains=$(dpkg_installed_version nerd-fonts-jetbrains-mono || true)
-    if [[ $installed_jetbrains == "$latest_version" || $installed_jetbrains == "$latest_version-"* ]]; then
-      log "JetBrains Mono Nerd Font $latest_version already installed"
-    else
-      run_cmd pacstall -P -I nerd-fonts-jetbrains-mono
-    fi
-    prepare_font_directory "$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
-  else
-    warn "Pacstall JetBrains Mono recipe is stale; using verified upstream font exception"
-    if dpkg_installed_version nerd-fonts-jetbrains-mono >/dev/null; then
-      run_apt purge -y nerd-fonts-jetbrains-mono
-    fi
-    install_archive_font "$release_json" JetBrainsMono.tar.xz JetBrainsMonoNerdFont "$latest_version"
-  fi
-
+  prepare_font_directory "$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
   install_archive_font "$release_json" AdwaitaMono.tar.xz AdwaitaMonoNerdFont "$latest_version"
   run_cmd fc-cache -f "$HOME/.local/share/fonts"
-}
-
-pacstall_recipe_matches() {
-  local recipe_version="$1" recipe_checksum="$2" recipe_source="$3"
-  local latest_version="$4" upstream_checksum="$5"
-  [[ $recipe_version == "$latest_version" &&
-    $recipe_checksum == "$upstream_checksum" &&
-    $recipe_source == *"/v$latest_version/JetBrainsMono.tar.xz" ]]
 }
 
 install_flatpaks() {
   info "installing user-scoped Flatpaks"
   verify_flathub_remote
   run_cmd flatpak remote-add --user --if-not-exists flathub "$FLATHUB_URL"
-  if ((DRY_RUN)); then
-    info "remove Zen Browser Flatpak if present"
-  else
-    if flatpak info --user app.zen_browser.zen >/dev/null 2>&1; then
-      flatpak uninstall --user --noninteractive -y app.zen_browser.zen
-    fi
-    if flatpak info --system app.zen_browser.zen >/dev/null 2>&1; then
-      sudo flatpak uninstall --system --noninteractive -y app.zen_browser.zen
-    fi
-  fi
   run_cmd flatpak install --user --noninteractive -y flathub "${FLATPAK_APPS[@]}"
   run_cmd flatpak install --user --noninteractive -y flathub "${FLATPAK_THEMES[@]}"
   run_cmd flatpak override --user --filesystem=xdg-config/gtk-3.0 \
@@ -777,7 +729,7 @@ install_adw_gtk3() {
 
   local json="$TEMP_DIR/adw-gtk3-release.json"
   local tag name url digest archive extract_dir version_file light_installed dark_installed asset
-  local -a light_dirs=() dark_dirs=()
+  local light_dir dark_dir
   fetch https://api.github.com/repos/lassekongo83/adw-gtk3/releases/latest "$json"
   tag=$(jq -r '.tag_name' "$json")
   asset=$(select_release_asset "$json" '^adw-gtk3v.+[.]tar[.]xz$' 'adw-gtk3 theme archive')
@@ -791,21 +743,19 @@ install_adw_gtk3() {
   fi
 
   archive="$TEMP_DIR/$name"
-  extract_dir="$TEMP_DIR/adw-gtk3"
+  extract_dir="$TEMP_DIR/adw-gtk3-extract"
   fetch "$url" "$archive"
   verify_file "$archive" "$digest"
   mkdir -p "$extract_dir"
   tar -xJf "$archive" -C "$extract_dir"
 
-  mapfile -t light_dirs < <(find "$extract_dir" -type d -name adw-gtk3)
-  mapfile -t dark_dirs < <(find "$extract_dir" -type d -name adw-gtk3-dark)
-  ((${#light_dirs[@]} == 1 && ${#dark_dirs[@]} == 1)) ||
-    die "adw-gtk3 archive has an unexpected layout"
-  [[ -f ${light_dirs[0]}/index.theme && -f ${dark_dirs[0]}/index.theme ]] ||
+  light_dir="$extract_dir/adw-gtk3"
+  dark_dir="$extract_dir/adw-gtk3-dark"
+  [[ -f $light_dir/index.theme && -f $dark_dir/index.theme ]] ||
     die "adw-gtk3 archive is missing theme metadata"
 
   run_sudo install -d -m 0755 /usr/share/themes
-  run_sudo cp -a "${light_dirs[0]}" "${dark_dirs[0]}" /usr/share/themes/
+  run_sudo cp -a "$light_dir" "$dark_dir" /usr/share/themes/
   version_file="$TEMP_DIR/adw-gtk3.version"
   printf '%s\n' "$tag" >"$version_file"
   run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3/.version
@@ -871,70 +821,6 @@ install_helium() {
   run_cmd xdg-settings set default-web-browser helium.desktop
 }
 
-extension_installed_version() {
-  local uuid="$1"
-  local metadata="$HOME/.local/share/gnome-shell/extensions/$uuid/metadata.json"
-  [[ -f $metadata ]] || return 1
-  jq -r '.version | tostring' "$metadata"
-}
-
-extension_metadata_valid() {
-  local metadata="$1" uuid="$2" shell="$3" version="$4"
-  jq -e --arg uuid "$uuid" --arg shell "$shell" --arg version "$version" \
-    '.uuid == $uuid and (.version | tostring) == $version and
-      ((."shell-version" // []) | index($shell) != null)' \
-    <<<"$metadata" >/dev/null
-}
-
-gnome_shell_major_version() {
-  local output
-  output=$(gnome-shell --version)
-  [[ $output =~ ([0-9]+)([.][0-9]+)* ]] || die "could not detect GNOME Shell version"
-  printf '%s\n' "${BASH_REMATCH[1]}"
-}
-
-install_extension() {
-  local extension_id="$1" expected_uuid="$2" shell_version="$3"
-  local info_json="$TEMP_DIR/extension-$extension_id.json"
-  local uuid version installed zip metadata
-
-  fetch "https://extensions.gnome.org/extension-info/?pk=$extension_id" "$info_json"
-  uuid=$(jq -r '.uuid // empty' "$info_json")
-  version=$(jq -r --arg shell "$shell_version" \
-    '.shell_version_map[$shell].version // empty | tostring' "$info_json")
-  [[ $uuid == "$expected_uuid" ]] || die "extension UUID mismatch for ID $extension_id"
-  [[ $version =~ ^[0-9]+$ ]] || die "extension $uuid has no GNOME $shell_version release"
-
-  installed=$(extension_installed_version "$uuid" 2>/dev/null || true)
-  if [[ $installed == "$version" ]]; then
-    log "$uuid version $version already installed"
-    return 0
-  fi
-
-  zip="$TEMP_DIR/$uuid-$version.zip"
-  fetch "https://extensions.gnome.org/api/v1/extensions/$uuid/versions/$version/?format=zip" "$zip"
-  metadata=$(unzip -p "$zip" metadata.json) || die "metadata missing from extension $uuid"
-  extension_metadata_valid "$metadata" "$uuid" "$shell_version" "$version" ||
-    die "invalid extension metadata for $uuid"
-  run_cmd gnome-extensions install --force "$zip"
-}
-
-install_extensions() {
-  local index shell_version uuid
-  shell_version=$(gnome_shell_major_version)
-  info "installing reviewed GNOME $shell_version extensions"
-  if ((DRY_RUN)); then
-    for uuid in "${EXTENSION_UUIDS[@]}"; do
-      info "resolve, validate, and install $uuid"
-    done
-    return 0
-  fi
-
-  for index in "${!EXTENSION_IDS[@]}"; do
-    install_extension "${EXTENSION_IDS[$index]}" "${EXTENSION_UUIDS[$index]}" "$shell_version"
-  done
-}
-
 array_contains() {
   local needle="$1" item
   shift
@@ -971,42 +857,6 @@ gs_set() {
   run_cmd gsettings set "$@"
 }
 
-configure_extension_state() {
-  if ((DRY_RUN)); then
-    info "enable requested extensions and AppIndicator; disable Ubuntu extensions; preserve unrelated extensions"
-    return 0
-  fi
-
-  local item
-  local -a enabled=() disabled=() new_enabled=() new_disabled=() required=()
-  required=("${EXTENSION_UUIDS[@]}" "$APPINDICATOR_UUID")
-  mapfile -t enabled < <(read_gsettings_array org.gnome.shell enabled-extensions)
-  mapfile -t disabled < <(read_gsettings_array org.gnome.shell disabled-extensions)
-
-  for item in "${enabled[@]}"; do
-    if ! array_contains "$item" "${DISABLED_UBUNTU_EXTENSIONS[@]}" &&
-      ! array_contains "$item" "${new_enabled[@]}"; then
-      new_enabled+=("$item")
-    fi
-  done
-  for item in "${required[@]}"; do
-    array_contains "$item" "${new_enabled[@]}" || new_enabled+=("$item")
-  done
-
-  for item in "${disabled[@]}"; do
-    if ! array_contains "$item" "${required[@]}" &&
-      ! array_contains "$item" "${new_disabled[@]}"; then
-      new_disabled+=("$item")
-    fi
-  done
-  for item in "${DISABLED_UBUNTU_EXTENSIONS[@]}"; do
-    array_contains "$item" "${new_disabled[@]}" || new_disabled+=("$item")
-  done
-
-  gs_set org.gnome.shell enabled-extensions "$(gvariant_array "${new_enabled[@]}")"
-  gs_set org.gnome.shell disabled-extensions "$(gvariant_array "${new_disabled[@]}")"
-}
-
 configure_workspace_shortcuts() {
   local workspace
   for workspace in {1..7}; do
@@ -1028,15 +878,17 @@ set_custom_shortcut() {
 
 configure_custom_shortcuts() {
   local base="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
-  local -a paths=(
-    "$base/dotfiles-browser/"
-    "$base/dotfiles-home/"
-    "$base/dotfiles-signal/"
-    "$base/dotfiles-fastmail/"
+  local legacy_browser="$base/dotfiles-browser/"
+  local legacy_home="$base/dotfiles-home/"
+  local signal="$base/dotfiles-signal/"
+  local fastmail="$base/dotfiles-fastmail/"
+  local -a managed=(
+    "$signal"
+    "$fastmail"
   )
 
   if ((DRY_RUN)); then
-    info "append managed shortcuts while preserving unrelated custom shortcuts"
+    info "remove legacy Home and Helium custom shortcuts; preserve unrelated shortcuts"
   else
     local path
     local -a existing=() merged=()
@@ -1044,38 +896,119 @@ configure_custom_shortcuts() {
       read_gsettings_array org.gnome.settings-daemon.plugins.media-keys custom-keybindings
     )
     for path in "${existing[@]}"; do
+      [[ $path == "$legacy_browser" || $path == "$legacy_home" ]] && continue
       array_contains "$path" "${merged[@]}" || merged+=("$path")
     done
-    for path in "${paths[@]}"; do
+    for path in "${managed[@]}"; do
       array_contains "$path" "${merged[@]}" || merged+=("$path")
     done
     gs_set org.gnome.settings-daemon.plugins.media-keys custom-keybindings \
       "$(gvariant_array "${merged[@]}")"
   fi
 
-  set_custom_shortcut "${paths[0]}" Helium helium '<Super>w'
-  set_custom_shortcut "${paths[1]}" Home "nautilus --new-window $HOME" '<Super>e'
-  set_custom_shortcut "${paths[2]}" Signal signal-desktop '<Super>s'
-  set_custom_shortcut "${paths[3]}" Fastmail \
+  set_custom_shortcut "$signal" Signal signal-desktop '<Super>s'
+  set_custom_shortcut "$fastmail" Fastmail \
     'flatpak run com.fastmail.Fastmail' '<Super>m'
+}
+
+configure_shortcut_preferences() {
+  local media="org.gnome.settings-daemon.plugins.media-keys"
+  local shell="org.gnome.shell.keybindings"
+  local wm="org.gnome.desktop.wm.keybindings"
+
+  gs_set "$media" control-center "['<Super>i']"
+  gs_set "$media" home "['<Super>e']"
+  gs_set "$media" screensaver "['<Alt><Super>l']"
+  gs_set "$media" search "['<Alt>F2']"
+  gs_set "$media" terminal "['<Super>Return']"
+  gs_set "$media" www "['<Super>w']"
+  gs_set "$shell" toggle-message-tray "['<Super>v']"
+  gs_set "$shell" toggle-overview "['<Super>space']"
+  gs_set "$shell" toggle-quick-settings '[]'
+  gs_set "$wm" close "['<Super>q']"
+  gs_set "$wm" minimize '[]'
+  gs_set "$wm" panel-run-dialog '[]'
+  gs_set "$wm" switch-input-source '[]'
+  gs_set "$wm" switch-input-source-backward '[]'
+  gs_set org.gnome.mutter.wayland.keybindings restore-shortcuts '[]'
+}
+
+verify_gsetting() {
+  ((DRY_RUN)) && return 0
+  local schema="$1" key="$2" expected="$3" actual
+  actual=$(gsettings get "$schema" "$key")
+  [[ $actual == "$expected" ]] ||
+    die "$schema $key is $actual; expected $expected"
+}
+
+verify_dconf_value() {
+  ((DRY_RUN)) && return 0
+  local path="$1" expected="$2" actual
+  actual=$(dconf read "$path")
+  [[ $actual == "$expected" ]] ||
+    die "$path is $actual; expected $expected"
 }
 
 configure_gnome() {
   info "configuring GNOME"
-  gs_set org.gnome.shell disable-user-extensions false
-  run_cmd dconf write /org/gnome/desktop/interface/accent-color "'#B34A45'"
-  gs_set org.gnome.desktop.interface color-scheme prefer-dark
   gs_set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
+  gs_set org.gnome.desktop.interface color-scheme prefer-dark
+  run_cmd dconf write /org/gnome/desktop/interface/accent-color "'#B34A45'"
   gs_set org.gnome.desktop.peripherals.keyboard repeat true
   gs_set org.gnome.desktop.peripherals.keyboard delay 250
   gs_set org.gnome.desktop.peripherals.keyboard repeat-interval 50
+  gs_set org.gnome.desktop.input-sources xkb-options "['ctrl:swapcaps']"
+  gs_set org.gnome.desktop.peripherals.mouse accel-profile flat
   gs_set org.gnome.mutter dynamic-workspaces false
   gs_set org.gnome.desktop.wm.preferences num-workspaces 7
   gs_set org.gnome.desktop.wm.preferences mouse-button-modifier '<Super>'
   gs_set org.gnome.desktop.wm.preferences resize-with-right-button true
   configure_workspace_shortcuts
+  configure_shortcut_preferences
   configure_custom_shortcuts
-  configure_extension_state
+
+  verify_gsetting org.gnome.desktop.interface gtk-theme "'adw-gtk3-dark'"
+  verify_gsetting org.gnome.desktop.interface color-scheme "'prefer-dark'"
+  verify_dconf_value /org/gnome/desktop/interface/accent-color "'#B34A45'"
+  verify_gsetting org.gnome.desktop.peripherals.keyboard repeat true
+  verify_gsetting org.gnome.desktop.peripherals.keyboard delay 'uint32 250'
+  verify_gsetting org.gnome.desktop.peripherals.keyboard repeat-interval 'uint32 50'
+  verify_gsetting org.gnome.desktop.peripherals.mouse accel-profile "'flat'"
+}
+
+configure_default_terminal() {
+  info "setting Alacritty as the default terminal"
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local config="$config_home/ubuntu-xdg-terminals.list"
+  local tmp="$TEMP_DIR/ubuntu-xdg-terminals.list" selected alternative
+
+  run_sudo update-alternatives --set x-terminal-emulator /usr/bin/alacritty
+  gs_set org.gnome.desktop.default-applications.terminal exec xdg-terminal-exec
+  gs_set org.gnome.desktop.default-applications.terminal exec-arg --
+
+  if ((DRY_RUN)); then
+    info "put Alacritty first in $config"
+    return 0
+  fi
+
+  mkdir -p "$config_home"
+  {
+    printf 'Alacritty.desktop\n'
+    [[ ! -f $config ]] || awk '$0 != "Alacritty.desktop"' "$config"
+  } >"$tmp"
+  if [[ ! -f $config ]] || ! cmp --silent "$tmp" "$config"; then
+    install -m 0644 "$tmp" "$config"
+  fi
+
+  verify_gsetting org.gnome.desktop.default-applications.terminal exec "'xdg-terminal-exec'"
+  verify_gsetting org.gnome.desktop.default-applications.terminal exec-arg "'--'"
+  selected=$(xdg-terminal-exec --print-id)
+  [[ $selected == Alacritty.desktop ]] ||
+    die "xdg-terminal-exec selected $selected instead of Alacritty.desktop"
+  alternative=$(update-alternatives --query x-terminal-emulator |
+    awk '$1 == "Value:" {print $2}')
+  [[ $alternative == /usr/bin/alacritty ]] ||
+    die "x-terminal-emulator selected $alternative instead of /usr/bin/alacritty"
 }
 
 backup_target() {
@@ -1159,12 +1092,12 @@ main() {
   install_apt_software
   install_developer_tools
   install_pacstall
-  install_neovim
+  install_pacstall_packages
   install_fonts
   install_flatpaks
   install_adw_gtk3
   install_helium
-  install_extensions
+  configure_default_terminal
   configure_gnome
   configure_dotfiles
   configure_ddcutil
