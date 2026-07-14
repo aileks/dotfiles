@@ -8,7 +8,7 @@ case "${1:-}" in
   *) exit 2 ;;
 esac
 
-exec 9>"${XDG_RUNTIME_DIR:-/tmp}/monitor-brightness.lock"
+exec 9> "${XDG_RUNTIME_DIR:-/tmp}/monitor-brightness.lock"
 flock --nonblock 9 || exit 0
 
 ddcutil setvcp 10 "$direction" 5 --display 1 --noverify || true

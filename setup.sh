@@ -137,37 +137,37 @@ run_apt() {
 }
 
 has_tty() {
-  [[ -r /dev/tty && -w /dev/tty ]] && (: </dev/tty) >/dev/null 2>&1
+  [[ -r /dev/tty && -w /dev/tty ]] && (: < /dev/tty) > /dev/null 2>&1
 }
 
 ensure_git() {
-  command -v git >/dev/null && return 0
+  command -v git > /dev/null && return 0
 
   info "installing Git for dotfiles bootstrap"
   run_apt update
   run_apt install -y ca-certificates git
-  ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
+  ((DRY_RUN)) || command -v git > /dev/null || die "Git installation failed"
 }
 
 verify_dotfiles_repo() {
   local remote
   [[ -d $DOTFILES_DIR ]] || return 1
-  git -C "$DOTFILES_DIR" rev-parse --git-dir >/dev/null 2>&1 || return 1
-  remote=$(git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null) || return 1
+  git -C "$DOTFILES_DIR" rev-parse --git-dir > /dev/null 2>&1 || return 1
+  remote=$(git -C "$DOTFILES_DIR" remote get-url origin 2> /dev/null) || return 1
   [[ $remote == "$DOTFILES_REPO" || $remote == *"aileks/dotfiles"* ]]
 }
 
 prompt_replace_repo() {
   local existing_url="unknown" reply
-  existing_url=$(git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null || true)
+  existing_url=$(git -C "$DOTFILES_DIR" remote get-url origin 2> /dev/null || true)
   existing_url=${existing_url:-unknown}
 
   warn "existing path is not the expected dotfiles repository: $DOTFILES_DIR"
   printf '  expected: %s\n  found:    %s\n' "$DOTFILES_REPO" "$existing_url" >&2
   has_tty || die "move or remove $DOTFILES_DIR, then retry"
 
-  printf 'Back up and replace it? [y/N] ' >/dev/tty
-  IFS= read -r reply </dev/tty || reply=""
+  printf 'Back up and replace it? [y/N] ' > /dev/tty
+  IFS= read -r reply < /dev/tty || reply=""
   [[ ${reply,,} == y || ${reply,,} == yes ]] || die "cancelled"
   run_cmd mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
   log "backed up $DOTFILES_DIR to ${DOTFILES_DIR}${BACKUP_SUFFIX}"
@@ -186,19 +186,19 @@ update_dotfiles_repo() {
     return 0
   fi
 
-  branch=$(git -C "$DOTFILES_DIR" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || true)
+  branch=$(git -C "$DOTFILES_DIR" symbolic-ref --short refs/remotes/origin/HEAD 2> /dev/null || true)
   branch=${branch#origin/}
   branch=${branch:-main}
-  local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2>/dev/null || true)
-  remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2>/dev/null || true)
+  local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2> /dev/null || true)
+  remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2> /dev/null || true)
 
   if [[ -z $remote_ref ]]; then
     warn "origin/$branch is unavailable; using local dotfiles checkout"
   elif [[ $local_ref == "$remote_ref" ]]; then
     log "dotfiles already up to date"
   elif git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
-    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
-      warn "fast-forward failed; using local dotfiles checkout"
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" \
+      || warn "fast-forward failed; using local dotfiles checkout"
   else
     warn "local dotfiles checkout is ahead or diverged; leaving it unchanged"
   fi
@@ -240,8 +240,8 @@ resolve_script_dir() {
     clone_dotfiles_repo
   fi
 
-  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/zsh ]] ||
-    die "dotfiles checkout is missing expected directory: $DOTFILES_DIR/zsh"
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/zsh ]] \
+    || die "dotfiles checkout is missing expected directory: $DOTFILES_DIR/zsh"
   SCRIPT_DIR="$DOTFILES_DIR"
   readonly SCRIPT_DIR
   log "using dotfiles from $SCRIPT_DIR"
@@ -253,8 +253,8 @@ validate_sha256() {
 
 dpkg_installed_version() {
   local result state version
-  result=$(dpkg-query -W -f='${db:Status-Status}\t${Version}' "$1" 2>/dev/null) || return 1
-  IFS=$'\t' read -r state version <<<"$result"
+  result=$(dpkg-query -W -f='${db:Status-Status}\t${Version}' "$1" 2> /dev/null) || return 1
+  IFS=$'\t' read -r state version <<< "$result"
   [[ $state == installed ]] || return 1
   printf '%s\n' "$version"
 }
@@ -280,7 +280,7 @@ ensure_root_file() {
   fi
 
   tmp="$TEMP_DIR/$(basename "$path").new"
-  printf '%s' "$content" >"$tmp"
+  printf '%s' "$content" > "$tmp"
   if sudo test -f "$path" && sudo cmp --silent "$tmp" "$path"; then
     return 0
   fi
@@ -292,8 +292,8 @@ read_os_release() {
   [[ -r $os_release ]] || die "missing $os_release"
   # shellcheck disable=SC1090
   source "$os_release"
-  [[ ${ID:-} == ubuntu && ${VERSION_ID:-} == 26.04 ]] ||
-    die "Ubuntu 26.04 is required"
+  [[ ${ID:-} == ubuntu && ${VERSION_ID:-} == 26.04 ]] \
+    || die "Ubuntu 26.04 is required"
 }
 
 detect_architecture() {
@@ -313,11 +313,11 @@ validate_environment() {
 }
 
 validate_desktop_session() {
-  [[ ${XDG_CURRENT_DESKTOP:-} =~ (GNOME|Ubuntu) ]] ||
-    die "run from a logged-in Ubuntu GNOME session"
-  [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]] ||
-    die "a desktop D-Bus session is required"
-  command -v gnome-shell >/dev/null || die "GNOME Shell is required"
+  [[ ${XDG_CURRENT_DESKTOP:-} =~ (GNOME|Ubuntu) ]] \
+    || die "run from a logged-in Ubuntu GNOME session"
+  [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]] \
+    || die "a desktop D-Bus session is required"
+  command -v gnome-shell > /dev/null || die "GNOME Shell is required"
 }
 
 create_temp_dir() {
@@ -344,19 +344,19 @@ user_snap_data_present() {
 }
 
 snap_state_present() {
-  command -v snap >/dev/null || dpkg_installed_version snapd >/dev/null ||
-    [[ -e /var/lib/snapd || -e /var/snap ]] || user_snap_data_present
+  command -v snap > /dev/null || dpkg_installed_version snapd > /dev/null \
+    || [[ -e /var/lib/snapd || -e /var/snap ]] || user_snap_data_present
 }
 
 confirm_snap_purge() {
   ((DRY_RUN)) && return 0
   snap_state_present || return 0
-  [[ -r /dev/tty && -w /dev/tty ]] ||
-    die "Snap deletion requires an interactive terminal"
+  [[ -r /dev/tty && -w /dev/tty ]] \
+    || die "Snap deletion requires an interactive terminal"
 
   local reply
-  printf 'Permanently delete all Snap packages and data? [y/N] ' >/dev/tty
-  IFS= read -r reply </dev/tty || reply=""
+  printf 'Permanently delete all Snap packages and data? [y/N] ' > /dev/tty
+  IFS= read -r reply < /dev/tty || reply=""
   [[ ${reply,,} == y || ${reply,,} == yes ]] || die "cancelled"
 }
 
@@ -367,11 +367,11 @@ bootstrap_apt() {
 }
 
 snap_names() {
-  snap list 2>/dev/null | awk 'NR > 1 {print $1}'
+  snap list 2> /dev/null | awk 'NR > 1 {print $1}'
 }
 
 remove_snap_packages() {
-  command -v snap >/dev/null || return 0
+  command -v snap > /dev/null || return 0
 
   local attempt snap removed
   local -a snaps=()
@@ -413,10 +413,10 @@ purge_snap() {
     remove_snap_packages
   fi
 
-  run_sudo systemctl disable --now snapd.socket snapd.service snapd.seeded.service 2>/dev/null || true
+  run_sudo systemctl disable --now snapd.socket snapd.service snapd.seeded.service 2> /dev/null || true
   if ((DRY_RUN)); then
     info "unmount /var/snap if mounted"
-  elif findmnt --mountpoint /var/snap >/dev/null; then
+  elif findmnt --mountpoint /var/snap > /dev/null; then
     run_sudo umount --recursive /var/snap
   fi
   run_apt purge -y snapd
@@ -479,6 +479,29 @@ install_apt_software() {
   run_apt install -y "${APT_PACKAGES[@]}" code signal-desktop
 }
 
+configure_papirus_folders() {
+  local installer="$TEMP_DIR/papirus-folders-install" tool
+  tool=$(command -v papirus-folders || true)
+
+  if [[ -z $tool ]]; then
+    tool="$HOME/.local/bin/papirus-folders"
+    if ((DRY_RUN)); then
+      info "install papirus-folders to $HOME/.local with the official installer"
+    else
+      fetch https://git.io/papirus-folders-install "$installer"
+      env PREFIX="$HOME/.local" sh "$installer"
+      [[ -x $tool ]] || die "papirus-folders installation failed"
+    fi
+  else
+    log "papirus-folders already installed"
+  fi
+
+  run_cmd "$tool" -C teal --theme Papirus-Dark
+  ((DRY_RUN)) || "$tool" -l --theme Papirus-Dark \
+    | grep -Eq '^[[:space:]]*[*][[:space:]]+teal$' \
+    || die "Papirus-Dark folder color is not teal"
+}
+
 install_uv() {
   if [[ -x $HOME/.local/bin/uv ]]; then
     log "$("$HOME/.local/bin/uv" --version) already installed"
@@ -491,7 +514,7 @@ install_uv() {
   fi
 
   curl -LsSf https://astral.sh/uv/install.sh | sh
-  "$HOME/.local/bin/uv" --version >/dev/null || die "uv installation failed"
+  "$HOME/.local/bin/uv" --version > /dev/null || die "uv installation failed"
 }
 
 installed_nvm_version() {
@@ -516,14 +539,14 @@ install_nvm() {
   fi
 
   version=$(latest_nvm_version)
-  installed=$(installed_nvm_version 2>/dev/null || true)
+  installed=$(installed_nvm_version 2> /dev/null || true)
   if [[ $installed == "$version" ]]; then
     log "NVM $version already installed"
     return 0
   fi
 
   curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v$version/install.sh" | bash
-  installed=$(installed_nvm_version 2>/dev/null || true)
+  installed=$(installed_nvm_version 2> /dev/null || true)
   [[ $installed == "$version" ]] || die "NVM $version installation failed"
 }
 
@@ -573,7 +596,7 @@ install_developer_tools() {
 release_is_stable() {
   local json="$1"
   jq -e '.draft == false and .prerelease == false and (.tag_name | type == "string")' \
-    "$json" >/dev/null
+    "$json" > /dev/null
 }
 
 select_release_asset() {
@@ -586,7 +609,7 @@ select_release_asset() {
   )
   ((${#assets[@]} == 1)) || die "expected one $label release asset"
   asset=${assets[0]}
-  IFS=$'\t' read -r name url digest <<<"$asset"
+  IFS=$'\t' read -r name url digest <<< "$asset"
   digest=${digest#sha256:}
   [[ $url == https://* ]] || die "$label release asset has an invalid URL"
   validate_sha256 "$digest" || die "$label release asset has no valid digest"
@@ -594,7 +617,7 @@ select_release_asset() {
 }
 
 install_pacstall() {
-  if command -v pacstall >/dev/null; then
+  if command -v pacstall > /dev/null; then
     log "Pacstall already installed"
     return 0
   fi
@@ -605,16 +628,16 @@ install_pacstall() {
   fi
 
   sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
-  command -v pacstall >/dev/null || die "Pacstall installation failed"
+  command -v pacstall > /dev/null || die "Pacstall installation failed"
 }
 
 install_pacstall_packages() {
   local package output
   local -a installed=()
 
-  if command -v pacstall >/dev/null; then
-    output=$(pacstall -L 2>/dev/null) || die "could not list installed Pacstall packages"
-    mapfile -t installed <<<"$output"
+  if command -v pacstall > /dev/null; then
+    output=$(pacstall -L 2> /dev/null) || die "could not list installed Pacstall packages"
+    mapfile -t installed <<< "$output"
   elif ((!DRY_RUN)); then
     die "Pacstall is unavailable"
   fi
@@ -637,8 +660,8 @@ configure_default_browser() {
 
   ((DRY_RUN)) && return 0
   selected=$(xdg-settings get default-web-browser)
-  [[ $selected == zen-browser.desktop ]] ||
-    die "default browser is $selected; expected zen-browser.desktop"
+  [[ $selected == zen-browser.desktop ]] \
+    || die "default browser is $selected; expected zen-browser.desktop"
 }
 
 nerd_fonts_release() {
@@ -662,7 +685,7 @@ install_archive_font() {
   local font_dir="$HOME/.local/share/fonts/$family_dir"
   local checksums_url asset_url checksum archive checksums extract_dir
 
-  if [[ -f $font_dir/.version ]] && [[ $(<"$font_dir/.version") == "$version" ]]; then
+  if [[ -f $font_dir/.version ]] && [[ $(< "$font_dir/.version") == "$version" ]]; then
     log "$family_dir $version already installed"
     return 0
   fi
@@ -688,7 +711,7 @@ install_archive_font() {
   prepare_font_directory "$font_dir"
   mkdir -p "$font_dir"
   find "$extract_dir" -type f \( -name '*.ttf' -o -name '*.otf' \) -exec cp -f {} "$font_dir/" \;
-  printf '%s\n' "$version" >"$font_dir/.version"
+  printf '%s\n' "$version" > "$font_dir/.version"
 }
 
 install_fonts() {
@@ -721,8 +744,8 @@ install_flatpaks() {
 verify_flathub_remote() {
   ((DRY_RUN)) && return 0
   local url
-  url=$(flatpak remotes --user --columns=name,url |
-    awk -F '\t' '$1 == "flathub" {print $2; exit}')
+  url=$(flatpak remotes --user --columns=name,url \
+    | awk -F '\t' '$1 == "flathub" {print $2; exit}')
   [[ -z $url ]] && return 0
   case "${url%/}" in
     https://dl.flathub.org/repo | https://flathub.org/repo) ;;
@@ -743,10 +766,10 @@ install_adw_gtk3() {
   fetch https://api.github.com/repos/lassekongo83/adw-gtk3/releases/latest "$json"
   tag=$(jq -r '.tag_name' "$json")
   asset=$(select_release_asset "$json" '^adw-gtk3v.+[.]tar[.]xz$' 'adw-gtk3 theme archive')
-  IFS=$'\t' read -r name url digest <<<"$asset"
+  IFS=$'\t' read -r name url digest <<< "$asset"
 
-  light_installed=$(sudo cat /usr/share/themes/adw-gtk3/.version 2>/dev/null || true)
-  dark_installed=$(sudo cat /usr/share/themes/adw-gtk3-dark/.version 2>/dev/null || true)
+  light_installed=$(sudo cat /usr/share/themes/adw-gtk3/.version 2> /dev/null || true)
+  dark_installed=$(sudo cat /usr/share/themes/adw-gtk3-dark/.version 2> /dev/null || true)
   if [[ $light_installed == "$tag" && $dark_installed == "$tag" ]]; then
     log "adw-gtk3 $tag already installed"
     return 0
@@ -761,13 +784,13 @@ install_adw_gtk3() {
 
   light_dir="$extract_dir/adw-gtk3"
   dark_dir="$extract_dir/adw-gtk3-dark"
-  [[ -f $light_dir/index.theme && -f $dark_dir/index.theme ]] ||
-    die "adw-gtk3 archive is missing theme metadata"
+  [[ -f $light_dir/index.theme && -f $dark_dir/index.theme ]] \
+    || die "adw-gtk3 archive is missing theme metadata"
 
   run_sudo install -d -m 0755 /usr/share/themes
   run_sudo cp -a "$light_dir" "$dark_dir" /usr/share/themes/
   version_file="$TEMP_DIR/adw-gtk3.version"
-  printf '%s\n' "$tag" >"$version_file"
+  printf '%s\n' "$tag" > "$version_file"
   run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3/.version
   run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3-dark/.version
 }
@@ -898,16 +921,16 @@ verify_gsetting() {
   ((DRY_RUN)) && return 0
   local schema="$1" key="$2" expected="$3" actual
   actual=$(gsettings get "$schema" "$key")
-  [[ $actual == "$expected" ]] ||
-    die "$schema $key is $actual; expected $expected"
+  [[ $actual == "$expected" ]] \
+    || die "$schema $key is $actual; expected $expected"
 }
 
 verify_dconf_value() {
   ((DRY_RUN)) && return 0
   local path="$1" expected="$2" actual
   actual=$(dconf read "$path")
-  [[ $actual == "$expected" ]] ||
-    die "$path is $actual; expected $expected"
+  [[ $actual == "$expected" ]] \
+    || die "$path is $actual; expected $expected"
 }
 
 configure_gnome() {
@@ -958,7 +981,7 @@ configure_default_terminal() {
   {
     printf 'Alacritty.desktop\n'
     [[ ! -f $config ]] || awk '$0 != "Alacritty.desktop"' "$config"
-  } >"$tmp"
+  } > "$tmp"
   if [[ ! -f $config ]] || ! cmp --silent "$tmp" "$config"; then
     install -m 0644 "$tmp" "$config"
   fi
@@ -966,12 +989,12 @@ configure_default_terminal() {
   verify_gsetting org.gnome.desktop.default-applications.terminal exec "'xdg-terminal-exec'"
   verify_gsetting org.gnome.desktop.default-applications.terminal exec-arg "'--'"
   selected=$(xdg-terminal-exec --print-id)
-  [[ $selected == Alacritty.desktop ]] ||
-    die "xdg-terminal-exec selected $selected instead of Alacritty.desktop"
-  alternative=$(update-alternatives --query x-terminal-emulator |
-    awk '$1 == "Value:" {print $2}')
-  [[ $alternative == /usr/bin/alacritty ]] ||
-    die "x-terminal-emulator selected $alternative instead of /usr/bin/alacritty"
+  [[ $selected == Alacritty.desktop ]] \
+    || die "xdg-terminal-exec selected $selected instead of Alacritty.desktop"
+  alternative=$(update-alternatives --query x-terminal-emulator \
+    | awk '$1 == "Value:" {print $2}')
+  [[ $alternative == /usr/bin/alacritty ]] \
+    || die "x-terminal-emulator selected $alternative instead of /usr/bin/alacritty"
 }
 
 backup_target() {
@@ -1055,6 +1078,7 @@ main() {
   purge_snap
   configure_vendor_repositories
   install_apt_software
+  configure_papirus_folders
   install_developer_tools
   install_pacstall
   install_pacstall_packages
