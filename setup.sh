@@ -146,8 +146,8 @@ validate_sha256() {
 
 dpkg_installed_version() {
   local result state version
-  result=$(dpkg-query -W -f='${db:Status-Status}\t${Version}' "$1" 2> /dev/null) || return 1
-  IFS=$'\t' read -r state version <<< "$result"
+  result=$(dpkg-query -W -f='${db:Status-Status}\t${Version}' "$1" 2>/dev/null) || return 1
+  IFS=$'\t' read -r state version <<<"$result"
   [[ $state == installed ]] || return 1
   printf '%s\n' "$version"
 }
@@ -173,7 +173,7 @@ ensure_root_file() {
   fi
 
   tmp="$TEMP_DIR/$(basename "$path").new"
-  printf '%s' "$content" > "$tmp"
+  printf '%s' "$content" >"$tmp"
   if sudo test -f "$path" && sudo cmp --silent "$tmp" "$path"; then
     return 0
   fi
@@ -210,7 +210,7 @@ validate_desktop_session() {
     die "run from a logged-in Ubuntu GNOME session"
   [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]] ||
     die "a desktop D-Bus session is required"
-  command -v gnome-shell > /dev/null || die "GNOME Shell is required"
+  command -v gnome-shell >/dev/null || die "GNOME Shell is required"
 }
 
 create_temp_dir() {
@@ -237,7 +237,7 @@ user_snap_data_present() {
 }
 
 snap_state_present() {
-  command -v snap > /dev/null || dpkg_installed_version snapd > /dev/null ||
+  command -v snap >/dev/null || dpkg_installed_version snapd >/dev/null ||
     [[ -e /var/lib/snapd || -e /var/snap ]] || user_snap_data_present
 }
 
@@ -248,8 +248,8 @@ confirm_snap_purge() {
     die "Snap deletion requires an interactive terminal"
 
   local reply
-  printf 'Permanently delete all Snap packages and data? [y/N] ' > /dev/tty
-  IFS= read -r reply < /dev/tty || reply=""
+  printf 'Permanently delete all Snap packages and data? [y/N] ' >/dev/tty
+  IFS= read -r reply </dev/tty || reply=""
   [[ ${reply,,} == y || ${reply,,} == yes ]] || die "cancelled"
 }
 
@@ -260,11 +260,11 @@ bootstrap_apt() {
 }
 
 snap_names() {
-  snap list 2> /dev/null | awk 'NR > 1 {print $1}'
+  snap list 2>/dev/null | awk 'NR > 1 {print $1}'
 }
 
 remove_snap_packages() {
-  command -v snap > /dev/null || return 0
+  command -v snap >/dev/null || return 0
 
   local attempt snap removed
   local -a snaps=()
@@ -306,7 +306,7 @@ purge_snap() {
     remove_snap_packages
   fi
 
-  run_sudo systemctl disable --now snapd.socket snapd.service snapd.seeded.service 2> /dev/null || true
+  run_sudo systemctl disable --now snapd.socket snapd.service snapd.seeded.service 2>/dev/null || true
   run_apt purge -y snapd
   run_sudo rm -rf \
     /snap \
@@ -381,7 +381,7 @@ install_uv() {
   fi
 
   curl -LsSf https://astral.sh/uv/install.sh | sh
-  "$HOME/.local/bin/uv" --version > /dev/null || die "uv installation failed"
+  "$HOME/.local/bin/uv" --version >/dev/null || die "uv installation failed"
 }
 
 installed_nvm_version() {
@@ -391,7 +391,7 @@ installed_nvm_version() {
 
 install_nvm() {
   local installed
-  installed=$(installed_nvm_version 2> /dev/null || true)
+  installed=$(installed_nvm_version 2>/dev/null || true)
   if [[ $installed == "$NVM_VERSION" ]]; then
     log "NVM $NVM_VERSION already installed"
     return 0
@@ -403,7 +403,7 @@ install_nvm() {
   fi
 
   curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh" | bash
-  installed=$(installed_nvm_version 2> /dev/null || true)
+  installed=$(installed_nvm_version 2>/dev/null || true)
   [[ $installed == "$NVM_VERSION" ]] || die "NVM $NVM_VERSION installation failed"
 }
 
@@ -453,7 +453,7 @@ install_developer_tools() {
 release_is_stable() {
   local json="$1"
   jq -e '.draft == false and .prerelease == false and (.tag_name | type == "string")' \
-    "$json" > /dev/null
+    "$json" >/dev/null
 }
 
 select_release_asset() {
@@ -466,7 +466,7 @@ select_release_asset() {
   )
   ((${#assets[@]} == 1)) || die "expected one $label release asset"
   asset=${assets[0]}
-  IFS=$'\t' read -r name url digest <<< "$asset"
+  IFS=$'\t' read -r name url digest <<<"$asset"
   digest=${digest#sha256:}
   [[ $url == https://* ]] || die "$label release asset has an invalid URL"
   validate_sha256 "$digest" || die "$label release asset has no valid digest"
@@ -484,7 +484,7 @@ install_pacstall() {
   fetch https://api.github.com/repos/pacstall/pacstall/releases/latest "$json"
   tag=$(jq -r '.tag_name | ltrimstr("v")' "$json")
   asset=$(select_release_asset "$json" '^pacstall_.+_all[.]deb$' 'Pacstall all-architecture .deb')
-  IFS=$'\t' read -r name url digest <<< "$asset"
+  IFS=$'\t' read -r name url digest <<<"$asset"
 
   installed=$(dpkg_installed_version pacstall || true)
   if [[ $installed == "$tag" || $installed == "$tag-"* ]]; then
@@ -524,7 +524,7 @@ install_archive_font() {
   local font_dir="$HOME/.local/share/fonts/$family_dir"
   local checksums_url asset_url checksum archive checksums extract_dir
 
-  if [[ -f $font_dir/.version ]] && [[ $(< "$font_dir/.version") == "$version" ]]; then
+  if [[ -f $font_dir/.version ]] && [[ $(<"$font_dir/.version") == "$version" ]]; then
     log "$family_dir $version already installed"
     return 0
   fi
@@ -550,7 +550,7 @@ install_archive_font() {
   prepare_font_directory "$font_dir"
   mkdir -p "$font_dir"
   find "$extract_dir" -type f \( -name '*.ttf' -o -name '*.otf' \) -exec cp -f {} "$font_dir/" \;
-  printf '%s\n' "$version" > "$font_dir/.version"
+  printf '%s\n' "$version" >"$font_dir/.version"
 }
 
 install_fonts() {
@@ -589,7 +589,7 @@ install_fonts() {
     prepare_font_directory "$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
   else
     warn "Pacstall JetBrains Mono recipe is stale; using verified upstream font exception"
-    if dpkg_installed_version nerd-fonts-jetbrains-mono > /dev/null; then
+    if dpkg_installed_version nerd-fonts-jetbrains-mono >/dev/null; then
       run_apt purge -y nerd-fonts-jetbrains-mono
     fi
     install_archive_font "$release_json" JetBrainsMono.tar.xz JetBrainsMonoNerdFont "$latest_version"
@@ -614,10 +614,10 @@ install_flatpaks() {
   if ((DRY_RUN)); then
     info "remove Zen Browser Flatpak if present"
   else
-    if flatpak info --user app.zen_browser.zen > /dev/null 2>&1; then
+    if flatpak info --user app.zen_browser.zen >/dev/null 2>&1; then
       flatpak uninstall --user --noninteractive -y app.zen_browser.zen
     fi
-    if flatpak info --system app.zen_browser.zen > /dev/null 2>&1; then
+    if flatpak info --system app.zen_browser.zen >/dev/null 2>&1; then
       sudo flatpak uninstall --system --noninteractive -y app.zen_browser.zen
     fi
   fi
@@ -679,7 +679,7 @@ install_helium() {
   deb_arch=$(helium_asset_arch "$ARCH") || die "Helium does not support $ARCH"
   fetch https://api.github.com/repos/imputnet/helium-linux/releases/latest "$json"
   asset=$(select_release_asset "$json" "^helium-bin_.+_${deb_arch}[.]deb$" "Helium $deb_arch .deb")
-  IFS=$'\t' read -r name url digest <<< "$asset"
+  IFS=$'\t' read -r name url digest <<<"$asset"
   version=$(helium_deb_version "$name" "$deb_arch") || die "invalid Helium .deb filename"
   installed=$(dpkg_installed_version helium-bin || true)
 
@@ -707,7 +707,7 @@ extension_metadata_valid() {
   jq -e --arg uuid "$uuid" --arg shell "$shell" --arg version "$version" \
     '.uuid == $uuid and (.version | tostring) == $version and
       ((."shell-version" // []) | index($shell) != null)' \
-    <<< "$metadata" > /dev/null
+    <<<"$metadata" >/dev/null
 }
 
 install_extension() {
@@ -722,7 +722,7 @@ install_extension() {
   [[ $uuid == "$expected_uuid" ]] || die "extension UUID mismatch for ID $extension_id"
   [[ $version =~ ^[0-9]+$ ]] || die "extension $uuid has no GNOME $GNOME_SHELL_VERSION release"
 
-  installed=$(extension_installed_version "$uuid" 2> /dev/null || true)
+  installed=$(extension_installed_version "$uuid" 2>/dev/null || true)
   if [[ $installed == "$version" ]]; then
     log "$uuid version $version already installed"
     return 0
