@@ -5,7 +5,7 @@ Opinionated setup for an existing Ubuntu 26.04+ installation.
 ## What it does
 
 - Installs desktop software and command-line tools using `apt`, [pacstall](https://pacstall.dev/), and flatpak.
-- Installs GNOME extensions and applies workspace, keyboard, mouse, and shortcut settings.
+- Installs GNOME extensions and QoL settings.
 - Installs nerd fonts.
 - Removes Snap packages, Snap data, and `snapd`.
 - Configures DDC/CI monitor controls.

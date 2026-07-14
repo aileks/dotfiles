@@ -44,7 +44,6 @@ readonly -a APT_PACKAGES=(
   jq
   less
   nautilus
-  neovim
   openssh-client
   python3
   ripgrep
@@ -890,6 +889,8 @@ main() {
   purge_snap
   configure_vendor_repositories
   install_apt_software
+  install_pacstall
+  run_cmd pacstall -I neovim
   install_fonts
   install_flatpaks
   install_helium
