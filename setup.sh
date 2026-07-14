@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016
 
 set -Eeuo pipefail
 
@@ -8,6 +9,7 @@ BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
 readonly GNOME_SHELL_VERSION="50"
 readonly FLATHUB_URL="https://dl.flathub.org/repo/flathub.flatpakrepo"
+readonly NVM_VERSION="0.40.5"
 
 DRY_RUN=0
 ARCH=""
@@ -189,21 +191,18 @@ read_os_release() {
 
 detect_architecture() {
   ARCH=$(dpkg --print-architecture)
-  case "$ARCH" in
-    amd64 | arm64) ;;
-    *) die "unsupported architecture: $ARCH" ;;
-  esac
+  [[ $ARCH == amd64 ]] || die "this setup currently supports amd64 only (detected $ARCH)"
+}
+
+validate_user_id() {
+  (($1 != 0)) || die "run as the desktop user, not root"
 }
 
 validate_environment() {
   read_os_release
   detect_architecture
-
-  ((DRY_RUN)) && return 0
-  ((EUID != 0)) || die "run as the desktop user, not root"
+  validate_user_id "$EUID"
   validate_desktop_session
-  [[ $ARCH == amd64 ]] ||
-    die "Signal Desktop has no supported arm64 Linux build; the complete manifest currently requires amd64"
 }
 
 validate_desktop_session() {
@@ -212,8 +211,6 @@ validate_desktop_session() {
   [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]] ||
     die "a desktop D-Bus session is required"
   command -v gnome-shell > /dev/null || die "GNOME Shell is required"
-  gnome-shell --version | grep -Eq 'GNOME Shell 50([.]|$)' ||
-    die "GNOME Shell 50 is required"
 }
 
 create_temp_dir() {
@@ -372,6 +369,87 @@ install_apt_software() {
   run_apt install -y "${APT_PACKAGES[@]}" code signal-desktop
 }
 
+install_uv() {
+  if [[ -x $HOME/.local/bin/uv ]]; then
+    log "$("$HOME/.local/bin/uv" --version) already installed"
+    return 0
+  fi
+  if ((DRY_RUN)); then
+    info "install uv with the official Astral installer"
+    format_command bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
+    return 0
+  fi
+
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  "$HOME/.local/bin/uv" --version > /dev/null || die "uv installation failed"
+}
+
+installed_nvm_version() {
+  [[ -s $HOME/.nvm/nvm.sh ]] || return 1
+  env NVM_DIR="$HOME/.nvm" bash -c '. "$NVM_DIR/nvm.sh"; nvm --version'
+}
+
+install_nvm() {
+  local installed
+  installed=$(installed_nvm_version 2> /dev/null || true)
+  if [[ $installed == "$NVM_VERSION" ]]; then
+    log "NVM $NVM_VERSION already installed"
+    return 0
+  fi
+  if ((DRY_RUN)); then
+    info "install NVM $NVM_VERSION with the official installer"
+    format_command bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh | bash"
+    return 0
+  fi
+
+  curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh" | bash
+  installed=$(installed_nvm_version 2> /dev/null || true)
+  [[ $installed == "$NVM_VERSION" ]] || die "NVM $NVM_VERSION installation failed"
+}
+
+install_node_lts() {
+  if ((DRY_RUN)); then
+    info "install current Node.js LTS and bundled npm with NVM"
+    format_command bash -c '. "$NVM_DIR/nvm.sh"; nvm install --lts; nvm alias default "lts/*"'
+    return 0
+  fi
+
+  [[ -s $HOME/.nvm/nvm.sh ]] || die "NVM is required before installing Node.js"
+  env NVM_DIR="$HOME/.nvm" bash -c '
+    set -e
+    . "$NVM_DIR/nvm.sh"
+    nvm install --lts
+    nvm alias default "lts/*"
+    nvm use default > /dev/null
+    node --version
+    npm --version
+  '
+}
+
+install_pnpm() {
+  if ((DRY_RUN)); then
+    info "install pnpm globally with npm"
+    format_command bash -c '. "$NVM_DIR/nvm.sh"; nvm use default; npm install --global pnpm'
+    return 0
+  fi
+
+  env NVM_DIR="$HOME/.nvm" bash -c '
+    set -e
+    . "$NVM_DIR/nvm.sh"
+    nvm use default > /dev/null
+    npm install --global pnpm
+    pnpm --version
+  '
+}
+
+install_developer_tools() {
+  info "installing developer runtimes and package managers"
+  install_uv
+  install_nvm
+  install_node_lts
+  install_pnpm
+}
+
 release_is_stable() {
   local json="$1"
   jq -e '.draft == false and .prerelease == false and (.tag_name | type == "string")' \
@@ -418,6 +496,11 @@ install_pacstall() {
   fetch "$url" "$deb"
   verify_file "$deb" "$digest"
   run_apt install -y "$deb"
+}
+
+install_neovim() {
+  info "installing Neovim from Pacstall"
+  run_cmd pacstall -P -I neovim
 }
 
 nerd_fonts_release() {
@@ -472,7 +555,6 @@ install_archive_font() {
 
 install_fonts() {
   if ((DRY_RUN)); then
-    install_pacstall
     info "install current nerd-fonts-jetbrains-mono from Pacstall"
     info "install verified AdwaitaMono.tar.xz per-user"
     format_command fc-cache -f "$HOME/.local/share/fonts"
@@ -497,7 +579,6 @@ install_fonts() {
   if pacstall_recipe_matches \
     "$recipe_version" "$recipe_checksum" "$recipe_source" \
     "$latest_version" "$upstream_checksum"; then
-    install_pacstall
     local installed_jetbrains
     installed_jetbrains=$(dpkg_installed_version nerd-fonts-jetbrains-mono || true)
     if [[ $installed_jetbrains == "$latest_version" || $installed_jetbrains == "$latest_version-"* ]]; then
@@ -889,8 +970,9 @@ main() {
   purge_snap
   configure_vendor_repositories
   install_apt_software
+  install_developer_tools
   install_pacstall
-  run_cmd pacstall -I neovim
+  install_neovim
   install_fonts
   install_flatpaks
   install_helium

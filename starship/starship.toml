@@ -1,4 +1,6 @@
 format = """
+$username\
+$hostname\
 $directory\
 $git_branch\
 $git_state\
@@ -70,18 +72,11 @@ style_user = "#e5a72a bold"
 style_root = "#b14242 bold"
 format = "[$user]($style) "
 show_always = false
-ssh_only = true
 
 [hostname]
 style = "#e5a72a"
 format = "at [$hostname]($style) "
 ssh_only = true
-
-[shlvl]
-threshold = 2
-style = "#949494"
-format = "[$shlvl]($style) "
-disabled = false
 
 [jobs]
 style = "#e5a72a"
@@ -93,15 +88,9 @@ threshold = 1
 style = "#e49a44"
 format = '[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style) '
 symbol = ""
-detect_env_vars = ["VIRTUAL_ENV", "CONDA_DEFAULT_ENV"]
+detect_env_vars = ["VIRTUAL_ENV"]
 
 [nodejs]
 style = "#4a8b8b"
 format = "[$symbol($version)]($style) "
 symbol = ""
-
-[conda]
-style = "#c4693d"
-format = "[$symbol$environment]($style) "
-symbol = ""
-ignore_base = true

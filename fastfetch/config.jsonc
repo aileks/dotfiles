@@ -125,9 +125,9 @@
     },
     {
       "type": "command",
-      "key": "  OS Age ",
+      "key": "  Root FS Age ",
       "keyColor": "red",
-      "text": "birth_install=$(stat -c %W /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
+      "text": "birth=$(stat -c %W / 2>/dev/null); current=$(date +%s); if [ \"${birth:-0}\" -gt 0 ] 2>/dev/null && [ \"$birth\" -le \"$current\" ]; then echo $(((current - birth) / 86400)) days; else echo unknown; fi"
     },
     {
       "type": "uptime",
