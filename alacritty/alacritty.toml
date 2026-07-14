@@ -36,4 +36,4 @@ shape = "Block"
 history = 10000
 
 [general]
-import = ["~/.config/alacritty/ashen.toml"]
+import = ["~/.config/alacritty/cinder-grove.toml"]

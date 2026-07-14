@@ -23,6 +23,7 @@ readonly -a APT_PACKAGES=(
   build-essential
   ca-certificates
   curl
+  dconf-cli
   ddcutil
   eza
   fastfetch
@@ -69,14 +70,19 @@ readonly -a FLATPAK_APPS=(
   com.fastmail.Fastmail
   org.localsend.localsend_app
 )
+readonly -a FLATPAK_THEMES=(
+  org.gtk.Gtk3theme.adw-gtk3
+  org.gtk.Gtk3theme.adw-gtk3-dark
+)
 
-readonly -a EXTENSION_IDS=(3193 9875 3843 1007 10319)
+readonly -a EXTENSION_IDS=(3193 9875 3843 1007 10319 8084)
 readonly -a EXTENSION_UUIDS=(
   blur-my-shell@aunetx
   o-tiling@oliwebd.github.com
   just-perfection-desktop@just-perfection
   windowIsReady_Remover@nunofarruca@gmail.com
   window-title-pro@eprahemi.github.io
+  adw-gtk3-colorizer@NiffirgkcaJ.github.com
 )
 
 readonly APPINDICATOR_UUID="ubuntu-appindicators@ubuntu.com"
@@ -622,6 +628,9 @@ install_flatpaks() {
     fi
   fi
   run_cmd flatpak install --user --noninteractive -y flathub "${FLATPAK_APPS[@]}"
+  run_cmd flatpak install --user --noninteractive -y flathub "${FLATPAK_THEMES[@]}"
+  run_cmd flatpak override --user --filesystem=xdg-config/gtk-3.0 \
+    --filesystem=xdg-config/gtk-4.0
 }
 
 verify_flathub_remote() {
@@ -634,6 +643,50 @@ verify_flathub_remote() {
     https://dl.flathub.org/repo | https://flathub.org/repo) ;;
     *) die "existing user flathub remote points to an unexpected URL: $url" ;;
   esac
+}
+
+install_adw_gtk3() {
+  info "installing adw-gtk3 system-wide"
+  if ((DRY_RUN)); then
+    info "resolve latest stable adw-gtk3 archive, verify GitHub digest, install to /usr/share/themes"
+    return 0
+  fi
+
+  local json="$TEMP_DIR/adw-gtk3-release.json"
+  local tag name url digest archive extract_dir version_file light_installed dark_installed asset
+  local -a light_dirs=() dark_dirs=()
+  fetch https://api.github.com/repos/lassekongo83/adw-gtk3/releases/latest "$json"
+  tag=$(jq -r '.tag_name' "$json")
+  asset=$(select_release_asset "$json" '^adw-gtk3v.+[.]tar[.]xz$' 'adw-gtk3 theme archive')
+  IFS=$'\t' read -r name url digest <<<"$asset"
+
+  light_installed=$(sudo cat /usr/share/themes/adw-gtk3/.version 2>/dev/null || true)
+  dark_installed=$(sudo cat /usr/share/themes/adw-gtk3-dark/.version 2>/dev/null || true)
+  if [[ $light_installed == "$tag" && $dark_installed == "$tag" ]]; then
+    log "adw-gtk3 $tag already installed"
+    return 0
+  fi
+
+  archive="$TEMP_DIR/$name"
+  extract_dir="$TEMP_DIR/adw-gtk3"
+  fetch "$url" "$archive"
+  verify_file "$archive" "$digest"
+  mkdir -p "$extract_dir"
+  tar -xJf "$archive" -C "$extract_dir"
+
+  mapfile -t light_dirs < <(find "$extract_dir" -type d -name adw-gtk3)
+  mapfile -t dark_dirs < <(find "$extract_dir" -type d -name adw-gtk3-dark)
+  ((${#light_dirs[@]} == 1 && ${#dark_dirs[@]} == 1)) ||
+    die "adw-gtk3 archive has an unexpected layout"
+  [[ -f ${light_dirs[0]}/index.theme && -f ${dark_dirs[0]}/index.theme ]] ||
+    die "adw-gtk3 archive is missing theme metadata"
+
+  run_sudo install -d -m 0755 /usr/share/themes
+  run_sudo cp -a "${light_dirs[0]}" "${dark_dirs[0]}" /usr/share/themes/
+  version_file="$TEMP_DIR/adw-gtk3.version"
+  printf '%s\n' "$tag" >"$version_file"
+  run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3/.version
+  run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3-dark/.version
 }
 
 helium_asset_arch() {
@@ -880,6 +933,9 @@ configure_custom_shortcuts() {
 configure_gnome() {
   info "configuring GNOME"
   gs_set org.gnome.shell disable-user-extensions false
+  run_cmd dconf write /org/gnome/desktop/interface/accent-color "'#B14242'"
+  gs_set org.gnome.desktop.interface color-scheme prefer-dark
+  gs_set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
   gs_set org.gnome.desktop.peripherals.keyboard repeat true
   gs_set org.gnome.desktop.peripherals.keyboard delay 250
   gs_set org.gnome.desktop.peripherals.keyboard repeat-interval 50
@@ -922,7 +978,7 @@ link_path() {
 }
 
 configure_dotfiles() {
-  info "linking Ashen dotfiles"
+  info "linking Cinder Grove dotfiles"
   link_path "$SCRIPT_DIR/alacritty" "$HOME/.config/alacritty"
   link_path "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   link_path "$SCRIPT_DIR/btop" "$HOME/.config/btop"
@@ -975,6 +1031,7 @@ main() {
   install_neovim
   install_fonts
   install_flatpaks
+  install_adw_gtk3
   install_helium
   install_extensions
   configure_gnome

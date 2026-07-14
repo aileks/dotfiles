@@ -1,0 +1,35 @@
+# Colors (Cinder Grove)
+# Based on Ashen by Daniel Fichtinger
+# License: MIT
+
+# Default Colors
+[colors.primary]
+background = '#121212'
+foreground = '#B4B4B4'
+
+# Selection Colors
+[colors.cursor]
+cursor = '#D5D5D5'
+text = '#121212'
+
+# Normal Colors
+[colors.normal]
+black = '#121212'
+red = '#B14242'
+green = '#8A9A5B'
+yellow = '#E5A72A'
+blue = '#6284A3'
+magenta = '#95799A'
+cyan = '#4A8B8B'
+white = '#A7A7A7'
+
+# Bright Colors
+[colors.bright]
+black = '#535353'
+red = '#B14242'
+green = '#8A9A5B'
+yellow = '#E5A72A'
+blue = '#6284A3'
+magenta = '#95799A'
+cyan = '#4A8B8B'
+white = '#D5D5D5'

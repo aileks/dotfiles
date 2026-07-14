@@ -32,11 +32,11 @@ disabled = false
 
 [git_branch]
 symbol = ""
-style = "#d87c4a"
+style = "#6284a3"
 format = "on [$symbol$branch]($style) "
 
 [git_status]
-style = "#e49a44"
+style = "#4a8b8b"
 format = '([\[$all_status$ahead_behind\]]($style) )'
 conflicted = "=${count} "
 ahead = "⇡${count} "
@@ -55,7 +55,7 @@ format = '\([$state( $progress_current/$progress_total)]($style)\) '
 
 [cmd_duration]
 min_time = 2_000
-style = "#e49a44"
+style = "#4a8b8b"
 format = "[$duration]($style) "
 show_milliseconds = false
 
@@ -85,7 +85,7 @@ symbol = "✦ "
 threshold = 1
 
 [python]
-style = "#e49a44"
+style = "#4a8b8b"
 format = '[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style) '
 symbol = ""
 detect_env_vars = ["VIRTUAL_ENV"]

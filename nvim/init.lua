@@ -70,7 +70,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 local plugins = {
-  { src = 'https://github.com/ficd0/ashen.nvim' },
   { src = 'https://github.com/nvim-lualine/lualine.nvim' },
   { src = 'https://github.com/lukas-reineke/indent-blankline.nvim' },
   { src = 'https://github.com/YousefHadder/markdown-plus.nvim' },
@@ -94,8 +93,7 @@ else
   end
 end
 
-require('ashen').setup({ transparent = true })
-vim.cmd.colorscheme('ashen')
+vim.cmd.colorscheme('cinder-grove')
 
 require('lualine').setup({
   options = {

@@ -5,7 +5,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
-export MANPAGER='bat --theme="ashen" -plman'
+export MANPAGER='bat --theme="cinder-grove" -plman'
 export SSH_AUTH_SOCK="$HOME/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
 bindkey -e
 
@@ -97,6 +97,7 @@ export _ZO_FZF_OPTS="
 if [[ -f /usr/share/zsh-antidote/antidote.zsh ]]; then
   source /usr/share/zsh-antidote/antidote.zsh
   antidote load "${${(%):-%N}:A:h}/zsh_plugins.txt"
+  source "${${(%):-%N}:A:h}/cinder-grove.zsh"
 fi
 
 # Evals
