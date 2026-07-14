@@ -49,6 +49,7 @@ readonly -a APT_PACKAGES=(
   less
   nautilus
   openssh-client
+  papirus-icon-theme
   python3
   ripgrep
   shellcheck
@@ -71,6 +72,7 @@ readonly -a PACSTALL_PACKAGES=(
   neovim
   nerd-fonts-jetbrains-mono
   onlyoffice-desktopeditors-deb
+  zen-browser-bin
 )
 
 readonly -a FLATPAK_APPS=(
@@ -446,10 +448,7 @@ install_keyring() {
 
 configure_vendor_repositories() {
   info "configuring Microsoft and Signal APT repositories"
-  run_sudo rm -f \
-    /etc/apt/sources.list.d/helium.list \
-    /usr/share/keyrings/helium.gpg \
-    /etc/apt/sources.list.d/vscode.list
+  run_sudo rm -f /etc/apt/sources.list.d/vscode.list
   install_keyring \
     https://packages.microsoft.com/keys/microsoft.asc \
     /usr/share/keyrings/packages.microsoft.gpg
@@ -631,6 +630,18 @@ install_pacstall_packages() {
   done
 }
 
+configure_default_browser() {
+  local selected
+  info "setting Zen Browser as the default browser"
+  run_apt purge -y helium-bin
+  run_cmd xdg-settings set default-web-browser zen-browser.desktop
+
+  ((DRY_RUN)) && return 0
+  selected=$(xdg-settings get default-web-browser)
+  [[ $selected == zen-browser.desktop ]] ||
+    die "default browser is $selected; expected zen-browser.desktop"
+}
+
 nerd_fonts_release() {
   local json="$1"
   fetch https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest "$json"
@@ -762,65 +773,6 @@ install_adw_gtk3() {
   run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3-dark/.version
 }
 
-helium_asset_arch() {
-  case "$1" in
-    amd64) printf 'amd64\n' ;;
-    arm64) printf 'arm64\n' ;;
-    *) return 1 ;;
-  esac
-}
-
-helium_deb_version() {
-  local name="$1" arch="$2" version
-  [[ $name == helium-bin_*_"$arch".deb ]] || return 1
-  version=${name#helium-bin_}
-  version=${version%_"$arch".deb}
-  [[ -n $version ]] || return 1
-  printf '%s\n' "$version"
-}
-
-remove_legacy_helium_appimage() {
-  local appimage="$HOME/AppImages/helium.AppImage"
-  local desktop="$HOME/.local/share/applications/helium.desktop"
-  if ((DRY_RUN)); then
-    info "remove legacy Helium AppImage only when its desktop entry matches"
-    return 0
-  fi
-  if [[ -f $desktop ]] && grep -Fq "Exec=$appimage" "$desktop"; then
-    rm -f "$appimage" "$desktop"
-  elif [[ -e $appimage ]]; then
-    warn "leaving unrecognized Helium AppImage untouched: $appimage"
-  fi
-}
-
-install_helium() {
-  if ((DRY_RUN)); then
-    info "resolve latest stable Helium $(helium_asset_arch "$ARCH") .deb, verify GitHub digest, install with APT"
-    remove_legacy_helium_appimage
-    format_command xdg-settings set default-web-browser helium.desktop
-    return 0
-  fi
-
-  local json="$TEMP_DIR/helium-release.json" deb_arch name url digest version installed deb asset
-  deb_arch=$(helium_asset_arch "$ARCH") || die "Helium does not support $ARCH"
-  fetch https://api.github.com/repos/imputnet/helium-linux/releases/latest "$json"
-  asset=$(select_release_asset "$json" "^helium-bin_.+_${deb_arch}[.]deb$" "Helium $deb_arch .deb")
-  IFS=$'\t' read -r name url digest <<<"$asset"
-  version=$(helium_deb_version "$name" "$deb_arch") || die "invalid Helium .deb filename"
-  installed=$(dpkg_installed_version helium-bin || true)
-
-  if [[ -n $installed ]] && dpkg --compare-versions "$installed" ge "$version"; then
-    log "Helium $installed already installed"
-  else
-    deb="$TEMP_DIR/$name"
-    fetch "$url" "$deb"
-    verify_file "$deb" "$digest"
-    run_apt install -y "$deb"
-  fi
-  remove_legacy_helium_appimage
-  run_cmd xdg-settings set default-web-browser helium.desktop
-}
-
 array_contains() {
   local needle="$1" item
   shift
@@ -888,7 +840,7 @@ configure_custom_shortcuts() {
   )
 
   if ((DRY_RUN)); then
-    info "remove legacy Home and Helium custom shortcuts; preserve unrelated shortcuts"
+    info "remove legacy Home and browser custom shortcuts; preserve unrelated shortcuts"
   else
     local path
     local -a existing=() merged=()
@@ -952,11 +904,12 @@ verify_dconf_value() {
 configure_gnome() {
   info "configuring GNOME"
   gs_set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
+  gs_set org.gnome.desktop.interface icon-theme Papirus-Dark
   gs_set org.gnome.desktop.interface color-scheme prefer-dark
   run_cmd dconf write /org/gnome/desktop/interface/accent-color "'#B34A45'"
   gs_set org.gnome.desktop.peripherals.keyboard repeat true
-  gs_set org.gnome.desktop.peripherals.keyboard delay 250
-  gs_set org.gnome.desktop.peripherals.keyboard repeat-interval 50
+  gs_set org.gnome.desktop.peripherals.keyboard delay 245
+  gs_set org.gnome.desktop.peripherals.keyboard repeat-interval 20
   gs_set org.gnome.desktop.input-sources xkb-options "['ctrl:swapcaps']"
   gs_set org.gnome.desktop.peripherals.mouse accel-profile flat
   gs_set org.gnome.mutter dynamic-workspaces false
@@ -968,11 +921,12 @@ configure_gnome() {
   configure_custom_shortcuts
 
   verify_gsetting org.gnome.desktop.interface gtk-theme "'adw-gtk3-dark'"
+  verify_gsetting org.gnome.desktop.interface icon-theme "'Papirus-Dark'"
   verify_gsetting org.gnome.desktop.interface color-scheme "'prefer-dark'"
   verify_dconf_value /org/gnome/desktop/interface/accent-color "'#B34A45'"
   verify_gsetting org.gnome.desktop.peripherals.keyboard repeat true
-  verify_gsetting org.gnome.desktop.peripherals.keyboard delay 'uint32 250'
-  verify_gsetting org.gnome.desktop.peripherals.keyboard repeat-interval 'uint32 50'
+  verify_gsetting org.gnome.desktop.peripherals.keyboard delay 'uint32 245'
+  verify_gsetting org.gnome.desktop.peripherals.keyboard repeat-interval 'uint32 20'
   verify_gsetting org.gnome.desktop.peripherals.mouse accel-profile "'flat'"
 }
 
@@ -1046,6 +1000,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/bat" "$HOME/.config/bat"
   link_path "$SCRIPT_DIR/btop" "$HOME/.config/btop"
   link_path "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
+  link_path "$SCRIPT_DIR/gtk-4.0/gtk.css" "$HOME/.config/gtk-4.0/gtk.css"
   link_path "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
@@ -1093,10 +1048,10 @@ main() {
   install_developer_tools
   install_pacstall
   install_pacstall_packages
+  configure_default_browser
   install_fonts
   install_flatpaks
   install_adw_gtk3
-  install_helium
   configure_default_terminal
   configure_gnome
   configure_dotfiles
