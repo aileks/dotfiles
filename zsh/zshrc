@@ -62,20 +62,20 @@ export FZF_ALT_C_OPTS="
   --walker-skip .git,node_modules,target
   --preview 'eza --tree --color=always --icons {}'"
 export FZF_DEFAULT_OPTS="
-  --color=fg:#aca49b
-  --color=fg+:#ddd5ca
+  --color=fg:#ACA49B
+  --color=fg+:#DDD5CA
   --color=bg:#131210
   --color=bg+:#34312d
   --color=hl:#C87546
   --color=hl+:#E8A64D
-  --color=info:#aca49b
+  --color=info:#ACA49B
   --color=marker:#C87546
   --color=prompt:#C87546
   --color=spinner:#DC8853
   --color=pointer:#D9A441
   --color=header:#B34A45
-  --color=border:#aca49b
-  --color=query:#ddd5ca
+  --color=border:#ACA49B
+  --color=query:#DDD5CA
   --color=gutter:#131210
   --highlight-line
   --info=inline-right
