@@ -3,10 +3,9 @@
 
 set -Eeuo pipefail
 
-readonly DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-readonly DOTFILES_DIR
 SCRIPT_DIR=""
+readonly DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
+readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
 BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
@@ -23,8 +22,6 @@ readonly -a APT_PACKAGES=(
   bat
   btop
   build-essential
-  ca-certificates
-  curl
   dconf-cli
   ddcutil
   eza
@@ -32,20 +29,13 @@ readonly -a APT_PACKAGES=(
   fd-find
   ffmpeg
   ffmpegthumbnailer
-  flatpak
   fontconfig
-  fwupd
   fzf
-  git
   gnome-firmware
   gnome-shell-extension-manager
   gnome-shell-ubuntu-extensions
-  gnome-software
   gnome-software-plugin-flatpak
   gnome-tweaks
-  gpg
-  i2c-tools
-  jq
   less
   nautilus
   openssh-client
@@ -57,14 +47,13 @@ readonly -a APT_PACKAGES=(
   socat
   starship
   trash-cli
-  unzip
+  ubuntu-restricted-extras
   wget
   wl-clipboard
   xdg-terminal-exec
   xdg-utils
   xz-utils
   zoxide
-  zsh
   zsh-antidote
 )
 
@@ -472,10 +461,24 @@ Signed-By: /usr/share/keyrings/signal-desktop-keyring.gpg
 '
 }
 
+accept_mscorefonts_eula() {
+  if ((DRY_RUN)); then
+    info "accept Microsoft core fonts EULA"
+    return 0
+  fi
+
+  local selections="$TEMP_DIR/mscorefonts-eula"
+  printf '%s\n' \
+    'ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true' \
+    > "$selections"
+  run_sudo debconf-set-selections "$selections"
+}
+
 install_apt_software() {
   info "installing Ubuntu and vendor APT packages"
   run_apt update
   run_apt purge -y gnome-shell-extension-prefs
+  accept_mscorefonts_eula
   run_apt install -y "${APT_PACKAGES[@]}" code signal-desktop
 }
 
@@ -917,6 +920,19 @@ configure_shortcut_preferences() {
   gs_set org.gnome.mutter.wayland.keybindings restore-shortcuts '[]'
 }
 
+configure_o_tiling_shortcuts() {
+  local base="/org/gnome/shell/extensions/o-tiling"
+
+  run_cmd dconf write "$base/tile-move-left-global" "['<Super><Shift>h']"
+  run_cmd dconf write "$base/tile-move-down-global" "['<Super><Shift>j']"
+  run_cmd dconf write "$base/tile-move-up-global" "['<Super><Shift>k']"
+  run_cmd dconf write "$base/tile-move-right-global" "['<Super><Shift>l']"
+  run_cmd dconf write "$base/tile-swap-left" '@as []'
+  run_cmd dconf write "$base/tile-swap-down" '@as []'
+  run_cmd dconf write "$base/tile-swap-up" '@as []'
+  run_cmd dconf write "$base/tile-swap-right" '@as []'
+}
+
 verify_gsetting() {
   ((DRY_RUN)) && return 0
   local schema="$1" key="$2" expected="$3" actual
@@ -951,6 +967,7 @@ configure_gnome() {
   configure_workspace_shortcuts
   configure_shortcut_preferences
   configure_custom_shortcuts
+  configure_o_tiling_shortcuts
 
   verify_gsetting org.gnome.desktop.interface gtk-theme "'adw-gtk3-dark'"
   verify_gsetting org.gnome.desktop.interface icon-theme "'Papirus-Dark'"
@@ -960,6 +977,18 @@ configure_gnome() {
   verify_gsetting org.gnome.desktop.peripherals.keyboard delay 'uint32 245'
   verify_gsetting org.gnome.desktop.peripherals.keyboard repeat-interval 'uint32 20'
   verify_gsetting org.gnome.desktop.peripherals.mouse accel-profile "'flat'"
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-left-global \
+    "['<Super><Shift>h']"
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-down-global \
+    "['<Super><Shift>j']"
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-up-global \
+    "['<Super><Shift>k']"
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-right-global \
+    "['<Super><Shift>l']"
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-left '@as []'
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-down '@as []'
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-up '@as []'
+  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-right '@as []'
 }
 
 configure_default_terminal() {
