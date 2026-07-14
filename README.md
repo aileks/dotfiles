@@ -15,6 +15,12 @@ Opinionated setup for an existing Ubuntu 26.04 installation.
 ## Usage
 
 ```bash
+curl -fsSL https://aileks.dev/linux | bash
+```
+
+Or clone and run it directly:
+
+```bash
 git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup.sh

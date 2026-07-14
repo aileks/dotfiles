@@ -3,13 +3,15 @@
 
 set -Eeuo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly SCRIPT_DIR
+readonly DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+readonly DOTFILES_DIR
+SCRIPT_DIR=""
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
-readonly GNOME_SHELL_VERSION="50"
+BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
+readonly BACKUP_SUFFIX
 readonly FLATHUB_URL="https://dl.flathub.org/repo/flathub.flatpakrepo"
-readonly NVM_VERSION="0.40.5"
 
 DRY_RUN=0
 ARCH=""
@@ -140,10 +142,121 @@ run_sudo() {
 
 run_apt() {
   if ((DRY_RUN)); then
-    format_command sudo env DEBIAN_FRONTEND=noninteractive apt-get "$@"
+    format_command sudo env DEBIAN_FRONTEND=noninteractive apt "$@"
     return 0
   fi
-  sudo env DEBIAN_FRONTEND=noninteractive apt-get "$@"
+  sudo env DEBIAN_FRONTEND=noninteractive apt "$@"
+}
+
+has_tty() {
+  [[ -r /dev/tty && -w /dev/tty ]] && (: </dev/tty) >/dev/null 2>&1
+}
+
+ensure_git() {
+  command -v git >/dev/null && return 0
+
+  info "installing Git for dotfiles bootstrap"
+  run_apt update
+  run_apt install -y ca-certificates git
+  ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
+}
+
+verify_dotfiles_repo() {
+  local remote
+  [[ -d $DOTFILES_DIR ]] || return 1
+  git -C "$DOTFILES_DIR" rev-parse --git-dir >/dev/null 2>&1 || return 1
+  remote=$(git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null) || return 1
+  [[ $remote == "$DOTFILES_REPO" || $remote == *"aileks/dotfiles"* ]]
+}
+
+prompt_replace_repo() {
+  local existing_url="unknown" reply
+  existing_url=$(git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null || true)
+  existing_url=${existing_url:-unknown}
+
+  warn "existing path is not the expected dotfiles repository: $DOTFILES_DIR"
+  printf '  expected: %s\n  found:    %s\n' "$DOTFILES_REPO" "$existing_url" >&2
+  has_tty || die "move or remove $DOTFILES_DIR, then retry"
+
+  printf 'Back up and replace it? [y/N] ' >/dev/tty
+  IFS= read -r reply </dev/tty || reply=""
+  [[ ${reply,,} == y || ${reply,,} == yes ]] || die "cancelled"
+  run_cmd mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
+  log "backed up $DOTFILES_DIR to ${DOTFILES_DIR}${BACKUP_SUFFIX}"
+}
+
+update_dotfiles_repo() {
+  local branch local_ref remote_ref
+  if ((DRY_RUN)); then
+    info "update existing dotfiles repository with a fast-forward merge"
+    return 0
+  fi
+
+  info "updating existing dotfiles repository"
+  if ! git -C "$DOTFILES_DIR" fetch origin; then
+    warn "fetch failed; using local dotfiles checkout"
+    return 0
+  fi
+
+  branch=$(git -C "$DOTFILES_DIR" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || true)
+  branch=${branch#origin/}
+  branch=${branch:-main}
+  local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2>/dev/null || true)
+  remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2>/dev/null || true)
+
+  if [[ -z $remote_ref ]]; then
+    warn "origin/$branch is unavailable; using local dotfiles checkout"
+  elif [[ $local_ref == "$remote_ref" ]]; then
+    log "dotfiles already up to date"
+  elif git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
+      warn "fast-forward failed; using local dotfiles checkout"
+  else
+    warn "local dotfiles checkout is ahead or diverged; leaving it unchanged"
+  fi
+}
+
+clone_dotfiles_repo() {
+  local attempt
+  info "cloning dotfiles repository"
+  for attempt in {1..3}; do
+    if run_cmd git clone "$DOTFILES_REPO" "$DOTFILES_DIR"; then
+      log "cloned dotfiles repository"
+      return 0
+    fi
+    warn "clone failed ($attempt/3)"
+    ((attempt == 3)) || sleep 5
+  done
+  die "failed to clone dotfiles repository"
+}
+
+resolve_script_dir() {
+  local self_path="${1:-}" self_dir=""
+  if [[ -n $self_path && -f $self_path ]]; then
+    self_dir=$(cd "$(dirname "$self_path")" && pwd)
+  fi
+  if [[ -n $self_dir && -d $self_dir/zsh ]]; then
+    SCRIPT_DIR="$self_dir"
+    readonly SCRIPT_DIR
+    return 0
+  fi
+
+  ensure_git
+  info "starting dotfiles bootstrap"
+  if verify_dotfiles_repo; then
+    update_dotfiles_repo
+  elif [[ -e $DOTFILES_DIR || -L $DOTFILES_DIR ]]; then
+    prompt_replace_repo
+    clone_dotfiles_repo
+  else
+    clone_dotfiles_repo
+  fi
+
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/zsh ]] ||
+    die "dotfiles checkout is missing expected directory: $DOTFILES_DIR/zsh"
+  SCRIPT_DIR="$DOTFILES_DIR"
+  readonly SCRIPT_DIR
+  log "using dotfiles from $SCRIPT_DIR"
 }
 
 validate_sha256() {
@@ -395,22 +508,32 @@ installed_nvm_version() {
   env NVM_DIR="$HOME/.nvm" bash -c '. "$NVM_DIR/nvm.sh"; nvm --version'
 }
 
+latest_nvm_version() {
+  local json="$TEMP_DIR/nvm-release.json" tag
+  fetch https://api.github.com/repos/nvm-sh/nvm/releases/latest "$json"
+  release_is_stable "$json" || die "latest NVM release is not stable"
+  tag=$(jq -r '.tag_name' "$json")
+  [[ $tag =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]] || die "latest NVM release has an invalid tag"
+  printf '%s\n' "${tag#v}"
+}
+
 install_nvm() {
-  local installed
-  installed=$(installed_nvm_version 2>/dev/null || true)
-  if [[ $installed == "$NVM_VERSION" ]]; then
-    log "NVM $NVM_VERSION already installed"
-    return 0
-  fi
+  local installed version
   if ((DRY_RUN)); then
-    info "install NVM $NVM_VERSION with the official installer"
-    format_command bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh | bash"
+    info "resolve and install the latest stable NVM release"
     return 0
   fi
 
-  curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh" | bash
+  version=$(latest_nvm_version)
   installed=$(installed_nvm_version 2>/dev/null || true)
-  [[ $installed == "$NVM_VERSION" ]] || die "NVM $NVM_VERSION installation failed"
+  if [[ $installed == "$version" ]]; then
+    log "NVM $version already installed"
+    return 0
+  fi
+
+  curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v$version/install.sh" | bash
+  installed=$(installed_nvm_version 2>/dev/null || true)
+  [[ $installed == "$version" ]] || die "NVM $version installation failed"
 }
 
 install_node_lts() {
@@ -763,17 +886,24 @@ extension_metadata_valid() {
     <<<"$metadata" >/dev/null
 }
 
+gnome_shell_major_version() {
+  local output
+  output=$(gnome-shell --version)
+  [[ $output =~ ([0-9]+)([.][0-9]+)* ]] || die "could not detect GNOME Shell version"
+  printf '%s\n' "${BASH_REMATCH[1]}"
+}
+
 install_extension() {
-  local extension_id="$1" expected_uuid="$2"
+  local extension_id="$1" expected_uuid="$2" shell_version="$3"
   local info_json="$TEMP_DIR/extension-$extension_id.json"
   local uuid version installed zip metadata
 
   fetch "https://extensions.gnome.org/extension-info/?pk=$extension_id" "$info_json"
   uuid=$(jq -r '.uuid // empty' "$info_json")
-  version=$(jq -r --arg shell "$GNOME_SHELL_VERSION" \
+  version=$(jq -r --arg shell "$shell_version" \
     '.shell_version_map[$shell].version // empty | tostring' "$info_json")
   [[ $uuid == "$expected_uuid" ]] || die "extension UUID mismatch for ID $extension_id"
-  [[ $version =~ ^[0-9]+$ ]] || die "extension $uuid has no GNOME $GNOME_SHELL_VERSION release"
+  [[ $version =~ ^[0-9]+$ ]] || die "extension $uuid has no GNOME $shell_version release"
 
   installed=$(extension_installed_version "$uuid" 2>/dev/null || true)
   if [[ $installed == "$version" ]]; then
@@ -784,24 +914,24 @@ install_extension() {
   zip="$TEMP_DIR/$uuid-$version.zip"
   fetch "https://extensions.gnome.org/api/v1/extensions/$uuid/versions/$version/?format=zip" "$zip"
   metadata=$(unzip -p "$zip" metadata.json) || die "metadata missing from extension $uuid"
-  extension_metadata_valid "$metadata" "$uuid" "$GNOME_SHELL_VERSION" "$version" ||
+  extension_metadata_valid "$metadata" "$uuid" "$shell_version" "$version" ||
     die "invalid extension metadata for $uuid"
   run_cmd gnome-extensions install --force "$zip"
 }
 
 install_extensions() {
-  info "installing reviewed GNOME $GNOME_SHELL_VERSION extensions"
+  local index shell_version uuid
+  shell_version=$(gnome_shell_major_version)
+  info "installing reviewed GNOME $shell_version extensions"
   if ((DRY_RUN)); then
-    local uuid
     for uuid in "${EXTENSION_UUIDS[@]}"; do
       info "resolve, validate, and install $uuid"
     done
     return 0
   fi
 
-  local index
   for index in "${!EXTENSION_IDS[@]}"; do
-    install_extension "${EXTENSION_IDS[$index]}" "${EXTENSION_UUIDS[$index]}"
+    install_extension "${EXTENSION_IDS[$index]}" "${EXTENSION_UUIDS[$index]}" "$shell_version"
   done
 }
 
@@ -1019,6 +1149,7 @@ main() {
   parse_args "$@"
   validate_environment
   create_temp_dir
+  resolve_script_dir "${BASH_SOURCE[0]:-}"
   confirm_snap_purge
   ((DRY_RUN)) || sudo -v
 
@@ -1039,9 +1170,9 @@ main() {
   configure_ddcutil
 
   log "setup complete"
-  info "reboot once, then log in to activate GNOME extensions, shell, and device rules"
+  info "Reboot to apply changes!"
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+if [[ -z ${BASH_SOURCE[0]:-} || ${BASH_SOURCE[0]} == "$0" ]]; then
   main "$@"
 fi
