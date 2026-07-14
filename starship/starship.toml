@@ -3,7 +3,6 @@ $directory\
 $git_branch\
 $git_state\
 $git_status\
-$conda\
 $python\
 $nodejs\
 $cmd_duration\
