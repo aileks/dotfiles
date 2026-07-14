@@ -125,7 +125,7 @@
     },
     {
       "type": "command",
-      "key": "  Root FS Age ",
+      "key": "  OS Age ",
       "keyColor": "red",
       "text": "birth=$(stat -c %W / 2>/dev/null); current=$(date +%s); if [ \"${birth:-0}\" -gt 0 ] 2>/dev/null && [ \"$birth\" -le \"$current\" ]; then echo $(((current - birth) / 86400)) days; else echo unknown; fi"
     },
