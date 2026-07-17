@@ -67,6 +67,7 @@ hl.config({
     binds = {
         scroll_event_delay = 250,
         movefocus_cycles_fullscreen = true,
+        window_direction_monitor_fallback = false,
     },
 })
 
