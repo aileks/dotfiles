@@ -264,7 +264,7 @@ validate_environment() {
 
 ensure_git() {
   command -v git >/dev/null && return 0
-  info "installing Git for bootstrap"
+  info "installing git for bootstrap..."
   run_pacman -Syu --noconfirm git base-devel
   ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
 }
@@ -293,7 +293,7 @@ prompt_replace_repo() {
 update_dotfiles_repo() {
   local branch local_ref remote_ref
   if ((DRY_RUN)); then
-    info "update existing dotfiles repository with a fast-forward merge"
+    info "update existing dotfiles repository with a fast-forward merge..."
     return 0
   fi
   if ! git -C "$DOTFILES_DIR" fetch origin; then
@@ -393,7 +393,7 @@ link_path() {
 }
 
 install_packages() {
-  info "updating Arch and installing official packages"
+  info "updating Arch and installing official packages..."
   run_pacman -Syu --noconfirm "${PACMAN_PACKAGES[@]}"
 }
 
@@ -408,7 +408,7 @@ select_aur_helper() {
 install_paru_bin() {
   local paru_dir="$TEMP_DIR/paru-bin"
   if ((DRY_RUN)); then
-    info "build maintained paru-bin package from AUR"
+    info "installing paru..."
     AUR_HELPER=paru
     return 0
   fi
@@ -431,7 +431,7 @@ install_paru_bin() {
 install_aur_packages() {
   select_aur_helper
   [[ -n $AUR_HELPER ]] || install_paru_bin
-  info "installing desktop applications with $AUR_HELPER"
+  info "installing desktop applications with $AUR_HELPER..."
   if ((DRY_RUN)); then
     format_command "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}"
     return 0
@@ -497,13 +497,13 @@ configure_groups() {
 }
 
 configure_system_services() {
-  info "enabling system services"
+  info "enabling system services..."
   run_sudo systemctl enable "${SYSTEM_SERVICES[@]}"
 }
 
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}" unit source
-  info "linking Arch and Cinder Grove configuration"
+  info "linking configuration files..."
   link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
   link_path "$SCRIPT_DIR/bat" "$config_home/bat"
   link_path "$SCRIPT_DIR/btop" "$config_home/btop"
@@ -518,10 +518,12 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
   link_path "$SCRIPT_DIR/swaync" "$config_home/swaync"
+  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/waybar" "$config_home/waybar"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
+
   mkdir -p "$config_home/systemd/user"
   for source in "$SCRIPT_DIR"/systemd/user/*.service; do
     unit=$(basename "$source")
@@ -535,7 +537,6 @@ configure_dotfiles() {
 
 configure_shell() {
   local current_shell
-  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   current_shell=$(getent passwd "$USER" | cut -d: -f7)
   if [[ $current_shell != /usr/bin/zsh ]]; then
     run_sudo chsh -s /usr/bin/zsh "$USER"
@@ -555,7 +556,7 @@ enable_user_service() {
 
 configure_user_services() {
   local unit
-  info "enabling graphical-session services"
+  info "enabling graphical-session services..."
   ((DRY_RUN)) || systemctl --user daemon-reload
   for unit in "${USER_SERVICES[@]}"; do
     enable_user_service "$unit"
@@ -576,7 +577,7 @@ desktop_id() {
 configure_gsettings() {
   local schema="org.gnome.desktop.interface"
   if ((DRY_RUN)); then
-    info "configure dark GTK theme, icons, cursor, fonts, and 24-hour clock"
+    info "configure dark GTK theme, icons, cursor, fonts, and clock..."
     return 0
   fi
   gsettings set "$schema" color-scheme prefer-dark
@@ -626,7 +627,7 @@ configure_default_apps() {
 
 install_node_lts() {
   if ((DRY_RUN)); then
-    info "install current Node.js LTS with NVM"
+    info "install current Node.js LTS with nvm..."
     return 0
   fi
   export NVM_DIR="$HOME/.nvm"
@@ -677,7 +678,7 @@ main() {
   run_postflight
 
   log "Arch Hyprland setup complete"
-  info "Reboot, then SDDM will autologin to Hyprland through UWSM."
+  info "Reboot, then SDDM will autologin to Hyprland through UWSM!"
 }
 
 if [[ -z ${BASH_SOURCE[0]:-} || ${BASH_SOURCE[0]:-} == "$0" ]]; then
