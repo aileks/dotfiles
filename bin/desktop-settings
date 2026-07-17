@@ -10,7 +10,7 @@ selection=$(printf '%s\n' \
   'Displays' \
   'Network' \
   'Printers' |
-  fuzzel --dmenu --prompt='Settings > ')
+  fuzzel --dmenu --minimal-lines --prompt='Settings > ')
 
 case "$selection" in
   Appearance) exec uwsm app -- nwg-look ;;

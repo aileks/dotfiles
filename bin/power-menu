@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 selection=$(printf '%s\n' Lock Logout Suspend Reboot Shutdown |
-  fuzzel --dmenu --prompt='Power > ')
+  fuzzel --dmenu --minimal-lines --prompt='Power > ')
 [[ -n $selection ]] || exit 0
 
 case "$selection" in
@@ -25,6 +25,6 @@ case "$selection" in
   *) exit 0 ;;
 esac
 
-confirmation=$(printf '%s\n' No Yes | fuzzel --dmenu --prompt="$selection? ")
+confirmation=$(printf '%s\n' No Yes | fuzzel --dmenu --minimal-lines --prompt="$selection? ")
 [[ $confirmation == Yes ]] || exit 0
 exec "${command[@]}"
