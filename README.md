@@ -45,3 +45,16 @@ cd ~/.dotfiles
 | Super + Escape | Lock |
 | Super + Shift + P | Power menu |
 | Print / Shift + Print | Region / full screenshot |
+
+## tmux
+
+Prefix: `Ctrl + Space`
+
+| Key | Action |
+| --- | --- |
+| Prefix + `o` | Open project session |
+| Prefix + `s` | Switch session |
+| Prefix + `w` | Switch window |
+| Prefix + `-` / `\|` | Split vertically / horizontally |
+| Prefix + `v` | Enter copy mode |
+| Copy mode `v` / `y` | Select / copy to Wayland clipboard |
