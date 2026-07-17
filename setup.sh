@@ -4,6 +4,7 @@ set -Eeuo pipefail
 
 SCRIPT_DIR=""
 readonly DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
+readonly GTK_THEME_REPO="https://codeberg.org/aileks/cinder-grove-gtk.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
@@ -16,7 +17,6 @@ AUR_HELPER=""
 
 readonly -a PACMAN_PACKAGES=(
   7zip
-  adw-gtk-theme
   adwaita-cursors
   alacritty
   alsa-utils
@@ -511,8 +511,6 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/environment.d" "$config_home/environment.d"
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
   link_path "$SCRIPT_DIR/fuzzel" "$config_home/fuzzel"
-  link_path "$SCRIPT_DIR/gtk-3.0" "$config_home/gtk-3.0"
-  link_path "$SCRIPT_DIR/gtk-4.0" "$config_home/gtk-4.0"
   link_path "$SCRIPT_DIR/hypr" "$config_home/hypr"
   link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
@@ -577,17 +575,46 @@ desktop_id() {
 configure_gsettings() {
   local schema="org.gnome.desktop.interface"
   if ((DRY_RUN)); then
-    info "configure dark GTK theme, icons, cursor, fonts, and clock..."
+    info "configure dark appearance, icons, cursor, fonts, and clock..."
     return 0
   fi
   gsettings set "$schema" color-scheme prefer-dark
-  gsettings set "$schema" gtk-theme adw-gtk3-dark
   gsettings set "$schema" icon-theme Papirus-Dark
   gsettings set "$schema" cursor-theme Adwaita
   gsettings set "$schema" font-name 'Adwaita Sans 11'
   gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11'
   gsettings set "$schema" clock-format 24h
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
+}
+
+migrate_gtk_config() {
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+  local gtk4_css="$config_home/gtk-4.0/gtk.css" target version
+
+  for version in gtk-3.0 gtk-4.0; do
+    target="$config_home/$version"
+    if [[ -L $target && $(readlink "$target") == "$SCRIPT_DIR/$version" ]]; then
+      run_cmd rm "$target"
+    fi
+  done
+
+  target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
+  if [[ -f $state_home/cinder-grove-gtk/installed &&
+    -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme &&
+    ! -e $gtk4_css && ! -L $gtk4_css ]]; then
+    run_cmd mkdir -p "$config_home/gtk-4.0"
+    run_cmd ln -s "$target" "$gtk4_css"
+  fi
+}
+
+install_gtk_theme() {
+  local theme_dir="$TEMP_DIR/cinder-grove-gtk"
+  info "installing Cinder Grove GTK theme..."
+  migrate_gtk_config
+  run_cmd git clone --depth 1 "$GTK_THEME_REPO" "$theme_dir"
+  run_cmd "$theme_dir/install.sh"
 }
 
 configure_papirus() {
@@ -671,6 +698,7 @@ main() {
   configure_shell
   configure_user_services
   configure_gsettings
+  install_gtk_theme
   configure_papirus
   configure_default_apps
   install_node_lts
