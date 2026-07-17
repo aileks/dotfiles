@@ -1,3 +1,5 @@
+local window_ready = os.getenv("HOME") .. "/.local/bin/window-ready"
+
 hl.window_rule({
     name = "suppress-maximize",
     match = { class = ".*" },
@@ -40,3 +42,11 @@ hl.window_rule({
     },
     no_focus = true,
 })
+
+return hl.on("window.urgent", function(window)
+    if window == nil or window.active then
+        return
+    end
+
+    hl.exec_cmd(window_ready .. " " .. window.address)
+end)

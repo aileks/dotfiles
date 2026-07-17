@@ -59,7 +59,7 @@ hl.config({
     misc = {
         disable_hyprland_logo = true,
         disable_splash_rendering = true,
-        focus_on_activate = true,
+        focus_on_activate = false,
         animate_manual_resizes = true,
         enable_swallow = true,
         swallow_regex = "^(Alacritty)$",

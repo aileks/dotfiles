@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+address=${1:-}
+if [[ ! $address =~ ^0x[[:xdigit:]]+$ ]]; then
+  printf 'usage: window-ready <0x-window-address>\n' >&2
+  exit 2
+fi
+
+runtime_dir=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+lock_dir="$runtime_dir/dotfiles-window-ready"
+mkdir -p "$lock_dir"
+exec 9>"$lock_dir/${address#0x}.lock"
+flock -n 9 || exit 0
+
+sleep 0.05
+
+if hyprctl -j activewindow | jq -e --arg address "$address" '.address == $address' >/dev/null; then
+  exit 0
+fi
+
+client=$(hyprctl -j clients | jq -ce --arg address "$address" \
+  'first(.[] | select(.address == $address))') || exit 0
+class=$(jq -r '.class // empty' <<<"$client")
+title=$(jq -r '.title // empty' <<<"$client")
+short_class=${class##*.}
+app=${short_class:-Application}
+icon=application-x-executable
+desktop_id=""
+
+IFS=: read -ra system_data_dirs <<<"${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+data_dirs=("${XDG_DATA_HOME:-$HOME/.local/share}" "${system_data_dirs[@]}")
+for candidate in "$class" "${class,,}" "$short_class" "${short_class,,}"; do
+  [[ -n $candidate ]] || continue
+  for data_dir in "${data_dirs[@]}"; do
+    desktop_file="$data_dir/applications/$candidate.desktop"
+    [[ -f $desktop_file ]] || continue
+    desktop_id=$candidate
+    desktop_name=$(sed -n 's/^Name=//p' "$desktop_file" | head -n 1)
+    desktop_icon=$(sed -n 's/^Icon=//p' "$desktop_file" | head -n 1)
+    [[ -n $desktop_name ]] && app=$desktop_name
+    [[ -n $desktop_icon ]] && icon=$desktop_icon
+    break 2
+  done
+done
+
+body=${title:-Requested your attention}
+[[ $body != "$app" ]] || body='Requested your attention'
+notify_args=(-a "$app" -i "$icon" -u normal -t 8000 -A default=Show)
+[[ -z $desktop_id ]] || notify_args+=(-h "string:desktop-entry:$desktop_id")
+
+action=$(notify-send "${notify_args[@]}" "$app is ready" "$body") || exit 0
+[[ $action == default ]] || exit 0
+
+hyprctl -j clients | jq -e --arg address "$address" \
+  'any(.[]; .address == $address)' >/dev/null || exit 0
+hyprctl dispatch "hl.dsp.focus({ window = \"address:$address\" })" >/dev/null

@@ -113,6 +113,7 @@ readonly -a PACMAN_PACKAGES=(
   sushi
   swaync
   system-config-printer
+  tmux
   trash-cli
   adwaita-fonts
   ttf-adwaitamono-nerd
@@ -144,6 +145,7 @@ readonly -a AUR_PACKAGES=(
   localsend-bin
   localsend-nautilus-extension
   papirus-folders
+  tmux-sessionizer-bin
   visual-studio-code-bin
   zsh-antidote
 )
@@ -516,6 +518,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
   link_path "$SCRIPT_DIR/swaync" "$config_home/swaync"
+  link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/waybar" "$config_home/waybar"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
