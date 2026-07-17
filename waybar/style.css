@@ -31,7 +31,6 @@ window#waybar {
   background: alpha(@container, 0.94);
   border: 1px solid alpha(@overlay, 0.55);
   border-radius: 10px;
-  box-shadow: 0 3px 12px alpha(@background, 0.7);
 }
 
 #workspaces {
