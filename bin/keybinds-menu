@@ -7,16 +7,16 @@ printf '%s\n' \
   'Super + Return      Terminal' \
   'Super + W/E/S/M     Browser / Files / Signal / Fastmail' \
   'Super + I           Desktop settings' \
-  "Super + Q/F/'       Close / Fullscreen / Float" \
+  'Super + Q/F/Shift + Space  Close / Fullscreen / Float' \
   'Super + H/J/K/L     Focus window' \
   'Super + Shift + H/J/K/L  Move window' \
-  'Super + R           Resize mode' \
+  'Super + Ctrl + H/J/K/L  Resize window' \
   'Super + 1..8        Select workspace' \
   'Super + Shift + 1..8  Move to workspace' \
   'Super + ,/.         Select monitor' \
   'Super + Shift + ,/. Move to monitor' \
   'Super + V/N         Clipboard / Notifications' \
-  'Super + /           Keybind help' \
+  'Super + Shift + /   Keybind help' \
   'Super + Escape      Lock' \
   'Super + Shift + E   Power menu' \
   'Print / Shift + Print  Region / Full screenshot' |

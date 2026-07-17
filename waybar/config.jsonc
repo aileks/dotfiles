@@ -140,6 +140,6 @@
   "custom/power": {
     "format": "",
     "tooltip": false,
-    "on-click": "powermenu"
+    "on-click": "power-menu"
   }
 }

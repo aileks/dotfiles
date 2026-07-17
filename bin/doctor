@@ -2,9 +2,9 @@
 
 set -uo pipefail
 
-mode=""
-pre_reboot=0
 failures=0
+desktop_active=0
+booted_graphics=0
 
 pass() { printf '[ok] %s\n' "$*"; }
 warn() { printf '[warn] %s\n' "$*"; }
@@ -13,21 +13,17 @@ fail() {
   failures=$((failures + 1))
 }
 
-for arg in "$@"; do
-  case "$arg" in
-    --system | --session) mode=${arg#--} ;;
-    --pre-reboot) pre_reboot=1 ;;
-    *)
-      printf '[error] unknown option: %s\n' "$arg" >&2
-      exit 2
-      ;;
-  esac
-done
-
-[[ -n $mode ]] || {
-  printf '[error] use --system or --session\n' >&2
+[[ $# == 0 ]] || {
+  printf '[error] doctor takes no arguments\n' >&2
   exit 2
 }
+
+if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]] && command -v hyprctl >/dev/null; then
+  desktop_active=1
+fi
+if ((desktop_active)) || systemctl is-active --quiet sddm.service; then
+  booted_graphics=1
+fi
 
 check_command() {
   if command -v "$1" >/dev/null; then
@@ -82,7 +78,7 @@ check_system() {
   else
     fail 'SDDM greeter PAM integration invalid'
   fi
-  if [[ -r /etc/sddm.conf.d/10-dotfiles-autologin.conf ]]; then
+  if [[ -r /etc/sddm.conf.d/10-autologin.conf ]]; then
     pass 'SDDM autologin configured'
   else
     fail 'SDDM autologin config missing'
@@ -103,7 +99,7 @@ check_system() {
     else
       fail 'Nvidia DRM modesetting disabled'
     fi
-  elif ((pre_reboot)); then
+  elif ((!booted_graphics)); then
     warn 'Nvidia module loads after reboot'
   else
     fail 'Nvidia DRM module unavailable'
@@ -114,7 +110,7 @@ check_system() {
     else
       fail 'Nvidia framebuffer disabled'
     fi
-  elif ((pre_reboot)); then
+  elif ((!booted_graphics)); then
     warn 'Nvidia framebuffer loads after reboot'
   else
     fail 'Nvidia framebuffer parameter unavailable'
@@ -126,7 +122,7 @@ check_system() {
     else
       fail 'Nvidia suspend memory preservation disabled'
     fi
-  elif ((pre_reboot)); then
+  elif ((!booted_graphics)); then
     warn 'Nvidia suspend parameters load after reboot'
   else
     fail 'Nvidia suspend parameters unavailable'
@@ -145,9 +141,9 @@ check_session() {
   else
     fail 'graphical-session.target inactive'
   fi
-  for unit in dotfiles-waybar.service dotfiles-swaync.service dotfiles-hypridle.service \
-    dotfiles-cliphist-text.service dotfiles-cliphist-image.service dotfiles-nm-applet.service \
-    dotfiles-blueman-applet.service dotfiles-udiskie.service hyprpaper.service hyprpolkitagent.service \
+  for unit in waybar.service swaync.service hypridle.service \
+    cliphist-text.service cliphist-image.service nm-applet.service \
+    blueman-applet.service udiskie.service hyprpaper.service hyprpolkitagent.service \
     pipewire.service pipewire-pulse.service wireplumber.service \
     xdg-desktop-portal.service xdg-desktop-portal-hyprland.service; do
     check_user_active "$unit"
@@ -186,9 +182,11 @@ check_session() {
   fi
 }
 
-case "$mode" in
-  system) check_system ;;
-  session) check_session ;;
-esac
+check_system
+if ((desktop_active)); then
+  check_session
+else
+  warn 'Hyprland session checks skipped'
+fi
 
 ((failures == 0))

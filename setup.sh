@@ -112,8 +112,8 @@ readonly -a PACMAN_PACKAGES=(
   swaync
   system-config-printer
   trash-cli
-  otf-font-awesome
-  ttf-jetbrains-mono-nerd
+  adwaita-fonts
+  ttf-adwaitamono-nerd
   udisks2
   udiskie
   unzip
@@ -154,16 +154,16 @@ readonly -a SYSTEM_SERVICES=(
 )
 
 readonly -a USER_SERVICES=(
-  dotfiles-blueman-applet.service
-  dotfiles-cliphist-image.service
-  dotfiles-cliphist-text.service
-  dotfiles-first-login.service
-  dotfiles-hypridle.service
-  dotfiles-monitor-setup.service
-  dotfiles-nm-applet.service
-  dotfiles-swaync.service
-  dotfiles-udiskie.service
-  dotfiles-waybar.service
+  blueman-applet.service
+  cliphist-image.service
+  cliphist-text.service
+  first-login.service
+  hypridle.service
+  monitor-setup.service
+  nm-applet.service
+  swaync.service
+  udiskie.service
+  waybar.service
   hyprpaper.service
   hyprpolkitagent.service
   pipewire-pulse.socket
@@ -230,7 +230,7 @@ has_tty() {
 
 create_temp_dir() {
   if ((DRY_RUN)); then
-    TEMP_DIR="/tmp/dotfiles-setup-dry-run"
+    TEMP_DIR="/tmp/setup-dry-run"
     return 0
   fi
   TEMP_DIR=$(mktemp -d)
@@ -451,7 +451,7 @@ User=$USER
 Session=hyprland-uwsm.desktop
 Relogin=false
 "
-  ensure_root_file /etc/sddm.conf.d/10-dotfiles-autologin.conf "$autologin"
+  ensure_root_file /etc/sddm.conf.d/10-autologin.conf "$autologin"
 }
 
 validate_sddm_pam() {
@@ -498,7 +498,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/gtk-3.0" "$config_home/gtk-3.0"
   link_path "$SCRIPT_DIR/gtk-4.0" "$config_home/gtk-4.0"
   link_path "$SCRIPT_DIR/hypr" "$config_home/hypr"
-  link_path "$SCRIPT_DIR/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
+  link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
   link_path "$SCRIPT_DIR/swaync" "$config_home/swaync"
@@ -562,8 +562,8 @@ configure_gsettings() {
   gsettings set "$schema" gtk-theme adw-gtk3-dark
   gsettings set "$schema" icon-theme Papirus-Dark
   gsettings set "$schema" cursor-theme Adwaita
-  gsettings set "$schema" font-name 'Noto Sans 11'
-  gsettings set "$schema" monospace-font-name 'JetBrainsMono Nerd Font Mono 11'
+  gsettings set "$schema" font-name 'Adwaita Sans 11'
+  gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11'
   gsettings set "$schema" clock-format 24h
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
 }
@@ -612,10 +612,10 @@ configure_ddcutil() {
 
 run_postflight() {
   if ((DRY_RUN)); then
-    format_command "$HOME/.local/bin/dotfiles-doctor" --system --pre-reboot
+    format_command "$HOME/.local/bin/doctor"
     return 0
   fi
-  "$HOME/.local/bin/dotfiles-doctor" --system --pre-reboot
+  "$HOME/.local/bin/doctor"
 }
 
 main() {

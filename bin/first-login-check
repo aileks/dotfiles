@@ -5,11 +5,11 @@ set -Eeuo pipefail
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
 mkdir -p "$state_dir"
 
-if dotfiles-doctor --session; then
+if doctor; then
   touch "$state_dir/session-verified"
   notify-send -a Dotfiles 'Hyprland setup verified' 'All required session services passed.'
 else
   notify-send -u critical -a Dotfiles 'Hyprland setup needs attention' \
-    'Run dotfiles-doctor --session in a terminal.'
+    'Run doctor in a terminal.'
   exit 1
 fi

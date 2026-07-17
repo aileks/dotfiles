@@ -22,18 +22,24 @@ cd ~/.dotfiles
 | --- | --- |
 | Super + Space | Launcher |
 | Super + Return | Alacritty |
-| Super + W / E / S / M | Helium / Nautilus / Signal / Fastmail |
+| Super + W | Web Browser |
+| Super + E | File Manager |
+| Super + M | Mail application |
+| Super + S | Signal Desktop |
 | Super + I | Desktop settings menu, including `nwg-look` |
-| Super + Q / F / ' | Close / fullscreen / float |
+| Super + Q | Close |
+| Super + F | Fullscreen |
+| Super + Shift + Space | Float |
 | Super + H/J/K/L | Focus window |
 | Super + Shift + H/J/K/L | Move window |
-| Super + R | Resize mode |
-| Super + 1 through 8 | Select workspace |
-| Super + Shift + 1 through 8 | Move window to workspace |
+| Super + Ctrl + H/J/K/L | Resize window |
+| Super + 1-8 | Select workspace |
+| Super + Shift + 1-8 | Move window to workspace |
 | Super + , / . | Select monitor |
 | Super + Shift + , / . | Move window to monitor |
-| Super + V / N | Clipboard history / notifications |
-| Super + / | Keybind help |
+| Super + V | Clipboard history |
+| Super + N | Notification center |
+| Super + Shift + / | Keybind help |
 | Super + Escape | Lock |
 | Super + Shift + E | Power menu |
 | Print / Shift + Print | Region / full screenshot |

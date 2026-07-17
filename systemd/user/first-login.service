@@ -1,7 +1,7 @@
 [Unit]
 Description=Verify the first configured Hyprland session
 PartOf=graphical-session.target
-After=dotfiles-monitor-setup.service dotfiles-waybar.service dotfiles-swaync.service graphical-session.target
+After=monitor-setup.service waybar.service swaync.service graphical-session.target
 ConditionPathExists=!%h/.local/state/dotfiles/session-verified
 
 [Service]

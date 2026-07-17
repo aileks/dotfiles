@@ -4,10 +4,10 @@ SHLVL = "0"
 [font]
 size = 13
 builtin_box_drawing = true
-normal = { family = "JetBrainsMono Nerd Font Mono", style = "Regular" }
-bold = { family = "JetBrainsMono Nerd Font Mono", style = "Bold" }
-italic = { family = "JetBrainsMono Nerd Font Mono", style = "Italic" }
-bold_italic = { family = "JetBrainsMono Nerd Font Mono", style = "Bold Italic" }
+normal = { family = "AdwaitaMono Nerd Font Mono", style = "Regular" }
+bold = { family = "AdwaitaMono Nerd Font Mono", style = "Bold" }
+italic = { family = "AdwaitaMono Nerd Font Mono", style = "Italic" }
+bold_italic = { family = "AdwaitaMono Nerd Font Mono", style = "Bold Italic" }
 
 [window]
 opacity = 0.95
