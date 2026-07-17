@@ -41,5 +41,5 @@ cd ~/.dotfiles
 | Super + N | Notification center |
 | Super + Shift + / | Keybind help |
 | Super + Escape | Lock |
-| Super + Shift + E | Power menu |
+| Super + Shift + P | Power menu |
 | Print / Shift + Print | Region / full screenshot |

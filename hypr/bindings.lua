@@ -19,7 +19,7 @@ bind("SUPER + V", hl.dsp.exec_cmd("clipboard-menu"), "Clipboard history")
 bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t -sw"), "Notification center")
 bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd("keybinds-menu"), "Keybind help")
 bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
-bind("SUPER + SHIFT + E", hl.dsp.exec_cmd("power-menu"), "Power menu")
+bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("power-menu"), "Power menu")
 
 bind("SUPER + Q", hl.dsp.window.close(), "Close window")
 bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Toggle fullscreen")
