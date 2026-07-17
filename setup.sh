@@ -58,6 +58,7 @@ readonly -a PACMAN_PACKAGES=(
   gvfs-mtp
   gvfs-nfs
   gvfs-smb
+  hunspell-en_us
   hypridle
   hyprland
   hyprlock
