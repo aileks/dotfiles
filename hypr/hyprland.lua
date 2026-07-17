@@ -12,6 +12,6 @@ local state = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/sta
 pcall(dofile, state .. "/monitors.lua")
 pcall(dofile, state .. "/workspaces.lua")
 
-require("appearance")
+require("settings")
 require("bindings")
 require("rules")
