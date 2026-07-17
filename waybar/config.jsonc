@@ -76,14 +76,6 @@
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "scroll-step": 5
   },
-  "network": {
-    "format-wifi": " {signalStrength}%",
-    "format-ethernet": "󰈀 {ipaddr}",
-    "format-disconnected": "󰖪 offline",
-    "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
-    "on-click": "nm-connection-editor",
-    "interval": 5
-  },
   "tray": {
     "icon-size": 18,
     "spacing": 8

@@ -72,7 +72,6 @@ window#waybar {
 #cpu,
 #memory,
 #pulseaudio,
-#network,
 #tray,
 #clock,
 #custom-notification,
@@ -111,8 +110,7 @@ window#waybar {
   color: @primary;
 }
 
-#pulseaudio.muted,
-#network.disconnected {
+#pulseaudio.muted {
   color: @overlay;
 }
 
