@@ -49,6 +49,57 @@ check_user_active() {
   fi
 }
 
+nvidia_drm_active() {
+  local card connector driver
+  for card in /sys/class/drm/card[0-9]*; do
+    [[ -e $card ]] || continue
+    driver=$(basename "$(readlink -f "$card/device/driver" 2>/dev/null)")
+    [[ $driver == nvidia ]] || continue
+    for connector in "$card"-*; do
+      [[ -e $connector ]] && return 0
+    done
+  done
+  return 1
+}
+
+check_nvidia_modeset() {
+  local parameter=/sys/module/nvidia_drm/parameters/modeset
+  if [[ -r $parameter ]]; then
+    if [[ $(<"$parameter") == Y ]]; then
+      pass 'Nvidia DRM modesetting enabled'
+    else
+      fail 'Nvidia DRM modesetting disabled'
+    fi
+  elif [[ -e $parameter ]] && nvidia_drm_active; then
+    pass 'Nvidia DRM modesetting active'
+  elif ((!booted_graphics)); then
+    warn 'Nvidia module loads after reboot'
+  elif [[ -e $parameter ]]; then
+    warn 'Nvidia DRM modesetting value requires root and could not be verified'
+  else
+    fail 'Nvidia DRM module unavailable'
+  fi
+}
+
+check_nvidia_fbdev() {
+  local parameter=/sys/module/nvidia_drm/parameters/fbdev
+  if [[ -r $parameter ]]; then
+    if [[ $(<"$parameter") == Y ]]; then
+      pass 'Nvidia framebuffer enabled'
+    else
+      fail 'Nvidia framebuffer disabled'
+    fi
+  elif [[ -e $parameter ]] && grep -q 'nvidia-drmdrmfb' /proc/fb 2>/dev/null; then
+    pass 'Nvidia framebuffer active'
+  elif ((!booted_graphics)); then
+    warn 'Nvidia framebuffer loads after reboot'
+  elif [[ -e $parameter ]]; then
+    warn 'Nvidia framebuffer value requires root and could not be verified'
+  else
+    fail 'Nvidia framebuffer parameter unavailable'
+  fi
+}
+
 check_system() {
   local command file
   for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client hyprlock hypridle hyprpaper nwg-look; do
@@ -93,28 +144,8 @@ check_system() {
   for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service sddm.service systemd-timesyncd.service; do
     check_enabled "$file"
   done
-  if [[ -r /sys/module/nvidia_drm/parameters/modeset ]]; then
-    if [[ $(</sys/module/nvidia_drm/parameters/modeset) == Y ]]; then
-      pass 'Nvidia DRM modesetting enabled'
-    else
-      fail 'Nvidia DRM modesetting disabled'
-    fi
-  elif ((!booted_graphics)); then
-    warn 'Nvidia module loads after reboot'
-  else
-    fail 'Nvidia DRM module unavailable'
-  fi
-  if [[ -r /sys/module/nvidia_drm/parameters/fbdev ]]; then
-    if [[ $(</sys/module/nvidia_drm/parameters/fbdev) == Y ]]; then
-      pass 'Nvidia framebuffer enabled'
-    else
-      fail 'Nvidia framebuffer disabled'
-    fi
-  elif ((!booted_graphics)); then
-    warn 'Nvidia framebuffer loads after reboot'
-  else
-    fail 'Nvidia framebuffer parameter unavailable'
-  fi
+  check_nvidia_modeset
+  check_nvidia_fbdev
   if [[ -r /proc/driver/nvidia/params ]]; then
     if grep -Eq '^(UseKernelSuspendNotifiers|PreserveVideoMemoryAllocations):[[:space:]]+1$' \
       /proc/driver/nvidia/params; then
@@ -130,7 +161,7 @@ check_system() {
 }
 
 check_session() {
-  local errors monitors main_count side_count
+  local errors monitors main_count side_count user_bus_names
   if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
     pass 'Hyprland desktop environment exported'
   else
@@ -143,11 +174,17 @@ check_session() {
   fi
   for unit in waybar.service swaync.service hypridle.service \
     cliphist-text.service cliphist-image.service nm-applet.service \
-    blueman-applet.service udiskie.service hyprpaper.service hyprpolkitagent.service \
+    udiskie.service hyprpaper.service hyprpolkitagent.service \
     pipewire.service pipewire-pulse.service wireplumber.service \
     xdg-desktop-portal.service xdg-desktop-portal-hyprland.service; do
     check_user_active "$unit"
   done
+  user_bus_names=$(busctl --user --list 2>/dev/null || true)
+  if grep -q '^org[.]blueman[.]Applet[[:space:]]' <<<"$user_bus_names"; then
+    pass 'blueman applet active'
+  else
+    fail 'blueman applet inactive'
+  fi
   errors=$(hyprctl configerrors 2>/dev/null || true)
   if [[ -z $errors ]]; then
     pass 'Hyprland config has no errors'

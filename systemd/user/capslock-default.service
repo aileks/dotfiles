@@ -1,0 +1,13 @@
+[Unit]
+Description=Enable Caps Lock for the graphical session
+PartOf=graphical-session.target
+After=graphical-session.target ydotool.service
+Requires=ydotool.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/enable-capslock
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical-session.target

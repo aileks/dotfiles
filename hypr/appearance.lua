@@ -1,3 +1,5 @@
+local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
+
 hl.config({
     general = {
         gaps_in = 5,
@@ -35,12 +37,11 @@ hl.config({
     },
     dwindle = {
         preserve_split = true,
-        smart_split = true,
+        smart_split = false,
         smart_resizing = true,
     },
     input = {
-        kb_layout = "us",
-        kb_options = "ctrl:swapcaps",
+        kb_file = config_home .. "/hypr/keymap.xkb",
         repeat_rate = 50,
         repeat_delay = 245,
         follow_mouse = 1,

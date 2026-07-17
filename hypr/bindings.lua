@@ -1,4 +1,5 @@
 local app = "uwsm app -- "
+local local_bin = os.getenv("HOME") .. "/.local/bin/"
 local repeating = { repeating = true }
 local media = { locked = true, repeating = true }
 
@@ -14,12 +15,12 @@ bind("SUPER + W", hl.dsp.exec_cmd(app .. "helium-browser"), "Browser")
 bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
 bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop"), "Signal")
 bind("SUPER + M", hl.dsp.exec_cmd(app .. "fastmail"), "Fastmail")
-bind("SUPER + I", hl.dsp.exec_cmd("desktop-settings"), "Desktop settings")
-bind("SUPER + V", hl.dsp.exec_cmd("clipboard-menu"), "Clipboard history")
+bind("SUPER + I", hl.dsp.exec_cmd(local_bin .. "desktop-settings"), "Desktop settings")
+bind("SUPER + V", hl.dsp.exec_cmd(local_bin .. "clipboard-menu"), "Clipboard history")
 bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t -sw"), "Notification center")
-bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd("keybinds-menu"), "Keybind help")
+bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "keybinds-menu"), "Keybind help")
 bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
-bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("power-menu"), "Power menu")
+bind("SUPER + SHIFT + P", hl.dsp.exec_cmd(local_bin .. "power-menu"), "Power menu")
 
 bind("SUPER + Q", hl.dsp.window.close(), "Close window")
 bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Toggle fullscreen")
@@ -61,8 +62,8 @@ bind("SUPER + CTRL + k", hl.dsp.window.resize({ x = 0, y = -30, relative = true 
 bind("SUPER + mouse:272", hl.dsp.window.drag(), "Move window with mouse", { mouse = true })
 bind("SUPER + mouse:273", hl.dsp.window.resize(), "Resize window with mouse", { mouse = true })
 
-bind("Print", hl.dsp.exec_cmd("desktop-screenshot region"), "Region screenshot")
-bind("SHIFT + Print", hl.dsp.exec_cmd("desktop-screenshot output"), "Full screenshot")
+bind("Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot region"), "Region screenshot")
+bind("SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot output"), "Full screenshot")
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"), "Volume up", media)
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), "Volume down", media)
@@ -72,5 +73,5 @@ bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), "Play or pause", 
 bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), "Play or pause", media)
 bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), "Next track", media)
 bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), "Previous track", media)
-bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("monitor-brightness up"), "Brightness up", media)
-bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("monitor-brightness down"), "Brightness down", media)
+bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(local_bin .. "monitor-brightness up"), "Brightness up", media)
+bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(local_bin .. "monitor-brightness down"), "Brightness down", media)

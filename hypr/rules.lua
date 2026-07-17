@@ -40,15 +40,3 @@ hl.window_rule({
     },
     no_focus = true,
 })
-
-hl.layer_rule({
-    name = "waybar-blur",
-    match = { namespace = "waybar" },
-    blur = true,
-})
-
-hl.layer_rule({
-    name = "swaync-blur",
-    match = { namespace = "swaync-control-center|swaync-notification-window" },
-    blur = true,
-})

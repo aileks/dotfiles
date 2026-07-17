@@ -62,6 +62,7 @@ readonly -a PACMAN_PACKAGES=(
   hyprlock
   hyprpaper
   hyprpolkitagent
+  imv
   jq
   kvantum
   less
@@ -130,6 +131,7 @@ readonly -a PACMAN_PACKAGES=(
   xdg-user-dirs
   xdg-utils
   xorg-xwayland
+  ydotool
   zip
   zoxide
   zsh
@@ -140,6 +142,7 @@ readonly -a AUR_PACKAGES=(
   helium-browser-bin
   localsend-bin
   localsend-nautilus-extension
+  papirus-folders
   visual-studio-code-bin
   zsh-antidote
 )
@@ -155,6 +158,7 @@ readonly -a SYSTEM_SERVICES=(
 
 readonly -a USER_SERVICES=(
   blueman-applet.service
+  capslock-default.service
   cliphist-image.service
   cliphist-text.service
   first-login.service
@@ -169,6 +173,7 @@ readonly -a USER_SERVICES=(
   pipewire-pulse.socket
   pipewire.socket
   wireplumber.service
+  ydotool.service
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -390,44 +395,48 @@ install_packages() {
 }
 
 select_aur_helper() {
-  if command -v paru >/dev/null; then
+  if pacman -Qq paru-bin >/dev/null 2>&1; then
     AUR_HELPER=paru
-  elif command -v yay >/dev/null; then
-    AUR_HELPER=yay
   else
     AUR_HELPER=""
   fi
 }
 
-install_paru() {
-  local paru_dir="$TEMP_DIR/paru"
+install_paru_bin() {
+  local paru_dir="$TEMP_DIR/paru-bin"
   if ((DRY_RUN)); then
-    info "build maintained paru package from AUR"
+    info "build maintained paru-bin package from AUR"
     AUR_HELPER=paru
     return 0
   fi
-  has_tty || die "paru bootstrap requires a terminal for PKGBUILD review"
-  git clone https://aur.archlinux.org/paru.git "$paru_dir"
+  has_tty || die "paru-bin bootstrap requires a terminal for PKGBUILD review"
+  GPG_TTY=$(tty </dev/tty)
+  export GPG_TTY
+  git clone https://aur.archlinux.org/paru-bin.git "$paru_dir"
   (
     cd "$paru_dir"
-    printf '\nReviewing paru PKGBUILD. Quit the pager to continue.\n' >/dev/tty
+    printf '\nReviewing paru-bin PKGBUILD. Quit the pager to continue.\n' >/dev/tty
     less PKGBUILD </dev/tty >/dev/tty
-    makepkg -si --needed
+    makepkg -si </dev/tty
   )
-  command -v paru >/dev/null || die "paru installation failed"
+  if ! command -v paru >/dev/null || ! pacman -Qq paru-bin >/dev/null 2>&1; then
+    die "paru-bin installation failed"
+  fi
   AUR_HELPER=paru
 }
 
 install_aur_packages() {
   select_aur_helper
-  [[ -n $AUR_HELPER ]] || install_paru
+  [[ -n $AUR_HELPER ]] || install_paru_bin
   info "installing desktop applications with $AUR_HELPER"
   if ((DRY_RUN)); then
     format_command "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}"
     return 0
   fi
   has_tty || die "AUR package review requires an interactive terminal"
-  "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}"
+  GPG_TTY=$(tty </dev/tty)
+  export GPG_TTY
+  "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}" </dev/tty
 }
 
 check_display_manager() {
@@ -473,12 +482,15 @@ validate_sddm_pam() {
 }
 
 configure_groups() {
-  if ! getent group i2c >/dev/null; then
-    run_sudo groupadd --system i2c
-  fi
-  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
-    run_sudo usermod -aG i2c "$USER"
-  fi
+  local group
+  for group in i2c input; do
+    if ! getent group "$group" >/dev/null; then
+      run_sudo groupadd --system "$group"
+    fi
+    if ! id -nG "$USER" | tr ' ' '\n' | grep -qx "$group"; then
+      run_sudo usermod -aG "$group" "$USER"
+    fi
+  done
 }
 
 configure_system_services() {
@@ -568,14 +580,19 @@ configure_gsettings() {
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
 }
 
+configure_papirus() {
+  run_cmd papirus-folders -C darkcyan -t Papirus-Dark
+}
+
 configure_default_apps() {
-  local browser terminal editor
+  local browser terminal editor image_viewer mime
   run_cmd xdg-user-dirs-update
   ((DRY_RUN)) && return 0
 
   browser=$(desktop_id helium.desktop helium-browser.desktop || true)
   terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
   editor=$(desktop_id visual-studio-code.desktop code.desktop || true)
+  image_viewer=$(desktop_id imv.desktop || true)
 
   if [[ -n $browser ]]; then
     xdg-settings set default-web-browser "$browser"
@@ -588,6 +605,15 @@ configure_default_apps() {
   xdg-mime default org.gnome.Nautilus.desktop inode/directory
   [[ -z $editor ]] || xdg-mime default "$editor" text/plain
   [[ -z $terminal ]] || xdg-mime default "$terminal" application/x-terminal-emulator
+  if [[ -n $image_viewer ]]; then
+    for mime in image/x-farbfeld image/tiff image/tiff-fx image/png image/x-png \
+      image/jpeg image/jpg image/pjpeg image/svg+xml image/gif image/bmp image/x-bmp \
+      image/heif image/avif image/jxl image/webp image/qoi; do
+      xdg-mime default "$image_viewer" "$mime"
+    done
+  else
+    warn "imv desktop entry was not found"
+  fi
 }
 
 install_node_lts() {
@@ -635,6 +661,7 @@ main() {
   configure_dotfiles
   configure_user_services
   configure_gsettings
+  configure_papirus
   configure_default_apps
   install_node_lts
   configure_ddcutil
