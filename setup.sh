@@ -29,6 +29,7 @@ readonly -a PACMAN_PACKAGES=(
   bluez-utils
   brightnessctl
   btop
+  cava
   cliphist
   cups
   curl
@@ -504,6 +505,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
   link_path "$SCRIPT_DIR/bat" "$config_home/bat"
   link_path "$SCRIPT_DIR/btop" "$config_home/btop"
+  link_path "$SCRIPT_DIR/cava" "$config_home/cava"
   link_path "$SCRIPT_DIR/environment.d" "$config_home/environment.d"
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
   link_path "$SCRIPT_DIR/fuzzel" "$config_home/fuzzel"
