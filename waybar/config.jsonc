@@ -13,7 +13,6 @@
     "cpu",
     "memory",
     "pulseaudio",
-    "network",
     "tray",
     "clock",
     "custom/notification",

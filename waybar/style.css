@@ -16,8 +16,8 @@
   border-radius: 0;
   min-height: 0;
   font-family: "AdwaitaMono Nerd Font Mono";
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 window#waybar {
