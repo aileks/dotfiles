@@ -522,7 +522,6 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/waybar" "$config_home/waybar"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   mkdir -p "$config_home/systemd/user"
   for source in "$SCRIPT_DIR"/systemd/user/*.service; do
     unit=$(basename "$source")
@@ -532,12 +531,17 @@ configure_dotfiles() {
   for source in "$SCRIPT_DIR"/bin/*; do
     link_path "$source" "$HOME/.local/bin/$(basename "$source")"
   done
+}
 
+configure_shell() {
   local current_shell
+  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   current_shell=$(getent passwd "$USER" | cut -d: -f7)
   if [[ $current_shell != /usr/bin/zsh ]]; then
     run_sudo chsh -s /usr/bin/zsh "$USER"
   fi
+  run_cmd xdg-user-dirs-update
+  run_cmd tms config --paths "$HOME/Projects"
 }
 
 enable_user_service() {
@@ -591,7 +595,6 @@ configure_papirus() {
 
 configure_default_apps() {
   local browser terminal editor image_viewer mime
-  run_cmd xdg-user-dirs-update
   ((DRY_RUN)) && return 0
 
   browser=$(desktop_id helium.desktop helium-browser.desktop || true)
@@ -664,6 +667,7 @@ main() {
   configure_groups
   configure_system_services
   configure_dotfiles
+  configure_shell
   configure_user_services
   configure_gsettings
   configure_papirus
