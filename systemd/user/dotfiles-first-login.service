@@ -1,0 +1,13 @@
+[Unit]
+Description=Verify the first configured Hyprland session
+PartOf=graphical-session.target
+After=dotfiles-monitor-setup.service dotfiles-waybar.service dotfiles-swaync.service graphical-session.target
+ConditionPathExists=!%h/.local/state/dotfiles/session-verified
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=%h/.local/bin/first-login-check
+
+[Install]
+WantedBy=graphical-session.target

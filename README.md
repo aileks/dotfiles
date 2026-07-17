@@ -1,27 +1,39 @@
-# My Dotfiles
+# Arch Hyprland dotfiles
 
-Opinionated setup for an existing Ubuntu 26.04 installation.
+Opinionated Arch desktop built around Hyprland with UWSM.
 
-## What it does
-
-- Installs desktop software and command-line tools using `apt`, [Pacstall](https://pacstall.dev/), and Flatpak.
-- Installs `uv`, `nvm`, and common CLI utilities.
-- Configures GNOME extensions, settings, and themes.
-- Installs Adwaita and JetBrains nerd fonts.
-- Completely nukes Snaps and `snapd`.
-- Configures DDC/CI monitor controls.
-- Symlinks the included zsh, Neovim, Alacritty, and other dotfiles, backing up conflicts first.
-
-## Usage
+## Install
 
 ```bash
 curl -fsSL https://aileks.dev/linux | bash
 ```
 
-Or clone and run it directly:
+Or clone directly:
 
 ```bash
 git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup.sh
 ```
+
+## Keybinds
+
+| Key | Action |
+| --- | --- |
+| Super + Space | Launcher |
+| Super + Return | Alacritty |
+| Super + W / E / S / M | Helium / Nautilus / Signal / Fastmail |
+| Super + I | Desktop settings menu, including `nwg-look` |
+| Super + Q / F / ' | Close / fullscreen / float |
+| Super + H/J/K/L | Focus window |
+| Super + Shift + H/J/K/L | Move window |
+| Super + R | Resize mode |
+| Super + 1 through 8 | Select workspace |
+| Super + Shift + 1 through 8 | Move window to workspace |
+| Super + , / . | Select monitor |
+| Super + Shift + , / . | Move window to monitor |
+| Super + V / N | Clipboard history / notifications |
+| Super + / | Keybind help |
+| Super + Escape | Lock |
+| Super + Shift + E | Power menu |
+| Print / Shift + Print | Region / full screenshot |

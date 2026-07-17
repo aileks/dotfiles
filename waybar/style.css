@@ -1,0 +1,121 @@
+@define-color background #131210;
+@define-color container #1B1916;
+@define-color surface #23201C;
+@define-color overlay #58534C;
+@define-color text #BBB3A9;
+@define-color bright #DDD5CA;
+@define-color subtle #9A938A;
+@define-color primary #E17A3F;
+@define-color green #879B5C;
+@define-color red #B34A45;
+@define-color yellow #D9A441;
+@define-color blue #6785A1;
+
+* {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 13px;
+  font-weight: 500;
+}
+
+window#waybar {
+  background: transparent;
+  color: @text;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+  background: alpha(@container, 0.94);
+  border: 1px solid alpha(@overlay, 0.55);
+  border-radius: 10px;
+  box-shadow: 0 3px 12px alpha(@background, 0.7);
+}
+
+#workspaces {
+  padding: 0 4px;
+}
+
+#workspaces button {
+  color: @subtle;
+  padding: 0 7px;
+  border-radius: 7px;
+}
+
+#workspaces button.active {
+  background: @surface;
+  color: @primary;
+}
+
+#workspaces button.urgent {
+  color: @red;
+}
+
+#workspaces button:hover {
+  background: alpha(@overlay, 0.4);
+  color: @bright;
+}
+
+#window,
+#mpris,
+#idle_inhibitor,
+#cpu,
+#memory,
+#pulseaudio,
+#network,
+#bluetooth,
+#tray,
+#clock,
+#custom-notification,
+#custom-power {
+  padding: 0 9px;
+}
+
+#window {
+  color: @subtle;
+}
+
+#mpris {
+  color: @green;
+}
+
+#idle_inhibitor.activated {
+  color: @yellow;
+}
+
+#cpu {
+  color: @green;
+}
+
+#memory {
+  color: @blue;
+}
+
+#pulseaudio {
+  color: @primary;
+}
+
+#pulseaudio.muted,
+#network.disconnected,
+#bluetooth.disabled {
+  color: @overlay;
+}
+
+#clock {
+  color: @bright;
+}
+
+#custom-notification,
+#custom-power {
+  color: @primary;
+  font-size: 15px;
+}
+
+tooltip {
+  background: @container;
+  border: 1px solid @overlay;
+  border-radius: 8px;
+  color: @text;
+}

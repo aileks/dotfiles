@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+selection=$(printf '%s\n' \
+  'Appearance' \
+  'Audio' \
+  'Bluetooth' \
+  'Disks' \
+  'Displays' \
+  'Network' \
+  'Printers' |
+  fuzzel --dmenu --prompt='Settings > ')
+
+case "$selection" in
+  Appearance) exec uwsm app -- nwg-look ;;
+  Audio) exec uwsm app -- pavucontrol ;;
+  Bluetooth) exec uwsm app -- blueman-manager ;;
+  Disks) exec uwsm app -- gnome-disks ;;
+  Displays)
+    state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+    mkdir -p "$state_dir"
+    exec uwsm app -- nwg-displays \
+      --monitors_path "$state_dir/monitors.conf" \
+      --workspaces_path "$state_dir/workspaces.conf" \
+      --num_ws 8
+    ;;
+  Network) exec uwsm app -- nm-connection-editor ;;
+  Printers) exec uwsm app -- system-config-printer ;;
+  *) exit 0 ;;
+esac

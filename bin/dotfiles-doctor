@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+mode=""
+pre_reboot=0
+failures=0
+
+pass() { printf '[ok] %s\n' "$*"; }
+warn() { printf '[warn] %s\n' "$*"; }
+fail() {
+  printf '[fail] %s\n' "$*" >&2
+  failures=$((failures + 1))
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    --system | --session) mode=${arg#--} ;;
+    --pre-reboot) pre_reboot=1 ;;
+    *)
+      printf '[error] unknown option: %s\n' "$arg" >&2
+      exit 2
+      ;;
+  esac
+done
+
+[[ -n $mode ]] || {
+  printf '[error] use --system or --session\n' >&2
+  exit 2
+}
+
+check_command() {
+  if command -v "$1" >/dev/null; then
+    pass "$1 installed"
+  else
+    fail "$1 missing"
+  fi
+}
+
+check_enabled() {
+  if systemctl is-enabled --quiet "$1"; then
+    pass "$1 enabled"
+  else
+    fail "$1 disabled"
+  fi
+}
+
+check_user_active() {
+  if systemctl --user is-active --quiet "$1"; then
+    pass "$1 active"
+  else
+    fail "$1 inactive"
+  fi
+}
+
+check_system() {
+  local command file
+  for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client hyprlock hypridle hyprpaper nwg-look; do
+    check_command "$command"
+  done
+  for file in sddm sddm-autologin sddm-greeter hyprlock; do
+    if [[ -r /etc/pam.d/$file ]]; then
+      pass "/etc/pam.d/$file present"
+    else
+      fail "/etc/pam.d/$file missing"
+    fi
+  done
+  if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm &&
+    grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
+    pass 'SDDM PAM and keyring integration valid'
+  else
+    fail 'SDDM PAM integration invalid'
+  fi
+  if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/sddm-autologin &&
+    grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm-autologin; then
+    pass 'SDDM autologin PAM integration valid'
+  else
+    fail 'SDDM autologin PAM integration invalid'
+  fi
+  if grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' /etc/pam.d/sddm-greeter; then
+    pass 'SDDM greeter PAM integration valid'
+  else
+    fail 'SDDM greeter PAM integration invalid'
+  fi
+  if [[ -r /etc/sddm.conf.d/10-dotfiles-autologin.conf ]]; then
+    pass 'SDDM autologin configured'
+  else
+    fail 'SDDM autologin config missing'
+  fi
+  if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] &&
+    grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
+      /usr/share/wayland-sessions/hyprland-uwsm.desktop; then
+    pass 'UWSM session installed'
+  else
+    fail 'UWSM session missing'
+  fi
+  for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service sddm.service systemd-timesyncd.service; do
+    check_enabled "$file"
+  done
+  if [[ -r /sys/module/nvidia_drm/parameters/modeset ]]; then
+    if [[ $(</sys/module/nvidia_drm/parameters/modeset) == Y ]]; then
+      pass 'Nvidia DRM modesetting enabled'
+    else
+      fail 'Nvidia DRM modesetting disabled'
+    fi
+  elif ((pre_reboot)); then
+    warn 'Nvidia module loads after reboot'
+  else
+    fail 'Nvidia DRM module unavailable'
+  fi
+  if [[ -r /sys/module/nvidia_drm/parameters/fbdev ]]; then
+    if [[ $(</sys/module/nvidia_drm/parameters/fbdev) == Y ]]; then
+      pass 'Nvidia framebuffer enabled'
+    else
+      fail 'Nvidia framebuffer disabled'
+    fi
+  elif ((pre_reboot)); then
+    warn 'Nvidia framebuffer loads after reboot'
+  else
+    fail 'Nvidia framebuffer parameter unavailable'
+  fi
+  if [[ -r /proc/driver/nvidia/params ]]; then
+    if grep -Eq '^(UseKernelSuspendNotifiers|PreserveVideoMemoryAllocations):[[:space:]]+1$' \
+      /proc/driver/nvidia/params; then
+      pass 'Nvidia suspend memory preservation enabled'
+    else
+      fail 'Nvidia suspend memory preservation disabled'
+    fi
+  elif ((pre_reboot)); then
+    warn 'Nvidia suspend parameters load after reboot'
+  else
+    fail 'Nvidia suspend parameters unavailable'
+  fi
+}
+
+check_session() {
+  local errors monitors main_count side_count
+  if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
+    pass 'Hyprland desktop environment exported'
+  else
+    fail 'XDG_CURRENT_DESKTOP is not Hyprland'
+  fi
+  if systemctl --user is-active --quiet graphical-session.target; then
+    pass 'graphical-session.target active'
+  else
+    fail 'graphical-session.target inactive'
+  fi
+  for unit in dotfiles-waybar.service dotfiles-swaync.service dotfiles-hypridle.service \
+    dotfiles-cliphist-text.service dotfiles-cliphist-image.service dotfiles-nm-applet.service \
+    dotfiles-blueman-applet.service dotfiles-udiskie.service hyprpaper.service hyprpolkitagent.service \
+    pipewire.service pipewire-pulse.service wireplumber.service \
+    xdg-desktop-portal.service xdg-desktop-portal-hyprland.service; do
+    check_user_active "$unit"
+  done
+  errors=$(hyprctl configerrors 2>/dev/null || true)
+  if [[ -z $errors ]]; then
+    pass 'Hyprland config has no errors'
+  else
+    fail "Hyprland config errors: $errors"
+  fi
+  if monitors=$(hyprctl -j monitors 2>/dev/null); then
+    main_count=$(jq '[.[] | select(.width == 2560 and .height == 1440 and .x == 1080 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")
+    side_count=$(jq '[.[] | select(.width == 1920 and .height == 1080 and .x == 0 and .y == -240 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
+    if ((main_count == 1)); then
+      pass 'main monitor geometry correct'
+    else
+      fail 'main monitor geometry incorrect'
+    fi
+    if ((side_count == 1)); then
+      pass 'portrait monitor geometry correct'
+    else
+      fail 'portrait monitor geometry incorrect'
+    fi
+  else
+    fail 'could not query Hyprland monitors'
+  fi
+  if wpctl status >/dev/null 2>&1; then
+    pass 'PipeWire responds'
+  else
+    fail 'PipeWire unavailable'
+  fi
+  if busctl --user --list 2>/dev/null | grep -q org.freedesktop.secrets; then
+    pass 'Secret Service available'
+  else
+    warn 'Secret Service has not been activated; first use will request keyring unlock'
+  fi
+}
+
+case "$mode" in
+  system) check_system ;;
+  session) check_session ;;
+esac
+
+((failures == 0))

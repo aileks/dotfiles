@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2016
 
 set -Eeuo pipefail
 
@@ -10,68 +9,166 @@ BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
 BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_SUFFIX
-readonly FLATHUB_URL="https://dl.flathub.org/repo/flathub.flatpakrepo"
 
 DRY_RUN=0
-ARCH=""
 TEMP_DIR=""
+AUR_HELPER=""
 
-readonly -a APT_PACKAGES=(
+readonly -a PACMAN_PACKAGES=(
   7zip
+  adw-gtk-theme
+  adwaita-cursors
   alacritty
+  alsa-utils
+  avahi
+  base-devel
   bat
+  bitwarden
+  blueman
+  bluez
+  bluez-utils
+  brightnessctl
   btop
-  build-essential
-  dconf-cli
+  cliphist
+  cups
+  curl
   ddcutil
+  dconf
   eza
+  egl-wayland
   fastfetch
-  fd-find
+  fd
   ffmpeg
   ffmpegthumbnailer
+  file-roller
   fontconfig
+  fuzzel
+  fwupd
   fzf
+  git
+  gnome-disk-utility
   gnome-firmware
-  gnome-shell-extension-manager
-  gnome-shell-ubuntu-extensions
-  gnome-software-plugin-flatpak
-  gnome-tweaks
+  gnome-keyring
+  grim
+  gst-plugin-pipewire
+  gvfs
+  gvfs-afc
+  gvfs-gphoto2
+  gvfs-mtp
+  gvfs-nfs
+  gvfs-smb
+  hypridle
+  hyprland
+  hyprlock
+  hyprpaper
+  hyprpolkitagent
+  jq
+  kvantum
   less
+  libnotify
+  libva-nvidia-driver
+  libva-utils
+  linux
+  linux-firmware
+  lua
+  man-db
+  mesa-utils
   nautilus
-  openssh-client
+  neovim
+  network-manager-applet
+  networkmanager
+  nss-mdns
+  noto-fonts
+  noto-fonts-emoji
+  nvidia-open
+  nvidia-settings
+  nvidia-utils
+  nvm
+  nwg-displays
+  nwg-look
+  openssh
+  pavucontrol
   papirus-icon-theme
-  python3
+  pipewire
+  pipewire-alsa
+  pipewire-pulse
+  playerctl
+  pnpm
+  polkit
+  python
+  qt5-wayland
+  qt6-wayland
+  qt6ct
   ripgrep
+  rsync
+  sane-airscan
+  sddm
   shellcheck
   shfmt
-  socat
+  signal-desktop
+  slurp
   starship
+  sushi
+  swaync
+  system-config-printer
   trash-cli
-  ubuntu-restricted-extras
-  wget
+  otf-font-awesome
+  ttf-jetbrains-mono-nerd
+  udisks2
+  udiskie
+  unzip
+  uv
+  uwsm
+  vulkan-tools
+  waybar
+  wev
+  wireplumber
   wl-clipboard
-  xdg-terminal-exec
+  xdg-desktop-portal
+  xdg-desktop-portal-gtk
+  xdg-desktop-portal-hyprland
+  xdg-user-dirs
   xdg-utils
-  xz-utils
+  xorg-xwayland
+  zip
   zoxide
+  zsh
+)
+
+readonly -a AUR_PACKAGES=(
+  fastmail
+  helium-browser-bin
+  localsend-bin
+  localsend-nautilus-extension
+  visual-studio-code-bin
   zsh-antidote
 )
 
-readonly -a PACSTALL_PACKAGES=(
-  neovim
-  nerd-fonts-jetbrains-mono
-  onlyoffice-desktopeditors-deb
-  zen-browser-bin
+readonly -a SYSTEM_SERVICES=(
+  NetworkManager.service
+  avahi-daemon.service
+  bluetooth.service
+  cups.service
+  sddm.service
+  systemd-timesyncd.service
 )
 
-readonly -a FLATPAK_APPS=(
-  com.bitwarden.desktop
-  com.fastmail.Fastmail
-  org.localsend.localsend_app
-)
-readonly -a FLATPAK_THEMES=(
-  org.gtk.Gtk3theme.adw-gtk3
-  org.gtk.Gtk3theme.adw-gtk3-dark
+readonly -a USER_SERVICES=(
+  dotfiles-blueman-applet.service
+  dotfiles-cliphist-image.service
+  dotfiles-cliphist-text.service
+  dotfiles-first-login.service
+  dotfiles-hypridle.service
+  dotfiles-monitor-setup.service
+  dotfiles-nm-applet.service
+  dotfiles-swaync.service
+  dotfiles-udiskie.service
+  dotfiles-waybar.service
+  hyprpaper.service
+  hyprpolkitagent.service
+  pipewire-pulse.socket
+  pipewire.socket
+  wireplumber.service
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -117,196 +214,18 @@ run_sudo() {
   sudo "$@"
 }
 
-run_apt() {
-  if ((DRY_RUN)); then
-    format_command sudo env DEBIAN_FRONTEND=noninteractive apt "$@"
-    return 0
-  fi
-  sudo env DEBIAN_FRONTEND=noninteractive apt "$@"
+run_pacman() {
+  local -a args=("$@")
+  local arg has_sync=0
+  for arg in "${args[@]}"; do
+    [[ $arg == -*S* ]] && has_sync=1
+  done
+  ((has_sync)) || die "run_pacman only supports sync operations"
+  run_sudo pacman "${args[@]}" --needed
 }
 
 has_tty() {
-  [[ -r /dev/tty && -w /dev/tty ]] && (: < /dev/tty) > /dev/null 2>&1
-}
-
-ensure_git() {
-  command -v git > /dev/null && return 0
-
-  info "installing Git for dotfiles bootstrap"
-  run_apt update
-  run_apt install -y ca-certificates git
-  ((DRY_RUN)) || command -v git > /dev/null || die "Git installation failed"
-}
-
-verify_dotfiles_repo() {
-  local remote
-  [[ -d $DOTFILES_DIR ]] || return 1
-  git -C "$DOTFILES_DIR" rev-parse --git-dir > /dev/null 2>&1 || return 1
-  remote=$(git -C "$DOTFILES_DIR" remote get-url origin 2> /dev/null) || return 1
-  [[ $remote == "$DOTFILES_REPO" || $remote == *"aileks/dotfiles"* ]]
-}
-
-prompt_replace_repo() {
-  local existing_url="unknown" reply
-  existing_url=$(git -C "$DOTFILES_DIR" remote get-url origin 2> /dev/null || true)
-  existing_url=${existing_url:-unknown}
-
-  warn "existing path is not the expected dotfiles repository: $DOTFILES_DIR"
-  printf '  expected: %s\n  found:    %s\n' "$DOTFILES_REPO" "$existing_url" >&2
-  has_tty || die "move or remove $DOTFILES_DIR, then retry"
-
-  printf 'Back up and replace it? [y/N] ' > /dev/tty
-  IFS= read -r reply < /dev/tty || reply=""
-  [[ ${reply,,} == y || ${reply,,} == yes ]] || die "cancelled"
-  run_cmd mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
-  log "backed up $DOTFILES_DIR to ${DOTFILES_DIR}${BACKUP_SUFFIX}"
-}
-
-update_dotfiles_repo() {
-  local branch local_ref remote_ref
-  if ((DRY_RUN)); then
-    info "update existing dotfiles repository with a fast-forward merge"
-    return 0
-  fi
-
-  info "updating existing dotfiles repository"
-  if ! git -C "$DOTFILES_DIR" fetch origin; then
-    warn "fetch failed; using local dotfiles checkout"
-    return 0
-  fi
-
-  branch=$(git -C "$DOTFILES_DIR" symbolic-ref --short refs/remotes/origin/HEAD 2> /dev/null || true)
-  branch=${branch#origin/}
-  branch=${branch:-main}
-  local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD 2> /dev/null || true)
-  remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2> /dev/null || true)
-
-  if [[ -z $remote_ref ]]; then
-    warn "origin/$branch is unavailable; using local dotfiles checkout"
-  elif [[ $local_ref == "$remote_ref" ]]; then
-    log "dotfiles already up to date"
-  elif git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
-    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" \
-      || warn "fast-forward failed; using local dotfiles checkout"
-  else
-    warn "local dotfiles checkout is ahead or diverged; leaving it unchanged"
-  fi
-}
-
-clone_dotfiles_repo() {
-  local attempt
-  info "cloning dotfiles repository"
-  for attempt in {1..3}; do
-    if run_cmd git clone "$DOTFILES_REPO" "$DOTFILES_DIR"; then
-      log "cloned dotfiles repository"
-      return 0
-    fi
-    warn "clone failed ($attempt/3)"
-    ((attempt == 3)) || sleep 5
-  done
-  die "failed to clone dotfiles repository"
-}
-
-resolve_script_dir() {
-  local self_path="${1:-}" self_dir=""
-  if [[ -n $self_path && -f $self_path ]]; then
-    self_dir=$(cd "$(dirname "$self_path")" && pwd)
-  fi
-  if [[ -n $self_dir && -d $self_dir/zsh ]]; then
-    SCRIPT_DIR="$self_dir"
-    readonly SCRIPT_DIR
-    return 0
-  fi
-
-  ensure_git
-  info "starting dotfiles bootstrap"
-  if verify_dotfiles_repo; then
-    update_dotfiles_repo
-  elif [[ -e $DOTFILES_DIR || -L $DOTFILES_DIR ]]; then
-    prompt_replace_repo
-    clone_dotfiles_repo
-  else
-    clone_dotfiles_repo
-  fi
-
-  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/zsh ]] \
-    || die "dotfiles checkout is missing expected directory: $DOTFILES_DIR/zsh"
-  SCRIPT_DIR="$DOTFILES_DIR"
-  readonly SCRIPT_DIR
-  log "using dotfiles from $SCRIPT_DIR"
-}
-
-validate_sha256() {
-  [[ $1 =~ ^[[:xdigit:]]{64}$ ]]
-}
-
-dpkg_installed_version() {
-  local result state version
-  result=$(dpkg-query -W -f='${db:Status-Status}\t${Version}' "$1" 2> /dev/null) || return 1
-  IFS=$'\t' read -r state version <<< "$result"
-  [[ $state == installed ]] || return 1
-  printf '%s\n' "$version"
-}
-
-verify_file() {
-  local file="$1" expected="$2" actual
-  validate_sha256 "$expected" || die "invalid SHA-256 digest for $(basename "$file")"
-  actual=$(sha256sum "$file" | awk '{print $1}')
-  [[ $actual == "$expected" ]] || die "checksum mismatch for $(basename "$file")"
-}
-
-fetch() {
-  local url="$1" destination="$2"
-  curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
-    --retry 3 --output "$destination" "$url"
-}
-
-ensure_root_file() {
-  local path="$1" content="$2" tmp
-  if ((DRY_RUN)); then
-    info "write $path"
-    return 0
-  fi
-
-  tmp="$TEMP_DIR/$(basename "$path").new"
-  printf '%s' "$content" > "$tmp"
-  if sudo test -f "$path" && sudo cmp --silent "$tmp" "$path"; then
-    return 0
-  fi
-  sudo install -D -o root -g root -m 0644 "$tmp" "$path"
-}
-
-read_os_release() {
-  local os_release="${OS_RELEASE_FILE:-/etc/os-release}"
-  [[ -r $os_release ]] || die "missing $os_release"
-  # shellcheck disable=SC1090
-  source "$os_release"
-  [[ ${ID:-} == ubuntu && ${VERSION_ID:-} == 26.04 ]] \
-    || die "Ubuntu 26.04 is required"
-}
-
-detect_architecture() {
-  ARCH=$(dpkg --print-architecture)
-  [[ $ARCH == amd64 ]] || die "this setup currently supports amd64 only (detected $ARCH)"
-}
-
-validate_user_id() {
-  (($1 != 0)) || die "run as the desktop user, not root"
-}
-
-validate_environment() {
-  read_os_release
-  detect_architecture
-  validate_user_id "$EUID"
-  validate_desktop_session
-}
-
-validate_desktop_session() {
-  [[ ${XDG_CURRENT_DESKTOP:-} =~ (GNOME|Ubuntu) ]] \
-    || die "run from a logged-in Ubuntu GNOME session"
-  [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]] \
-    || die "a desktop D-Bus session is required"
-  command -v gnome-shell > /dev/null || die "GNOME Shell is required"
+  [[ -r /dev/tty && -w /dev/tty ]] && (: </dev/tty) >/dev/null 2>&1
 }
 
 create_temp_dir() {
@@ -318,717 +237,127 @@ create_temp_dir() {
   trap 'rm -rf "${TEMP_DIR:-}"' EXIT
 }
 
-local_user_homes() {
-  local passwd_file="${PASSWD_FILE:-/etc/passwd}"
-  awk -F: '($3 == 0 || ($3 >= 1000 && $3 < 65534)) && $6 ~ /^\// {print $6}' \
-    "$passwd_file" | sort -u
+read_os_release() {
+  local os_release="${OS_RELEASE_FILE:-/etc/os-release}"
+  [[ -r $os_release ]] || die "missing $os_release"
+  # shellcheck disable=SC1090
+  source "$os_release"
+  [[ ${ID:-} == arch ]] || die "Arch Linux is required"
 }
 
-user_snap_data_present() {
-  local home
-  while IFS= read -r home; do
-    [[ -e $home/snap || -e $home/.snap ]] && return 0
-  done < <(local_user_homes)
-  return 1
+validate_environment() {
+  read_os_release
+  [[ $(uname -m) == x86_64 ]] || die "x86_64 is required"
+  ((EUID != 0)) || die "run as the desktop user, not root"
+  [[ -d /run/systemd/system ]] || die "systemd must be running"
+  command -v sudo >/dev/null || die "sudo is required"
+  getent passwd "$USER" >/dev/null || die "could not resolve user $USER"
 }
 
-snap_state_present() {
-  command -v snap > /dev/null || dpkg_installed_version snapd > /dev/null \
-    || [[ -e /var/lib/snapd || -e /var/snap ]] || user_snap_data_present
+ensure_git() {
+  command -v git >/dev/null && return 0
+  info "installing Git for bootstrap"
+  run_pacman -Syu --noconfirm git base-devel
+  ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
 }
 
-confirm_snap_purge() {
-  ((DRY_RUN)) && return 0
-  snap_state_present || return 0
-  [[ -r /dev/tty && -w /dev/tty ]] \
-    || die "Snap deletion requires an interactive terminal"
+verify_dotfiles_repo() {
+  local remote
+  [[ -d $DOTFILES_DIR ]] || return 1
+  git -C "$DOTFILES_DIR" rev-parse --git-dir >/dev/null 2>&1 || return 1
+  remote=$(git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null) || return 1
+  [[ $remote == "$DOTFILES_REPO" || $remote == *"aileks/dotfiles"* ]]
+}
 
-  local reply
-  printf 'Permanently delete all Snap packages and data? [y/N] ' > /dev/tty
-  IFS= read -r reply < /dev/tty || reply=""
+prompt_replace_repo() {
+  local existing_url="unknown" reply
+  existing_url=$(git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null || true)
+  existing_url=${existing_url:-unknown}
+  warn "existing path is not the expected dotfiles repository: $DOTFILES_DIR"
+  printf '  expected: %s\n  found:    %s\n' "$DOTFILES_REPO" "$existing_url" >&2
+  has_tty || die "move $DOTFILES_DIR, then retry"
+  printf 'Back up and replace it? [y/N] ' >/dev/tty
+  IFS= read -r reply </dev/tty || reply=""
   [[ ${reply,,} == y || ${reply,,} == yes ]] || die "cancelled"
+  run_cmd mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
 }
 
-bootstrap_apt() {
-  info "refreshing APT metadata"
-  run_apt update
-  run_apt install -y ca-certificates curl gpg jq
-}
-
-snap_names() {
-  snap list 2> /dev/null | awk 'NR > 1 {print $1}'
-}
-
-remove_snap_packages() {
-  command -v snap > /dev/null || return 0
-
-  local attempt snap removed
-  local -a snaps=()
-  for ((attempt = 1; attempt <= 3; attempt++)); do
-    mapfile -t snaps < <(snap_names | grep -v '^snapd$' || true)
-    ((${#snaps[@]})) || break
-    removed=0
-    for snap in "${snaps[@]}"; do
-      if run_sudo snap remove --purge "$snap"; then
-        removed=1
-      else
-        warn "Snap removal deferred for dependency ordering: $snap"
-      fi
-    done
-    ((removed)) || break
-  done
-
-  if snap_names | grep -qx snapd; then
-    run_sudo snap remove --purge snapd || warn "snapd Snap could not be removed separately"
-  fi
-}
-
-remove_user_snap_data() {
-  local home
-  local -a homes=()
-  mapfile -t homes < <(local_user_homes)
-  for home in "${homes[@]}"; do
-    run_sudo rm -rf -- "$home/snap" "$home/.snap"
-  done
-}
-
-purge_snap() {
-  info "removing Snap"
-  ensure_root_file /etc/apt/preferences.d/no-snap.pref $'Package: snapd\nPin: release a=*\nPin-Priority: -10\n'
-
+update_dotfiles_repo() {
+  local branch local_ref remote_ref
   if ((DRY_RUN)); then
-    info "remove every installed Snap with snap remove --purge"
+    info "update existing dotfiles repository with a fast-forward merge"
+    return 0
+  fi
+  if ! git -C "$DOTFILES_DIR" fetch origin; then
+    warn "fetch failed; using local checkout"
+    return 0
+  fi
+  branch=$(git -C "$DOTFILES_DIR" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || true)
+  branch=${branch#origin/}
+  branch=${branch:-main}
+  local_ref=$(git -C "$DOTFILES_DIR" rev-parse HEAD)
+  remote_ref=$(git -C "$DOTFILES_DIR" rev-parse "origin/$branch" 2>/dev/null || true)
+  if [[ -z $remote_ref || $local_ref == "$remote_ref" ]]; then
+    return 0
+  fi
+  if git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
+      warn "fast-forward failed; using local checkout"
   else
-    remove_snap_packages
+    warn "local checkout diverged; leaving it unchanged"
   fi
-
-  run_sudo systemctl disable --now snapd.socket snapd.service snapd.seeded.service 2> /dev/null || true
-  if ((DRY_RUN)); then
-    info "unmount /var/snap if mounted"
-  elif findmnt --mountpoint /var/snap > /dev/null; then
-    run_sudo umount --recursive /var/snap
-  fi
-  run_apt purge -y snapd
-  run_sudo rm -rf \
-    /snap \
-    /var/cache/snapd \
-    /var/lib/snapd \
-    /var/snap \
-    /var/tmp/snap-private-tmp
-  remove_user_snap_data
 }
 
-install_keyring() {
-  local url="$1" path="$2"
-  local armored binary
-  armored="$TEMP_DIR/$(basename "$path").asc"
-  binary="$TEMP_DIR/$(basename "$path")"
+clone_dotfiles_repo() {
   if ((DRY_RUN)); then
-    info "install signing key $path from $url"
+    format_command git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
     return 0
   fi
-  fetch "$url" "$armored"
-  gpg --batch --yes --dearmor --output "$binary" "$armored"
-  if sudo test -f "$path" && sudo cmp --silent "$binary" "$path"; then
-    return 0
+  git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
+}
+
+resolve_script_dir() {
+  local self_path="${1:-}" self_dir=""
+  if [[ -n $self_path && -f $self_path ]]; then
+    self_dir=$(cd "$(dirname "$self_path")" && pwd)
   fi
-  sudo install -D -o root -g root -m 0644 "$binary" "$path"
-}
-
-configure_vendor_repositories() {
-  info "configuring Microsoft and Signal APT repositories"
-  run_sudo rm -f /etc/apt/sources.list.d/vscode.list
-  install_keyring \
-    https://packages.microsoft.com/keys/microsoft.asc \
-    /usr/share/keyrings/packages.microsoft.gpg
-  ensure_root_file /etc/apt/sources.list.d/vscode.sources "Types: deb
-URIs: https://packages.microsoft.com/repos/code
-Suites: stable
-Components: main
-Architectures: $ARCH
-Signed-By: /usr/share/keyrings/packages.microsoft.gpg
-"
-
-  install_keyring \
-    https://updates.signal.org/desktop/apt/keys.asc \
-    /usr/share/keyrings/signal-desktop-keyring.gpg
-  ensure_root_file /etc/apt/sources.list.d/signal-desktop.sources 'Types: deb
-URIs: https://updates.signal.org/desktop/apt
-Suites: xenial
-Components: main
-Architectures: amd64
-Signed-By: /usr/share/keyrings/signal-desktop-keyring.gpg
-'
-}
-
-accept_mscorefonts_eula() {
-  if ((DRY_RUN)); then
-    info "accept Microsoft core fonts EULA"
+  if [[ -n $self_dir && -d $self_dir/hypr ]]; then
+    SCRIPT_DIR="$self_dir"
+    readonly SCRIPT_DIR
     return 0
   fi
 
-  local selections="$TEMP_DIR/mscorefonts-eula"
-  printf '%s\n' \
-    'ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true' \
-    > "$selections"
-  run_sudo debconf-set-selections "$selections"
-}
-
-install_apt_software() {
-  info "installing Ubuntu and vendor APT packages"
-  run_apt update
-  run_apt purge -y gnome-shell-extension-prefs
-  accept_mscorefonts_eula
-  run_apt install -y "${APT_PACKAGES[@]}" code signal-desktop
-}
-
-configure_papirus_folders() {
-  local installer="$TEMP_DIR/papirus-folders-install" tool
-  tool=$(command -v papirus-folders || true)
-
-  if [[ -z $tool ]]; then
-    tool="$HOME/.local/bin/papirus-folders"
-    if ((DRY_RUN)); then
-      info "install papirus-folders to $HOME/.local with the official installer"
-    else
-      fetch https://git.io/papirus-folders-install "$installer"
-      env PREFIX="$HOME/.local" sh "$installer"
-      [[ -x $tool ]] || die "papirus-folders installation failed"
-    fi
+  ensure_git
+  if verify_dotfiles_repo; then
+    update_dotfiles_repo
+  elif [[ -e $DOTFILES_DIR || -L $DOTFILES_DIR ]]; then
+    prompt_replace_repo
+    clone_dotfiles_repo
   else
-    log "papirus-folders already installed"
+    clone_dotfiles_repo
   fi
-
-  run_cmd "$tool" -C teal --theme Papirus-Dark
-  ((DRY_RUN)) || "$tool" -l --theme Papirus-Dark \
-    | grep -Eq '^[[:space:]]*[*][[:space:]]+teal$' \
-    || die "Papirus-Dark folder color is not teal"
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] ||
+    die "dotfiles checkout is incomplete: $DOTFILES_DIR"
+  SCRIPT_DIR="$DOTFILES_DIR"
+  readonly SCRIPT_DIR
 }
 
-install_uv() {
-  if [[ -x $HOME/.local/bin/uv ]]; then
-    log "$("$HOME/.local/bin/uv" --version) already installed"
-    return 0
-  fi
+ensure_root_file() {
+  local path="$1" content="$2" tmp
   if ((DRY_RUN)); then
-    info "install uv with the official Astral installer"
-    format_command bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
+    info "write $path"
     return 0
   fi
-
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  "$HOME/.local/bin/uv" --version > /dev/null || die "uv installation failed"
-}
-
-installed_nvm_version() {
-  [[ -s $HOME/.nvm/nvm.sh ]] || return 1
-  env NVM_DIR="$HOME/.nvm" bash -c '. "$NVM_DIR/nvm.sh"; nvm --version'
-}
-
-latest_nvm_version() {
-  local json="$TEMP_DIR/nvm-release.json" tag
-  fetch https://api.github.com/repos/nvm-sh/nvm/releases/latest "$json"
-  release_is_stable "$json" || die "latest NVM release is not stable"
-  tag=$(jq -r '.tag_name' "$json")
-  [[ $tag =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]] || die "latest NVM release has an invalid tag"
-  printf '%s\n' "${tag#v}"
-}
-
-install_nvm() {
-  local installed version
-  if ((DRY_RUN)); then
-    info "resolve and install the latest stable NVM release"
+  tmp="$TEMP_DIR/$(basename "$path").new"
+  printf '%s' "$content" >"$tmp"
+  if sudo test -f "$path" && sudo cmp --silent "$tmp" "$path"; then
     return 0
   fi
-
-  version=$(latest_nvm_version)
-  installed=$(installed_nvm_version 2> /dev/null || true)
-  if [[ $installed == "$version" ]]; then
-    log "NVM $version already installed"
-    return 0
-  fi
-
-  curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v$version/install.sh" | bash
-  installed=$(installed_nvm_version 2> /dev/null || true)
-  [[ $installed == "$version" ]] || die "NVM $version installation failed"
-}
-
-install_node_lts() {
-  if ((DRY_RUN)); then
-    info "install current Node.js LTS and bundled npm with NVM"
-    format_command bash -c '. "$NVM_DIR/nvm.sh"; nvm install --lts; nvm alias default "lts/*"'
-    return 0
-  fi
-
-  [[ -s $HOME/.nvm/nvm.sh ]] || die "NVM is required before installing Node.js"
-  env NVM_DIR="$HOME/.nvm" bash -c '
-    set -e
-    . "$NVM_DIR/nvm.sh"
-    nvm install --lts
-    nvm alias default "lts/*"
-    nvm use default > /dev/null
-    node --version
-    npm --version
-  '
-}
-
-install_pnpm() {
-  if ((DRY_RUN)); then
-    info "install pnpm globally with npm"
-    format_command bash -c '. "$NVM_DIR/nvm.sh"; nvm use default; npm install --global pnpm'
-    return 0
-  fi
-
-  env NVM_DIR="$HOME/.nvm" bash -c '
-    set -e
-    . "$NVM_DIR/nvm.sh"
-    nvm use default > /dev/null
-    npm install --global pnpm
-    pnpm --version
-  '
-}
-
-install_developer_tools() {
-  info "installing developer runtimes and package managers"
-  install_uv
-  install_nvm
-  install_node_lts
-  install_pnpm
-}
-
-release_is_stable() {
-  local json="$1"
-  jq -e '.draft == false and .prerelease == false and (.tag_name | type == "string")' \
-    "$json" > /dev/null
-}
-
-select_release_asset() {
-  local json="$1" pattern="$2" label="$3" asset name url digest
-  local -a assets=()
-  release_is_stable "$json" || die "$label latest release is not stable"
-  mapfile -t assets < <(
-    jq -r --arg pattern "$pattern" '.assets[] | select(.name | test($pattern)) |
-      [.name, .browser_download_url, .digest] | @tsv' "$json"
-  )
-  ((${#assets[@]} == 1)) || die "expected one $label release asset"
-  asset=${assets[0]}
-  IFS=$'\t' read -r name url digest <<< "$asset"
-  digest=${digest#sha256:}
-  [[ $url == https://* ]] || die "$label release asset has an invalid URL"
-  validate_sha256 "$digest" || die "$label release asset has no valid digest"
-  printf '%s\t%s\t%s\n' "$name" "$url" "$digest"
-}
-
-install_pacstall() {
-  if command -v pacstall > /dev/null; then
-    log "Pacstall already installed"
-    return 0
-  fi
-
-  if ((DRY_RUN)); then
-    printf '  $ sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"\n'
-    return 0
-  fi
-
-  sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
-  command -v pacstall > /dev/null || die "Pacstall installation failed"
-}
-
-install_pacstall_packages() {
-  local package output
-  local -a installed=()
-
-  if command -v pacstall > /dev/null; then
-    output=$(pacstall -L 2> /dev/null) || die "could not list installed Pacstall packages"
-    mapfile -t installed <<< "$output"
-  elif ((!DRY_RUN)); then
-    die "Pacstall is unavailable"
-  fi
-
-  info "installing Pacstall packages"
-  for package in "${PACSTALL_PACKAGES[@]}"; do
-    if array_contains "$package" "${installed[@]}"; then
-      log "$package already installed"
-      continue
-    fi
-    run_cmd pacstall -P -I "$package"
-    installed+=("$package")
-  done
-}
-
-configure_default_browser() {
-  local selected
-  info "setting Zen Browser as the default browser"
-  run_cmd xdg-settings set default-web-browser zen-browser.desktop
-
-  ((DRY_RUN)) && return 0
-  selected=$(xdg-settings get default-web-browser)
-  [[ $selected == zen-browser.desktop ]] \
-    || die "default browser is $selected; expected zen-browser.desktop"
-}
-
-nerd_fonts_release() {
-  local json="$1"
-  fetch https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest "$json"
-  release_is_stable "$json" || die "Nerd Fonts latest release is not stable"
-}
-
-prepare_font_directory() {
-  local path="$1"
-  [[ -e $path || -L $path ]] || return 0
-  if [[ -f $path/.version ]]; then
-    rm -rf "$path"
-  else
-    backup_target "$path"
-  fi
-}
-
-install_archive_font() {
-  local release_json="$1" asset_name="$2" family_dir="$3" version="$4"
-  local font_dir="$HOME/.local/share/fonts/$family_dir"
-  local checksums_url asset_url checksum archive checksums extract_dir
-
-  if [[ -f $font_dir/.version ]] && [[ $(< "$font_dir/.version") == "$version" ]]; then
-    log "$family_dir $version already installed"
-    return 0
-  fi
-
-  checksums_url=$(jq -r '.assets[] | select(.name == "SHA-256.txt") | .browser_download_url' "$release_json")
-  asset_url=$(jq -r --arg name "$asset_name" \
-    '.assets[] | select(.name == $name) | .browser_download_url' "$release_json")
-  [[ -n $checksums_url && $checksums_url != null ]] || die "Nerd Fonts checksum asset missing"
-  [[ -n $asset_url && $asset_url != null ]] || die "Nerd Fonts asset missing: $asset_name"
-
-  checksums="$TEMP_DIR/nerd-fonts-SHA-256.txt"
-  archive="$TEMP_DIR/$asset_name"
-  extract_dir="$TEMP_DIR/${family_dir}-extract"
-  fetch "$checksums_url" "$checksums"
-  checksum=$(awk -v name="$asset_name" '$2 == name {print $1}' "$checksums")
-  validate_sha256 "$checksum" || die "invalid Nerd Fonts checksum for $asset_name"
-  fetch "$asset_url" "$archive"
-  verify_file "$archive" "$checksum"
-
-  rm -rf "$extract_dir"
-  mkdir -p "$extract_dir"
-  tar -xJf "$archive" -C "$extract_dir"
-  prepare_font_directory "$font_dir"
-  mkdir -p "$font_dir"
-  find "$extract_dir" -type f \( -name '*.ttf' -o -name '*.otf' \) -exec cp -f {} "$font_dir/" \;
-  printf '%s\n' "$version" > "$font_dir/.version"
-}
-
-install_fonts() {
-  if ((DRY_RUN)); then
-    info "install verified AdwaitaMono.tar.xz per-user"
-    format_command fc-cache -f "$HOME/.local/share/fonts"
-    return 0
-  fi
-
-  local release_json="$TEMP_DIR/nerd-fonts-release.json"
-  local latest_version
-  nerd_fonts_release "$release_json"
-  latest_version=$(jq -r '.tag_name | ltrimstr("v")' "$release_json")
-
-  prepare_font_directory "$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
-  install_archive_font "$release_json" AdwaitaMono.tar.xz AdwaitaMonoNerdFont "$latest_version"
-  run_cmd fc-cache -f "$HOME/.local/share/fonts"
-}
-
-install_flatpaks() {
-  info "installing user-scoped Flatpaks"
-  verify_flathub_remote
-  run_cmd flatpak remote-add --user --if-not-exists flathub "$FLATHUB_URL"
-  run_cmd flatpak install --user --noninteractive -y flathub "${FLATPAK_APPS[@]}"
-  run_cmd flatpak install --user --noninteractive -y flathub "${FLATPAK_THEMES[@]}"
-  run_cmd flatpak override --user --filesystem=xdg-config/gtk-3.0 \
-    --filesystem=xdg-config/gtk-4.0
-}
-
-verify_flathub_remote() {
-  ((DRY_RUN)) && return 0
-  local url
-  url=$(flatpak remotes --user --columns=name,url \
-    | awk -F '\t' '$1 == "flathub" {print $2; exit}')
-  [[ -z $url ]] && return 0
-  case "${url%/}" in
-    https://dl.flathub.org/repo | https://flathub.org/repo) ;;
-    *) die "existing user flathub remote points to an unexpected URL: $url" ;;
-  esac
-}
-
-install_adw_gtk3() {
-  info "installing adw-gtk3 system-wide"
-  if ((DRY_RUN)); then
-    info "resolve latest stable adw-gtk3 archive, verify GitHub digest, install to /usr/share/themes"
-    return 0
-  fi
-
-  local json="$TEMP_DIR/adw-gtk3-release.json"
-  local tag name url digest archive extract_dir version_file light_installed dark_installed asset
-  local light_dir dark_dir
-  fetch https://api.github.com/repos/lassekongo83/adw-gtk3/releases/latest "$json"
-  tag=$(jq -r '.tag_name' "$json")
-  asset=$(select_release_asset "$json" '^adw-gtk3v.+[.]tar[.]xz$' 'adw-gtk3 theme archive')
-  IFS=$'\t' read -r name url digest <<< "$asset"
-
-  light_installed=$(sudo cat /usr/share/themes/adw-gtk3/.version 2> /dev/null || true)
-  dark_installed=$(sudo cat /usr/share/themes/adw-gtk3-dark/.version 2> /dev/null || true)
-  if [[ $light_installed == "$tag" && $dark_installed == "$tag" ]]; then
-    log "adw-gtk3 $tag already installed"
-    return 0
-  fi
-
-  archive="$TEMP_DIR/$name"
-  extract_dir="$TEMP_DIR/adw-gtk3-extract"
-  fetch "$url" "$archive"
-  verify_file "$archive" "$digest"
-  mkdir -p "$extract_dir"
-  tar -xJf "$archive" -C "$extract_dir"
-
-  light_dir="$extract_dir/adw-gtk3"
-  dark_dir="$extract_dir/adw-gtk3-dark"
-  [[ -f $light_dir/index.theme && -f $dark_dir/index.theme ]] \
-    || die "adw-gtk3 archive is missing theme metadata"
-
-  run_sudo install -d -m 0755 /usr/share/themes
-  run_sudo cp -a "$light_dir" "$dark_dir" /usr/share/themes/
-  version_file="$TEMP_DIR/adw-gtk3.version"
-  printf '%s\n' "$tag" > "$version_file"
-  run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3/.version
-  run_sudo install -m 0644 "$version_file" /usr/share/themes/adw-gtk3-dark/.version
-}
-
-array_contains() {
-  local needle="$1" item
-  shift
-  for item in "$@"; do
-    [[ $item == "$needle" ]] && return 0
-  done
-  return 1
-}
-
-gvariant_array() {
-  local item escaped separator="" output="["
-  for item in "$@"; do
-    escaped=${item//\'/\\\'}
-    output+="$separator'$escaped'"
-    separator=", "
-  done
-  printf '%s]\n' "$output"
-}
-
-read_gsettings_array() {
-  gsettings get "$1" "$2" | python3 -c '
-import ast
-import sys
-
-raw = sys.stdin.read().strip()
-if raw.startswith("@as "):
-    raw = raw[4:]
-for value in ast.literal_eval(raw):
-    print(value)
-'
-}
-
-gs_set() {
-  run_cmd gsettings set "$@"
-}
-
-configure_workspace_shortcuts() {
-  local workspace
-  for workspace in {1..7}; do
-    gs_set org.gnome.desktop.wm.keybindings "switch-to-workspace-$workspace" \
-      "['<Super>$workspace']"
-    gs_set org.gnome.desktop.wm.keybindings "move-to-workspace-$workspace" \
-      "['<Super><Shift>$workspace']"
-    gs_set org.gnome.shell.keybindings "switch-to-application-$workspace" '[]'
-  done
-}
-
-set_custom_shortcut() {
-  local path="$1" name="$2" command="$3" binding="$4"
-  local schema="org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path"
-  gs_set "$schema" name "$name"
-  gs_set "$schema" command "$command"
-  gs_set "$schema" binding "$binding"
-}
-
-configure_custom_shortcuts() {
-  local base="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
-  local legacy_browser="$base/dotfiles-browser/"
-  local legacy_home="$base/dotfiles-home/"
-  local brightness_down="$base/dotfiles-brightness-down/"
-  local brightness_up="$base/dotfiles-brightness-up/"
-  local signal="$base/dotfiles-signal/"
-  local fastmail="$base/dotfiles-fastmail/"
-  local -a managed=(
-    "$brightness_down"
-    "$brightness_up"
-    "$signal"
-    "$fastmail"
-  )
-
-  if ((DRY_RUN)); then
-    info "remove legacy Home and browser custom shortcuts; preserve unrelated shortcuts"
-  else
-    local path
-    local -a existing=() merged=()
-    mapfile -t existing < <(
-      read_gsettings_array org.gnome.settings-daemon.plugins.media-keys custom-keybindings
-    )
-    for path in "${existing[@]}"; do
-      [[ $path == "$legacy_browser" || $path == "$legacy_home" ]] && continue
-      array_contains "$path" "${merged[@]}" || merged+=("$path")
-    done
-    for path in "${managed[@]}"; do
-      array_contains "$path" "${merged[@]}" || merged+=("$path")
-    done
-    gs_set org.gnome.settings-daemon.plugins.media-keys custom-keybindings \
-      "$(gvariant_array "${merged[@]}")"
-  fi
-
-  set_custom_shortcut "$brightness_down" "Brightness down" \
-    "$HOME/.local/bin/monitor-brightness down" 'XF86MonBrightnessDown'
-  set_custom_shortcut "$brightness_up" "Brightness up" \
-    "$HOME/.local/bin/monitor-brightness up" 'XF86MonBrightnessUp'
-  set_custom_shortcut "$signal" Signal signal-desktop '<Super>s'
-  set_custom_shortcut "$fastmail" Fastmail \
-    'flatpak run com.fastmail.Fastmail' '<Super>m'
-}
-
-configure_shortcut_preferences() {
-  local media="org.gnome.settings-daemon.plugins.media-keys"
-  local shell="org.gnome.shell.keybindings"
-  local wm="org.gnome.desktop.wm.keybindings"
-
-  gs_set "$media" control-center "['<Super>i']"
-  gs_set "$media" home "['<Super>e']"
-  gs_set "$media" screensaver "['<Alt><Super>l']"
-  gs_set "$media" search "['<Alt>F2']"
-  gs_set "$media" terminal "['<Super>Return']"
-  gs_set "$media" www "['<Super>w']"
-  gs_set "$shell" toggle-message-tray "['<Super>v']"
-  gs_set "$shell" toggle-overview "['<Super>space']"
-  gs_set "$shell" toggle-quick-settings '[]'
-  gs_set "$shell" screen-brightness-down '[]'
-  gs_set "$shell" screen-brightness-up '[]'
-  gs_set "$wm" close "['<Super>q']"
-  gs_set "$wm" minimize '[]'
-  gs_set "$wm" panel-run-dialog '[]'
-  gs_set "$wm" switch-input-source '[]'
-  gs_set "$wm" switch-input-source-backward '[]'
-  gs_set org.gnome.mutter.wayland.keybindings restore-shortcuts '[]'
-}
-
-configure_o_tiling_shortcuts() {
-  local base="/org/gnome/shell/extensions/o-tiling"
-
-  run_cmd dconf write "$base/tile-move-left-global" "['<Super><Shift>h']"
-  run_cmd dconf write "$base/tile-move-down-global" "['<Super><Shift>j']"
-  run_cmd dconf write "$base/tile-move-up-global" "['<Super><Shift>k']"
-  run_cmd dconf write "$base/tile-move-right-global" "['<Super><Shift>l']"
-  run_cmd dconf write "$base/tile-swap-left" '@as []'
-  run_cmd dconf write "$base/tile-swap-down" '@as []'
-  run_cmd dconf write "$base/tile-swap-up" '@as []'
-  run_cmd dconf write "$base/tile-swap-right" '@as []'
-}
-
-verify_gsetting() {
-  ((DRY_RUN)) && return 0
-  local schema="$1" key="$2" expected="$3" actual
-  actual=$(gsettings get "$schema" "$key")
-  [[ $actual == "$expected" ]] \
-    || die "$schema $key is $actual; expected $expected"
-}
-
-verify_dconf_value() {
-  ((DRY_RUN)) && return 0
-  local path="$1" expected="$2" actual
-  actual=$(dconf read "$path")
-  [[ $actual == "$expected" ]] \
-    || die "$path is $actual; expected $expected"
-}
-
-configure_gnome() {
-  info "configuring GNOME"
-  gs_set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
-  gs_set org.gnome.desktop.interface icon-theme Papirus-Dark
-  gs_set org.gnome.desktop.interface color-scheme prefer-dark
-  run_cmd dconf write /org/gnome/desktop/interface/accent-color "'#B34A45'"
-  gs_set org.gnome.desktop.peripherals.keyboard repeat true
-  gs_set org.gnome.desktop.peripherals.keyboard delay 245
-  gs_set org.gnome.desktop.peripherals.keyboard repeat-interval 20
-  gs_set org.gnome.desktop.input-sources xkb-options "['ctrl:swapcaps']"
-  gs_set org.gnome.desktop.peripherals.mouse accel-profile flat
-  gs_set org.gnome.mutter dynamic-workspaces false
-  gs_set org.gnome.desktop.wm.preferences num-workspaces 7
-  gs_set org.gnome.desktop.wm.preferences mouse-button-modifier '<Super>'
-  gs_set org.gnome.desktop.wm.preferences resize-with-right-button true
-  configure_workspace_shortcuts
-  configure_shortcut_preferences
-  configure_custom_shortcuts
-  configure_o_tiling_shortcuts
-
-  verify_gsetting org.gnome.desktop.interface gtk-theme "'adw-gtk3-dark'"
-  verify_gsetting org.gnome.desktop.interface icon-theme "'Papirus-Dark'"
-  verify_gsetting org.gnome.desktop.interface color-scheme "'prefer-dark'"
-  verify_dconf_value /org/gnome/desktop/interface/accent-color "'#B34A45'"
-  verify_gsetting org.gnome.desktop.peripherals.keyboard repeat true
-  verify_gsetting org.gnome.desktop.peripherals.keyboard delay 'uint32 245'
-  verify_gsetting org.gnome.desktop.peripherals.keyboard repeat-interval 'uint32 20'
-  verify_gsetting org.gnome.desktop.peripherals.mouse accel-profile "'flat'"
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-left-global \
-    "['<Super><Shift>h']"
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-down-global \
-    "['<Super><Shift>j']"
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-up-global \
-    "['<Super><Shift>k']"
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-move-right-global \
-    "['<Super><Shift>l']"
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-left '@as []'
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-down '@as []'
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-up '@as []'
-  verify_dconf_value /org/gnome/shell/extensions/o-tiling/tile-swap-right '@as []'
-}
-
-configure_default_terminal() {
-  info "setting Alacritty as the default terminal"
-  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local config="$config_home/ubuntu-xdg-terminals.list"
-  local tmp="$TEMP_DIR/ubuntu-xdg-terminals.list" selected alternative
-
-  run_sudo update-alternatives --set x-terminal-emulator /usr/bin/alacritty
-  gs_set org.gnome.desktop.default-applications.terminal exec xdg-terminal-exec
-  gs_set org.gnome.desktop.default-applications.terminal exec-arg --
-
-  if ((DRY_RUN)); then
-    info "put Alacritty first in $config"
-    return 0
-  fi
-
-  mkdir -p "$config_home"
-  {
-    printf 'Alacritty.desktop\n'
-    [[ ! -f $config ]] || awk '$0 != "Alacritty.desktop"' "$config"
-  } > "$tmp"
-  if [[ ! -f $config ]] || ! cmp --silent "$tmp" "$config"; then
-    install -m 0644 "$tmp" "$config"
-  fi
-
-  verify_gsetting org.gnome.desktop.default-applications.terminal exec "'xdg-terminal-exec'"
-  verify_gsetting org.gnome.desktop.default-applications.terminal exec-arg "'--'"
-  selected=$(xdg-terminal-exec --print-id)
-  [[ $selected == Alacritty.desktop ]] \
-    || die "xdg-terminal-exec selected $selected instead of Alacritty.desktop"
-  alternative=$(update-alternatives --query x-terminal-emulator \
-    | awk '$1 == "Value:" {print $2}')
-  [[ $alternative == /usr/bin/alacritty ]] \
-    || die "x-terminal-emulator selected $alternative instead of /usr/bin/alacritty"
+  sudo install -D -o root -g root -m 0644 "$tmp" "$path"
 }
 
 backup_target() {
-  local target="$1"
-  local backup
+  local target="$1" backup
   backup="$BACKUP_DIR/$(basename "$target")"
   mkdir -p "$BACKUP_DIR"
   if [[ -e $backup || -L $backup ]]; then
@@ -1055,20 +384,137 @@ link_path() {
   ln -s "$source" "$target"
 }
 
-configure_dotfiles() {
-  info "linking Cinder Grove dotfiles"
-  link_path "$SCRIPT_DIR/alacritty" "$HOME/.config/alacritty"
-  link_path "$SCRIPT_DIR/bat" "$HOME/.config/bat"
-  link_path "$SCRIPT_DIR/btop" "$HOME/.config/btop"
-  link_path "$SCRIPT_DIR/fastfetch" "$HOME/.config/fastfetch"
-  link_path "$SCRIPT_DIR/gtk-4.0/gtk.css" "$HOME/.config/gtk-4.0/gtk.css"
-  link_path "$SCRIPT_DIR/nvim" "$HOME/.config/nvim"
-  link_path "$SCRIPT_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
-  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+install_packages() {
+  info "updating Arch and installing official packages"
+  run_pacman -Syu --noconfirm "${PACMAN_PACKAGES[@]}"
+}
 
-  link_path /usr/bin/batcat "$HOME/.local/bin/bat"
-  link_path /usr/bin/fdfind "$HOME/.local/bin/fd"
-  link_path "$SCRIPT_DIR/bin/monitor-brightness" "$HOME/.local/bin/monitor-brightness"
+select_aur_helper() {
+  if command -v paru >/dev/null; then
+    AUR_HELPER=paru
+  elif command -v yay >/dev/null; then
+    AUR_HELPER=yay
+  else
+    AUR_HELPER=""
+  fi
+}
+
+install_paru() {
+  local paru_dir="$TEMP_DIR/paru"
+  if ((DRY_RUN)); then
+    info "build maintained paru package from AUR"
+    AUR_HELPER=paru
+    return 0
+  fi
+  has_tty || die "paru bootstrap requires a terminal for PKGBUILD review"
+  git clone https://aur.archlinux.org/paru.git "$paru_dir"
+  (
+    cd "$paru_dir"
+    printf '\nReviewing paru PKGBUILD. Quit the pager to continue.\n' >/dev/tty
+    less PKGBUILD </dev/tty >/dev/tty
+    makepkg -si --needed
+  )
+  command -v paru >/dev/null || die "paru installation failed"
+  AUR_HELPER=paru
+}
+
+install_aur_packages() {
+  select_aur_helper
+  [[ -n $AUR_HELPER ]] || install_paru
+  info "installing desktop applications with $AUR_HELPER"
+  if ((DRY_RUN)); then
+    format_command "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}"
+    return 0
+  fi
+  has_tty || die "AUR package review requires an interactive terminal"
+  "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}"
+}
+
+check_display_manager() {
+  local manager=""
+  if [[ -L /etc/systemd/system/display-manager.service ]]; then
+    manager=$(readlink -f /etc/systemd/system/display-manager.service)
+  fi
+  [[ -z $manager || $manager == */sddm.service ]] ||
+    die "another display manager is enabled: $manager"
+}
+
+configure_sddm() {
+  local autologin
+  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] ||
+    die 'Hyprland UWSM session entry is missing'
+  ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
+    /usr/share/wayland-sessions/hyprland-uwsm.desktop ||
+    die 'Hyprland UWSM session entry is invalid'
+  autologin="[Autologin]
+User=$USER
+Session=hyprland-uwsm.desktop
+Relogin=false
+"
+  ensure_root_file /etc/sddm.conf.d/10-dotfiles-autologin.conf "$autologin"
+}
+
+validate_sddm_pam() {
+  ((DRY_RUN)) && return 0
+  local file pam_dir="${PAM_DIR:-/etc/pam.d}"
+  for file in sddm sddm-autologin sddm-greeter hyprlock; do
+    [[ -r $pam_dir/$file ]] || die "missing SDDM PAM file: $pam_dir/$file"
+  done
+  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" ||
+    die "$pam_dir/sddm does not include system-login"
+  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" ||
+    die "$pam_dir/sddm-autologin does not include system-local-login"
+  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" ||
+    die "$pam_dir/sddm-greeter cannot authenticate the greeter"
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" ||
+    die "$pam_dir/sddm lacks GNOME Keyring integration"
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" ||
+    die "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
+}
+
+configure_groups() {
+  if ! getent group i2c >/dev/null; then
+    run_sudo groupadd --system i2c
+  fi
+  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
+    run_sudo usermod -aG i2c "$USER"
+  fi
+}
+
+configure_system_services() {
+  info "enabling system services"
+  run_sudo systemctl enable "${SYSTEM_SERVICES[@]}"
+}
+
+configure_dotfiles() {
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}" unit source
+  info "linking Arch and Cinder Grove configuration"
+  link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
+  link_path "$SCRIPT_DIR/bat" "$config_home/bat"
+  link_path "$SCRIPT_DIR/btop" "$config_home/btop"
+  link_path "$SCRIPT_DIR/environment.d" "$config_home/environment.d"
+  link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
+  link_path "$SCRIPT_DIR/fuzzel" "$config_home/fuzzel"
+  link_path "$SCRIPT_DIR/gtk-3.0" "$config_home/gtk-3.0"
+  link_path "$SCRIPT_DIR/gtk-4.0" "$config_home/gtk-4.0"
+  link_path "$SCRIPT_DIR/hypr" "$config_home/hypr"
+  link_path "$SCRIPT_DIR/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
+  link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
+  link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
+  link_path "$SCRIPT_DIR/swaync" "$config_home/swaync"
+  link_path "$SCRIPT_DIR/waybar" "$config_home/waybar"
+  link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
+  link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
+  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+  mkdir -p "$config_home/systemd/user"
+  for source in "$SCRIPT_DIR"/systemd/user/*.service; do
+    unit=$(basename "$source")
+    link_path "$source" "$config_home/systemd/user/$unit"
+  done
+
+  for source in "$SCRIPT_DIR"/bin/*; do
+    link_path "$source" "$HOME/.local/bin/$(basename "$source")"
+  done
 
   local current_shell
   current_shell=$(getent passwd "$USER" | cut -d: -f7)
@@ -1077,22 +523,99 @@ configure_dotfiles() {
   fi
 }
 
-configure_ddcutil() {
-  info "reloading ddcutil device permissions"
-  run_sudo udevadm control --reload-rules
-  run_sudo udevadm trigger --subsystem-match=i2c-dev || warn "could not trigger i2c-dev udev rules"
-
+enable_user_service() {
+  local unit="$1"
   if ((DRY_RUN)); then
-    format_command ddcutil detect
-    format_command ddcutil getvcp 10
+    format_command systemctl --user enable "$unit"
     return 0
   fi
+  systemctl --user enable "$unit"
+}
 
-  if ddcutil detect; then
-    ddcutil getvcp 10 || warn "monitors detected, but brightness VCP 10 was unavailable"
-  else
-    warn "ddcutil found no controllable monitor; enable DDC/CI in each external monitor's OSD"
+configure_user_services() {
+  local unit
+  info "enabling graphical-session services"
+  ((DRY_RUN)) || systemctl --user daemon-reload
+  for unit in "${USER_SERVICES[@]}"; do
+    enable_user_service "$unit"
+  done
+}
+
+desktop_id() {
+  local candidate
+  for candidate in "$@"; do
+    if [[ -f /usr/share/applications/$candidate || -f $HOME/.local/share/applications/$candidate ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+configure_gsettings() {
+  local schema="org.gnome.desktop.interface"
+  if ((DRY_RUN)); then
+    info "configure dark GTK theme, icons, cursor, fonts, and 24-hour clock"
+    return 0
   fi
+  gsettings set "$schema" color-scheme prefer-dark
+  gsettings set "$schema" gtk-theme adw-gtk3-dark
+  gsettings set "$schema" icon-theme Papirus-Dark
+  gsettings set "$schema" cursor-theme Adwaita
+  gsettings set "$schema" font-name 'Noto Sans 11'
+  gsettings set "$schema" monospace-font-name 'JetBrainsMono Nerd Font Mono 11'
+  gsettings set "$schema" clock-format 24h
+  gsettings set org.gnome.desktop.wm.preferences button-layout ''
+}
+
+configure_default_apps() {
+  local browser terminal editor
+  run_cmd xdg-user-dirs-update
+  ((DRY_RUN)) && return 0
+
+  browser=$(desktop_id helium.desktop helium-browser.desktop || true)
+  terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
+  editor=$(desktop_id visual-studio-code.desktop code.desktop || true)
+
+  if [[ -n $browser ]]; then
+    xdg-settings set default-web-browser "$browser"
+    xdg-mime default "$browser" x-scheme-handler/http
+    xdg-mime default "$browser" x-scheme-handler/https
+    xdg-mime default "$browser" text/html
+  else
+    warn "Helium desktop entry was not found"
+  fi
+  xdg-mime default org.gnome.Nautilus.desktop inode/directory
+  [[ -z $editor ]] || xdg-mime default "$editor" text/plain
+  [[ -z $terminal ]] || xdg-mime default "$terminal" application/x-terminal-emulator
+}
+
+install_node_lts() {
+  if ((DRY_RUN)); then
+    info "install current Node.js LTS with NVM"
+    return 0
+  fi
+  export NVM_DIR="$HOME/.nvm"
+  mkdir -p "$NVM_DIR"
+  # shellcheck disable=SC1091
+  source /usr/share/nvm/init-nvm.sh
+  nvm install --lts
+  nvm alias default 'lts/*'
+}
+
+configure_ddcutil() {
+  run_sudo udevadm control --reload-rules
+  run_sudo udevadm trigger --subsystem-match=i2c-dev
+  ((DRY_RUN)) || ddcutil detect --brief ||
+    warn "DDC/CI monitor control unavailable; enable it in each monitor OSD"
+}
+
+run_postflight() {
+  if ((DRY_RUN)); then
+    format_command "$HOME/.local/bin/dotfiles-doctor" --system --pre-reboot
+    return 0
+  fi
+  "$HOME/.local/bin/dotfiles-doctor" --system --pre-reboot
 }
 
 main() {
@@ -1100,28 +623,25 @@ main() {
   validate_environment
   create_temp_dir
   resolve_script_dir "${BASH_SOURCE[0]:-}"
-  confirm_snap_purge
   ((DRY_RUN)) || sudo -v
 
-  bootstrap_apt
-  purge_snap
-  configure_vendor_repositories
-  install_apt_software
-  configure_papirus_folders
-  install_developer_tools
-  install_pacstall
-  install_pacstall_packages
-  configure_default_browser
-  install_fonts
-  install_flatpaks
-  install_adw_gtk3
-  configure_default_terminal
-  configure_gnome
+  check_display_manager
+  install_packages
+  install_aur_packages
+  configure_sddm
+  validate_sddm_pam
+  configure_groups
+  configure_system_services
   configure_dotfiles
+  configure_user_services
+  configure_gsettings
+  configure_default_apps
+  install_node_lts
   configure_ddcutil
+  run_postflight
 
-  log "setup complete"
-  info "Reboot to apply changes!"
+  log "Arch Hyprland setup complete"
+  info "Reboot, then SDDM will autologin to Hyprland through UWSM."
 }
 
 if [[ -z ${BASH_SOURCE[0]:-} || ${BASH_SOURCE[0]:-} == "$0" ]]; then

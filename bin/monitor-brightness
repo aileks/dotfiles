@@ -8,8 +8,21 @@ case "${1:-}" in
   *) exit 2 ;;
 esac
 
-exec 9> "${XDG_RUNTIME_DIR:-/tmp}/monitor-brightness.lock"
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/monitor-brightness.lock"
 flock --nonblock 9 || exit 0
 
-ddcutil setvcp 10 "$direction" 5 --display 1 --noverify || true
-ddcutil setvcp 10 "$direction" 5 --display 2 --mccs=2.2 --noverify || true
+if brightnessctl --class=backlight info >/dev/null 2>&1; then
+  if [[ $direction == + ]]; then
+    brightnessctl --class=backlight set 5%+
+  else
+    brightnessctl --class=backlight set 5%-
+  fi
+  exit 0
+fi
+
+mapfile -t displays < <(ddcutil detect --brief 2>/dev/null | awk '$1 == "Display" {print $2}')
+((${#displays[@]})) || exit 1
+
+for display in "${displays[@]}"; do
+  ddcutil setvcp 10 "$direction" 5 --display "$display" --noverify || true
+done

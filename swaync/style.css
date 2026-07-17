@@ -1,0 +1,99 @@
+@define-color background #131210;
+@define-color container #1B1916;
+@define-color surface #23201C;
+@define-color overlay #58534C;
+@define-color text #BBB3A9;
+@define-color bright #DDD5CA;
+@define-color subtle #9A938A;
+@define-color primary #E17A3F;
+@define-color red #B34A45;
+
+* {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 13px;
+}
+
+.control-center {
+  background: alpha(@background, 0.96);
+  border: 1px solid @overlay;
+  border-radius: 12px;
+  color: @text;
+  padding: 10px;
+}
+
+.control-center-list {
+  background: transparent;
+}
+
+.notification-row {
+  outline: none;
+  margin: 5px 0;
+}
+
+.notification-row:focus,
+.notification-row:hover {
+  background: transparent;
+}
+
+.notification {
+  background: @container;
+  border: 1px solid alpha(@overlay, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 14px alpha(@background, 0.8);
+  padding: 2px;
+}
+
+.notification-content {
+  background: transparent;
+  padding: 8px;
+}
+
+.summary {
+  color: @bright;
+  font-weight: 700;
+}
+
+.time,
+.body {
+  color: @subtle;
+}
+
+.close-button {
+  background: @surface;
+  color: @text;
+  border-radius: 8px;
+}
+
+.close-button:hover {
+  background: @red;
+  color: @bright;
+}
+
+.control-center .notification-action,
+.control-center .notification-default-action {
+  background: @surface;
+  color: @text;
+  border-radius: 8px;
+}
+
+.widget-title,
+.widget-dnd,
+.widget-mpris {
+  background: @container;
+  border: 1px solid alpha(@overlay, 0.7);
+  border-radius: 10px;
+  color: @text;
+  margin: 5px 0;
+  padding: 10px;
+}
+
+.widget-title > button,
+.widget-dnd > switch {
+  background: @surface;
+  color: @text;
+  border-radius: 8px;
+}
+
+.widget-dnd > switch:checked {
+  background: @primary;
+}
