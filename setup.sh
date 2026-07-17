@@ -125,6 +125,7 @@ readonly -a PACMAN_PACKAGES=(
   vulkan-tools
   waybar
   wev
+  wget
   wireplumber
   wl-clipboard
   xdg-desktop-portal
@@ -144,7 +145,6 @@ readonly -a AUR_PACKAGES=(
   helium-browser-bin
   localsend-bin
   localsend-nautilus-extension
-  papirus-folders
   tmux-sessionizer-bin
   visual-studio-code-bin
   zsh-antidote
@@ -617,8 +617,19 @@ install_gtk_theme() {
   run_cmd "$theme_dir/install.sh"
 }
 
+install_papirus_folders() {
+  local installer_url="https://raw.githubusercontent.com/aileks/papirus-folders/cinder-grove-folders/install.sh"
+  info "installing Cinder Grove Papirus folders..."
+  if ((DRY_RUN)); then
+    format_command bash -o pipefail -c \
+      "curl -fsSL '$installer_url' | env TAG=cinder-grove-folders sh"
+    return 0
+  fi
+  curl -fsSL "$installer_url" | env TAG=cinder-grove-folders sh
+}
+
 configure_papirus() {
-  run_cmd papirus-folders -C darkcyan -t Papirus-Dark
+  run_cmd papirus-folders-cg --color orange --theme Papirus-Dark
 }
 
 configure_default_apps() {
@@ -699,6 +710,7 @@ main() {
   configure_user_services
   configure_gsettings
   install_gtk_theme
+  install_papirus_folders
   configure_papirus
   configure_default_apps
   install_node_lts
