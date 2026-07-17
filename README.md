@@ -2,6 +2,8 @@
 
 Opinionated Arch desktop built around Hyprland with UWSM.
 
+![Desktop Showcase](./assets/screenshot.png)
+
 ## Install
 
 ```bash
