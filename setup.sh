@@ -399,7 +399,7 @@ install_packages() {
 }
 
 select_aur_helper() {
-  if pacman -Qq paru-bin >/dev/null 2>&1; then
+  if command -v paru >/dev/null 2>&1; then
     AUR_HELPER=paru
   else
     AUR_HELPER=""
