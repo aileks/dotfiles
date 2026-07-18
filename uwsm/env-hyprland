@@ -1,0 +1,30 @@
+# Avoid a multi-GPU backend when every connected display belongs to Nvidia.
+nvidia_card=
+other_gpu_connected=
+
+for card in /sys/class/drm/card[0-9]*; do
+    [ -e "$card/device/driver" ] || continue
+    driver=$(basename "$(readlink -f "$card/device/driver")")
+    connected=
+
+    for connector in "$card"-*; do
+        [ -r "$connector/status" ] || continue
+        if [ "$(cat "$connector/status")" = connected ]; then
+            connected=1
+            break
+        fi
+    done
+
+    [ -n "$connected" ] || continue
+    if [ "$driver" = nvidia ]; then
+        nvidia_card="/dev/dri/$(basename "$card")"
+    else
+        other_gpu_connected=1
+    fi
+done
+
+if [ -n "$nvidia_card" ] && [ -z "$other_gpu_connected" ]; then
+    export AQ_DRM_DEVICES="$nvidia_card"
+fi
+
+unset card connected connector driver nvidia_card other_gpu_connected

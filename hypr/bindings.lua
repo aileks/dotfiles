@@ -1,5 +1,6 @@
 local app = "uwsm app -- "
 local local_bin = os.getenv("HOME") .. "/.local/bin/"
+local syncobj = " --enable-features=WaylandLinuxDrmSyncobj"
 local repeating = { repeating = true }
 local media = { locked = true, repeating = true }
 
@@ -11,10 +12,10 @@ end
 
 bind("SUPER + Space", hl.dsp.exec_cmd("pkill fuzzel || fuzzel"), "Application launcher")
 bind("SUPER + Return", hl.dsp.exec_cmd(app .. "alacritty"), "Terminal")
-bind("SUPER + W", hl.dsp.exec_cmd(app .. "helium-browser"), "Browser")
+bind("SUPER + W", hl.dsp.exec_cmd(app .. "helium-browser" .. syncobj), "Browser")
 bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
-bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop"), "Signal")
-bind("SUPER + M", hl.dsp.exec_cmd(app .. "fastmail"), "Fastmail")
+bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop" .. syncobj), "Signal")
+bind("SUPER + M", hl.dsp.exec_cmd(app .. "fastmail" .. syncobj), "Fastmail")
 bind("SUPER + I", hl.dsp.exec_cmd(local_bin .. "desktop-settings"), "Desktop settings")
 bind("SUPER + V", hl.dsp.exec_cmd(local_bin .. "clipboard-menu"), "Clipboard history")
 bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t -sw"), "Notification center")
