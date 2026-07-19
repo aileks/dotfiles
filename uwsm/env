@@ -11,3 +11,4 @@ export XCURSOR_THEME=Adwaita
 export XCURSOR_SIZE=24
 export HYPRCURSOR_THEME=Adwaita
 export HYPRCURSOR_SIZE=24
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
