@@ -11,18 +11,12 @@ esac
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/monitor-brightness.lock"
 flock --nonblock 9 || exit 0
 
-if brightnessctl --class=backlight info >/dev/null 2>&1; then
-  if [[ $direction == + ]]; then
-    brightnessctl --class=backlight set 5%+
-  else
-    brightnessctl --class=backlight set 5%-
-  fi
-  exit 0
-fi
+mapfile -t buses < <(
+  ddcutil detect --brief 2>/dev/null |
+    awk '$1 == "I2C" && $2 == "bus:" {sub("^/dev/i2c-", "", $3); print $3}'
+)
+((${#buses[@]})) || exit 1
 
-mapfile -t displays < <(ddcutil detect --brief 2>/dev/null | awk '$1 == "Display" {print $2}')
-((${#displays[@]})) || exit 1
-
-for display in "${displays[@]}"; do
-  ddcutil setvcp 10 "$direction" 5 --display "$display" --noverify || true
+for bus in "${buses[@]}"; do
+  ddcutil setvcp 10 "$direction" 5 --bus "$bus" --skip-ddc-checks --noverify || true
 done

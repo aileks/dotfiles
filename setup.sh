@@ -27,7 +27,6 @@ readonly -a PACMAN_PACKAGES=(
   blueman
   bluez
   bluez-utils
-  brightnessctl
   btop
   cava
   cliphist
