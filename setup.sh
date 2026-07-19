@@ -136,7 +136,6 @@ readonly -a PACMAN_PACKAGES=(
   xdg-user-dirs
   xdg-utils
   xorg-xwayland
-  ydotool
   zip
   zoxide
   zsh
@@ -163,7 +162,6 @@ readonly -a SYSTEM_SERVICES=(
 
 readonly -a USER_SERVICES=(
   blueman-applet.service
-  capslock-default.service
   cliphist-image.service
   cliphist-text.service
   first-login.service
@@ -179,7 +177,6 @@ readonly -a USER_SERVICES=(
   pipewire-pulse.socket
   pipewire.socket
   wireplumber.service
-  ydotool.service
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -488,15 +485,12 @@ validate_sddm_pam() {
 }
 
 configure_groups() {
-  local group
-  for group in i2c input; do
-    if ! getent group "$group" >/dev/null; then
-      run_sudo groupadd --system "$group"
-    fi
-    if ! id -nG "$USER" | tr ' ' '\n' | grep -qx "$group"; then
-      run_sudo usermod -aG "$group" "$USER"
-    fi
-  done
+  if ! getent group i2c >/dev/null; then
+    run_sudo groupadd --system i2c
+  fi
+  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
+    run_sudo usermod -aG i2c "$USER"
+  fi
 }
 
 configure_system_services() {
