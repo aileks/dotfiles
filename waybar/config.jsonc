@@ -16,71 +16,70 @@
     "tray",
     "clock",
     "custom/notification",
-    "custom/power"
+    "custom/power",
   ],
   "hyprland/workspaces": {
     "active-only": false,
     "all-outputs": false,
     "format": "{name}",
-    "on-click": "activate",
-    "sort-by-number": true
+    "sort-by-number": true,
   },
   "hyprland/window": {
     "format": "{title}",
     "max-length": 52,
     "separate-outputs": true,
     "rewrite": {
-      "": "Desktop"
-    }
+      "": "Desktop",
+    },
   },
   "mpris": {
     "format": "{player_icon} {dynamic}",
     "format-paused": "{status_icon} {dynamic}",
     "format-stopped": "",
     "player-icons": {
-      "default": ""
+      "default": "",
     },
     "status-icons": {
-      "paused": ""
+      "paused": "",
     },
     "dynamic-order": ["title", "artist"],
     "dynamic-len": 48,
     "on-click": "playerctl play-pause",
-    "on-click-right": "playerctl next"
+    "on-click-right": "playerctl next",
   },
   "idle_inhibitor": {
     "format": "{icon}",
     "format-icons": {
       "activated": "",
-      "deactivated": ""
-    }
+      "deactivated": "",
+    },
   },
   "cpu": {
     "format": " {usage}%",
     "tooltip": true,
     "interval": 3,
-    "on-click-right": "gsettings set io.missioncenter.MissionCenter window-selected-page apps-page && missioncenter"
+    "on-click-right": "gsettings set io.missioncenter.MissionCenter window-selected-page apps-page && missioncenter",
   },
   "memory": {
     "format": " {percentage}%",
     "tooltip-format": "{used:0.1f} GiB used of {total:0.1f} GiB",
     "interval": 3,
-    "on-click-right": "gsettings set io.missioncenter.MissionCenter window-selected-page performance-page && gsettings set io.missioncenter.MissionCenter performance-selected-page memory && missioncenter"
+    "on-click-right": "gsettings set io.missioncenter.MissionCenter window-selected-page performance-page && gsettings set io.missioncenter.MissionCenter performance-selected-page memory && missioncenter",
   },
   "pulseaudio": {
     "format": "{icon} {volume}%",
     "format-muted": "󰝟 muted",
     "format-icons": {
       "headphone": "",
-      "default": ["", "", ""]
+      "default": ["", "", ""],
     },
     "on-click": "pavucontrol",
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-    "scroll-step": 5
+    "scroll-step": 5,
   },
   "tray": {
     "icon-size": 18,
-    "spacing": 8
+    "spacing": 8,
   },
   "clock": {
     "format": "{:%a %b %d  %H:%M}",
@@ -89,9 +88,9 @@
     "calendar": {
       "mode": "month",
       "weeks-pos": "right",
-      "on-scroll": 1
+      "on-scroll": 1,
     },
-    "interval": 1
+    "interval": 1,
   },
   "custom/notification": {
     "exec": "swaync-client -swb",
@@ -105,15 +104,15 @@
       "inhibited-notification": "<span foreground='#D9A441'><sup></sup></span>",
       "inhibited-none": "",
       "dnd-inhibited-notification": "<span foreground='#D9A441'><sup></sup></span>",
-      "dnd-inhibited-none": ""
+      "dnd-inhibited-none": "",
     },
     "on-click": "swaync-client -t -sw",
     "on-click-right": "swaync-client -d -sw",
-    "escape": true
+    "escape": true,
   },
   "custom/power": {
     "format": "",
     "tooltip": false,
-    "on-click": "$HOME/.local/bin/power-menu"
-  }
+    "on-click": "$HOME/.local/bin/power-menu",
+  },
 }
