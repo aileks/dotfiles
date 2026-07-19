@@ -75,6 +75,7 @@ readonly -a PACMAN_PACKAGES=(
   lua
   man-db
   mesa-utils
+  mission-center
   nautilus
   neovim
   network-manager-applet
