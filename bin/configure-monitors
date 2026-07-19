@@ -7,8 +7,6 @@ monitors_destination="$state_dir/monitors.lua"
 workspaces_destination="$state_dir/workspaces.lua"
 mkdir -p "$state_dir"
 
-[[ -f $monitors_destination && -f $workspaces_destination ]] && exit 0
-
 for _ in {1..30}; do
   if monitors=$(hyprctl -j monitors all 2>/dev/null); then
     break
@@ -28,6 +26,20 @@ side=$(jq -r --arg main "$main" '
   | first | .name // empty
 ' <<<"$monitors")
 
+lua_string() {
+  jq -Rn --arg value "$1" '$value'
+}
+
+focus_main() {
+  [[ -n $main ]] || return 0
+  hyprctl dispatch "hl.dsp.focus({ monitor = $(lua_string "$main") })"
+}
+
+if [[ -f $monitors_destination && -f $workspaces_destination ]]; then
+  focus_main
+  exit 0
+fi
+
 best_mode() {
   local output="$1" resolution="$2"
   jq -r --arg output "$output" --arg resolution "$resolution" '
@@ -36,10 +48,6 @@ best_mode() {
        | { mode: sub("Hz$"; ""), delta: ((split("@")[1] | sub("Hz$"; "") | tonumber) - 200 | fabs) }]
     | sort_by(.delta) | first | .mode // "highrr"
   ' <<<"$monitors"
-}
-
-lua_string() {
-  jq -Rn --arg value "$1" '$value'
 }
 
 monitors_tmp="$state_dir/monitors.lua.new"
@@ -75,3 +83,4 @@ workspaces_tmp="$state_dir/workspaces.lua.new"
 install -m 0644 "$monitors_tmp" "$monitors_destination"
 install -m 0644 "$workspaces_tmp" "$workspaces_destination"
 hyprctl reload
+focus_main
