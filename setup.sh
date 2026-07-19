@@ -112,6 +112,7 @@ readonly -a PACMAN_PACKAGES=(
   starship
   sushi
   swaync
+  swayosd
   system-config-printer
   tmux
   trash-cli
@@ -169,6 +170,7 @@ readonly -a USER_SERVICES=(
   monitor-setup.service
   nm-applet.service
   swaync.service
+  swayosd-server.service
   udiskie.service
   waybar.service
   hyprpaper.service
@@ -521,6 +523,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/waybar" "$config_home/waybar"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
+  link_path "$SCRIPT_DIR/swayosd" "$config_home/swayosd"
 
   mkdir -p "$config_home/systemd/user"
   for source in "$SCRIPT_DIR"/systemd/user/*.service; do

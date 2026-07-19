@@ -102,7 +102,7 @@ check_nvidia_fbdev() {
 
 check_system() {
   local command file
-  for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client hyprlock hypridle hyprpaper nwg-look; do
+  for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client swayosd-client hyprlock hypridle hyprpaper nwg-look; do
     check_command "$command"
   done
   for file in sddm sddm-autologin sddm-greeter hyprlock; do
@@ -173,6 +173,7 @@ check_session() {
     fail 'graphical-session.target inactive'
   fi
   for unit in waybar.service swaync.service hypridle.service \
+    swayosd-server.service \
     cliphist-text.service cliphist-image.service nm-applet.service \
     udiskie.service hyprpaper.service hyprpolkitagent.service \
     pipewire.service pipewire-pulse.service wireplumber.service \

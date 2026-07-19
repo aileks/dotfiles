@@ -20,3 +20,26 @@ mapfile -t buses < <(
 for bus in "${buses[@]}"; do
   ddcutil setvcp 10 "$direction" 5 --bus "$bus" --skip-ddc-checks --noverify || true
 done
+
+command -v swayosd-client >/dev/null || exit 0
+
+total=0
+count=0
+for bus in "${buses[@]}"; do
+  if read -r current maximum < <(
+    ddcutil getvcp 10 --bus "$bus" --terse --skip-ddc-checks 2>/dev/null |
+      awk '$1 == "VCP" && $2 == "10" && $3 == "C" {print $4, $5; exit}'
+  ); then
+    [[ $current =~ ^[0-9]+$ && $maximum =~ ^[0-9]+$ && $maximum -gt 0 ]] || continue
+    total=$((total + ((current * 100 + maximum / 2) / maximum)))
+    count=$((count + 1))
+  fi
+done
+
+((count)) || exit 0
+percentage=$(((total + count / 2) / count))
+progress=$(printf '%d.%02d' "$((percentage / 100))" "$((percentage % 100))")
+swayosd-client \
+  --custom-icon display-brightness-symbolic \
+  --custom-progress "$progress" \
+  --custom-progress-text "${percentage}%" || true

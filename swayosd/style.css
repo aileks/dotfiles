@@ -1,0 +1,66 @@
+@define-color background #131210;
+@define-color container #1B1916;
+@define-color surface #23201C;
+@define-color overlay #58534C;
+@define-color text #BBB3A9;
+@define-color bright #DDD5CA;
+@define-color primary #E17A3F;
+
+window#osd {
+  background: alpha(@container, 0.96);
+  border: 1px solid alpha(@overlay, 0.65);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px alpha(@background, 0.8);
+}
+
+window#osd #container {
+  margin: 14px 18px;
+}
+
+window#osd image {
+  color: @primary;
+}
+
+window#osd label {
+  color: @bright;
+  font-family: "AdwaitaMono Nerd Font Mono";
+  font-size: 13px;
+  font-weight: 700;
+}
+
+window#osd progressbar:disabled,
+window#osd image:disabled {
+  opacity: 0.5;
+}
+
+window#osd progressbar,
+window#osd segmentedprogress {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  min-height: 7px;
+}
+
+window#osd trough,
+window#osd segment {
+  background: @surface;
+  border: none;
+  border-radius: inherit;
+  min-height: inherit;
+}
+
+window#osd progress,
+window#osd segment.active {
+  background: @primary;
+  border: none;
+  border-radius: inherit;
+  min-height: inherit;
+}
+
+window#osd segment {
+  margin-left: 8px;
+}
+
+window#osd segment:first-child {
+  margin-left: 0;
+}
