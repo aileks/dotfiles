@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
+set -eeuo pipefail
 
-selection=$(printf '%s\n' Lock Logout Suspend Reboot Shutdown |
-  fuzzel --dmenu --minimal-lines --prompt='Power > ')
+selection=$(printf '%s\n' lock logout suspend reboot shutdown |
+	fuzzel --dmenu --minimal-lines --prompt='power > ')
 [[ -n $selection ]] || exit 0
 
 case "$selection" in
-  Lock)
-    exec loginctl lock-session
-    ;;
-  Logout)
-    command=(uwsm stop)
-    ;;
-  Suspend)
-    command=(systemctl suspend)
-    ;;
-  Reboot)
-    command=(systemctl reboot)
-    ;;
-  Shutdown)
-    command=(systemctl poweroff)
-    ;;
-  *) exit 0 ;;
+lock)
+	exec loginctl lock-session
+	;;
+logout)
+	command=(uwsm stop)
+	;;
+suspend)
+	command=(systemctl suspend)
+	;;
+reboot)
+	command=(systemctl reboot)
+	;;
+shutdown)
+	command=(systemctl poweroff)
+	;;
+*) exit 0 ;;
 esac
 
-confirmation=$(printf '%s\n' No Yes | fuzzel --dmenu --minimal-lines --prompt="$selection? ")
-[[ $confirmation == Yes ]] || exit 0
+confirmation=$(printf '%s\n' no yes | fuzzel --dmenu --minimal-lines --prompt="$selection? ")
+[[ $confirmation == yes ]] || exit 0
 exec "${command[@]}"
