@@ -23,5 +23,10 @@
   "hide-on-clear": true,
   "hide-on-action": true,
   "script-fail-notify": true,
-  "widgets": ["title", "dnd", "mpris", "notifications"]
+  "widgets": ["title", "dnd", "mpris", "notifications"],
+  "widget-config": {
+    "mpris": {
+      "blacklist": ["playerctld"]
+    }
+  }
 }
