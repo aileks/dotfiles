@@ -122,10 +122,12 @@ window#waybar {
   color: @bright;
 }
 
-#custom-notification,
-#custom-power {
+#custom-notification {
   color: @primary;
-  font-size: 15px;
+}
+
+#custom-power {
+  color: @red;
 }
 
 tooltip {
