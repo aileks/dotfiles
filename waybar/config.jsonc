@@ -117,6 +117,7 @@
   },
   "group/systray": {
     "orientation": "inherit",
+    "cursor": true,
     "drawer": {
       "transition-duration": 200,
       "transition-left-to-right": false,
