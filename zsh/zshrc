@@ -7,6 +7,7 @@ export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 export MANPAGER='bat --theme="cinder-grove" -plman'
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+export DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/podman/podman.sock"
 bindkey -e
 
 # Terminal line editing
@@ -52,6 +53,7 @@ alias c="clear"
 alias fzf="fzf --style full"
 alias ff="fastfetch"
 alias vim="nvim"
+alias docker="podman"
 
 # FZF
 export FZF_CTRL_T_OPTS="
