@@ -72,6 +72,7 @@ window#waybar {
 #memory,
 #pulseaudio,
 #tray,
+#custom-tray-toggle,
 #clock,
 #custom-notification,
 #custom-power {
@@ -111,6 +112,10 @@ window#waybar {
 
 #pulseaudio.muted {
   color: @overlay;
+}
+
+#custom-tray-toggle {
+  color: @subtle;
 }
 
 #clock {
