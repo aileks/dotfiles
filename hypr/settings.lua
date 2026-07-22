@@ -64,6 +64,7 @@ hl.config({
         animate_manual_resizes = true,
         enable_swallow = true,
         swallow_regex = "^(Alacritty)$",
+        allow_session_lock_restore = true,
     },
     binds = {
         scroll_event_delay = 250,

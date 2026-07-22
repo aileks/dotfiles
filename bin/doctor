@@ -144,6 +144,7 @@ check_system() {
 	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service sddm.service systemd-timesyncd.service; do
 		check_enabled "$file"
 	done
+	check_enabled "hyprlock-suspend@$(id -u).service"
 	check_nvidia_modeset
 	check_nvidia_fbdev
 	if [[ -r /proc/driver/nvidia/params ]]; then
@@ -161,7 +162,7 @@ check_system() {
 }
 
 check_session() {
-	local errors monitors main_count side_count user_bus_names
+	local errors monitors main_count restore_lock side_count user_bus_names
 	if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
 		pass 'Hyprland desktop environment exported'
 	else
@@ -171,6 +172,11 @@ check_session() {
 		pass 'graphical-session.target active'
 	else
 		fail 'graphical-session.target inactive'
+	fi
+	if systemctl --user cat hyprlock.service >/dev/null 2>&1; then
+		pass 'hyprlock.service available'
+	else
+		fail 'hyprlock.service missing'
 	fi
 	for unit in waybar.service swaync.service hypridle.service swayosd-server.service \
 		cliphist-text.service cliphist-image.service nm-applet.service \
@@ -190,6 +196,13 @@ check_session() {
 		pass 'Hyprland config has no errors'
 	else
 		fail "Hyprland config errors: $errors"
+	fi
+	restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null |
+		awk '$1 == "bool:" {print $2; exit}')
+	if [[ $restore_lock == true ]]; then
+		pass 'Hyprland session lock restoration enabled'
+	else
+		fail 'Hyprland session lock restoration disabled'
 	fi
 	if monitors=$(hyprctl -j monitors 2>/dev/null); then
 		main_count=$(jq '[.[] | select(.width == 2560 and .height == 1440 and .x == 1080 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")

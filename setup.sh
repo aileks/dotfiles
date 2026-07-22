@@ -498,6 +498,15 @@ configure_system_services() {
   run_sudo systemctl enable "${SYSTEM_SERVICES[@]}"
 }
 
+configure_suspend_workaround() {
+  local content unit
+  unit="hyprlock-suspend@$(id -u).service"
+  content="$(<"$SCRIPT_DIR/systemd/system/hyprlock-suspend@.service")"$'\n'
+  ensure_root_file /etc/systemd/system/hyprlock-suspend@.service "$content"
+  run_sudo systemctl daemon-reload
+  run_sudo systemctl enable "$unit"
+}
+
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}" unit source
   info "linking configuration files..."
@@ -702,6 +711,7 @@ main() {
   configure_sddm
   validate_sddm_pam
   configure_groups
+  configure_suspend_workaround
   configure_system_services
   configure_dotfiles
   configure_shell

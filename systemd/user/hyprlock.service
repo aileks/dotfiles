@@ -1,0 +1,9 @@
+[Unit]
+Description=Hyprland screen locker
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/hyprlock
+TimeoutStopSec=2s
