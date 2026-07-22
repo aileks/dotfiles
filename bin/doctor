@@ -5,16 +5,32 @@ set -uo pipefail
 failures=0
 desktop_active=0
 booted_graphics=0
+ok_color=""
+warn_color=""
+out_reset=""
+error_color=""
+err_reset=""
 
-pass() { printf '[ok] %s\n' "$*"; }
-warn() { printf '[warn] %s\n' "$*"; }
+if [[ ! -v NO_COLOR && -t 1 ]]; then
+	ok_color=$'\e[32m'
+	warn_color=$'\e[33m'
+	out_reset=$'\e[0m'
+fi
+if [[ ! -v NO_COLOR && -t 2 ]]; then
+	error_color=$'\e[31m'
+	err_reset=$'\e[0m'
+fi
+
+pass() { printf '%s[ok]%s %s\n' "$ok_color" "$out_reset" "$*"; }
+warn() { printf '%s[warn]%s %s\n' "$warn_color" "$out_reset" "$*"; }
 fail() {
-	printf '[fail] %s\n' "$*" >&2
+	printf '%s[fail]%s %s\n' "$error_color" "$err_reset" "$*" >&2
 	failures=$((failures + 1))
 }
+error() { printf '%s[error]%s %s\n' "$error_color" "$err_reset" "$*" >&2; }
 
 [[ $# == 0 ]] || {
-	printf '[error] doctor takes no arguments\n' >&2
+	error 'doctor takes no arguments'
 	exit 2
 }
 
