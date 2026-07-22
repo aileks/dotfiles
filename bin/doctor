@@ -57,6 +57,48 @@ check_enabled() {
 	fi
 }
 
+check_disabled() {
+	if systemctl is-enabled --quiet "$1"; then
+		fail "$1 enabled"
+	else
+		pass "$1 disabled"
+	fi
+}
+
+check_package() {
+	if pacman -Qq "$1" >/dev/null 2>&1; then
+		pass "$1 installed"
+	else
+		fail "$1 missing"
+	fi
+}
+
+check_limine_snapper_sync() {
+	if systemctl is-active --quiet limine-snapper-sync.service; then
+		pass 'Limine snapshot watcher active'
+	elif [[ -x /usr/lib/snapper/plugins/10-limine-snapper-sync ]]; then
+		pass 'Limine Snapper plugin available'
+	else
+		fail 'Limine snapshot synchronization unavailable'
+	fi
+}
+
+check_setting() {
+	local file="$1" key="$2" expected="$3" label="$4" value
+	value=$(awk -F= -v key="$key" '
+		$1 == key {
+			value = $2
+			gsub(/^"|"$/, "", value)
+			print value
+		}
+	' "$file" 2>/dev/null | tail -n 1)
+	if [[ $value == "$expected" ]]; then
+		pass "$label"
+	else
+		fail "$label"
+	fi
+}
+
 check_user_active() {
 	if systemctl --user is-active --quiet "$1"; then
 		pass "$1 active"
@@ -116,9 +158,62 @@ check_nvidia_fbdev() {
 	fi
 }
 
+check_snapper() {
+	local configs home_fstype package root_fstype
+	root_fstype=$(findmnt -no FSTYPE / 2>/dev/null || true)
+	home_fstype=$(findmnt -no FSTYPE /home 2>/dev/null || true)
+	if [[ $root_fstype == btrfs && $home_fstype == btrfs ]]; then
+		pass 'root and home use Btrfs'
+	else
+		fail 'root or home is not Btrfs'
+	fi
+	for package in btrfs-progs snapper snap-pac limine-mkinitcpio-hook limine-snapper-sync; do
+		check_package "$package"
+	done
+	configs=$(snapper --csvout --no-headers list-configs 2>/dev/null || true)
+	if cut -d, -f1 <<<"$configs" | grep -Fxq root; then
+		pass 'root Snapper config present'
+	else
+		fail 'root Snapper config missing'
+	fi
+	if cut -d, -f1 <<<"$configs" | grep -Fxq home; then
+		pass 'home Snapper config present'
+	else
+		fail 'home Snapper config missing'
+	fi
+	check_setting /etc/snapper/configs/root TIMELINE_CREATE no \
+		'root timeline snapshots disabled'
+	check_setting /etc/snapper/configs/root NUMBER_LIMIT 10 \
+		'root snapshot retention is 10'
+	check_setting /etc/snapper/configs/home TIMELINE_CREATE no \
+		'home hourly snapshots disabled'
+	check_setting /etc/snapper/configs/home TIMELINE_LIMIT_WEEKLY 8 \
+		'home weekly retention is 8'
+	check_setting /etc/default/limine LIMIT_USAGE_PERCENT 85 \
+		'Limine snapshot usage limit is 85 percent'
+	check_setting /etc/default/limine MAX_SNAPSHOT_ENTRIES auto \
+		'Limine snapshot entries auto-prune'
+	if grep -Eq '^[[:space:]]*HOOKS=.*[[:space:](]btrfs-overlayfs([[:space:])]|$)' \
+		/etc/mkinitcpio.conf 2>/dev/null; then
+		pass 'mkinitcpio snapshot overlay enabled'
+	else
+		fail 'mkinitcpio snapshot overlay missing'
+	fi
+	check_disabled snapper-timeline.timer
+	check_enabled snapper-cleanup.timer
+	check_enabled snapper-home-weekly.timer
+	check_enabled limine-snapper-sync.service
+	check_limine_snapper_sync
+	if [[ -f /var/lib/aileks-dotfiles/snapper-v1 ]]; then
+		pass 'Snapper setup marker present'
+	else
+		fail 'Snapper setup marker missing'
+	fi
+}
+
 check_system() {
 	local command file
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client swayosd-client hyprlock hypridle hyprpaper nwg-look; do
+	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client swayosd-client hyprlock hypridle hyprpaper nwg-look snapper limine-snapper-info; do
 		check_command "$command"
 	done
 	for file in sddm sddm-autologin sddm-greeter hyprlock; do
@@ -161,6 +256,7 @@ check_system() {
 		check_enabled "$file"
 	done
 	check_enabled "hyprlock-suspend@$(id -u).service"
+	check_snapper
 	check_nvidia_modeset
 	check_nvidia_fbdev
 	if [[ -r /proc/driver/nvidia/params ]]; then

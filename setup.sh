@@ -15,6 +15,8 @@ DRY_RUN=0
 TEMP_DIR=""
 AUR_HELPER=""
 
+readonly SNAPPER_MARKER="/var/lib/aileks-dotfiles/snapper-v1"
+
 readonly -a PACMAN_PACKAGES=(
   7zip
   adwaita-cursors
@@ -28,6 +30,7 @@ readonly -a PACMAN_PACKAGES=(
   bluez
   bluez-utils
   btop
+  btrfs-progs
   cava
   cliphist
   cups
@@ -64,6 +67,7 @@ readonly -a PACMAN_PACKAGES=(
   hyprpaper
   hyprpolkitagent
   imv
+  inotify-tools
   jq
   kvantum
   less
@@ -109,6 +113,8 @@ readonly -a PACMAN_PACKAGES=(
   shellcheck
   shfmt
   signal-desktop
+  snap-pac
+  snapper
   slurp
   starship
   sushi
@@ -144,6 +150,8 @@ readonly -a PACMAN_PACKAGES=(
 readonly -a AUR_PACKAGES=(
   fastmail
   helium-browser-bin
+  limine-mkinitcpio-hook
+  limine-snapper-sync
   localsend-bin
   localsend-nautilus-extension
   tmux-sessionizer-bin
@@ -364,6 +372,35 @@ ensure_root_file() {
   sudo install -D -o root -g root -m 0644 "$tmp" "$path"
 }
 
+backup_root_file() {
+  local source="$1" name="$2"
+  local target="/var/backups/aileks-dotfiles/$name"
+  if ((DRY_RUN)); then
+    info "back up $source to $target if needed"
+    return 0
+  fi
+  sudo test -f "$source" || return 0
+  sudo test -e "$target" && return 0
+  sudo install -D -o root -g root -m 0600 "$source" "$target"
+}
+
+ensure_root_managed_block() {
+  local path="$1" begin="$2" end="$3" block="$4" current="" stripped
+  if [[ -r $path ]]; then
+    current=$(<"$path")
+  elif ((DRY_RUN == 0)) && sudo test -r "$path"; then
+    current=$(sudo cat "$path")
+  fi
+  stripped=$(awk -v begin="$begin" -v end="$end" '
+    $0 == begin { skip = 1; next }
+    $0 == end { skip = 0; next }
+    !skip { print }
+  ' <<<"$current")
+  stripped=${stripped%$'\n'}
+  [[ -z $stripped ]] || stripped+=$'\n\n'
+  ensure_root_file "$path" "$stripped$begin"$'\n'"$block"$'\n'"$end"$'\n'
+}
+
 backup_target() {
   local target="$1" backup
   backup="$BACKUP_DIR/$(basename "$target")"
@@ -440,6 +477,150 @@ install_aur_packages() {
   GPG_TTY=$(tty </dev/tty)
   export GPG_TTY
   "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}" </dev/tty
+}
+
+snapper_config_exists() {
+  local config="$1"
+  if ((DRY_RUN)); then
+    command -v snapper >/dev/null || return 1
+    snapper --csvout --no-headers list-configs 2>/dev/null |
+      cut -d, -f1 | grep -Fxq "$config"
+    return
+  fi
+  sudo snapper --csvout --no-headers list-configs |
+    cut -d, -f1 | grep -Fxq "$config"
+}
+
+validate_snapper_filesystems() {
+  local path
+  for path in / /home; do
+    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
+      die "$path must be a Btrfs filesystem for Snapper"
+    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
+      die "$path must be a Btrfs subvolume for Snapper"
+  done
+}
+
+ensure_snapper_config() {
+  local config="$1" subvolume="$2"
+  if snapper_config_exists "$config"; then
+    return 0
+  fi
+  run_sudo snapper -c "$config" create-config "$subvolume"
+}
+
+configure_snapper_retention() {
+  run_sudo snapper -c root set-config \
+    'NUMBER_CLEANUP=yes' \
+    'NUMBER_MIN_AGE=3600' \
+    'NUMBER_LIMIT=10' \
+    'NUMBER_LIMIT_IMPORTANT=10' \
+    'TIMELINE_CREATE=no'
+  run_sudo snapper -c home set-config \
+    'TIMELINE_CREATE=no' \
+    'TIMELINE_CLEANUP=yes' \
+    'TIMELINE_MIN_AGE=3600' \
+    'TIMELINE_LIMIT_HOURLY=0' \
+    'TIMELINE_LIMIT_DAILY=0' \
+    'TIMELINE_LIMIT_WEEKLY=8' \
+    'TIMELINE_LIMIT_MONTHLY=0' \
+    'TIMELINE_LIMIT_QUARTERLY=0' \
+    'TIMELINE_LIMIT_YEARLY=0'
+}
+
+install_snapper_units() {
+  local content unit
+  for unit in snapper-home-weekly.service snapper-home-weekly.timer; do
+    content="$(<"$SCRIPT_DIR/systemd/system/$unit")"$'\n'
+    ensure_root_file "/etc/systemd/system/$unit" "$content"
+  done
+}
+
+configure_mkinitcpio_overlay() {
+  local path=/etc/mkinitcpio.conf current updated
+  current=$(<"$path")
+  if grep -Eq '^[[:space:]]*HOOKS=.*[[:space:](]btrfs-overlayfs([[:space:])]|$)' \
+    <<<"$current"; then
+    return 0
+  fi
+  if ! updated=$(awk '
+    /^[[:space:]]*HOOKS=\(/ && /filesystems/ {
+      sub(/filesystems/, "filesystems btrfs-overlayfs")
+      changed = 1
+    }
+    { print }
+    END { if (!changed) exit 1 }
+  ' <<<"$current"); then
+    die "could not add btrfs-overlayfs to $path"
+  fi
+  ensure_root_file "$path" "$updated"$'\n'
+}
+
+configure_limine_snapshots() {
+  local begin='# begin aileks snapper setup'
+  local end='# end aileks snapper setup'
+  local block='ESP_PATH="/boot"
+ENABLE_UKI=yes
+CUSTOM_UKI_NAME="arch"
+MKINITCPIO_FALLBACK=no
+LIMIT_USAGE_PERCENT=85
+MAX_SNAPSHOT_ENTRIES=auto
+EXCLUDE_SNAPSHOT_TYPES="post"
+SNAPPER_CONFIG_NAME="root"
+RESTORE_METHOD=replace
+SNAPSHOT_FORMAT_CHOICE=8'
+  ensure_root_managed_block /etc/default/limine "$begin" "$end" "$block"
+}
+
+ensure_initial_snapshot() {
+  local config="$1" cleanup="$2" description="$3"
+  if ((DRY_RUN)); then
+    run_sudo snapper -c "$config" create --cleanup-algorithm "$cleanup" \
+      --description "$description"
+    return 0
+  fi
+  if sudo snapper --csvout --no-headers -c "$config" list \
+    --columns description | grep -Fxq "$description"; then
+    return 0
+  fi
+  sudo snapper -c "$config" create --cleanup-algorithm "$cleanup" \
+    --description "$description"
+}
+
+configure_snapper() {
+  local marker_content='version=1'
+  if ((DRY_RUN == 0)) && sudo test -f "$SNAPPER_MARKER"; then
+    info "Snapper setup already complete"
+    return 0
+  fi
+
+  info "configuring Snapper and Limine recovery..."
+  validate_snapper_filesystems
+  backup_root_file /etc/snapper/configs/root snapper-root.conf
+  backup_root_file /etc/snapper/configs/home snapper-home.conf
+  backup_root_file /etc/mkinitcpio.conf mkinitcpio.conf
+  backup_root_file /etc/default/limine limine-default
+  backup_root_file /boot/limine.conf limine.conf
+
+  ensure_snapper_config root /
+  ensure_snapper_config home /home
+  configure_snapper_retention
+  install_snapper_units
+  configure_mkinitcpio_overlay
+  configure_limine_snapshots
+
+  run_sudo systemctl daemon-reload
+  run_sudo systemctl disable --now snapper-timeline.timer
+  run_sudo systemctl enable --now snapper-cleanup.timer
+  run_sudo systemctl enable --now snapper-home-weekly.timer
+  run_sudo limine-update
+  run_sudo systemctl enable --now limine-snapper-sync.service
+
+  ensure_initial_snapshot root number 'snapper setup'
+  ensure_initial_snapshot home timeline 'initial weekly home snapshot'
+  run_sudo limine-snapper-sync
+  run_sudo limine-snapper-info
+  ensure_root_file "$SNAPPER_MARKER" "$marker_content"$'\n'
 }
 
 check_display_manager() {
@@ -708,6 +889,7 @@ main() {
   check_display_manager
   install_packages
   install_aur_packages
+  configure_snapper
   configure_sddm
   validate_sddm_pam
   configure_groups

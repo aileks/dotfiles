@@ -1,0 +1,8 @@
+[Unit]
+Description=Weekly Snapper snapshot of home
+After=local-fs.target
+ConditionPathExists=/etc/snapper/configs/home
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snapper -c home create --cleanup-algorithm timeline --description "weekly home snapshot"

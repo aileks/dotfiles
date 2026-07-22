@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly Snapper snapshot of home
+
+[Timer]
+OnCalendar=Sun *-*-* 03:00:00
+Persistent=true
+RandomizedDelaySec=15m
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target
