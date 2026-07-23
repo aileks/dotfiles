@@ -18,6 +18,7 @@ for _, class in ipairs({
     "^(nwg-displays)$",
     "^(org.gnome.DiskUtility)$",
     "^(org.pulseaudio.pavucontrol)$",
+    "^(qalculate-gtk)$",
 }) do
     hl.window_rule({
         name = "settings-float-" .. class,
