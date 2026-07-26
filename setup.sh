@@ -779,7 +779,9 @@ migrate_gtk_config() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
-  local gtk4_css="$config_home/gtk-4.0/gtk.css" target version
+  local gtk4_css="$config_home/gtk-4.0/gtk.css"
+  local installed_css="$state_home/cinder-grove-gtk/gtk4.css.installed"
+  local target version
 
   for version in gtk-3.0 gtk-4.0; do
     target="$config_home/$version"
@@ -790,10 +792,16 @@ migrate_gtk_config() {
 
   target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
   if [[ -f $state_home/cinder-grove-gtk/installed &&
-    -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme &&
-    ! -e $gtk4_css && ! -L $gtk4_css ]]; then
-    run_cmd mkdir -p "$config_home/gtk-4.0"
-    run_cmd ln -s "$target" "$gtk4_css"
+    -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
+    if [[ -f $installed_css ]] &&
+      { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
+      run_cmd mkdir -p "$config_home/gtk-4.0"
+      run_cmd rm -f "$gtk4_css"
+      run_cmd cp "$installed_css" "$gtk4_css"
+    elif [[ ! -e $gtk4_css && ! -L $gtk4_css ]]; then
+      run_cmd mkdir -p "$config_home/gtk-4.0"
+      run_cmd ln -s "$target" "$gtk4_css"
+    fi
   fi
 }
 
