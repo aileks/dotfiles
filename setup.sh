@@ -3,8 +3,8 @@
 set -Eeuo pipefail
 
 SCRIPT_DIR=""
-readonly DOTFILES_REPO="https://codeberg.org/aileks/dotfiles.git"
-readonly GTK_THEME_REPO="https://codeberg.org/aileks/cinder-grove-gtk.git"
+readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
+readonly GTK_THEME_REPO="https://github.com/aileks/cinder-grove-gtk.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
