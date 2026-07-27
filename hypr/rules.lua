@@ -9,6 +9,7 @@ hl.window_rule({
     match = { title = "^(Open File|Save File|Select a File|Choose Files|Authentication Required)$" },
     float = true,
     center = true,
+    size = "70% 70%",
 })
 
 for _, class in ipairs({

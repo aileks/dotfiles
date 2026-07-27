@@ -14,6 +14,11 @@ case "${1:-}" in
     geometry=$(slurp) || exit 0
     grim -g "$geometry" "$file"
     ;;
+  window)
+    geometry=$(hyprctl -j activewindow | jq -er \
+      '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
+    grim -g "$geometry" "$file"
+    ;;
   *) exit 2 ;;
 esac
 

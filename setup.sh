@@ -108,7 +108,6 @@ readonly -a PACMAN_PACKAGES=(
   qt6ct
   ripgrep
   rsync
-  sane-airscan
   sddm
   shellcheck
   shfmt
@@ -117,7 +116,6 @@ readonly -a PACMAN_PACKAGES=(
   snapper
   slurp
   starship
-  sushi
   swaync
   swayosd
   system-config-printer

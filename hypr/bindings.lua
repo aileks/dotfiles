@@ -64,6 +64,7 @@ bind("SUPER + mouse:272", hl.dsp.window.drag(), "Move window with mouse", { mous
 bind("SUPER + mouse:273", hl.dsp.window.resize(), "Resize window with mouse", { mouse = true })
 
 bind("Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot region"), "Region screenshot")
+bind("CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot window"), "Window screenshot")
 bind("SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot output"), "Full screenshot")
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume +5"), "Volume up", media)

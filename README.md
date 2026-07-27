@@ -44,7 +44,7 @@ cd ~/.dotfiles
 | Super + Shift + `/`             | Keybind help                                |
 | Super + Escape                  | Lock                                        |
 | Super + Shift + `p`             | Power menu                                  |
-| Print / Shift + Print           | Region / full screenshot                    |
+| Print / Ctrl + Print / Shift + Print | Region / window / full screenshot       |
 
 ## tmux
 
