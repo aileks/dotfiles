@@ -12,6 +12,14 @@ hl.window_rule({
     size = "70% 70%",
 })
 
+hl.window_rule({
+    name = "satty-float",
+    match = { class = "^(org.satty.satty)$" },
+    float = true,
+    center = true,
+    size = "80% 80%",
+})
+
 for _, class in ipairs({
     "^(blueman-manager)$",
     "^(nm-connection-editor)$",

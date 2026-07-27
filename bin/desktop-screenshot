@@ -23,4 +23,18 @@ case "${1:-}" in
 esac
 
 wl-copy <"$file"
-notify-send -a Screenshot -i "$file" 'Screenshot saved' "$file"
+
+if [[ $(notify-send -a Screenshot -i "$file" -A annotate=Annotate \
+  'Screenshot saved' "$file") == annotate ]]; then
+  satty \
+    --filename "$file" \
+    --output-filename "$file" \
+    --copy-command wl-copy \
+    --app-id org.satty.satty \
+    --actions-on-enter save-to-file \
+    --actions-on-enter save-to-clipboard \
+    --actions-on-enter exit \
+    --actions-on-right-click save-to-file \
+    --actions-on-right-click save-to-clipboard \
+    --actions-on-right-click exit
+fi

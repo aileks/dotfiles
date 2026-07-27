@@ -108,6 +108,7 @@ readonly -a PACMAN_PACKAGES=(
   qt6ct
   ripgrep
   rsync
+  satty
   sddm
   shellcheck
   shfmt
