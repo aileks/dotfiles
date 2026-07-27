@@ -20,6 +20,11 @@ y = 10
 [cursor.style]
 shape = "Block"
 
+[keyboard]
+bindings = [
+  { key = "Enter", mods = "Shift", chars = "\u000a" },
+]
+
 [scrolling]
 history = 10000
 
