@@ -6,10 +6,10 @@ hl.window_rule({
 
 hl.window_rule({
     name = "dialogs-float",
-    match = { title = "^(Open File|Save File|Select a File|Choose Files|Authentication Required)$" },
+    match = { class = "^(xdg-desktop-portal-gtk)$" },
     float = true,
     center = true,
-    size = "70% 70%",
+    size = "monitor_w*0.5 monitor_h*0.6",
 })
 
 hl.window_rule({
@@ -17,26 +17,18 @@ hl.window_rule({
     match = { class = "^(org.satty.satty)$" },
     float = true,
     center = true,
-    size = "80% 80%",
+    size = "monitor_w*0.8 monitor_h*0.8",
 })
 
-for _, class in ipairs({
-    "^(blueman-manager)$",
-    "^(nm-connection-editor)$",
-    "^(nwg-look)$",
-    "^(nwg-displays)$",
-    "^(org.gnome.DiskUtility)$",
-    "^(org.pulseaudio.pavucontrol)$",
-    "^(qalculate-gtk)$",
-}) do
-    hl.window_rule({
-        name = "settings-float-" .. class,
-        match = { class = class },
-        float = true,
-        center = true,
-        size = "70% 70%",
-    })
-end
+hl.window_rule({
+    name = "settings-float",
+    match = {
+        class = [[^(blueman-manager|nm-connection-editor|nwg-look|nwg-displays|org\.gnome\.DiskUtility|org\.pulseaudio\.pavucontrol|qalculate-gtk)$]],
+    },
+    float = true,
+    center = true,
+    size = "monitor_w*0.7 monitor_h*0.7",
+})
 
 hl.window_rule({
     name = "fix-xwayland-drag",
