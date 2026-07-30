@@ -31,6 +31,17 @@ hl.window_rule({
 })
 
 hl.window_rule({
+    name = "zoom-overlay-stability",
+    match = {
+        class = "^(zoom)$",
+        xwayland = true,
+    },
+    no_anim = true,
+    no_blur = true,
+    no_follow_mouse = true,
+})
+
+hl.window_rule({
     name = "fix-xwayland-drag",
     match = {
         class = "^$",
