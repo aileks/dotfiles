@@ -48,6 +48,7 @@ readonly -a PACMAN_PACKAGES=(
   fuzzel
   fwupd
   fzf
+  geoclue
   git
   gnome-disk-utility
   gnome-firmware
