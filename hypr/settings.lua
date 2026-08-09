@@ -44,7 +44,7 @@ hl.config({
         kb_file = config_home .. "/hypr/keymap.xkb",
         numlock_by_default = true,
         repeat_rate = 50,
-        repeat_delay = 245,
+        repeat_delay = 250,
         follow_mouse = 1,
         accel_profile = "flat",
         sensitivity = 0,
