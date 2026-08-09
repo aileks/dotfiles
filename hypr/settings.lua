@@ -1,3 +1,5 @@
+local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
+
 hl.config({
     general = {
         gaps_in = 5,
@@ -39,9 +41,7 @@ hl.config({
         smart_resizing = true,
     },
     input = {
-        kb_layout = "en,il",
-        kb_variant = ",phonetic",
-        kb_options = "grp:alt_shift_toggle",
+        kb_file = config_home .. "/hypr/keymap.xkb",
         numlock_by_default = true,
         repeat_rate = 50,
         repeat_delay = 250,
