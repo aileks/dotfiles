@@ -708,6 +708,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
   link_path "$SCRIPT_DIR/fuzzel" "$config_home/fuzzel"
   link_path "$SCRIPT_DIR/hypr" "$config_home/hypr"
+  link_path "$SCRIPT_DIR/xkb/symbols/en" "$config_home/xkb/symbols/en"
   link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
