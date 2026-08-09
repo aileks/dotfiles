@@ -169,13 +169,11 @@ readonly -a SYSTEM_SERVICES=(
 )
 
 readonly -a USER_SERVICES=(
-  blueman-applet.service
   cliphist-image.service
   cliphist-text.service
   first-login.service
   hypridle.service
   monitor-setup.service
-  nm-applet.service
   swaync.service
   swayosd-server.service
   udiskie.service
@@ -427,6 +425,18 @@ link_path() {
   fi
   mkdir -p "$(dirname "$target")"
   ln -s "$source" "$target"
+}
+
+remove_managed_link() {
+  local source="$1" target="$2"
+  if [[ ! -L $target || $(readlink "$target") != "$source" ]]; then
+    return 0
+  fi
+  if ((DRY_RUN)); then
+    info "remove obsolete link $target"
+    return 0
+  fi
+  rm "$target"
 }
 
 install_packages() {
@@ -709,6 +719,11 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
   link_path "$SCRIPT_DIR/swayosd" "$config_home/swayosd"
+
+  remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
+    "$config_home/systemd/user/graphical-session.target.wants/nm-applet.service"
+  remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
+    "$config_home/systemd/user/nm-applet.service"
 
   mkdir -p "$config_home/systemd/user"
   for source in "$SCRIPT_DIR"/systemd/user/*.service; do

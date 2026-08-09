@@ -274,7 +274,7 @@ check_system() {
 }
 
 check_session() {
-	local errors monitors main_count restore_lock side_count user_bus_names
+	local errors monitors main_count restore_lock side_count
 	if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
 		pass 'Hyprland desktop environment exported'
 	else
@@ -291,18 +291,15 @@ check_session() {
 		fail 'hyprlock.service missing'
 	fi
 	for unit in waybar.service swaync.service hypridle.service swayosd-server.service \
-		cliphist-text.service cliphist-image.service nm-applet.service \
+		cliphist-text.service cliphist-image.service \
 		udiskie.service hyprpaper.service hyprpolkitagent.service \
 		pipewire.service pipewire-pulse.service wireplumber.service \
-		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service; do
+		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
+		app-blueman@autostart.service \
+		'app-geoclue\x2ddemo\x2dagent@autostart.service' \
+		'app-nm\x2dapplet@autostart.service'; do
 		check_user_active "$unit"
 	done
-	user_bus_names=$(busctl --user --list 2>/dev/null || true)
-	if grep -q '^org[.]blueman[.]Applet[[:space:]]' <<<"$user_bus_names"; then
-		pass 'blueman applet active'
-	else
-		fail 'blueman applet inactive'
-	fi
 	errors=$(hyprctl configerrors 2>/dev/null || true)
 	if [[ -z $errors ]]; then
 		pass 'Hyprland config has no errors'
