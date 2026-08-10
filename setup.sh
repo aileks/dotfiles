@@ -149,6 +149,7 @@ readonly -a PACMAN_PACKAGES=(
 
 readonly -a AUR_PACKAGES=(
   fastmail
+  gpu-screen-recorder
   helium-browser-bin
   limine-mkinitcpio-hook
   limine-snapper-sync

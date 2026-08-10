@@ -67,6 +67,9 @@ bind("Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot region"), "Region
 bind("CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot window"), "Window screenshot")
 bind("SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot output"), "Full screenshot")
 
+bind("SUPER + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record region"), "Region recording")
+bind("SUPER + SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record output"), "Output recording")
+
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume +5"), "Volume up", media)
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("swayosd-client --output-volume -5"), "Volume down", media)
 bind("XF86AudioMute", hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), "Mute audio", media)

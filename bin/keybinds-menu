@@ -19,5 +19,6 @@ printf '%s\n' \
   'Super + Shift + /   Keybind help' \
   'Super + Escape      Lock' \
   'Super + Shift + E   Power menu' \
-  'Print / Ctrl + Print / Shift + Print  Region / Window / Full screenshot' |
-  fuzzel --dmenu --minimal-lines --prompt='Keybinds > ' --width=72 --lines=18 >/dev/null
+  'Print / Ctrl + Print / Shift + Print  Region / Window / Full screenshot' \
+  'Super + Print / Super + Shift + Print  Region / Output recording (toggle)' |
+  fuzzel --dmenu --minimal-lines --prompt='Keybinds > ' --width=72 --lines=19 >/dev/null

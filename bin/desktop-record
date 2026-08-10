@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+directory="${XDG_VIDEOS_DIR:-$HOME/Videos}/Recordings"
+file="$directory/$(date +%Y-%m-%d_%H-%M-%S).mp4"
+pidfile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.pid"
+
+# stop a live recording: gpu-screen-recorder finalizes the mp4 on SIGINT
+if [[ -f $pidfile ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+  kill -INT "$(cat "$pidfile")"
+  rm -f "$pidfile"
+  exit 0
+fi
+
+mkdir -p "$directory"
+
+case "${1:-output}" in
+  output)
+    args=(-w screen)
+    ;;
+  region)
+    geometry=$(slurp -f '%wx%h+%x+%y') || exit 0
+    args=(-w region -region "$geometry")
+    ;;
+  *) exit 2 ;;
+esac
+
+gpu-screen-recorder "${args[@]}" -f 60 -a default_output -c mp4 -o "$file" &
+echo $! >"$pidfile"
+
+notify-send -a Recording "Recording started" "$file"
