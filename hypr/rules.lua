@@ -9,7 +9,6 @@ hl.window_rule({
     match = { class = "^(xdg-desktop-portal-gtk)$" },
     float = true,
     center = true,
-    size = "monitor_w*0.5 monitor_h*0.6",
 })
 
 hl.window_rule({
@@ -17,7 +16,6 @@ hl.window_rule({
     match = { class = "^(org.satty.satty)$" },
     float = true,
     center = true,
-    size = "monitor_w*0.8 monitor_h*0.8",
 })
 
 hl.window_rule({
@@ -27,7 +25,6 @@ hl.window_rule({
     },
     float = true,
     center = true,
-    size = "monitor_w*0.7 monitor_h*0.7",
 })
 
 hl.window_rule({
