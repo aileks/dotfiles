@@ -3,17 +3,24 @@
 set -Eeuo pipefail
 
 directory="${XDG_VIDEOS_DIR:-$HOME/Videos}/Recordings"
-file="$directory/$(date +%Y-%m-%d_%H-%M-%S).mp4"
-pidfile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.pid"
+statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.state"
 
 # stop a live recording: gpu-screen-recorder finalizes the mp4 on SIGINT
-if [[ -f $pidfile ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-  kill -INT "$(cat "$pidfile")"
-  rm -f "$pidfile"
+if [[ -f $statefile ]] && { read -r pid; read -r file; } <"$statefile" && kill -0 "$pid" 2>/dev/null; then
+  kill -INT "$pid"
+  # wait for gpu-screen-recorder to flush and exit so the file is complete
+  for _ in {1..50}; do
+    kill -0 "$pid" 2>/dev/null || break
+    sleep 0.1
+  done
+  rm -f "$statefile"
+  notify-send -a Recording "Recording saved" "$file"
   exit 0
 fi
 
+rm -f "$statefile"
 mkdir -p "$directory"
+file="$directory/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
 case "${1:-output}" in
   output)
@@ -27,6 +34,6 @@ case "${1:-output}" in
 esac
 
 gpu-screen-recorder "${args[@]}" -f 60 -a default_output -c mp4 -o "$file" &
-echo $! >"$pidfile"
+printf '%s\n%s\n' "$!" "$file" >"$statefile"
 
 notify-send -a Recording "Recording started" "$file"
