@@ -20,6 +20,7 @@ readonly SNAPPER_MARKER="/var/lib/aileks-dotfiles/snapper-v1"
 readonly -a PACMAN_PACKAGES=(
   7zip
   adwaita-cursors
+  amd-ucode
   alacritty
   alsa-utils
   avahi
@@ -53,6 +54,7 @@ readonly -a PACMAN_PACKAGES=(
   gnome-disk-utility
   gnome-firmware
   gnome-keyring
+  gpu-screen-recorder
   grim
   gst-plugin-pipewire
   gvfs
@@ -102,6 +104,9 @@ readonly -a PACMAN_PACKAGES=(
   pipewire-pulse
   playerctl
   pnpm
+  podman
+  podman-compose
+  podman-docker
   polkit
   python
   qt5-wayland
@@ -109,6 +114,7 @@ readonly -a PACMAN_PACKAGES=(
   qt6ct
   ripgrep
   rsync
+  rtkit
   satty
   sddm
   shellcheck
@@ -150,7 +156,6 @@ readonly -a PACMAN_PACKAGES=(
 readonly -a AUR_PACKAGES=(
   darkly-bin
   fastmail
-  gpu-screen-recorder
   helium-browser-bin
   limine-mkinitcpio-hook
   limine-snapper-sync
@@ -184,6 +189,7 @@ readonly -a USER_SERVICES=(
   hyprpolkitagent.service
   pipewire-pulse.socket
   pipewire.socket
+  podman.socket
   wireplumber.service
 )
 
@@ -510,6 +516,28 @@ install_aur_packages() {
   GPG_TTY=$(tty </dev/tty)
   export GPG_TTY
   "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}" </dev/tty
+}
+
+configure_mdns() {
+  local current path=/etc/nsswitch.conf updated
+  current=$(<"$path")
+  if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' <<<"$current"; then
+    return 0
+  fi
+  updated=$(awk '
+    /^hosts:/ {
+      if ($0 ~ /mymachines/) {
+        sub(/mymachines/, "mymachines mdns_minimal [NOTFOUND=return]")
+      } else {
+        sub(/^hosts:[[:space:]]*/, "&mdns_minimal [NOTFOUND=return] ")
+      }
+      changed = 1
+    }
+    { print }
+    END { if (!changed) exit 1 }
+  ' <<<"$current") || die "could not configure mDNS in $path"
+  backup_root_file "$path" nsswitch.conf
+  ensure_root_file "$path" "$updated"$'\n'
 }
 
 snapper_config_exists() {
@@ -948,6 +976,7 @@ main() {
   check_display_manager
   install_packages
   install_aur_packages
+  configure_mdns
   configure_snapper
   configure_sddm
   validate_sddm_pam
