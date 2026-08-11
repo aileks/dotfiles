@@ -65,6 +65,14 @@ check_disabled() {
 	fi
 }
 
+check_user_enabled() {
+	if systemctl --user is-enabled --quiet "$1"; then
+		pass "$1 enabled"
+	else
+		fail "$1 disabled"
+	fi
+}
+
 check_package() {
 	if pacman -Qq "$1" >/dev/null 2>&1; then
 		pass "$1 installed"
@@ -78,6 +86,26 @@ check_bat_theme() {
 		pass 'Bat cinder-grove theme available'
 	else
 		fail 'Bat cinder-grove theme unavailable; rebuild the Bat cache'
+	fi
+}
+
+check_qt_theme() {
+	local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+	if grep -Fxq 'export QT_QPA_PLATFORMTHEME=qt6ct' "$config_home/uwsm/env" 2>/dev/null; then
+		pass 'Qt 6 platform theme configured'
+	else
+		fail 'Qt 6 platform theme missing'
+	fi
+	check_setting "$config_home/qt6ct/qt6ct.conf" style Darkly 'Qt Darkly style configured'
+	if [[ -r /usr/share/qt6ct/colors/cinder-grove.conf ]]; then
+		pass 'Qt cinder-grove color scheme installed'
+	else
+		fail 'Qt cinder-grove color scheme missing'
+	fi
+	if [[ -r /usr/lib/qt6/plugins/styles/darkly6.so ]]; then
+		pass 'Qt Darkly style available'
+	else
+		fail 'Qt Darkly style unavailable'
 	fi
 }
 
@@ -166,6 +194,26 @@ check_nvidia_fbdev() {
 	fi
 }
 
+check_nvidia_suspend() {
+	local parameters=/proc/driver/nvidia/params
+	if [[ -r $parameters ]]; then
+		if grep -Eq '^UseKernelSuspendNotifiers:[[:space:]]+1$' "$parameters"; then
+			pass 'Nvidia kernel suspend notifiers enabled'
+		else
+			fail 'Nvidia kernel suspend notifiers disabled'
+		fi
+		if grep -Eq '^PreserveVideoMemoryAllocations:[[:space:]]+1$' "$parameters"; then
+			pass 'Nvidia suspend memory preservation enabled'
+		else
+			fail 'Nvidia suspend memory preservation disabled'
+		fi
+	elif ((!booted_graphics)); then
+		warn 'Nvidia suspend parameters load after reboot'
+	else
+		fail 'Nvidia suspend parameters unavailable'
+	fi
+}
+
 check_snapper() {
 	local configs home_fstype package root_fstype
 	root_fstype=$(findmnt -no FSTYPE / 2>/dev/null || true)
@@ -220,9 +268,12 @@ check_snapper() {
 }
 
 check_system() {
-	local command file
+	local command file package
 	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client swayosd-client hyprlock hypridle hyprpaper nwg-look snapper limine-snapper-info; do
 		check_command "$command"
+	done
+	for package in amd-ucode darkly-bin gpu-screen-recorder podman podman-compose podman-docker qt6ct rtkit; do
+		check_package "$package"
 	done
 	for file in sddm sddm-autologin sddm-greeter hyprlock; do
 		if [[ -r /etc/pam.d/$file ]]; then
@@ -264,22 +315,18 @@ check_system() {
 		check_enabled "$file"
 	done
 	check_enabled "hyprlock-suspend@$(id -u).service"
+	check_user_enabled podman.socket
+	if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
+		pass 'mDNS hostname resolution configured'
+	else
+		fail 'mDNS hostname resolution missing'
+	fi
 	check_snapper
 	check_bat_theme
+	check_qt_theme
 	check_nvidia_modeset
 	check_nvidia_fbdev
-	if [[ -r /proc/driver/nvidia/params ]]; then
-		if grep -Eq '^(UseKernelSuspendNotifiers|PreserveVideoMemoryAllocations):[[:space:]]+1$' \
-			/proc/driver/nvidia/params; then
-			pass 'Nvidia suspend memory preservation enabled'
-		else
-			fail 'Nvidia suspend memory preservation disabled'
-		fi
-	elif ((!booted_graphics)); then
-		warn 'Nvidia suspend parameters load after reboot'
-	else
-		fail 'Nvidia suspend parameters unavailable'
-	fi
+	check_nvidia_suspend
 }
 
 check_session() {
