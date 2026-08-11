@@ -5,16 +5,42 @@ set -Eeuo pipefail
 directory="${XDG_VIDEOS_DIR:-$HOME/Videos}/Recordings"
 statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.state"
 
-# stop a live recording: gpu-screen-recorder finalizes the mp4 on SIGINT
-if [[ -f $statefile ]] && { read -r pid; read -r file; } <"$statefile" && kill -0 "$pid" 2>/dev/null; then
+recording_is_live() {
+  local current_start_time executable
+  [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$pid" 2>/dev/null || return 1
+  current_start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null) || return 1
+  [[ $current_start_time == "$start_time" ]] || return 1
+  executable=$(readlink -f "/proc/$pid/exe" 2>/dev/null) || return 1
+  [[ ${executable##*/} == gpu-screen-recorder ]]
+}
+
+# gpu-screen-recorder finalizes the mp4 on SIGINT.
+if [[ -f $statefile ]] &&
+  {
+    read -r pid
+    read -r start_time
+    read -r file
+  } <"$statefile" &&
+  recording_is_live; then
   kill -INT "$pid"
-  # wait for gpu-screen-recorder to flush and exit so the file is complete
   for _ in {1..50}; do
     kill -0 "$pid" 2>/dev/null || break
     sleep 0.1
   done
+  if kill -0 "$pid" 2>/dev/null; then
+    notify-send -u critical -a Recording "Recording did not stop" \
+      "The recorder is still finalizing. Try again before starting another recording."
+    exit 1
+  fi
   rm -f "$statefile"
-  notify-send -a Recording "Recording saved" "$file"
+  if [[ -s $file ]]; then
+    notify-send -a Recording "Recording saved" "$file"
+  else
+    notify-send -u critical -a Recording "Recording failed" \
+      "No completed recording was written."
+    exit 1
+  fi
   exit 0
 fi
 
@@ -24,7 +50,12 @@ file="$directory/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
 case "${1:-output}" in
   output)
-    args=(-w screen)
+    focused_output=$(hyprctl -j monitors | jq -er '.[] | select(.focused) | .name') || {
+      notify-send -u critical -a Recording "Recording failed" \
+        "Could not determine the focused output."
+      exit 1
+    }
+    args=(-w "$focused_output")
     ;;
   region)
     geometry=$(slurp -f '%wx%h+%x+%y') || exit 0
@@ -34,6 +65,22 @@ case "${1:-output}" in
 esac
 
 gpu-screen-recorder "${args[@]}" -f 60 -a default_output -c mp4 -o "$file" &
-printf '%s\n%s\n' "$!" "$file" >"$statefile"
+pid=$!
+sleep 0.2
+if ! kill -0 "$pid" 2>/dev/null; then
+  wait "$pid" || status=$?
+  notify-send -u critical -a Recording "Recording failed to start" \
+    "gpu-screen-recorder exited with status ${status:-0}."
+  exit 1
+fi
+if ! start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null); then
+  wait "$pid" || status=$?
+  notify-send -u critical -a Recording "Recording failed to start" \
+    "gpu-screen-recorder exited with status ${status:-0}."
+  exit 1
+fi
+statefile_tmp="$statefile.tmp.$pid"
+printf '%s\n%s\n%s\n' "$pid" "$start_time" "$file" >"$statefile_tmp"
+mv "$statefile_tmp" "$statefile"
 
 notify-send -a Recording "Recording started" "$file"
