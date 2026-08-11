@@ -2,7 +2,8 @@
 
 set -Eeuo pipefail
 
-directory="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+pictures_directory=$(xdg-user-dir PICTURES 2>/dev/null || true)
+directory="${pictures_directory:-${XDG_PICTURES_DIR:-$HOME/Pictures}}/Screenshots"
 file="$directory/$(date +%Y-%m-%d_%H-%M-%S).png"
 mkdir -p "$directory"
 

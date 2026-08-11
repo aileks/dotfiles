@@ -18,7 +18,7 @@ printf '%s\n' \
   'Super + V/N         Clipboard / Notifications' \
   'Super + Shift + /   Keybind help' \
   'Super + Escape      Lock' \
-  'Super + Shift + E   Power menu' \
+  'Super + Shift + P   Power menu' \
   'Print / Ctrl + Print / Shift + Print  Region / Window / Full screenshot' \
   'Super + Print / Super + Shift + Print  Region / Output recording (toggle)' |
   fuzzel --dmenu --minimal-lines --prompt='Keybinds > ' --width=72 --lines=19 >/dev/null

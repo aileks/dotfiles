@@ -2,7 +2,8 @@
 
 set -Eeuo pipefail
 
-directory="${XDG_VIDEOS_DIR:-$HOME/Videos}/Recordings"
+videos_directory=$(xdg-user-dir VIDEOS 2>/dev/null || true)
+directory="${videos_directory:-${XDG_VIDEOS_DIR:-$HOME/Videos}}/Recordings"
 statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.state"
 
 recording_is_live() {
