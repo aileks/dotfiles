@@ -650,12 +650,7 @@ ensure_initial_snapshot() {
 
 configure_snapper() {
   local marker_content='version=1'
-  if ((DRY_RUN == 0)) && sudo test -f "$SNAPPER_MARKER"; then
-    info "Snapper setup already complete"
-    return 0
-  fi
-
-  info "configuring Snapper and Limine recovery..."
+  info "reconciling Snapper and Limine recovery..."
   validate_snapper_filesystems
   backup_root_file /etc/snapper/configs/root snapper-root.conf
   backup_root_file /etc/snapper/configs/home snapper-home.conf
