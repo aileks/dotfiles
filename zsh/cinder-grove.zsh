@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 # Cinder Grove
-# Based on Ashen by Daniel Fichtinger
-# https://github.com/ficd0/ashen/tree/main/zsh
+# Author: Caspian Harper
 
 typeset -A ZSH_HIGHLIGHT_STYLES
 
