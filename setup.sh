@@ -148,6 +148,7 @@ readonly -a PACMAN_PACKAGES=(
 )
 
 readonly -a AUR_PACKAGES=(
+  darkly-bin
   fastmail
   gpu-screen-recorder
   helium-browser-bin
@@ -742,6 +743,13 @@ configure_bat() {
   run_cmd bat cache --build
 }
 
+configure_qt() {
+  local content
+  content="$(<"$SCRIPT_DIR/qt6ct/colors/cinder-grove.conf")"$'\n'
+  info "installing the Qt color scheme..."
+  ensure_root_file /usr/share/qt6ct/colors/cinder-grove.conf "$content"
+}
+
 configure_shell() {
   local current_shell
   current_shell=$(getent passwd "$USER" | cut -d: -f7)
@@ -926,6 +934,7 @@ main() {
   configure_system_services
   configure_dotfiles
   configure_bat
+  configure_qt
   configure_shell
   configure_user_services
   configure_gsettings
