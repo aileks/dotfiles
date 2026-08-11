@@ -73,6 +73,14 @@ check_package() {
 	fi
 }
 
+check_bat_theme() {
+	if bat --list-themes 2>/dev/null | grep -Fxq cinder-grove; then
+		pass 'Bat cinder-grove theme available'
+	else
+		fail 'Bat cinder-grove theme unavailable; rebuild the Bat cache'
+	fi
+}
+
 check_limine_snapper_sync() {
 	if systemctl is-active --quiet limine-snapper-sync.service; then
 		pass 'Limine snapshot watcher active'
@@ -257,6 +265,7 @@ check_system() {
 	done
 	check_enabled "hyprlock-suspend@$(id -u).service"
 	check_snapper
+	check_bat_theme
 	check_nvidia_modeset
 	check_nvidia_fbdev
 	if [[ -r /proc/driver/nvidia/params ]]; then

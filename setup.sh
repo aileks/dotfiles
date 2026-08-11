@@ -737,6 +737,11 @@ configure_dotfiles() {
   done
 }
 
+configure_bat() {
+  info "building Bat theme cache..."
+  run_cmd bat cache --build
+}
+
 configure_shell() {
   local current_shell
   current_shell=$(getent passwd "$USER" | cut -d: -f7)
@@ -920,6 +925,7 @@ main() {
   configure_suspend_workaround
   configure_system_services
   configure_dotfiles
+  configure_bat
   configure_shell
   configure_user_services
   configure_gsettings
