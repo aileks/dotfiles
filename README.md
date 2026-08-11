@@ -13,7 +13,7 @@ curl -fsSL https://aileks.dev/linux | bash
 Or clone directly:
 
 ```bash
-git clone https://codeberg.org/aileks/dotfiles.git ~/.dotfiles
+git clone https://github.com/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup.sh
 ```
