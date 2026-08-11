@@ -270,6 +270,27 @@ validate_environment() {
   getent passwd "$USER" >/dev/null || die "could not resolve user $USER"
 }
 
+validate_target_system() {
+  local filesystem_root filesystem_type mountpoint
+  info "checking target hardware and filesystem layout..."
+
+  [[ -d /sys/firmware/efi ]] || die "UEFI boot is required"
+  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null ||
+    die "an Nvidia GPU supported by nvidia-open is required"
+
+  for mountpoint in / /home; do
+    read -r filesystem_type filesystem_root < <(
+      findmnt -nro FSTYPE,FSROOT --mountpoint "$mountpoint"
+    ) || die "$mountpoint must be a dedicated Btrfs mount"
+    [[ $filesystem_type == btrfs ]] || die "$mountpoint must use Btrfs"
+    [[ $filesystem_root != / ]] || die "$mountpoint must mount a Btrfs subvolume"
+  done
+
+  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) ||
+    die "the EFI system partition must be mounted at /boot"
+  [[ $filesystem_type == vfat ]] || die "/boot must be a FAT EFI system partition"
+}
+
 ensure_git() {
   command -v git >/dev/null && return 0
   info "installing git for bootstrap..."
@@ -919,6 +940,7 @@ run_postflight() {
 main() {
   parse_args "$@"
   validate_environment
+  validate_target_system
   create_temp_dir
   resolve_script_dir "${BASH_SOURCE[0]:-}"
   ((DRY_RUN)) || sudo -v

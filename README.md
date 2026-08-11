@@ -1,10 +1,30 @@
 # Arch Hyprland dotfiles
 
-Opinionated Arch desktop built around Hyprland with UWSM.
+Personal Arch desktop built around Hyprland with UWSM.
 
 ![Desktop Showcase](./assets/screenshot.png)
 
 ## Install
+
+This installer targets an x86_64 UEFI system with:
+
+- An Nvidia GPU supported by `nvidia-open`
+- Dedicated Btrfs subvolume mounts at `/` and `/home`
+- The FAT EFI system partition mounted at `/boot`
+- A regular user with `sudo` access
+
+It performs a full system upgrade, installs official and AUR packages, configures
+Snapper and Limine recovery, enables system and user services, changes the login
+shell to Zsh, and enables SDDM autologin for the invoking user. Existing dotfile
+targets and managed system files are backed up before replacement.
+
+Preview the commands and compatibility checks without making changes:
+
+```bash
+./setup.sh --dry-run
+```
+
+Run directly:
 
 ```bash
 curl -fsSL https://aileks.dev/linux | bash
