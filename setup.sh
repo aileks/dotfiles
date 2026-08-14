@@ -183,7 +183,6 @@ readonly -a WSL_PACMAN_PACKAGES=(
   less
   neovim
   openssh
-  podman
   ripgrep
   shellcheck
   shfmt
@@ -224,7 +223,6 @@ readonly -a WSL_APT_PACKAGES=(
 readonly -a WSL_OPTIONAL_APT_PACKAGES=(
   eza
   fastfetch
-  podman
   starship
   zoxide
 )
