@@ -3,141 +3,110 @@
   "logo": {
     "padding": {
       "top": 5,
-      "right": 6
-    }
+      "right": 6,
+    },
   },
   "modules": [
     "break",
     {
       "type": "custom",
-      "format": "\u001b[90m┌──────────────────────Hardware──────────────────────┐"
+      "format": "\u001b[90m┌──────────────────────Hardware──────────────────────┐",
     },
     {
       "type": "host",
       "key": " PC",
-      "keyColor": "green"
+      "keyColor": "green",
     },
     {
       "type": "cpu",
       "key": "│ ├",
       "showPeCoreCount": true,
-      "keyColor": "green"
+      "keyColor": "green",
     },
     {
       "type": "gpu",
       "key": "│ ├",
       "detectionMethod": "pci",
-      "keyColor": "green"
-    },
-    {
-      "type": "display",
-      "key": "│ ├󱄄",
-      "keyColor": "green"
+      "keyColor": "green",
     },
     {
       "type": "disk",
       "key": "│ ├󰋊",
-      "keyColor": "green"
+      "keyColor": "green",
     },
     {
       "type": "memory",
       "key": "│ ├",
-      "keyColor": "green"
+      "keyColor": "green",
     },
     {
       "type": "swap",
       "key": "└ └󰓡 ",
-      "keyColor": "green"
+      "keyColor": "green",
     },
     {
       "type": "custom",
-      "format": "\u001b[90m└────────────────────────────────────────────────────┘"
+      "format": "\u001b[90m└────────────────────────────────────────────────────┘",
     },
     "break",
     {
       "type": "custom",
-      "format": "\u001b[90m┌──────────────────────Software──────────────────────┐"
+      "format": "\u001b[90m┌──────────────────────Software──────────────────────┐",
     },
     {
       "type": "os",
       "key": " OS",
-      "keyColor": "yellow"
+      "keyColor": "yellow",
     },
     {
       "type": "kernel",
       "key": "│ ├",
-      "keyColor": "yellow"
+      "keyColor": "yellow",
     },
     {
       "type": "packages",
       "key": "│ ├󰏖",
-      "keyColor": "yellow"
+      "keyColor": "yellow",
     },
     {
       "type": "shell",
-      "key": "└ └",
-      "keyColor": "yellow"
-    },
-    "break",
-    {
-      "type": "de",
-      "key": "󰇄 DE",
-      "keyColor": "blue"
-    },
-    {
-      "type": "wm",
-      "key": "│ ├",
-      "keyColor": "blue"
-    },
-    {
-      "type": "wmtheme",
-      "key": "│ ├󰉼",
-      "keyColor": "blue"
-    },
-    {
-      "type": "icons",
-      "key": "│ ├󰀻",
-      "keyColor": "blue"
-    },
-    {
-      "type": "cursor",
-      "key": "│ ├",
-      "keyColor": "blue"
+      "key": "│ ├",
+      "keyColor": "yellow",
     },
     {
       "type": "terminalfont",
       "key": "│ ├",
-      "keyColor": "blue"
+      "keyColor": "yellow",
     },
     {
       "type": "terminal",
       "key": "└ └",
-      "keyColor": "blue"
+      "keyColor": "yellow",
     },
     {
       "type": "custom",
-      "format": "\u001b[90m└────────────────────────────────────────────────────┘"
+      "format": "\u001b[90m└────────────────────────────────────────────────────┘",
     },
     "break",
     {
       "type": "custom",
-      "format": "\u001b[90m┌────────────────────Uptime / Age────────────────────┐"
+      "format": "\u001b[90m┌────────────────────Uptime / Age────────────────────┐",
     },
     {
       "type": "command",
       "key": "  OS Age ",
       "keyColor": "red",
-      "text": "birth=$(stat -c %W / 2>/dev/null); current=$(date +%s); if [ \"${birth:-0}\" -gt 0 ] 2>/dev/null && [ \"$birth\" -le \"$current\" ]; then echo $(((current - birth) / 86400)) days; else echo unknown; fi"
+      "text": "birth=$(stat -c %W / 2>/dev/null); current=$(date +%s); if [ \"${birth:-0}\" -gt 0 ] 2>/dev/null && [ \"$birth\" -le \"$current\" ]; then echo $(((current - birth) / 86400)) days; else echo unknown; fi",
     },
     {
       "type": "uptime",
       "key": "  Uptime ",
-      "keyColor": "red"
+      "keyColor": "red",
     },
     {
       "type": "custom",
-      "format": "\u001b[90m└────────────────────────────────────────────────────┘"
+      "format": "\u001b[90m└────────────────────────────────────────────────────┘",
     },
-    "break"
-  ]
+    "break",
+  ],
 }
