@@ -3,8 +3,12 @@
 set -Eeuo pipefail
 
 SCRIPT_DIR=""
+PLATFORM=""
+DISTRO_ID=""
+PACKAGE_MANAGER=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly GTK_THEME_REPO="https://github.com/aileks/cinder-grove-gtk.git"
+readonly ANTIDOTE_REPO="https://github.com/mattmc3/antidote.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
@@ -166,6 +170,65 @@ readonly -a AUR_PACKAGES=(
   zsh-antidote
 )
 
+readonly -a WSL_PACMAN_PACKAGES=(
+  bat
+  btop
+  curl
+  eza
+  fastfetch
+  fd
+  fzf
+  git
+  jq
+  less
+  neovim
+  openssh
+  podman
+  ripgrep
+  shellcheck
+  shfmt
+  starship
+  tmux
+  trash-cli
+  unzip
+  wget
+  wl-clipboard
+  zip
+  zoxide
+  zsh
+)
+
+readonly -a WSL_APT_PACKAGES=(
+  bat
+  btop
+  curl
+  fd-find
+  fzf
+  git
+  jq
+  less
+  neovim
+  openssh-client
+  ripgrep
+  shellcheck
+  shfmt
+  tmux
+  trash-cli
+  unzip
+  wget
+  wl-clipboard
+  zip
+  zsh
+)
+
+readonly -a WSL_OPTIONAL_APT_PACKAGES=(
+  eza
+  fastfetch
+  podman
+  starship
+  zoxide
+)
+
 readonly -a SYSTEM_SERVICES=(
   NetworkManager.service
   avahi-daemon.service
@@ -246,6 +309,10 @@ run_pacman() {
   run_sudo pacman "${args[@]}" --needed
 }
 
+run_apt() {
+  run_sudo env DEBIAN_FRONTEND=noninteractive apt-get "$@"
+}
+
 has_tty() {
   [[ -r /dev/tty && -w /dev/tty ]] && (: </dev/tty) >/dev/null 2>&1
 }
@@ -259,21 +326,51 @@ create_temp_dir() {
   trap 'rm -rf "${TEMP_DIR:-}"' EXIT
 }
 
-read_os_release() {
+is_wsl() {
+  [[ -n ${WSL_INTEROP:-} || -n ${WSL_DISTRO_NAME:-} ]] ||
+    grep -Eqi '(microsoft|wsl)' /proc/sys/kernel/osrelease 2>/dev/null
+}
+
+detect_platform() {
   local os_release="${OS_RELEASE_FILE:-/etc/os-release}"
   [[ -r $os_release ]] || die "missing $os_release"
   # shellcheck disable=SC1090
   source "$os_release"
-  [[ ${ID:-} == arch ]] || die "Arch Linux is required"
+  DISTRO_ID=${ID:-unknown}
+
+  if is_wsl; then
+    PLATFORM=wsl
+    case "$DISTRO_ID" in
+      arch) PACKAGE_MANAGER=pacman ;;
+      debian | ubuntu) PACKAGE_MANAGER=apt ;;
+      *)
+        if [[ ${ID_LIKE:-} == *debian* ]]; then
+          PACKAGE_MANAGER=apt
+        elif [[ ${ID_LIKE:-} == *arch* ]]; then
+          PACKAGE_MANAGER=pacman
+        else
+          die "WSL distribution is not supported: $DISTRO_ID"
+        fi
+        ;;
+    esac
+    return 0
+  fi
+
+  [[ $DISTRO_ID == arch ]] || die "Arch Linux is required outside WSL"
+  PLATFORM=desktop
+  PACKAGE_MANAGER=pacman
 }
 
 validate_environment() {
-  read_os_release
-  [[ $(uname -m) == x86_64 ]] || die "x86_64 is required"
+  detect_platform
   ((EUID != 0)) || die "run as the desktop user, not root"
-  [[ -d /run/systemd/system ]] || die "systemd must be running"
   command -v sudo >/dev/null || die "sudo is required"
   getent passwd "$USER" >/dev/null || die "could not resolve user $USER"
+
+  if [[ $PLATFORM == desktop ]]; then
+    [[ $(uname -m) == x86_64 ]] || die "x86_64 is required"
+    [[ -d /run/systemd/system ]] || die "systemd must be running"
+  fi
 }
 
 validate_target_system() {
@@ -300,7 +397,12 @@ validate_target_system() {
 ensure_git() {
   command -v git >/dev/null && return 0
   info "installing git for bootstrap..."
-  run_pacman -Syu --noconfirm git base-devel
+  if [[ $PACKAGE_MANAGER == pacman ]]; then
+    run_pacman -Syu --noconfirm git base-devel
+  else
+    run_apt update
+    run_apt install -y git
+  fi
   ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
 }
 
@@ -471,6 +573,32 @@ remove_managed_link() {
 install_packages() {
   info "updating Arch and installing official packages..."
   run_pacman -Syu --noconfirm "${PACMAN_PACKAGES[@]}"
+}
+
+install_wsl_packages() {
+  local package
+  local -a available_optional_packages=()
+
+  if [[ $PACKAGE_MANAGER == pacman ]]; then
+    info "updating Arch WSL and installing terminal packages..."
+    run_pacman -Syu --noconfirm "${WSL_PACMAN_PACKAGES[@]}"
+    return 0
+  fi
+
+  info "updating $DISTRO_ID WSL and installing terminal packages..."
+  run_apt update
+  if ((DRY_RUN)); then
+    available_optional_packages=("${WSL_OPTIONAL_APT_PACKAGES[@]}")
+  else
+    for package in "${WSL_OPTIONAL_APT_PACKAGES[@]}"; do
+      if apt-cache show "$package" >/dev/null 2>&1; then
+        available_optional_packages+=("$package")
+      else
+        warn "$package is unavailable from this distribution; skipping it"
+      fi
+    done
+  fi
+  run_apt install -y "${WSL_APT_PACKAGES[@]}" "${available_optional_packages[@]}"
 }
 
 select_aur_helper() {
@@ -782,6 +910,38 @@ configure_dotfiles() {
   done
 }
 
+configure_wsl_dotfiles() {
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  info "linking WSL configuration files..."
+  link_path "$SCRIPT_DIR/bat" "$config_home/bat"
+  link_path "$SCRIPT_DIR/btop" "$config_home/btop"
+  link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
+  link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
+  link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
+  link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
+  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
+}
+
+configure_wsl_command_aliases() {
+  local fallback
+  export PATH="$HOME/.local/bin:$PATH"
+  if ! command -v bat >/dev/null && fallback=$(command -v batcat 2>/dev/null); then
+    link_path "$fallback" "$HOME/.local/bin/bat"
+  fi
+  if ! command -v fd >/dev/null && fallback=$(command -v fdfind 2>/dev/null); then
+    link_path "$fallback" "$HOME/.local/bin/fd"
+  fi
+}
+
+install_antidote() {
+  [[ -r /usr/share/zsh-antidote/antidote.zsh || -r $HOME/.antidote/antidote.zsh ]] &&
+    return 0
+  [[ ! -e $HOME/.antidote && ! -L $HOME/.antidote ]] ||
+    die "$HOME/.antidote exists but does not contain antidote.zsh"
+  info "installing the Antidote Zsh plugin manager..."
+  run_cmd git clone --depth 1 "$ANTIDOTE_REPO" "$HOME/.antidote"
+}
+
 configure_bat() {
   info "building Bat theme cache..."
   run_cmd bat cache --build
@@ -802,6 +962,19 @@ configure_shell() {
   fi
   run_cmd xdg-user-dirs-update
   run_cmd tms config --paths "$HOME/Projects"
+}
+
+configure_wsl_shell() {
+  local current_shell zsh_path
+  if ((DRY_RUN)); then
+    zsh_path=/usr/bin/zsh
+  else
+    zsh_path=$(command -v zsh)
+  fi
+  current_shell=$(getent passwd "$USER" | cut -d: -f7)
+  if [[ $current_shell != "$zsh_path" ]]; then
+    run_sudo chsh -s "$zsh_path" "$USER"
+  fi
 }
 
 enable_user_service() {
@@ -960,13 +1133,33 @@ run_postflight() {
   "$HOME/.local/bin/doctor"
 }
 
+run_wsl_postflight() {
+  local command
+  ((DRY_RUN)) && return 0
+  for command in bat btop fzf git nvim tmux zsh; do
+    command -v "$command" >/dev/null || die "$command is missing after WSL setup"
+  done
+}
+
 main() {
   parse_args "$@"
   validate_environment
-  validate_target_system
+  [[ $PLATFORM == wsl ]] || validate_target_system
   create_temp_dir
   resolve_script_dir "${BASH_SOURCE[0]:-}"
   ((DRY_RUN)) || sudo -v
+
+  if [[ $PLATFORM == wsl ]]; then
+    install_wsl_packages
+    configure_wsl_command_aliases
+    configure_wsl_dotfiles
+    install_antidote
+    configure_bat
+    configure_wsl_shell
+    run_wsl_postflight
+    log "WSL terminal setup complete"
+    return 0
+  fi
 
   check_display_manager
   install_packages

@@ -95,16 +95,24 @@ export _ZO_FZF_OPTS="
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
 
 # antidote plugin manager
-if [[ -f /usr/share/zsh-antidote/antidote.zsh ]]; then
-  source /usr/share/zsh-antidote/antidote.zsh
+for antidote_script in /usr/share/zsh-antidote/antidote.zsh "$HOME/.antidote/antidote.zsh"; do
+  if [[ -f $antidote_script ]]; then
+    source "$antidote_script"
+    break
+  fi
+done
+if (( $+functions[antidote] )); then
   antidote load "${${(%):-%N}:A:h}/zsh_plugins.txt"
   source "${${(%):-%N}:A:h}/cinder-grove.zsh"
 fi
+unset antidote_script
 
 # Evals
-source <(fzf --zsh)
-eval "$(zoxide init zsh)"
-eval "$(starship init zsh)"
+if (( $+commands[fzf] )) && fzf --zsh >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+(( $+commands[starship] )) && eval "$(starship init zsh)"
 
 export NVM_DIR="$HOME/.nvm"
 [[ -s /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh

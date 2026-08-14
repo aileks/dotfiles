@@ -6,7 +6,7 @@ Personal Arch desktop built around Hyprland with UWSM.
 
 ## Install
 
-This installer targets an x86_64 UEFI system with:
+On a native Linux system, this installer targets an x86_64 Arch UEFI system with:
 
 - An Nvidia GPU supported by `nvidia-open`
 - Dedicated Btrfs subvolume mounts at `/` and `/home`
@@ -17,6 +17,11 @@ It performs a full system upgrade, installs official and AUR packages, configure
 Snapper and Limine recovery, enables system and user services, changes the login
 shell to Zsh, and enables SDDM autologin for the invoking user. Existing dotfile
 targets and managed system files are backed up before replacement.
+
+Under WSL, the installer detects Arch, Debian, or Ubuntu and installs only the
+terminal packages available for that distribution. It links the Bat, Btop,
+Fastfetch, Neovim, Starship, tmux, and Zsh configs without applying any desktop,
+hardware, boot, or system service configuration.
 
 Preview the commands and compatibility checks without making changes:
 
