@@ -875,6 +875,8 @@ configure_suspend_workaround() {
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}" unit source
   info "linking configuration files..."
+  link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
+  link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
   link_path "$SCRIPT_DIR/bat" "$config_home/bat"
   link_path "$SCRIPT_DIR/btop" "$config_home/btop"
@@ -913,6 +915,8 @@ configure_dotfiles() {
 configure_wsl_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   info "linking WSL configuration files..."
+  link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
+  link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$SCRIPT_DIR/bat" "$config_home/bat"
   link_path "$SCRIPT_DIR/btop" "$config_home/btop"
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
