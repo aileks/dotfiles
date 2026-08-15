@@ -1,27 +1,10 @@
 # Arch Hyprland dotfiles
 
-Personal Arch desktop built around Hyprland with UWSM.
+Personal Arch desktop built around Hyprland with UWSM. Also supports WSL.
 
 ![Desktop Showcase](./assets/screenshot.png)
 
 ## Install
-
-On a native Linux system, this installer targets an x86_64 Arch UEFI system with:
-
-- An Nvidia GPU supported by `nvidia-open`
-- Dedicated Btrfs subvolume mounts at `/` and `/home`
-- The FAT EFI system partition mounted at `/boot`
-- A regular user with `sudo` access
-
-It performs a full system upgrade, installs official and AUR packages, configures
-Snapper and Limine recovery, enables system and user services, changes the login
-shell to Zsh, and enables SDDM autologin for the invoking user. Existing dotfile
-targets and managed system files are backed up before replacement.
-
-Under WSL, the installer detects Arch, Debian, or Ubuntu and installs only the
-terminal packages available for that distribution. It links the Bat, Btop,
-Fastfetch, Neovim, Starship, tmux, and Zsh configs without applying any desktop,
-hardware, boot, or system service configuration.
 
 Preview the commands and compatibility checks without making changes:
 
@@ -69,8 +52,8 @@ cd ~/.dotfiles
 | Super + Shift + `/`             | Keybind help                                |
 | Super + Escape                  | Lock                                        |
 | Super + Shift + `p`             | Power menu                                  |
-| Print / Ctrl + Print / Shift + Print | Region / window / full screenshot       |
-| Super + Print / Super + Shift + Print | Region / output recording (toggle)       |
+| Print / Ctrl + Print / Shift + Print | Region / window / full screenshot      |
+| Super + Print / Super + Shift + Print | Region / output recording             |
 
 ## tmux
 
@@ -81,6 +64,6 @@ Prefix: `Ctrl + Space`
 | Prefix + `o`        | Open project session               |
 | Prefix + `s`        | Switch session                     |
 | Prefix + `w`        | Switch window                      |
-| Prefix + `-` / `\|` | Split vertically / horizontally    |
+| Prefix + `-` / `|`  | Split vertically / horizontally    |
 | Prefix + `v`        | Enter copy mode                    |
 | Copy mode `v` / `y` | Select / copy to Wayland clipboard |

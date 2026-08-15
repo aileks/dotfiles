@@ -162,7 +162,6 @@ readonly -a AUR_PACKAGES=(
   limine-mkinitcpio-hook
   limine-snapper-sync
   localsend-bin
-  localsend-nautilus-extension
   tmux-sessionizer-bin
   visual-studio-code-bin
   zsh-antidote
@@ -179,7 +178,6 @@ readonly -a WSL_PACKAGES=(
   neovim
   openssh-client
   ripgrep
-  shellcheck
   shfmt
   tmux
   trash-cli
