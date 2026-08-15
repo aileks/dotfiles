@@ -172,7 +172,6 @@ readonly -a AUR_PACKAGES=(
 
 readonly -a WSL_PACMAN_PACKAGES=(
   bat
-  btop
   curl
   eza
   fastfetch
@@ -199,7 +198,6 @@ readonly -a WSL_PACMAN_PACKAGES=(
 
 readonly -a WSL_APT_PACKAGES=(
   bat
-  btop
   curl
   fd-find
   fzf
