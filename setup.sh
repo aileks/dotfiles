@@ -4,8 +4,6 @@ set -Eeuo pipefail
 
 SCRIPT_DIR=""
 PLATFORM=""
-DISTRO_ID=""
-PACKAGE_MANAGER=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly GTK_THEME_REPO="https://github.com/aileks/cinder-grove-gtk.git"
 readonly ANTIDOTE_REPO="https://github.com/mattmc3/antidote.git"
@@ -170,33 +168,7 @@ readonly -a AUR_PACKAGES=(
   zsh-antidote
 )
 
-readonly -a WSL_PACMAN_PACKAGES=(
-  bat
-  curl
-  eza
-  fastfetch
-  fd
-  fzf
-  git
-  jq
-  less
-  neovim
-  openssh
-  ripgrep
-  shellcheck
-  shfmt
-  starship
-  tmux
-  trash-cli
-  unzip
-  wget
-  wl-clipboard
-  zip
-  zoxide
-  zsh
-)
-
-readonly -a WSL_APT_PACKAGES=(
+readonly -a WSL_PACKAGES=(
   bat
   curl
   fd-find
@@ -218,7 +190,7 @@ readonly -a WSL_APT_PACKAGES=(
   zsh
 )
 
-readonly -a WSL_OPTIONAL_APT_PACKAGES=(
+readonly -a WSL_OPTIONAL_PACKAGES=(
   eza
   fastfetch
   starship
@@ -328,33 +300,20 @@ is_wsl() {
 }
 
 detect_platform() {
-  local os_release="${OS_RELEASE_FILE:-/etc/os-release}"
+  local distro_id os_release="${OS_RELEASE_FILE:-/etc/os-release}"
   [[ -r $os_release ]] || die "missing $os_release"
   # shellcheck disable=SC1090
   source "$os_release"
-  DISTRO_ID=${ID:-unknown}
+  distro_id=${ID:-unknown}
 
   if is_wsl; then
+    [[ $distro_id == ubuntu ]] || die "Ubuntu is required under WSL"
     PLATFORM=wsl
-    case "$DISTRO_ID" in
-      arch) PACKAGE_MANAGER=pacman ;;
-      debian | ubuntu) PACKAGE_MANAGER=apt ;;
-      *)
-        if [[ ${ID_LIKE:-} == *debian* ]]; then
-          PACKAGE_MANAGER=apt
-        elif [[ ${ID_LIKE:-} == *arch* ]]; then
-          PACKAGE_MANAGER=pacman
-        else
-          die "WSL distribution is not supported: $DISTRO_ID"
-        fi
-        ;;
-    esac
     return 0
   fi
 
-  [[ $DISTRO_ID == arch ]] || die "Arch Linux is required outside WSL"
+  [[ $distro_id == arch ]] || die "Arch Linux is required outside WSL"
   PLATFORM=desktop
-  PACKAGE_MANAGER=pacman
 }
 
 validate_environment() {
@@ -393,11 +352,11 @@ validate_target_system() {
 ensure_git() {
   command -v git >/dev/null && return 0
   info "installing git for bootstrap..."
-  if [[ $PACKAGE_MANAGER == pacman ]]; then
-    run_pacman -Syu --noconfirm git base-devel
-  else
+  if [[ $PLATFORM == wsl ]]; then
     run_apt update
     run_apt install -y git
+  else
+    run_pacman -Syu --noconfirm git base-devel
   fi
   ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
 }
@@ -575,26 +534,20 @@ install_wsl_packages() {
   local package
   local -a available_optional_packages=()
 
-  if [[ $PACKAGE_MANAGER == pacman ]]; then
-    info "updating Arch WSL and installing terminal packages..."
-    run_pacman -Syu --noconfirm "${WSL_PACMAN_PACKAGES[@]}"
-    return 0
-  fi
-
-  info "updating $DISTRO_ID WSL and installing terminal packages..."
+  info "updating WSL and installing terminal packages..."
   run_apt update
   if ((DRY_RUN)); then
-    available_optional_packages=("${WSL_OPTIONAL_APT_PACKAGES[@]}")
+    available_optional_packages=("${WSL_OPTIONAL_PACKAGES[@]}")
   else
-    for package in "${WSL_OPTIONAL_APT_PACKAGES[@]}"; do
+    for package in "${WSL_OPTIONAL_PACKAGES[@]}"; do
       if apt-cache show "$package" >/dev/null 2>&1; then
         available_optional_packages+=("$package")
       else
-        warn "$package is unavailable from this distribution; skipping it"
+        warn "$package is unavailable from this Ubuntu release; skipping it"
       fi
     done
   fi
-  run_apt install -y "${WSL_APT_PACKAGES[@]}" "${available_optional_packages[@]}"
+  run_apt install -y "${WSL_PACKAGES[@]}" "${available_optional_packages[@]}"
 }
 
 select_aur_helper() {
@@ -914,7 +867,6 @@ configure_wsl_dotfiles() {
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$SCRIPT_DIR/bat" "$config_home/bat"
-  link_path "$SCRIPT_DIR/btop" "$config_home/btop"
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
@@ -1136,7 +1088,7 @@ run_postflight() {
 run_wsl_postflight() {
   local command
   ((DRY_RUN)) && return 0
-  for command in bat btop fzf git nvim tmux zsh; do
+  for command in bat fzf git nvim tmux zsh; do
     command -v "$command" >/dev/null || die "$command is missing after WSL setup"
   done
 }
