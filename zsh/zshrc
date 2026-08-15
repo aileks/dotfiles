@@ -1,5 +1,5 @@
 # PATH
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME.opencode/bin:$PATH"
 
 # Core environment
 export EDITOR="nvim"
@@ -94,7 +94,7 @@ export _ZO_FZF_OPTS="
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'"
 
-# antidote plugin manager
+# Antidote
 for antidote_script in /usr/share/zsh-antidote/antidote.zsh "$HOME/.antidote/antidote.zsh"; do
   if [[ -f $antidote_script ]]; then
     source "$antidote_script"
@@ -108,11 +108,17 @@ fi
 unset antidote_script
 
 # Evals
-if (( $+commands[fzf] )) && fzf --zsh >/dev/null 2>&1; then
-  source <(fzf --zsh)
-fi
-(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
-(( $+commands[starship] )) && eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"
 
 export NVM_DIR="$HOME/.nvm"
-[[ -s /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+export PNPM_HOME="/home/aileks/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+
+source <(fzf --zsh)
