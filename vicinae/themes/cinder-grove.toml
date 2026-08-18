@@ -1,0 +1,79 @@
+[meta]
+version = 1
+name = "Cinder Grove"
+description = "A warm, muted dark theme that's easy on the eyes"
+variant = "dark"
+inherits = "vicinae-dark"
+
+[colors.core]
+accent = "#E17A3F"
+accent_foreground = "#131210"
+background = "#131210"
+foreground = "#BBB3A9"
+secondary_background = "#1B1916"
+border = "#58534C"
+
+[colors.main_window]
+border = "colors.core.border"
+footer = { background = "colors.core.secondary_background" }
+
+[colors.settings_window]
+border = "colors.core.border"
+
+[colors.accents]
+blue = "#6785A1"
+green = "#879B5C"
+magenta = "#9A788F"
+orange = "#E17A3F"
+red = "#B34A45"
+yellow = "#D9A441"
+cyan = "#58918C"
+purple = "#9A788F"
+
+[colors.shortcut]
+border = "colors.core.border"
+
+[colors.text]
+default = "colors.core.foreground"
+muted = "#9A938A"
+danger = "#B34A45"
+success = "#879B5C"
+placeholder = "#58534C"
+selection = { background = "colors.core.accent", foreground = "colors.core.accent_foreground" }
+
+[colors.text.links]
+default = "#D9A441"
+visited = "#9A788F"
+
+[colors.input]
+border = "colors.core.border"
+border_focus = "colors.core.accent"
+border_error = "#B34A45"
+
+[colors.button.primary]
+background = "#23201C"
+foreground = "#DDD5CA"
+hover = { background = "#BB23201C" }
+focus = { outline = "colors.core.accent" }
+
+[colors.list.item.hover]
+foreground = "#DDD5CA"
+secondary_foreground = "#ACA49B"
+
+[colors.list.item.selection]
+background = "#23201C"
+foreground = "#DDD5CA"
+secondary_background = "#1B1916"
+secondary_foreground = "#ACA49B"
+
+[colors.grid.item]
+background = "#23201C"
+hover = { outline = "#DDD5CA" }
+selection = { outline = "colors.core.accent" }
+
+[colors.scrollbars]
+background = "#58534C"
+
+[colors.loading]
+bar = "colors.core.accent"
+spinner = "#DDD5CA"

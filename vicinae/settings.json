@@ -1,0 +1,23 @@
+{
+  "$schema": "https://vicinae.com/schemas/config.json",
+  "font": {
+    "normal": {
+      "family": "Adwaita Sans",
+      "size": 11
+    }
+  },
+  "theme": {
+    "dark": {
+      "name": "cinder-grove"
+    }
+  },
+  "telemetry": {
+    "system_info": false
+  },
+  "launcher_window": {
+    "compact_mode": {
+      "enabled": true
+    },
+    "material": "blur"
+  }
+}
