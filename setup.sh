@@ -44,7 +44,7 @@ readonly -a AUR_PACKAGES=(
   darkly-bin
   fastmail
   helium-browser-bin
-  limine-mkinitcpio-hook
+  limine-tool
   limine-snapper-sync
   localsend-bin
   tmux-sessionizer-bin
