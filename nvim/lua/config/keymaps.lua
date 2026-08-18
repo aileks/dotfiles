@@ -1,0 +1,30 @@
+local map = vim.keymap.set
+
+map('n', '<Esc>', '<cmd>nohlsearch<CR>', { silent = true })
+
+map('n', 'j', 'gj')
+map('n', 'k', 'gk')
+
+map('n', '<C-h>', '<C-w>h')
+map('n', '<C-j>', '<C-w>j')
+map('n', '<C-k>', '<C-w>k')
+map('n', '<C-l>', '<C-w>l')
+
+map('n', '<C-d>', '<C-d>zz')
+map('n', '<C-u>', '<C-u>zz')
+map('n', 'n', 'nzzzv')
+map('n', 'N', 'Nzzzv')
+
+map('v', '<', '<gv')
+map('v', '>', '>gv')
+map('v', 'J', ":m '>+1<CR>gv=gv", { silent = true })
+map('v', 'K', ":m '<-2<CR>gv=gv", { silent = true })
+map('x', 'p', '"_dP')
+
+map('n', '<leader>w', '<cmd>write<CR>', { desc = 'Save' })
+map('n', '<leader>q', '<cmd>quit<CR>', { desc = 'Quit' })
+map('n', '<leader>e', '<cmd>Explore<CR>', { desc = 'File explorer' })
+
+map('n', '<leader>bn', '<cmd>bnext<CR>', { desc = 'Next buffer' })
+map('n', '<leader>bp', '<cmd>bprevious<CR>', { desc = 'Previous buffer' })
+map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = 'Delete buffer' })

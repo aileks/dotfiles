@@ -11,6 +11,7 @@ System Volume Information/
 .fuse_hidden*
 .nfs*
 .vscode/
+.zcode/
 .vim/
 *.swp
 *.swo

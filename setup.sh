@@ -17,7 +17,7 @@ readonly -a PACMAN_PACKAGES=(
   bat bitwarden blueman bluez bluez-utils btop btrfs-progs cava
   cups curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer
   file-roller fontconfig fwupd fzf geoclue git gnome-disk-utility
-  gnome-keyring gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc
+  gnome-keyring go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc
   gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
   hyprlock hyprpaper hyprpolkitagent imv inotify-tools jq kvantum less libnotify
   libva-nvidia-driver libva-utils linux linux-firmware lua man-db mesa-utils
@@ -26,7 +26,7 @@ readonly -a PACMAN_PACKAGES=(
   nwg-look openssh pavucontrol papirus-icon-theme pipewire pipewire-alsa
   pipewire-pulse playerctl pnpm podman podman-compose podman-docker polkit
   python qt5-wayland qt6-wayland qt6ct ripgrep rsync rtkit satty sddm shellcheck
-  shfmt signal-desktop snap-pac snapper slurp starship swaync swayosd tmux
+  signal-desktop snap-pac snapper slurp starship swaync swayosd tmux
   trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm
   vulkan-tools system-config-printer waybar wev wget wireplumber wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland xdg-user-dirs
@@ -330,26 +330,26 @@ missing_packages() {
   done
 }
 
-install_paru_bin() {
-  local paru_dir="$TEMP_DIR/paru-bin"
+install_paru() {
+  local paru_dir="$TEMP_DIR/paru"
   if ((DRY_RUN)); then
     info "installing paru..."
     return 0
   fi
   has_tty || {
-    warn "paru-bin bootstrap requires a terminal for PKGBUILD review"
+    warn "paru bootstrap requires a terminal for PKGBUILD review"
     return 1
   }
   GPG_TTY=$(tty </dev/tty) || return
   export GPG_TTY
-  git clone https://aur.archlinux.org/paru-bin.git "$paru_dir" || return
+  git clone https://aur.archlinux.org/paru.git "$paru_dir" || return
   (
     cd "$paru_dir" || exit
-    printf '\nReviewing paru-bin PKGBUILD. Quit the pager to continue.\n' >/dev/tty
+    printf '\nReviewing paru PKGBUILD. Quit the pager to continue.\n' >/dev/tty
     less PKGBUILD </dev/tty >/dev/tty || exit
     makepkg -si </dev/tty
   ) || return
-  if ! command -v paru >/dev/null || ! pacman -Qq paru-bin >/dev/null 2>&1; then
+  if ! command -v paru >/dev/null || ! pacman -Qq paru >/dev/null 2>&1; then
     return 1
   fi
 }
@@ -375,7 +375,7 @@ install_aur_packages() {
     log "all AUR packages are already installed"
     return 0
   fi
-  command -v "$aur_helper" >/dev/null 2>&1 || install_paru_bin || return
+  command -v "$aur_helper" >/dev/null 2>&1 || install_paru || return
   info "installing ${#missing[@]} missing AUR packages with $aur_helper..."
   if ((DRY_RUN)); then
     format_command "$aur_helper" -S --needed "${missing[@]}"
@@ -795,8 +795,8 @@ main() {
   local arg status unit
   for arg in "$@"; do
     case "$arg" in
-      --dry-run) DRY_RUN=1 ;;
-      *) die "unknown option: $arg" ;;
+    --dry-run) DRY_RUN=1 ;;
+    *) die "unknown option: $arg" ;;
     esac
   done
   validate_environment
