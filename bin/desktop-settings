@@ -10,7 +10,8 @@ selection=$(printf '%s\n' \
   'Displays' \
   'Network' \
   'Printers' |
-  fuzzel --dmenu --minimal-lines --prompt='Settings > ')
+  vicinae dmenu --navigation-title='Desktop Settings' --placeholder='Search settings' \
+    --no-section --no-quick-look --no-footer) || exit 0
 
 case "$selection" in
   Appearance) exec uwsm app -- nwg-look ;;

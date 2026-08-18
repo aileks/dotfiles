@@ -21,4 +21,5 @@ printf '%s\n' \
   'Super + Shift + P   Power menu' \
   'Print / Ctrl + Print / Shift + Print  Region / Window / Full screenshot' \
   'Super + Print / Super + Shift + Print  Region / Output recording (toggle)' |
-  fuzzel --dmenu --minimal-lines --prompt='Keybinds > ' --width=72 --lines=19 >/dev/null
+  vicinae dmenu --navigation-title='Keybinds' --placeholder='Search keybinds' \
+    --no-section --no-quick-look --no-footer >/dev/null || exit 0

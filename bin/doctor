@@ -223,7 +223,7 @@ check_snapper() {
 	else
 		fail 'root or home is not Btrfs'
 	fi
-	for package in btrfs-progs snapper snap-pac limine-mkinitcpio-hook limine-snapper-sync; do
+	for package in btrfs-progs snapper snap-pac limine-tool limine-snapper-sync; do
 		check_package "$package"
 	done
 	configs=$(snapper --csvout --no-headers list-configs 2>/dev/null || true)
@@ -268,11 +268,11 @@ check_snapper() {
 }
 
 check_system() {
-	local command file package
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar fuzzel swaync-client swayosd-client hyprlock hypridle hyprpaper nwg-look snapper limine-snapper-info; do
+	local command file package theme_file="${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/themes/cinder-grove.toml"
+	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar vicinae swaync-client swayosd-client hyprlock hypridle hyprpaper nwg-look snapper limine-snapper-info; do
 		check_command "$command"
 	done
-	for package in amd-ucode darkly-bin gpu-screen-recorder podman podman-compose podman-docker qt6ct rtkit; do
+	for package in amd-ucode darkly-bin gpu-screen-recorder podman podman-compose podman-docker qt6ct rtkit vicinae-bin; do
 		check_package "$package"
 	done
 	for file in sddm sddm-autologin sddm-greeter hyprlock; do
@@ -316,6 +316,18 @@ check_system() {
 	done
 	check_enabled "hyprlock-suspend@$(id -u).service"
 	check_user_enabled podman.socket
+	check_user_enabled vicinae.service
+	if [[ -r $theme_file ]] && grep -Fq 'name = "Cinder Grove"' "$theme_file"; then
+		pass 'Vicinae Cinder Grove theme installed'
+	else
+		fail 'Vicinae Cinder Grove theme missing'
+	fi
+	if jq -e '.theme.dark.name == "cinder-grove"' \
+		"${XDG_CONFIG_HOME:-$HOME/.config}/vicinae/settings.json" >/dev/null 2>&1; then
+		pass 'Vicinae Cinder Grove theme selected'
+	else
+		fail 'Vicinae Cinder Grove theme not selected'
+	fi
 	if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
 		pass 'mDNS hostname resolution configured'
 	else
@@ -347,15 +359,20 @@ check_session() {
 		fail 'hyprlock.service missing'
 	fi
 	for unit in waybar.service swaync.service hypridle.service swayosd-server.service \
-		cliphist-text.service cliphist-image.service \
 		udiskie.service hyprpaper.service hyprpolkitagent.service \
 		pipewire.service pipewire-pulse.service wireplumber.service \
 		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
+		vicinae.service \
 		app-blueman@autostart.service \
 		'app-geoclue\x2ddemo\x2dagent@autostart.service' \
 		'app-nm\x2dapplet@autostart.service'; do
 		check_user_active "$unit"
 	done
+	if vicinae ping >/dev/null 2>&1; then
+		pass 'Vicinae server responds'
+	else
+		fail 'Vicinae server unavailable'
+	fi
 	errors=$(hyprctl configerrors 2>/dev/null || true)
 	if [[ -z $errors ]]; then
 		pass 'Hyprland config has no errors'

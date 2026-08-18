@@ -1,29 +1,22 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
+set -uo pipefail
 
 SCRIPT_DIR=""
-PLATFORM=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
-readonly GTK_THEME_REPO="https://github.com/aileks/cinder-grove-gtk.git"
-readonly ANTIDOTE_REPO="https://github.com/mattmc3/antidote.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
-BACKUP_SUFFIX=".backup.$(date +%Y%m%d_%H%M%S)"
-readonly BACKUP_SUFFIX
 
 DRY_RUN=0
 TEMP_DIR=""
-AUR_HELPER=""
-
-readonly SNAPPER_MARKER="/var/lib/aileks-dotfiles/snapper-v1"
+declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
   7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel
-  bat bitwarden blueman bluez bluez-utils btop btrfs-progs cava cliphist
+  bat bitwarden blueman bluez bluez-utils btop btrfs-progs cava
   cups curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer
-  file-roller fontconfig fuzzel fwupd fzf geoclue git gnome-disk-utility
+  file-roller fontconfig fwupd fzf geoclue git gnome-disk-utility
   gnome-keyring gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc
   gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
   hyprlock hyprpaper hyprpolkitagent imv inotify-tools jq kvantum less libnotify
@@ -48,81 +41,32 @@ readonly -a AUR_PACKAGES=(
   limine-snapper-sync
   localsend-bin
   tmux-sessionizer-bin
+  vicinae-bin
   visual-studio-code-bin
   zsh-antidote
-)
-
-readonly -a WSL_PACKAGES=(
-  bat
-  curl
-  fd-find
-  fzf
-  git
-  jq
-  less
-  neovim
-  openssh-client
-  ripgrep
-  shfmt
-  tmux
-  trash-cli
-  unzip
-  wget
-  wl-clipboard
-  zip
-  zsh
-)
-
-readonly -a WSL_OPTIONAL_PACKAGES=(
-  eza
-  fastfetch
-  starship
-  zoxide
-)
-
-readonly -a SYSTEM_SERVICES=(
-  NetworkManager.service
-  avahi-daemon.service
-  bluetooth.service
-  cups.service
-  sddm.service
-  systemd-timesyncd.service
-)
-
-readonly -a USER_SERVICES=(
-  cliphist-image.service
-  cliphist-text.service
-  first-login.service
-  hypridle.service
-  monitor-setup.service
-  swaync.service
-  swayosd-server.service
-  udiskie.service
-  waybar.service
-  hyprpaper.service
-  hyprpolkitagent.service
-  pipewire-pulse.socket
-  pipewire.socket
-  podman.socket
-  wireplumber.service
 )
 
 log() { printf '[ok] %s\n' "$*"; }
 info() { printf '[..] %s\n' "$*"; }
 warn() { printf '[warn] %s\n' "$*" >&2; }
+fail() {
+  local label="$1" status="${2:-1}"
+  printf '[fail] %s (exit %d)\n' "$label" "$status" >&2
+  FAILURES+=("$label (exit $status)")
+}
 die() {
   printf '[error] %s\n' "$*" >&2
   exit 1
 }
 
-parse_args() {
-  local arg
-  for arg in "$@"; do
-    case "$arg" in
-      --dry-run) DRY_RUN=1 ;;
-      *) die "unknown option: $arg" ;;
-    esac
-  done
+run_step() {
+  local label="$1" status
+  shift
+  info "$label..."
+  "$@" && return 0
+  status=$?
+  fail "$label" "$status"
+  return 0
 }
 
 format_command() {
@@ -160,55 +104,22 @@ run_pacman() {
   run_sudo pacman "${args[@]}" --needed
 }
 
-run_apt() {
-  run_sudo env DEBIAN_FRONTEND=noninteractive apt-get "$@"
-}
-
 has_tty() {
   [[ -r /dev/tty && -w /dev/tty ]] && (: </dev/tty) >/dev/null 2>&1
 }
 
-create_temp_dir() {
-  if ((DRY_RUN)); then
-    TEMP_DIR="/tmp/setup-dry-run"
-    return 0
-  fi
-  TEMP_DIR=$(mktemp -d)
-  trap 'rm -rf "${TEMP_DIR:-}"' EXIT
-}
-
-is_wsl() {
-  [[ -n ${WSL_INTEROP:-} || -n ${WSL_DISTRO_NAME:-} ]] ||
-    grep -Eqi '(microsoft|wsl)' /proc/sys/kernel/osrelease 2>/dev/null
-}
-
-detect_platform() {
+validate_environment() {
   local distro_id os_release="${OS_RELEASE_FILE:-/etc/os-release}"
   [[ -r $os_release ]] || die "missing $os_release"
   # shellcheck disable=SC1090
   source "$os_release"
   distro_id=${ID:-unknown}
-
-  if is_wsl; then
-    [[ $distro_id == ubuntu ]] || die "Ubuntu is required under WSL"
-    PLATFORM=wsl
-    return 0
-  fi
-
-  [[ $distro_id == arch ]] || die "Arch Linux is required outside WSL"
-  PLATFORM=desktop
-}
-
-validate_environment() {
-  detect_platform
+  [[ $distro_id == arch ]] || die "Arch Linux is required"
   ((EUID != 0)) || die "run as the desktop user, not root"
   command -v sudo >/dev/null || die "sudo is required"
   getent passwd "$USER" >/dev/null || die "could not resolve user $USER"
-
-  if [[ $PLATFORM == desktop ]]; then
-    [[ $(uname -m) == x86_64 ]] || die "x86_64 is required"
-    [[ -d /run/systemd/system ]] || die "systemd must be running"
-  fi
+  [[ $(uname -m) == x86_64 ]] || die "x86_64 is required"
+  [[ -d /run/systemd/system ]] || die "systemd must be running"
 }
 
 validate_target_system() {
@@ -235,12 +146,7 @@ validate_target_system() {
 ensure_git() {
   command -v git >/dev/null && return 0
   info "installing git for bootstrap..."
-  if [[ $PLATFORM == wsl ]]; then
-    run_apt update
-    run_apt install -y git
-  else
-    run_pacman -Syu --noconfirm git base-devel
-  fi
+  run_pacman -S --noconfirm git base-devel || die "Git installation failed"
   ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
 }
 
@@ -262,7 +168,7 @@ prompt_replace_repo() {
   printf 'Back up and replace it? [y/N] ' >/dev/tty
   IFS= read -r reply </dev/tty || reply=""
   [[ ${reply,,} == y || ${reply,,} == yes ]] || die "cancelled"
-  run_cmd mv "$DOTFILES_DIR" "${DOTFILES_DIR}${BACKUP_SUFFIX}"
+  run_cmd mv "$DOTFILES_DIR" "${DOTFILES_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
 }
 
 update_dotfiles_repo() {
@@ -332,7 +238,7 @@ ensure_root_file() {
     return 0
   fi
   tmp="$TEMP_DIR/$(basename "$path").new"
-  printf '%s' "$content" >"$tmp"
+  printf '%s' "$content" >"$tmp" || return
   if sudo test -f "$path" && sudo cmp --silent "$tmp" "$path"; then
     return 0
   fi
@@ -371,11 +277,11 @@ ensure_root_managed_block() {
 backup_target() {
   local target="$1" backup
   backup="$BACKUP_DIR/$(basename "$target")"
-  mkdir -p "$BACKUP_DIR"
+  mkdir -p "$BACKUP_DIR" || return
   if [[ -e $backup || -L $backup ]]; then
     backup="$backup.$(date +%s%N)"
   fi
-  mv "$target" "$backup"
+  mv "$target" "$backup" || return
   info "backed up $target to $backup"
 }
 
@@ -388,12 +294,21 @@ link_path() {
     info "link $target -> $source"
     return 0
   fi
-  [[ -e $source || -L $source ]] || die "missing dotfile source: $source"
-  if [[ -e $target || -L $target ]]; then
-    backup_target "$target"
+  if [[ ! -e $source && ! -L $source ]]; then
+    fail "link $target: missing source $source"
+    return 0
   fi
-  mkdir -p "$(dirname "$target")"
-  ln -s "$source" "$target"
+  if [[ -e $target || -L $target ]]; then
+    backup_target "$target" || {
+      fail "back up $target" "$?"
+      return 0
+    }
+  fi
+  mkdir -p "$(dirname "$target")" || {
+    fail "create parent directory for $target" "$?"
+    return 0
+  }
+  ln -s "$source" "$target" || fail "link $target" "$?"
 }
 
 remove_managed_link() {
@@ -405,77 +320,74 @@ remove_managed_link() {
     info "remove obsolete link $target"
     return 0
   fi
-  rm "$target"
+  rm "$target" || fail "remove obsolete link $target" "$?"
 }
 
-install_packages() {
-  info "updating Arch and installing official packages..."
-  run_pacman -Syu --noconfirm "${PACMAN_PACKAGES[@]}"
-}
-
-install_wsl_packages() {
+missing_packages() {
   local package
-  local -a available_optional_packages=()
-
-  info "updating WSL and installing terminal packages..."
-  run_apt update
-  if ((DRY_RUN)); then
-    available_optional_packages=("${WSL_OPTIONAL_PACKAGES[@]}")
-  else
-    for package in "${WSL_OPTIONAL_PACKAGES[@]}"; do
-      if apt-cache show "$package" >/dev/null 2>&1; then
-        available_optional_packages+=("$package")
-      else
-        warn "$package is unavailable from this Ubuntu release; skipping it"
-      fi
-    done
-  fi
-  run_apt install -y "${WSL_PACKAGES[@]}" "${available_optional_packages[@]}"
-}
-
-select_aur_helper() {
-  if command -v paru >/dev/null 2>&1; then
-    AUR_HELPER=paru
-  else
-    AUR_HELPER=""
-  fi
+  for package in "$@"; do
+    pacman -Qq "$package" >/dev/null 2>&1 || printf '%s\n' "$package"
+  done
 }
 
 install_paru_bin() {
   local paru_dir="$TEMP_DIR/paru-bin"
   if ((DRY_RUN)); then
     info "installing paru..."
-    AUR_HELPER=paru
     return 0
   fi
-  has_tty || die "paru-bin bootstrap requires a terminal for PKGBUILD review"
-  GPG_TTY=$(tty </dev/tty)
+  has_tty || {
+    warn "paru-bin bootstrap requires a terminal for PKGBUILD review"
+    return 1
+  }
+  GPG_TTY=$(tty </dev/tty) || return
   export GPG_TTY
-  git clone https://aur.archlinux.org/paru-bin.git "$paru_dir"
+  git clone https://aur.archlinux.org/paru-bin.git "$paru_dir" || return
   (
-    cd "$paru_dir"
+    cd "$paru_dir" || exit
     printf '\nReviewing paru-bin PKGBUILD. Quit the pager to continue.\n' >/dev/tty
-    less PKGBUILD </dev/tty >/dev/tty
+    less PKGBUILD </dev/tty >/dev/tty || exit
     makepkg -si </dev/tty
-  )
+  ) || return
   if ! command -v paru >/dev/null || ! pacman -Qq paru-bin >/dev/null 2>&1; then
-    die "paru-bin installation failed"
+    return 1
   fi
-  AUR_HELPER=paru
+}
+
+install_official_packages() {
+  local -a missing=()
+
+  mapfile -t missing < <(missing_packages "${PACMAN_PACKAGES[@]}")
+  if ((${#missing[@]})); then
+    info "installing ${#missing[@]} missing official packages..."
+    run_pacman -S --noconfirm "${missing[@]}" || return
+  else
+    log "all official packages are already installed"
+  fi
 }
 
 install_aur_packages() {
-  select_aur_helper
-  [[ -n $AUR_HELPER ]] || install_paru_bin
-  info "installing desktop applications with $AUR_HELPER..."
-  if ((DRY_RUN)); then
-    format_command "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}"
+  local aur_helper=paru
+  local -a missing=()
+
+  mapfile -t missing < <(missing_packages "${AUR_PACKAGES[@]}")
+  if ((${#missing[@]} == 0)); then
+    log "all AUR packages are already installed"
     return 0
   fi
-  has_tty || die "AUR package review requires an interactive terminal"
-  GPG_TTY=$(tty </dev/tty)
+  command -v "$aur_helper" >/dev/null 2>&1 || install_paru_bin || return
+  info "installing ${#missing[@]} missing AUR packages with $aur_helper..."
+  if ((DRY_RUN)); then
+    format_command "$aur_helper" -S --needed "${missing[@]}"
+    return 0
+  fi
+  has_tty || {
+    warn "AUR package review requires an interactive terminal"
+    return 1
+  }
+  GPG_TTY=$(tty </dev/tty) || return
   export GPG_TTY
-  "$AUR_HELPER" -S --needed "${AUR_PACKAGES[@]}" </dev/tty
+  "$aur_helper" -S --needed "${missing[@]}" </dev/tty
 }
 
 configure_mdns() {
@@ -495,8 +407,11 @@ configure_mdns() {
     }
     { print }
     END { if (!changed) exit 1 }
-  ' <<<"$current") || die "could not configure mDNS in $path"
-  backup_root_file "$path" nsswitch.conf
+  ' <<<"$current") || {
+    warn "could not configure mDNS in $path"
+    return 1
+  }
+  backup_root_file "$path" nsswitch.conf || return
   ensure_root_file "$path" "$updated"$'\n'
 }
 
@@ -510,16 +425,6 @@ snapper_config_exists() {
   fi
   sudo snapper --csvout --no-headers list-configs |
     cut -d, -f1 | grep -Fxq "$config"
-}
-
-validate_snapper_filesystems() {
-  local path
-  for path in / /home; do
-    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
-      die "$path must be a Btrfs filesystem for Snapper"
-    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
-      die "$path must be a Btrfs subvolume for Snapper"
-  done
 }
 
 ensure_snapper_config() {
@@ -536,7 +441,7 @@ configure_snapper_retention() {
     'NUMBER_MIN_AGE=3600' \
     'NUMBER_LIMIT=10' \
     'NUMBER_LIMIT_IMPORTANT=10' \
-    'TIMELINE_CREATE=no'
+    'TIMELINE_CREATE=no' || return
   run_sudo snapper -c home set-config \
     'TIMELINE_CREATE=no' \
     'TIMELINE_CLEANUP=yes' \
@@ -547,14 +452,6 @@ configure_snapper_retention() {
     'TIMELINE_LIMIT_MONTHLY=0' \
     'TIMELINE_LIMIT_QUARTERLY=0' \
     'TIMELINE_LIMIT_YEARLY=0'
-}
-
-install_snapper_units() {
-  local content unit
-  for unit in snapper-home-weekly.service snapper-home-weekly.timer; do
-    content="$(<"$SCRIPT_DIR/systemd/system/$unit")"$'\n'
-    ensure_root_file "/etc/systemd/system/$unit" "$content"
-  done
 }
 
 configure_mkinitcpio_overlay() {
@@ -572,25 +469,10 @@ configure_mkinitcpio_overlay() {
     { print }
     END { if (!changed) exit 1 }
   ' <<<"$current"); then
-    die "could not add btrfs-overlayfs to $path"
+    warn "could not add btrfs-overlayfs to $path"
+    return 1
   fi
   ensure_root_file "$path" "$updated"$'\n'
-}
-
-configure_limine_snapshots() {
-  local begin='# begin aileks snapper setup'
-  local end='# end aileks snapper setup'
-  local block='ESP_PATH="/boot"
-ENABLE_UKI=yes
-CUSTOM_UKI_NAME="arch"
-MKINITCPIO_FALLBACK=no
-LIMIT_USAGE_PERCENT=85
-MAX_SNAPSHOT_ENTRIES=auto
-EXCLUDE_SNAPSHOT_TYPES="post"
-SNAPPER_CONFIG_NAME="root"
-RESTORE_METHOD=replace
-SNAPSHOT_FORMAT_CHOICE=8'
-  ensure_root_managed_block /etc/default/limine "$begin" "$end" "$block"
 }
 
 ensure_initial_snapshot() {
@@ -609,103 +491,132 @@ ensure_initial_snapshot() {
 }
 
 configure_snapper() {
-  local marker_content='version=1'
+  local path unit
   info "reconciling Snapper and Limine recovery..."
-  validate_snapper_filesystems
-  backup_root_file /etc/snapper/configs/root snapper-root.conf
-  backup_root_file /etc/snapper/configs/home snapper-home.conf
-  backup_root_file /etc/mkinitcpio.conf mkinitcpio.conf
-  backup_root_file /etc/default/limine limine-default
-  backup_root_file /boot/limine.conf limine.conf
+  for path in / /home; do
+    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
+      {
+        warn "$path must be a Btrfs filesystem for Snapper"
+        return 1
+      }
+    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
+      {
+        warn "$path must be a Btrfs subvolume for Snapper"
+        return 1
+      }
+  done
+  backup_root_file /etc/snapper/configs/root snapper-root.conf || return
+  backup_root_file /etc/snapper/configs/home snapper-home.conf || return
+  backup_root_file /etc/mkinitcpio.conf mkinitcpio.conf || return
+  backup_root_file /etc/default/limine limine-default || return
+  backup_root_file /boot/limine.conf limine.conf || return
 
-  ensure_snapper_config root /
-  ensure_snapper_config home /home
-  configure_snapper_retention
-  install_snapper_units
-  configure_mkinitcpio_overlay
-  configure_limine_snapshots
+  ensure_snapper_config root / || return
+  ensure_snapper_config home /home || return
+  configure_snapper_retention || return
+  for unit in snapper-home-weekly.service snapper-home-weekly.timer; do
+    ensure_root_file "/etc/systemd/system/$unit" \
+      "$(<"$SCRIPT_DIR/systemd/system/$unit")"$'\n' || return
+  done
+  configure_mkinitcpio_overlay || return
+  ensure_root_managed_block /etc/default/limine '# begin aileks snapper setup' \
+    '# end aileks snapper setup' 'ESP_PATH="/boot"
+ENABLE_UKI=yes
+CUSTOM_UKI_NAME="arch"
+MKINITCPIO_FALLBACK=no
+LIMIT_USAGE_PERCENT=85
+MAX_SNAPSHOT_ENTRIES=auto
+EXCLUDE_SNAPSHOT_TYPES="post"
+SNAPPER_CONFIG_NAME="root"
+RESTORE_METHOD=replace
+SNAPSHOT_FORMAT_CHOICE=8' || return
 
-  run_sudo systemctl daemon-reload
-  run_sudo systemctl disable --now snapper-timeline.timer
-  run_sudo systemctl enable --now snapper-cleanup.timer
-  run_sudo systemctl enable --now snapper-home-weekly.timer
-  run_sudo limine-update
-  run_sudo systemctl enable --now limine-snapper-sync.service
+  run_sudo systemctl daemon-reload || return
+  run_sudo systemctl disable --now snapper-timeline.timer || return
+  run_sudo systemctl enable --now snapper-cleanup.timer || return
+  run_sudo systemctl enable --now snapper-home-weekly.timer || return
+  run_sudo limine-update || return
+  run_sudo systemctl enable --now limine-snapper-sync.service || return
 
-  ensure_initial_snapshot root number 'snapper setup'
-  ensure_initial_snapshot home timeline 'initial weekly home snapshot'
-  run_sudo limine-snapper-sync
-  run_sudo limine-snapper-info
-  ensure_root_file "$SNAPPER_MARKER" "$marker_content"$'\n'
-}
-
-check_display_manager() {
-  local manager=""
-  if [[ -L /etc/systemd/system/display-manager.service ]]; then
-    manager=$(readlink -f /etc/systemd/system/display-manager.service)
-  fi
-  [[ -z $manager || $manager == */sddm.service ]] ||
-    die "another display manager is enabled: $manager"
+  ensure_initial_snapshot root number 'snapper setup' || return
+  ensure_initial_snapshot home timeline 'initial weekly home snapshot' || return
+  run_sudo limine-snapper-sync || return
+  run_sudo limine-snapper-info || return
+  ensure_root_file /var/lib/aileks-dotfiles/snapper-v1 $'version=1\n'
 }
 
 configure_sddm() {
-  local autologin
+  local autologin file manager="" pam_dir="${PAM_DIR:-/etc/pam.d}"
+  if [[ -L /etc/systemd/system/display-manager.service ]]; then
+    manager=$(readlink -f /etc/systemd/system/display-manager.service)
+  fi
+  if [[ -n $manager && $manager != */sddm.service ]]; then
+    warn "another display manager is enabled: $manager"
+    return 1
+  fi
   ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] ||
-    die 'Hyprland UWSM session entry is missing'
+    {
+      warn 'Hyprland UWSM session entry is missing'
+      return 1
+    }
   ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
     /usr/share/wayland-sessions/hyprland-uwsm.desktop ||
-    die 'Hyprland UWSM session entry is invalid'
+    {
+      warn 'Hyprland UWSM session entry is invalid'
+      return 1
+    }
   autologin="[Autologin]
 User=$USER
 Session=hyprland-uwsm.desktop
 Relogin=false
 "
-  ensure_root_file /etc/sddm.conf.d/10-autologin.conf "$autologin"
-}
-
-validate_sddm_pam() {
+  ensure_root_file /etc/sddm.conf.d/10-autologin.conf "$autologin" || return
   ((DRY_RUN)) && return 0
-  local file pam_dir="${PAM_DIR:-/etc/pam.d}"
   for file in sddm sddm-autologin sddm-greeter hyprlock; do
-    [[ -r $pam_dir/$file ]] || die "missing SDDM PAM file: $pam_dir/$file"
+    [[ -r $pam_dir/$file ]] || {
+      warn "missing SDDM PAM file: $pam_dir/$file"
+      return 1
+    }
   done
   grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" ||
-    die "$pam_dir/sddm does not include system-login"
+    {
+      warn "$pam_dir/sddm does not include system-login"
+      return 1
+    }
   grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" ||
-    die "$pam_dir/sddm-autologin does not include system-local-login"
+    {
+      warn "$pam_dir/sddm-autologin does not include system-local-login"
+      return 1
+    }
   grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" ||
-    die "$pam_dir/sddm-greeter cannot authenticate the greeter"
+    {
+      warn "$pam_dir/sddm-greeter cannot authenticate the greeter"
+      return 1
+    }
   grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" ||
-    die "$pam_dir/sddm lacks GNOME Keyring integration"
+    {
+      warn "$pam_dir/sddm lacks GNOME Keyring integration"
+      return 1
+    }
   grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" ||
-    die "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
-}
-
-configure_groups() {
-  if ! getent group i2c >/dev/null; then
-    run_sudo groupadd --system i2c
-  fi
-  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
-    run_sudo usermod -aG i2c "$USER"
-  fi
-}
-
-configure_system_services() {
-  info "enabling system services..."
-  run_sudo systemctl enable "${SYSTEM_SERVICES[@]}"
+    {
+      warn "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
+      return 1
+    }
 }
 
 configure_suspend_workaround() {
   local content unit
   unit="hyprlock-suspend@$(id -u).service"
   content="$(<"$SCRIPT_DIR/systemd/system/hyprlock-suspend@.service")"$'\n'
-  ensure_root_file /etc/systemd/system/hyprlock-suspend@.service "$content"
-  run_sudo systemctl daemon-reload
+  ensure_root_file /etc/systemd/system/hyprlock-suspend@.service "$content" || return
+  run_sudo systemctl daemon-reload || return
   run_sudo systemctl enable "$unit"
 }
 
 configure_dotfiles() {
-  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}" unit source
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}" unit source
   info "linking configuration files..."
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
@@ -714,7 +625,6 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/btop" "$config_home/btop"
   link_path "$SCRIPT_DIR/cava" "$config_home/cava"
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
-  link_path "$SCRIPT_DIR/fuzzel" "$config_home/fuzzel"
   link_path "$SCRIPT_DIR/hypr" "$config_home/hypr"
   link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
@@ -727,13 +637,25 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
   link_path "$SCRIPT_DIR/swayosd" "$config_home/swayosd"
+  link_path "$SCRIPT_DIR/vicinae/settings.json" "$config_home/vicinae/settings.json"
+  link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
+    "$data_home/vicinae/themes/cinder-grove.toml"
 
   remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
     "$config_home/systemd/user/graphical-session.target.wants/nm-applet.service"
   remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
     "$config_home/systemd/user/nm-applet.service"
+  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-image.service" \
+    "$config_home/systemd/user/cliphist-image.service"
+  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
+    "$config_home/systemd/user/cliphist-text.service"
+  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-image.service" \
+    "$config_home/systemd/user/graphical-session.target.wants/cliphist-image.service"
+  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
+    "$config_home/systemd/user/graphical-session.target.wants/cliphist-text.service"
+  remove_managed_link "$SCRIPT_DIR/bin/clipboard-menu" "$HOME/.local/bin/clipboard-menu"
 
-  mkdir -p "$config_home/systemd/user"
+  run_cmd mkdir -p "$config_home/systemd/user" || return
   for source in "$SCRIPT_DIR"/systemd/user/*.service; do
     unit=$(basename "$source")
     link_path "$source" "$config_home/systemd/user/$unit"
@@ -741,92 +663,6 @@ configure_dotfiles() {
 
   for source in "$SCRIPT_DIR"/bin/*; do
     link_path "$source" "$HOME/.local/bin/$(basename "$source")"
-  done
-}
-
-configure_wsl_dotfiles() {
-  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  info "linking WSL configuration files..."
-  link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
-  link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
-  link_path "$SCRIPT_DIR/bat" "$config_home/bat"
-  link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
-  link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
-  link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
-  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
-}
-
-configure_wsl_command_aliases() {
-  local fallback
-  export PATH="$HOME/.local/bin:$PATH"
-  if ! command -v bat >/dev/null && fallback=$(command -v batcat 2>/dev/null); then
-    link_path "$fallback" "$HOME/.local/bin/bat"
-  fi
-  if ! command -v fd >/dev/null && fallback=$(command -v fdfind 2>/dev/null); then
-    link_path "$fallback" "$HOME/.local/bin/fd"
-  fi
-}
-
-install_antidote() {
-  [[ -r /usr/share/zsh-antidote/antidote.zsh || -r $HOME/.antidote/antidote.zsh ]] &&
-    return 0
-  [[ ! -e $HOME/.antidote && ! -L $HOME/.antidote ]] ||
-    die "$HOME/.antidote exists but does not contain antidote.zsh"
-  info "installing the Antidote Zsh plugin manager..."
-  run_cmd git clone --depth 1 "$ANTIDOTE_REPO" "$HOME/.antidote"
-}
-
-configure_bat() {
-  info "building Bat theme cache..."
-  run_cmd bat cache --build
-}
-
-configure_qt() {
-  local content
-  content="$(<"$SCRIPT_DIR/qt6ct/colors/cinder-grove.conf")"$'\n'
-  info "installing the Qt color scheme..."
-  ensure_root_file /usr/share/qt6ct/colors/cinder-grove.conf "$content"
-}
-
-configure_shell() {
-  local current_shell
-  current_shell=$(getent passwd "$USER" | cut -d: -f7)
-  if [[ $current_shell != /usr/bin/zsh ]]; then
-    run_sudo chsh -s /usr/bin/zsh "$USER"
-  fi
-  run_cmd xdg-user-dirs-update
-  run_cmd tms config --paths "$HOME/Projects"
-}
-
-configure_wsl_shell() {
-  local current_shell zsh_path
-  if ((DRY_RUN)); then
-    zsh_path=/usr/bin/zsh
-  else
-    zsh_path=$(command -v zsh)
-  fi
-  current_shell=$(getent passwd "$USER" | cut -d: -f7)
-  if [[ $current_shell != "$zsh_path" ]]; then
-    run_sudo chsh -s "$zsh_path" "$USER"
-  fi
-}
-
-enable_user_service() {
-  local unit="$1"
-  if ((DRY_RUN)); then
-    format_command systemctl --user enable "$unit"
-    return 0
-  fi
-  systemctl --user enable "$unit"
-}
-
-configure_user_services() {
-  local unit
-  info "enabling graphical-session services..."
-  ((DRY_RUN)) || systemctl --user daemon-reload
-  for unit in "${USER_SERVICES[@]}"; do
-    enable_user_service "$unit"
   done
 }
 
@@ -847,27 +683,27 @@ configure_gsettings() {
     info "configure dark appearance, icons, cursor, fonts, and clock..."
     return 0
   fi
-  gsettings set "$schema" color-scheme prefer-dark
-  gsettings set "$schema" icon-theme Papirus-Dark
-  gsettings set "$schema" cursor-theme Adwaita
-  gsettings set "$schema" font-name 'Adwaita Sans 11'
-  gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11'
-  gsettings set "$schema" clock-format 24h
+  gsettings set "$schema" color-scheme prefer-dark || return
+  gsettings set "$schema" icon-theme Papirus-Dark || return
+  gsettings set "$schema" cursor-theme Adwaita || return
+  gsettings set "$schema" font-name 'Adwaita Sans 11' || return
+  gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11' || return
+  gsettings set "$schema" clock-format 24h || return
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
 }
 
-migrate_gtk_config() {
+install_gtk_theme() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
   local gtk4_css="$config_home/gtk-4.0/gtk.css"
   local installed_css="$state_home/cinder-grove-gtk/gtk4.css.installed"
-  local target version
+  local target theme_dir="$TEMP_DIR/cinder-grove-gtk" version
 
   for version in gtk-3.0 gtk-4.0; do
     target="$config_home/$version"
     if [[ -L $target && $(readlink "$target") == "$SCRIPT_DIR/$version" ]]; then
-      run_cmd rm "$target"
+      run_cmd rm "$target" || return
     fi
   done
 
@@ -876,21 +712,15 @@ migrate_gtk_config() {
     -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
     if [[ -f $installed_css ]] &&
       { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
-      run_cmd mkdir -p "$config_home/gtk-4.0"
-      run_cmd rm -f "$gtk4_css"
-      run_cmd cp "$installed_css" "$gtk4_css"
+      run_cmd mkdir -p "$config_home/gtk-4.0" || return
+      run_cmd rm -f "$gtk4_css" || return
+      run_cmd cp "$installed_css" "$gtk4_css" || return
     elif [[ ! -e $gtk4_css && ! -L $gtk4_css ]]; then
-      run_cmd mkdir -p "$config_home/gtk-4.0"
-      run_cmd ln -s "$target" "$gtk4_css"
+      run_cmd mkdir -p "$config_home/gtk-4.0" || return
+      run_cmd ln -s "$target" "$gtk4_css" || return
     fi
   fi
-}
-
-install_gtk_theme() {
-  local theme_dir="$TEMP_DIR/cinder-grove-gtk"
-  info "installing Cinder Grove GTK theme..."
-  migrate_gtk_config
-  run_cmd git clone --depth 1 "$GTK_THEME_REPO" "$theme_dir"
+  run_cmd git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$theme_dir" || return
   run_cmd "$theme_dir/install.sh"
 }
 
@@ -905,10 +735,6 @@ install_papirus_folders() {
   curl -fsSL "$installer_url" | env TAG=cinder-grove-folders sh
 }
 
-configure_papirus() {
-  run_cmd papirus-folders-cg --color orange --theme Papirus-Dark
-}
-
 configure_default_apps() {
   local browser terminal editor image_viewer mime
   ((DRY_RUN)) && return 0
@@ -919,21 +745,21 @@ configure_default_apps() {
   image_viewer=$(desktop_id imv.desktop || true)
 
   if [[ -n $browser ]]; then
-    xdg-settings set default-web-browser "$browser"
-    xdg-mime default "$browser" x-scheme-handler/http
-    xdg-mime default "$browser" x-scheme-handler/https
-    xdg-mime default "$browser" text/html
+    xdg-settings set default-web-browser "$browser" || return
+    xdg-mime default "$browser" x-scheme-handler/http || return
+    xdg-mime default "$browser" x-scheme-handler/https || return
+    xdg-mime default "$browser" text/html || return
   else
     warn "Helium desktop entry was not found"
   fi
-  xdg-mime default org.gnome.Nautilus.desktop inode/directory
-  [[ -z $editor ]] || xdg-mime default "$editor" text/plain
-  [[ -z $terminal ]] || xdg-mime default "$terminal" application/x-terminal-emulator
+  xdg-mime default org.gnome.Nautilus.desktop inode/directory || return
+  [[ -z $editor ]] || xdg-mime default "$editor" text/plain || return
+  [[ -z $terminal ]] || xdg-mime default "$terminal" application/x-terminal-emulator || return
   if [[ -n $image_viewer ]]; then
     for mime in image/x-farbfeld image/tiff image/tiff-fx image/png image/x-png \
       image/jpeg image/jpg image/pjpeg image/svg+xml image/gif image/bmp image/x-bmp \
       image/heif image/avif image/jxl image/webp image/qoi; do
-      xdg-mime default "$image_viewer" "$mime"
+      xdg-mime default "$image_viewer" "$mime" || return
     done
   else
     warn "imv desktop entry was not found"
@@ -941,87 +767,130 @@ configure_default_apps() {
 }
 
 install_node_lts() {
-  if ((DRY_RUN)); then
-    info "install current Node.js LTS with nvm..."
-    return 0
-  fi
+  local default_version lts_version
   export NVM_DIR="$HOME/.nvm"
-  mkdir -p "$NVM_DIR"
+  [[ -d $NVM_DIR ]] || run_cmd mkdir -p "$NVM_DIR" || return
   # shellcheck disable=SC1091
-  source /usr/share/nvm/init-nvm.sh
-  nvm install --lts
-  nvm alias default 'lts/*'
-}
-
-configure_ddcutil() {
-  run_sudo udevadm control --reload-rules
-  run_sudo udevadm trigger --subsystem-match=i2c-dev
-  ((DRY_RUN)) || ddcutil detect --brief ||
-    warn "DDC/CI monitor control unavailable; enable it in each monitor OSD"
-}
-
-run_postflight() {
-  if ((DRY_RUN)); then
-    format_command "$HOME/.local/bin/doctor"
-    return 0
+  source /usr/share/nvm/init-nvm.sh || return
+  lts_version=$(nvm version 'lts/*')
+  if [[ $lts_version != N/A ]]; then
+    log "Node.js LTS is already installed"
+  elif ((DRY_RUN)); then
+    format_command nvm install --lts
+  else
+    nvm install --lts || return
+    lts_version=$(nvm version 'lts/*')
   fi
-  "$HOME/.local/bin/doctor"
-}
-
-run_wsl_postflight() {
-  local command
-  ((DRY_RUN)) && return 0
-  for command in bat fzf git nvim tmux zsh; do
-    command -v "$command" >/dev/null || die "$command is missing after WSL setup"
-  done
+  default_version=$(nvm version default 2>/dev/null || true)
+  if [[ $default_version != "$lts_version" ]]; then
+    if ((DRY_RUN)); then
+      format_command nvm alias default 'lts/*'
+    else
+      nvm alias default 'lts/*'
+    fi
+  fi
 }
 
 main() {
-  parse_args "$@"
+  local arg status unit
+  for arg in "$@"; do
+    case "$arg" in
+      --dry-run) DRY_RUN=1 ;;
+      *) die "unknown option: $arg" ;;
+    esac
+  done
   validate_environment
-  [[ $PLATFORM == wsl ]] || validate_target_system
-  create_temp_dir
+  validate_target_system
+  if ((DRY_RUN)); then
+    TEMP_DIR=/tmp/setup-dry-run
+  else
+    TEMP_DIR=$(mktemp -d) || die "could not create a temporary directory"
+    trap 'rm -rf "${TEMP_DIR:-}"' EXIT
+  fi
   resolve_script_dir "${BASH_SOURCE[0]:-}"
-  ((DRY_RUN)) || sudo -v
+  ((DRY_RUN)) || sudo -v || die "sudo authentication failed"
 
-  if [[ $PLATFORM == wsl ]]; then
-    install_wsl_packages
-    configure_wsl_command_aliases
-    configure_wsl_dotfiles
-    install_antidote
-    configure_bat
-    configure_wsl_shell
-    run_wsl_postflight
-    log "WSL terminal setup complete"
-    return 0
+  if systemctl --user is-active --quiet cliphist-image.service ||
+    systemctl --user is-active --quiet cliphist-text.service; then
+    run_step "stop legacy Cliphist services" run_cmd systemctl --user stop \
+      cliphist-image.service cliphist-text.service
+  fi
+  if pacman -Qq cliphist >/dev/null 2>&1; then
+    run_step "remove Cliphist" run_sudo pacman -Rns --noconfirm cliphist
   fi
 
-  check_display_manager
-  install_packages
-  install_aur_packages
-  configure_mdns
-  configure_snapper
-  configure_sddm
-  validate_sddm_pam
-  configure_groups
-  configure_suspend_workaround
-  configure_system_services
-  configure_dotfiles
-  configure_bat
-  configure_qt
-  configure_shell
-  configure_user_services
-  configure_gsettings
-  install_gtk_theme
-  install_papirus_folders
-  configure_papirus
-  configure_default_apps
-  install_node_lts
-  configure_ddcutil
-  run_postflight
+  run_step "install missing official packages" install_official_packages
+  run_step "install missing AUR packages" install_aur_packages
+  run_step "configure mDNS" configure_mdns
+  run_step "configure Snapper and Limine" configure_snapper
 
-  log "Arch Hyprland setup complete"
-  info "Reboot, then SDDM will autologin to Hyprland through UWSM!"
+  info "configure SDDM..."
+  if configure_sddm; then
+    run_step "enable sddm.service" run_sudo systemctl enable sddm.service
+  else
+    status=$?
+    fail "configure SDDM" "$status"
+  fi
+
+  if ! getent group i2c >/dev/null; then
+    run_step "create i2c group" run_sudo groupadd --system i2c
+  fi
+  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
+    run_step "add $USER to i2c group" run_sudo usermod -aG i2c "$USER"
+  fi
+  run_step "configure suspend lock workaround" configure_suspend_workaround
+
+  for unit in NetworkManager.service avahi-daemon.service bluetooth.service cups.service \
+    systemd-timesyncd.service; do
+    run_step "enable $unit" run_sudo systemctl enable "$unit"
+  done
+
+  run_step "link configuration files" configure_dotfiles
+  run_step "build Bat theme cache" run_cmd bat cache --build
+  run_step "install Qt color scheme" ensure_root_file \
+    /usr/share/qt6ct/colors/cinder-grove.conf \
+    "$(<"$SCRIPT_DIR/qt6ct/colors/cinder-grove.conf")"$'\n'
+
+  if [[ $(getent passwd "$USER" | cut -d: -f7) != /usr/bin/zsh ]]; then
+    run_step "set Zsh as the login shell" run_sudo chsh -s /usr/bin/zsh "$USER"
+  fi
+  run_step "update XDG user directories" run_cmd xdg-user-dirs-update
+  run_step "configure tmux-sessionizer" run_cmd tms config --paths "$HOME/Projects"
+
+  run_step "reload user services" run_cmd systemctl --user daemon-reload
+  for unit in first-login.service hypridle.service monitor-setup.service swaync.service \
+    swayosd-server.service udiskie.service waybar.service hyprpaper.service \
+    hyprpolkitagent.service pipewire-pulse.socket pipewire.socket podman.socket \
+    wireplumber.service; do
+    run_step "enable $unit" run_cmd systemctl --user enable "$unit"
+  done
+  run_step "enable and start vicinae.service" run_cmd systemctl --user enable --now \
+    vicinae.service
+
+  run_step "configure desktop appearance" configure_gsettings
+  run_step "install Cinder Grove GTK theme" install_gtk_theme
+  run_step "install Cinder Grove Papirus folders" install_papirus_folders
+  run_step "configure Papirus folders" run_cmd papirus-folders-cg --color orange --theme Papirus-Dark
+  run_step "configure default applications" configure_default_apps
+  run_step "install Node.js LTS when missing" install_node_lts
+  run_step "reload ddcutil rules" run_sudo udevadm control --reload-rules
+  run_step "trigger ddcutil devices" run_sudo udevadm trigger --subsystem-match=i2c-dev
+  if ((DRY_RUN)); then
+    format_command ddcutil detect --brief
+  elif ! ddcutil detect --brief; then
+    warn "DDC/CI monitor control unavailable; enable it in each monitor OSD"
+    fail "detect DDC/CI monitors"
+  fi
+  run_step "run postflight checks" run_cmd "$HOME/.local/bin/doctor"
+
+  if ((${#FAILURES[@]})); then
+    warn "Arch Hyprland setup finished with ${#FAILURES[@]} failure(s):"
+    printf '  - %s\n' "${FAILURES[@]}" >&2
+  else
+    log "Arch Hyprland setup complete"
+    info "Reboot, then SDDM will autologin to Hyprland through UWSM!"
+  fi
+  return 0
 }
 
 if [[ -z ${BASH_SOURCE[0]:-} || ${BASH_SOURCE[0]:-} == "$0" ]]; then
