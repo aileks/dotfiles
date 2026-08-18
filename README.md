@@ -1,6 +1,6 @@
 # Arch Hyprland dotfiles
 
-Personal Arch desktop built around Hyprland with UWSM. Also supports WSL.
+Personal Arch desktop built around Hyprland with `uwsm`.
 
 ![Desktop Showcase](./assets/screenshot.png)
 
