@@ -26,7 +26,7 @@ readonly -a PACMAN_PACKAGES=(
   swayosd tmux trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm waybar
   system-config-printer wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk
   xdg-desktop-portal-hyprland xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh vulkan-tools
-  frameworkintegration
+  frameworkintegration otf-latin-modern otf-latinmodern-math
 )
 
 readonly -a AUR_PACKAGES=(
