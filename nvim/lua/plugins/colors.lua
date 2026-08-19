@@ -4,7 +4,7 @@ vim.cmd.colorscheme('cinder-grove')
 require('lualine').setup({
   options = {
     theme = 'auto',
-    icons_enabled = false,
+    icons_enabled = true,
     component_separators = '|',
     section_separators = '',
   },
