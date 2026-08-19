@@ -2,16 +2,6 @@ vim.lsp.config('*', {
   capabilities = require('blink.cmp').get_lsp_capabilities(),
 })
 
-vim.lsp.config('gopls', {
-  settings = {
-    gopls = {
-      gofumpt = true,
-      analyses = { shadow = true, unusedparams = true },
-      staticcheck = true,
-    },
-  },
-})
-
 vim.lsp.config('basedpyright', {
   settings = {
     basedpyright = {
@@ -25,6 +15,35 @@ vim.lsp.config('basedpyright', {
 
 vim.lsp.config('ruff', {
   init_options = { settings = { args = {} } },
+})
+
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('ruff-hover', { clear = true }),
+  desc = 'Disable hover in favor of BasedPyright',
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client and client.name == 'ruff' then
+      client.server_capabilities.hoverProvider = false
+    end
+  end,
+})
+
+vim.lsp.config('jsonls', {
+  settings = {
+    json = {
+      schemas = require('schemastore').json.schemas(),
+      validate = { enable = true },
+    },
+  },
+})
+
+vim.lsp.config('yamlls', {
+  settings = {
+    yaml = {
+      schemas = require('schemastore').yaml.schemas(),
+      schemaStore = { enable = false, url = '' },
+    },
+  },
 })
 
 vim.lsp.config('lua_ls', {

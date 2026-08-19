@@ -11,5 +11,7 @@ wk.add({
   { '<leader>l', group = 'lsp' },
   { '<leader>d', group = 'debug' },
   { '<leader>t', group = 'test' },
+  { '<leader>o', group = 'overseer' },
+  { '<leader>u', group = 'view' },
   { '<leader>db', group = 'buffers' },
 })

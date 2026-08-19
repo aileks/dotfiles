@@ -5,7 +5,6 @@ require('nvim-treesitter').install({
   'query',
   'markdown',
   'markdown_inline',
-  'go',
   'python',
   'sql',
   'javascript',

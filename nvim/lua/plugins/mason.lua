@@ -3,16 +3,12 @@ require('mason').setup({
 })
 
 require('mason-lspconfig').setup({
-  ensure_installed = { 'gopls', 'basedpyright', 'ruff', 'ts_ls', 'lua_ls' },
+  ensure_installed = { 'basedpyright', 'ruff', 'vtsls', 'jsonls', 'yamlls', 'lua_ls' },
   automatic_enable = { exclude = { 'stylua' } },
 })
 
 require('mason-tool-installer').setup({
   ensure_installed = {
-    'gofumpt',
-    'goimports',
-    'delve',
-    'gotestsum',
     'debugpy',
     'prettier',
     'eslint_d',

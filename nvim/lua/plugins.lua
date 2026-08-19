@@ -6,6 +6,7 @@ local plugins = {
   { src = 'https://github.com/nvim-tree/nvim-web-devicons' },
 
   { src = 'https://github.com/neovim/nvim-lspconfig' },
+  { src = 'https://github.com/b0o/SchemaStore.nvim' },
   { src = 'https://github.com/mason-org/mason.nvim' },
   { src = 'https://github.com/mason-org/mason-lspconfig.nvim' },
   { src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim' },
@@ -22,19 +23,21 @@ local plugins = {
 
   { src = 'https://github.com/stevearc/conform.nvim' },
   { src = 'https://github.com/mfussenegger/nvim-lint' },
+  { src = 'https://github.com/stevearc/overseer.nvim' },
 
   { src = 'https://github.com/mfussenegger/nvim-dap' },
   { src = 'https://github.com/rcarriga/nvim-dap-ui' },
   { src = 'https://github.com/nvim-neotest/nvim-nio' },
-  { src = 'https://github.com/leoluz/nvim-dap-go' },
   { src = 'https://github.com/mfussenegger/nvim-dap-python' },
   { src = 'https://github.com/nvim-neotest/neotest' },
   { src = 'https://github.com/nvim-lua/plenary.nvim' },
-  { src = 'https://github.com/nvim-neotest/neotest-go' },
+  { src = 'https://github.com/nvim-neotest/neotest-python' },
 
   { src = 'https://github.com/tpope/vim-dadbod' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
+
+  { src = 'https://github.com/hat0uma/csvview.nvim' },
 }
 
 vim.pack.add(plugins)
@@ -49,7 +52,9 @@ require('plugins.fzf')
 require('plugins.git')
 require('plugins.formatting')
 require('plugins.lint')
+require('plugins.overseer')
 require('plugins.trouble')
 require('plugins.dap')
 require('plugins.neotest')
 require('plugins.sql')
+require('plugins.csvview')

@@ -17,7 +17,7 @@ readonly -a PACMAN_PACKAGES=(
   bat bitwarden blueman bluez bluez-utils btop btrfs-progs cava
   cups curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer
   file-roller fontconfig fwupd fzf gedit geoclue git gnome-disk-utility
-  gnome-keyring go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc
+  gnome-keyring gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc
   gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
   hyprlock hyprpaper hyprpolkitagent imv inotify-tools jq kvantum less libnotify
   libva-nvidia-driver libva-utils linux linux-firmware lua man-db mesa-utils

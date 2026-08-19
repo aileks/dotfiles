@@ -1,7 +1,6 @@
 local dap = require('dap')
 local dapui = require('dapui')
 
-require('dap-go').setup()
 require('dap-python').setup('debugpy-adapter')
 
 dap.adapters['pwa-node'] = {

@@ -2,7 +2,7 @@ local neotest = require('neotest')
 
 neotest.setup({
   adapters = {
-    require('neotest-go')({ experimental = { test_table = true } }),
+    require('neotest-python')({ runner = 'pytest' }),
   },
 })
 

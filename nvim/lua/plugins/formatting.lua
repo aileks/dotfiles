@@ -2,7 +2,6 @@ local conform = require('conform')
 
 conform.setup({
   formatters_by_ft = {
-    go = { 'goimports', 'gofumpt' },
     python = { 'ruff_organize_imports', 'ruff_format' },
     javascript = { 'prettier' },
     javascriptreact = { 'prettier' },
