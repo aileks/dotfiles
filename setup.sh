@@ -16,7 +16,7 @@ readonly -a PACMAN_PACKAGES=(
   7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel
   bat bitwarden blueman bluez bluez-utils btop btrfs-progs cava
   cups curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer
-  file-roller fontconfig fwupd fzf geoclue git gnome-disk-utility
+  file-roller fontconfig fwupd fzf gedit geoclue git gnome-disk-utility
   gnome-keyring go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc
   gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
   hyprlock hyprpaper hyprpolkitagent imv inotify-tools jq kvantum less libnotify
@@ -34,16 +34,9 @@ readonly -a PACMAN_PACKAGES=(
 )
 
 readonly -a AUR_PACKAGES=(
-  darkly-bin
-  fastmail
-  helium-browser-bin
-  limine-tool
-  limine-snapper-sync
-  localsend-bin
-  tmux-sessionizer-bin
-  vicinae-bin
-  visual-studio-code-bin
-  zsh-antidote
+  darkly-bin fastmail helium-browser-bin
+  limine-tool limine-snapper-sync localsend-bin
+  tmux-sessionizer-bin vicinae-bin zsh-antidote
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -741,7 +734,7 @@ configure_default_apps() {
 
   browser=$(desktop_id helium.desktop helium-browser.desktop || true)
   terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
-  editor=$(desktop_id visual-studio-code.desktop code.desktop || true)
+  editor=$(desktop_id org.gnome.gedit.desktop gedit.desktop || true)
   image_viewer=$(desktop_id imv.desktop || true)
 
   if [[ -n $browser ]]; then
