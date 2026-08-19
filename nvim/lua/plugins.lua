@@ -20,6 +20,7 @@ local plugins = {
   { src = 'https://github.com/folke/trouble.nvim' },
 
   { src = 'https://github.com/lewis6991/gitsigns.nvim' },
+  { src = 'https://github.com/kdheepak/lazygit.nvim' },
 
   { src = 'https://github.com/stevearc/conform.nvim' },
   { src = 'https://github.com/mfussenegger/nvim-lint' },
@@ -50,6 +51,7 @@ require('plugins.lsp')
 require('plugins.mason')
 require('plugins.fzf')
 require('plugins.git')
+require('plugins.lazygit')
 require('plugins.formatting')
 require('plugins.lint')
 require('plugins.overseer')
