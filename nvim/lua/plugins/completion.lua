@@ -1,5 +1,7 @@
+require('nvim-autopairs').setup({})
+
 require('blink.cmp').setup({
-  keymap = { preset = 'default' },
+  keymap = { preset = 'super-tab' },
   appearance = { nerd_font_variant = 'normal' },
   sources = {
     default = { 'lsp', 'path', 'snippets', 'buffer' },

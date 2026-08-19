@@ -10,6 +10,8 @@ local plugins = {
   { src = 'https://github.com/mason-org/mason-lspconfig.nvim' },
   { src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim' },
   { src = 'https://github.com/Saghen/blink.cmp', version = 'v1' },
+  { src = 'https://github.com/rafamadriz/friendly-snippets' },
+  { src = 'https://github.com/windwp/nvim-autopairs' },
   { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
 
   { src = 'https://github.com/ibhagwan/fzf-lua' },
