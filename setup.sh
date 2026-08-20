@@ -26,14 +26,14 @@ readonly -a PACMAN_PACKAGES=(
   swayosd tmux trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm waybar
   system-config-printer wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk
   xdg-desktop-portal-hyprland xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh vulkan-tools
-  frameworkintegration otf-latin-modern otf-latinmodern-math
+  frameworkintegration otf-latin-modern otf-latinmodern-math tesseract tesseract-data-eng
 )
 
 readonly -a AUR_PACKAGES=(
   darkly-bin fastmail helium-browser-bin
   limine-tool limine-snapper-sync localsend-bin
   tmux-sessionizer-bin vicinae-bin zsh-antidote
-  appflowy-bin
+  appflowy-bin normcap
 )
 
 log() { printf '[ok] %s\n' "$*"; }
