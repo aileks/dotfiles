@@ -5,14 +5,14 @@ local repeating = { repeating = true }
 local media = { locked = true, repeating = true }
 
 local function bind(keys, action, description, flags)
-    flags = flags or {}
-    flags.description = description
-    hl.bind(keys, action, flags)
+	flags = flags or {}
+	flags.description = description
+	hl.bind(keys, action, flags)
 end
 
 bind("SUPER + Space", hl.dsp.exec_cmd("vicinae toggle"), "Application launcher")
 bind("SUPER + Return", hl.dsp.exec_cmd(app .. "alacritty"), "Terminal")
-bind("SUPER + W", hl.dsp.exec_cmd(app .. "helium-browser" .. syncobj), "Browser")
+bind("SUPER + W", hl.dsp.exec_cmd(app .. "zen-browser-twilight" .. syncobj), "Browser")
 bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
 bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop" .. syncobj), "Signal")
 bind("SUPER + M", hl.dsp.exec_cmd(app .. "fastmail" .. syncobj), "Fastmail")
@@ -21,7 +21,7 @@ bind("SUPER + V", hl.dsp.exec_cmd("vicinae launch clipboard:history"), "Clipboar
 bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t -sw"), "Notification center")
 bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "keybinds-menu"), "Keybind help")
 bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
-bind("SUPER + SHIFT + P", hl.dsp.exec_cmd(local_bin .. "power-menu"), "Power menu")
+bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("wlogout -b 3 -c 20 -r 20 -L 900 -R 900 -T 550 -B 550"), "Power menu")
 
 bind("SUPER + Q", hl.dsp.window.close(), "Close window")
 bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Toggle fullscreen")
@@ -30,24 +30,24 @@ bind("SUPER + P", hl.dsp.window.pseudo(), "Toggle pseudotile")
 bind("SUPER + X", hl.dsp.layout("togglesplit"), "Toggle split direction")
 
 local directions = {
-    h = "left",
-    j = "down",
-    k = "up",
-    l = "right",
+	h = "left",
+	j = "down",
+	k = "up",
+	l = "right",
 }
 
 for key, direction in pairs(directions) do
-    bind("SUPER + " .. key, hl.dsp.focus({ direction = direction }), "Focus " .. direction)
-    bind("SUPER + SHIFT + " .. key, hl.dsp.window.move({ direction = direction }), "Move window " .. direction)
+	bind("SUPER + " .. key, hl.dsp.focus({ direction = direction }), "Focus " .. direction)
+	bind("SUPER + SHIFT + " .. key, hl.dsp.window.move({ direction = direction }), "Move window " .. direction)
 end
 
 for workspace = 1, 8 do
-    bind("SUPER + " .. workspace, hl.dsp.focus({ workspace = workspace }), "Workspace " .. workspace)
-    bind(
-        "SUPER + SHIFT + " .. workspace,
-        hl.dsp.window.move({ workspace = workspace, follow = false }),
-        "Move window to workspace " .. workspace
-    )
+	bind("SUPER + " .. workspace, hl.dsp.focus({ workspace = workspace }), "Workspace " .. workspace)
+	bind(
+		"SUPER + SHIFT + " .. workspace,
+		hl.dsp.window.move({ workspace = workspace, follow = false }),
+		"Move window to workspace " .. workspace
+	)
 end
 
 bind("SUPER + comma", hl.dsp.focus({ monitor = "-1" }), "Previous monitor")

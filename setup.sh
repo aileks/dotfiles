@@ -30,10 +30,10 @@ readonly -a PACMAN_PACKAGES=(
 )
 
 readonly -a AUR_PACKAGES=(
-  darkly-bin fastmail helium-browser-bin
+  darkly-bin fastmail zen-browser-bin
   limine-tool limine-snapper-sync localsend-bin
   tmux-sessionizer-bin vicinae-bin zsh-antidote
-  appflowy-bin normcap
+  appflowy-bin normcap wlogout
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -630,6 +630,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/vicinae/settings.json" "$config_home/vicinae/settings.json"
   link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
     "$data_home/vicinae/themes/cinder-grove.toml"
+  link_path "$SCRIPT_DIR/wlogout" "$config_home/wlogout"
 
   remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
     "$config_home/systemd/user/graphical-session.target.wants/nm-applet.service"
@@ -644,6 +645,7 @@ configure_dotfiles() {
   remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
     "$config_home/systemd/user/graphical-session.target.wants/cliphist-text.service"
   remove_managed_link "$SCRIPT_DIR/bin/clipboard-menu" "$HOME/.local/bin/clipboard-menu"
+  remove_managed_link "$SCRIPT_DIR/bin/power-menu" "$HOME/.local/bin/power-menu"
   remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
     "$config_home/systemd/user/first-login.service"
   remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
@@ -735,7 +737,7 @@ configure_default_apps() {
   local browser terminal editor image_viewer mime
   ((DRY_RUN)) && return 0
 
-  browser=$(desktop_id helium.desktop helium-browser.desktop || true)
+  browser=$(desktop_id zen.desktop zen-browser.desktop || true)
   terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
   editor=$(desktop_id org.gnome.gedit.desktop gedit.desktop || true)
   image_viewer=$(desktop_id imv.desktop || true)
@@ -746,7 +748,7 @@ configure_default_apps() {
     xdg-mime default "$browser" x-scheme-handler/https || return
     xdg-mime default "$browser" text/html || return
   else
-    warn "Helium desktop entry was not found"
+    warn "Zen Browser desktop entry was not found"
   fi
   xdg-mime default org.gnome.Nautilus.desktop inode/directory || return
   [[ -z $editor ]] || xdg-mime default "$editor" text/plain || return

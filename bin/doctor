@@ -269,7 +269,7 @@ check_snapper() {
 
 check_system() {
 	local command file package theme_file="${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/themes/cinder-grove.toml"
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar vicinae swaync-client swayosd-client hyprlock hypridle hyprpaper nwg-look snapper limine-snapper-info; do
+	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar vicinae swaync-client swayosd-client wlogout hyprlock hypridle hyprpaper nwg-look snapper limine-snapper-info; do
 		check_command "$command"
 	done
 	for package in amd-ucode darkly-bin gpu-screen-recorder podman podman-compose podman-docker qt6ct rtkit vicinae-bin; do

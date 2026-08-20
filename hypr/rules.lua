@@ -38,6 +38,13 @@ hl.window_rule({
     no_follow_mouse = true,
 })
 
+hl.layer_rule({
+    name = "wlogout-blur",
+    match = { namespace = "logout_dialog" },
+    blur = true,
+    ignore_alpha = 0.5,
+})
+
 hl.window_rule({
     name = "fix-xwayland-drag",
     match = {

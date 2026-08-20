@@ -117,7 +117,7 @@
   "custom/power": {
     "format": "",
     "tooltip": false,
-    "on-click": "$HOME/.local/bin/power-menu",
+    "on-click": "wlogout -b 3 -c 20 -r 20 -L 900 -R 900 -T 550 -B 550",
   },
   "group/systray": {
     "orientation": "inherit",
