@@ -643,6 +643,12 @@ configure_dotfiles() {
   remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
     "$config_home/systemd/user/graphical-session.target.wants/cliphist-text.service"
   remove_managed_link "$SCRIPT_DIR/bin/clipboard-menu" "$HOME/.local/bin/clipboard-menu"
+  remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
+    "$config_home/systemd/user/first-login.service"
+  remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
+    "$config_home/systemd/user/graphical-session.target.wants/first-login.service"
+  remove_managed_link "$SCRIPT_DIR/bin/first-login-check" \
+    "$HOME/.local/bin/first-login-check"
 
   run_cmd mkdir -p "$config_home/systemd/user" || return
   for source in "$SCRIPT_DIR"/systemd/user/*.service; do
@@ -847,7 +853,7 @@ main() {
   run_step "configure tmux-sessionizer" run_cmd tms config --paths "$HOME/Projects"
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
-  for unit in first-login.service hypridle.service monitor-setup.service swaync.service \
+  for unit in hypridle.service monitor-setup.service swaync.service \
     swayosd-server.service udiskie.service waybar.service hyprpaper.service \
     hyprpolkitagent.service pipewire-pulse.socket pipewire.socket podman.socket \
     wireplumber.service; do
