@@ -33,6 +33,7 @@ readonly -a AUR_PACKAGES=(
   darkly-bin fastmail helium-browser-bin
   limine-tool limine-snapper-sync localsend-bin
   tmux-sessionizer-bin vicinae-bin zsh-antidote
+  appflowy-bin
 )
 
 log() { printf '[ok] %s\n' "$*"; }
