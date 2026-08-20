@@ -67,7 +67,6 @@ window#waybar {
 
 #window,
 #mpris,
-#idle_inhibitor,
 #cpu,
 #memory,
 #pulseaudio,
@@ -92,10 +91,6 @@ window#waybar {
   border: none;
   box-shadow: none;
   padding: 0;
-}
-
-#idle_inhibitor.activated {
-  color: @yellow;
 }
 
 #cpu {

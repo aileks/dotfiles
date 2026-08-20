@@ -6,10 +6,14 @@
   "margin-top": 6,
   "margin-left": 8,
   "margin-right": 8,
-  "modules-left": ["hyprland/workspaces", "hyprland/window"],
-  "modules-center": ["mpris"],
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/window"
+  ],
+  "modules-center": [
+    "mpris"
+  ],
   "modules-right": [
-    "idle_inhibitor",
     "cpu",
     "memory",
     "pulseaudio",
@@ -42,17 +46,13 @@
     "status-icons": {
       "paused": "",
     },
-    "dynamic-order": ["title", "artist"],
+    "dynamic-order": [
+      "title",
+      "artist"
+    ],
     "dynamic-len": 48,
     "on-click": "playerctl play-pause",
     "on-click-right": "playerctl next",
-  },
-  "idle_inhibitor": {
-    "format": "{icon}",
-    "format-icons": {
-      "activated": "",
-      "deactivated": "",
-    },
   },
   "cpu": {
     "format": " {usage}%",
@@ -71,7 +71,11 @@
     "format-muted": "󰝟 muted",
     "format-icons": {
       "headphone": "",
-      "default": ["", "", ""],
+      "default": [
+        "",
+        "",
+        ""
+      ],
     },
     "on-click": "pavucontrol",
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
@@ -123,7 +127,10 @@
       "transition-left-to-right": false,
       "click-to-reveal": true,
     },
-    "modules": ["custom/tray-toggle", "tray"],
+    "modules": [
+      "custom/tray-toggle",
+      "tray"
+    ],
   },
   "custom/tray-toggle": {
     "format": "",
