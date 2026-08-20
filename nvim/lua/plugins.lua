@@ -14,6 +14,7 @@ local plugins = {
   { src = 'https://github.com/rafamadriz/friendly-snippets' },
   { src = 'https://github.com/windwp/nvim-autopairs' },
   { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
+  { src = 'https://github.com/nvim-mini/mini.surround' },
 
   { src = 'https://github.com/ibhagwan/fzf-lua' },
   { src = 'https://github.com/folke/which-key.nvim' },
@@ -60,3 +61,4 @@ require('plugins.dap')
 require('plugins.neotest')
 require('plugins.sql')
 require('plugins.csvview')
+require('mini.surround').setup()
