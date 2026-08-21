@@ -1,6 +1,6 @@
--- hjkl replaces Omarchy's arrow navigation; SUPER+H was already free.
+-- hj/l replace Omarchy's arrow navigation; SUPER+K stays on Omarchy's
+-- keybindings menu, so focus-up has no SUPER modifier.
 hl.unbind("SUPER + J") -- was: toggle window split
-hl.unbind("SUPER + K") -- was: keybindings menu
 hl.unbind("SUPER + L") -- was: toggle workspace layout
 
 -- was: focus / swap window / move workspace to monitor
@@ -25,7 +25,6 @@ o.bind("SUPER + W", "Browser", { omarchy = "browser" })
 local directions = {
 	h = "l",
 	j = "d",
-	k = "u",
 	l = "r",
 }
 
