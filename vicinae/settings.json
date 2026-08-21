@@ -31,6 +31,16 @@
       "material": "blur"
    },
    "providers": {
+      "applications": {
+         "preferences": {
+            "launchPrefix": "uwsm app --"
+         }
+      },
+      "clipboard": {
+         "preferences": {
+            "ignorePasswords": true
+         }
+      },
       "core": {
          "entrypoints": {
             "search-emojis": {

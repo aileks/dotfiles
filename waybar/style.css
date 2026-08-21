@@ -73,6 +73,9 @@ window#waybar {
 #tray,
 #custom-tray-toggle,
 #clock,
+#custom-nightlight,
+#custom-reminder,
+#custom-recording,
 #custom-notification,
 #custom-power {
   padding: 0 9px;
@@ -119,6 +122,18 @@ window#waybar {
 
 #custom-notification {
   color: @primary;
+}
+
+#custom-nightlight {
+  color: @yellow;
+}
+
+#custom-reminder {
+  color: @blue;
+}
+
+#custom-recording {
+  color: @red;
 }
 
 #custom-power {

@@ -13,27 +13,25 @@ TEMP_DIR=""
 declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
-  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden blueman jq
-  bluez bluez-utils btop btrfs-progs cava cups curl ddcutil dconf eza egl-wayland fastfetch fd
-  ffmpeg ffmpegthumbnailer file-roller fontconfig fwupd fzf gedit geoclue git gnome-disk-utility
-  gnome-keyring gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-gphoto2 gvfs-mtp
-  gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper hyprpolkitagent imv kvantum
-  lazygit less libnotify libva-nvidia-driver inotify-tools libva-utils linux linux-firmware lua
-  man-db mesa-utils nautilus neovim network-manager-applet networkmanager nss-mdns nvidia-open
-  nvidia-utils nvm nwg-displays nwg-look openssh pavucontrol papirus-icon-theme pipewire playerctl
-  pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit python qt6-wayland qt6ct
-  ripgrep rsync rtkit satty sddm shellcheck signal-desktop snap-pac snapper slurp starship swaync
-  swayosd tmux trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm waybar
-  system-config-printer wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk
-  xdg-desktop-portal-hyprland xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh vulkan-tools
-  frameworkintegration otf-latin-modern otf-latinmodern-math tesseract tesseract-data-eng celluloid
+  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden blueman jq bluez bluez-utils btop
+  cava cups curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fwupd fzf
+  gedit geoclue git gnome-disk-utility gnome-keyring gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp
+  gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset
+  imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools libva-utils lua linux-firmware man-db mesa-utils
+  nautilus neovim network-manager-applet networkmanager nss-mdns nvidia-open nvidia-utils nvm openssh pavucontrol pipewire
+  papirus-icon-theme playerctl pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit python qt6-wayland
+  qt6ct ripgrep rsync rtkit satty sddm shellcheck signal-desktop snap-pac snapper slurp starship swaync swayosd tmux uv
+  trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm waybar wev wget wireplumber wl-clipboard
+  xdg-desktop-portal xdg-desktop-portal-gtk system-config-printer xdg-desktop-portal-hyprland xdg-user-dirs xdg-utils zbar
+  xorg-xwayland zip zoxide zsh vulkan-tools frameworkintegration otf-latin-modern otf-latinmodern-math tesseract celluloid
+  tesseract-data-eng
 )
 
 readonly -a AUR_PACKAGES=(
   darkly-bin fastmail zen-browser-bin
   limine-tool limine-snapper-sync localsend-bin
   tmux-sessionizer-bin vicinae-bin zsh-antidote
-  appflowy-bin normcap wlogout
+  normcap wlogout
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -630,6 +628,8 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/vicinae/settings.json" "$config_home/vicinae/settings.json"
   link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
     "$data_home/vicinae/themes/cinder-grove.toml"
+  link_path "$SCRIPT_DIR/bin/desktop-reminder" \
+    "$data_home/vicinae/scripts/desktop-reminder"
   link_path "$SCRIPT_DIR/wlogout" "$config_home/wlogout"
 
   remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \

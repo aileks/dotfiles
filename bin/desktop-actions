@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+readonly local_bin="$HOME/.local/bin/"
+
+choose() {
+  vicinae dmenu --placeholder "$1"
+}
+
+dnd_label='Enable Do Not Disturb'
+if [[ $(swaync-client -D -sw 2>/dev/null || true) == true ]]; then
+  dnd_label='Disable Do Not Disturb'
+fi
+
+nightlight_label='Enable Night Light'
+if "$local_bin"desktop-nightlight status >/dev/null 2>&1; then
+  nightlight_label='Disable Night Light'
+fi
+
+recording_actions=$'Record Region\nRecord Output'
+if "$local_bin"desktop-record status >/dev/null 2>&1; then
+  recording_actions='Stop Recording'
+fi
+
+choice=$(printf '%s\n' \
+  "$dnd_label" \
+  "$nightlight_label" \
+  'Set Reminder' \
+  'View Reminders' \
+  'Clear Reminders' \
+  'Screenshot Region' \
+  'Screenshot Window' \
+  'Screenshot Output' \
+  'Extract Text' \
+  'Scan QR Code' \
+  "$recording_actions" | choose 'Desktop action') || exit 0
+
+case "$choice" in
+  *'Do Not Disturb') swaync-client -d -sw ;;
+  *'Night Light') "$local_bin"desktop-nightlight toggle ;;
+  'Set Reminder') vicinae deeplink 'vicinae://launch/scripts/desktop-reminder' ;;
+  'View Reminders') "$local_bin"desktop-reminder show ;;
+  'Clear Reminders') "$local_bin"desktop-reminder clear ;;
+  'Screenshot Region') "$local_bin"desktop-screenshot region ;;
+  'Screenshot Window') "$local_bin"desktop-screenshot window ;;
+  'Screenshot Output') "$local_bin"desktop-screenshot output ;;
+  'Extract Text') "$local_bin"desktop-ocr ;;
+  'Scan QR Code') "$local_bin"desktop-qr ;;
+  'Stop Recording') "$local_bin"desktop-record stop ;;
+  'Record Region'|'Record Output')
+    audio=$(printf '%s\n' 'No Audio' 'Desktop Audio' 'Desktop + Microphone' |
+      choose 'Recording audio') || exit 0
+    case "$audio" in
+      'No Audio') audio=none ;;
+      'Desktop Audio') audio=desktop ;;
+      'Desktop + Microphone') audio=desktop+mic ;;
+      *) exit 0 ;;
+    esac
+    mode=${choice#Record }
+    "$local_bin"desktop-record "${mode,,}" "$audio"
+    ;;
+esac

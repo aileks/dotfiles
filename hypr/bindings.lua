@@ -17,8 +17,15 @@ bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
 bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop" .. syncobj), "Signal")
 bind("SUPER + M", hl.dsp.exec_cmd(app .. "fastmail" .. syncobj), "Fastmail")
 bind("SUPER + I", hl.dsp.exec_cmd(local_bin .. "desktop-settings"), "Desktop settings")
+bind("SUPER + A", hl.dsp.exec_cmd(local_bin .. "desktop-actions"), "Desktop actions")
 bind("SUPER + V", hl.dsp.exec_cmd("vicinae launch clipboard:history"), "Clipboard history")
 bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t -sw"), "Notification center")
+bind("SUPER + CTRL + N", hl.dsp.exec_cmd(local_bin .. "desktop-nightlight toggle"), "Toggle Night Light")
+bind(
+	"SUPER + CTRL + R",
+	hl.dsp.exec_cmd("vicinae deeplink vicinae://launch/scripts/desktop-reminder"),
+	"Set reminder"
+)
 bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "keybinds-menu"), "Keybind help")
 bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
 bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("wlogout -b 3 -c 20 -r 20 -L 900 -R 900 -T 550 -B 550"), "Power menu")
@@ -66,6 +73,7 @@ bind("SUPER + mouse:273", hl.dsp.window.resize(), "Resize window with mouse", { 
 bind("Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot region"), "Region screenshot")
 bind("CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot window"), "Window screenshot")
 bind("SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot output"), "Full screenshot")
+bind("SUPER + CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-ocr"), "Extract text from region")
 
 bind("SUPER + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record region"), "Region recording")
 bind("SUPER + SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record output"), "Output recording")

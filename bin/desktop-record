@@ -6,6 +6,10 @@ videos_directory=$(xdg-user-dir VIDEOS 2>/dev/null || true)
 directory="${videos_directory:-${XDG_VIDEOS_DIR:-$HOME/Videos}}/Recordings"
 statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.state"
 
+refresh_waybar() {
+  pkill -RTMIN+10 -x waybar 2>/dev/null || true
+}
+
 recording_is_live() {
   local current_start_time executable
   [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] || return 1
@@ -16,14 +20,17 @@ recording_is_live() {
   [[ ${executable##*/} == gpu-screen-recorder ]]
 }
 
-# gpu-screen-recorder finalizes the mp4 on SIGINT.
-if [[ -f $statefile ]] &&
+read_state() {
+  [[ -f $statefile ]] || return 1
   {
     read -r pid
     read -r start_time
     read -r file
-  } <"$statefile" &&
-  recording_is_live; then
+  } <"$statefile"
+}
+
+stop_recording() {
+  # gpu-screen-recorder finalizes the mp4 on SIGINT.
   kill -INT "$pid"
   for _ in {1..50}; do
     kill -0 "$pid" 2>/dev/null || break
@@ -36,12 +43,55 @@ if [[ -f $statefile ]] &&
   fi
   rm -f "$statefile"
   if [[ -s $file ]]; then
+    refresh_waybar
     notify-send -a Recording "Recording saved" "$file"
   else
     notify-send -u critical -a Recording "Recording failed" \
       "No completed recording was written."
     exit 1
   fi
+}
+
+mode=${1:-output}
+audio=${2:-none}
+case "$mode" in
+  region|output|stop|status) ;;
+  *)
+    printf 'usage: desktop-record [region|output] [none|desktop|desktop+mic] | stop | status\n' >&2
+    exit 2
+    ;;
+esac
+if [[ $mode == region || $mode == output ]]; then
+  case "$audio" in
+    none|desktop|desktop+mic) ;;
+    *)
+      printf 'usage: desktop-record [region|output] [none|desktop|desktop+mic] | stop | status\n' >&2
+      exit 2
+      ;;
+  esac
+elif (($# > 1)); then
+  printf 'usage: desktop-record [region|output] [none|desktop|desktop+mic] | stop | status\n' >&2
+  exit 2
+fi
+
+if read_state && recording_is_live; then
+  if [[ $mode == status ]]; then
+    printf '%s\n' "$file"
+    exit 0
+  fi
+  stop_recording
+  exit 0
+fi
+
+if [[ $mode == status ]]; then
+  printf 'not recording\n'
+  exit 1
+fi
+
+if [[ $mode == stop ]]; then
+  rm -f "$statefile"
+  refresh_waybar
+  notify-send -a Recording "No active recording"
   exit 0
 fi
 
@@ -49,7 +99,7 @@ rm -f "$statefile"
 mkdir -p "$directory"
 file="$directory/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
-case "${1:-output}" in
+case "$mode" in
   output)
     focused_output=$(hyprctl -j monitors | jq -er '.[] | select(.focused) | .name') || {
       notify-send -u critical -a Recording "Recording failed" \
@@ -65,7 +115,13 @@ case "${1:-output}" in
   *) exit 2 ;;
 esac
 
-gpu-screen-recorder "${args[@]}" -f 60 -a default_output -c mp4 -o "$file" &
+case "$audio" in
+  none) audio_args=() ;;
+  desktop) audio_args=(-a default_output) ;;
+  desktop+mic) audio_args=(-a 'default_output|default_input') ;;
+esac
+
+gpu-screen-recorder "${args[@]}" -f 60 "${audio_args[@]}" -c mp4 -o "$file" &
 pid=$!
 sleep 0.2
 if ! kill -0 "$pid" 2>/dev/null; then
@@ -84,4 +140,5 @@ statefile_tmp="$statefile.tmp.$pid"
 printf '%s\n%s\n%s\n' "$pid" "$start_time" "$file" >"$statefile_tmp"
 mv "$statefile_tmp" "$statefile"
 
+refresh_waybar
 notify-send -a Recording "Recording started" "$file"

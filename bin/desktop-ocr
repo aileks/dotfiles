@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+freeze_pid=''
+
+cleanup() {
+  if [[ -n $freeze_pid ]]; then
+    kill "$freeze_pid" 2>/dev/null || true
+    wait "$freeze_pid" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
+hyprpicker -r -z >/dev/null 2>&1 &
+freeze_pid=$!
+sleep 0.1
+geometry=$(slurp) || exit 0
+
+if ! result=$(grim -g "$geometry" - | tesseract stdin stdout \
+  --oem 1 --psm 6 -l eng --dpi 300 -c preserve_interword_spaces=1 2>/dev/null) ||
+  [[ -z ${result//[[:space:]]/} ]]; then
+  notify-send -u critical -a 'Text Extraction' 'No text found'
+  exit 1
+fi
+
+printf '%s' "$result" | wl-copy
+notify-send -a 'Text Extraction' 'Text copied'
