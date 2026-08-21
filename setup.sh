@@ -26,7 +26,7 @@ readonly -a PACMAN_PACKAGES=(
   swayosd tmux trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm waybar
   system-config-printer wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk
   xdg-desktop-portal-hyprland xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh vulkan-tools
-  frameworkintegration otf-latin-modern otf-latinmodern-math tesseract tesseract-data-eng
+  frameworkintegration otf-latin-modern otf-latinmodern-math tesseract tesseract-data-eng celluloid
 )
 
 readonly -a AUR_PACKAGES=(
@@ -734,13 +734,14 @@ install_papirus_folders() {
 }
 
 configure_default_apps() {
-  local browser terminal editor image_viewer mime
+  local browser terminal editor image_viewer media_player mime
   ((DRY_RUN)) && return 0
 
   browser=$(desktop_id zen.desktop zen-browser.desktop || true)
   terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
   editor=$(desktop_id org.gnome.gedit.desktop gedit.desktop || true)
   image_viewer=$(desktop_id imv.desktop || true)
+  media_player=$(desktop_id io.github.celluloid_player.Celluloid.desktop || true)
 
   if [[ -n $browser ]]; then
     xdg-settings set default-web-browser "$browser" || return
@@ -761,6 +762,13 @@ configure_default_apps() {
     done
   else
     warn "imv desktop entry was not found"
+  fi
+  if [[ -n $media_player ]]; then
+    while IFS= read -r mime; do
+      [[ -z $mime ]] || xdg-mime default "$media_player" "$mime" || return
+    done < <(sed -n 's/^MimeType=//p' "/usr/share/applications/$media_player" | tr ';' '\n')
+  else
+    warn "Celluloid desktop entry was not found"
   fi
 }
 
