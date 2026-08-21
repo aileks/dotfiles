@@ -25,7 +25,7 @@ o.bind("SUPER + W", "Browser", { omarchy = "browser" })
 hl.unbind("SUPER + SLASH") -- was: monitor scaling up
 o.bind("SUPER + SLASH", "Keybindings", "omarchy-menu-keybindings")
 hl.unbind("SUPER + SHIFT + SLASH") -- was: 1Password
-o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden", focus = "^Bitwarden$" })
+o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden-desktop", focus = "^bitwarden-desktop$" })
 hl.unbind("SUPER + ALT + SLASH") -- was: monitor scaling down
 
 local directions = {
