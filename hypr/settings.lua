@@ -42,6 +42,11 @@ hl.config({
     },
     input = {
         kb_file = config_home .. "/hypr/keymap.xkb",
+        kb_layout = "",
+        kb_variant = "",
+        kb_model = "",
+        kb_options = "",
+        kb_rules = "",
         numlock_by_default = true,
         repeat_rate = 50,
         repeat_delay = 250,
