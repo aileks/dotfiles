@@ -120,12 +120,14 @@ validate_environment() {
     die "Omarchy is required; this script is an Omarchy post-install"
   [[ -d ${OMARCHY_PATH:-/usr/share/omarchy} ]] ||
     die "Omarchy installation not found at ${OMARCHY_PATH:-/usr/share/omarchy}"
+  command -v yay >/dev/null ||
+    die "yay is required (Omarchy's package helper)"
 }
 
 ensure_git() {
   command -v git >/dev/null && return 0
   info "installing git for bootstrap..."
-  run_cmd omarchy pkg add git base-devel || die "Git installation failed"
+  run_cmd yay -S --needed --noconfirm git base-devel || die "Git installation failed"
   ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
 }
 
@@ -266,43 +268,26 @@ missing_packages() {
   done
 }
 
-install_official_packages() {
+install_packages() {
   local -a missing=()
   local package
 
-  mapfile -t missing < <(missing_packages "${PACMAN_PACKAGES[@]}")
+  mapfile -t missing < <(missing_packages "${PACMAN_PACKAGES[@]}" "${AUR_PACKAGES[@]}")
   if ((${#missing[@]} == 0)); then
-    log "all official packages are already installed"
+    log "all packages are already installed"
     return 0
   fi
-  info "installing ${#missing[@]} missing official packages..."
-  if run_cmd omarchy pkg add "${missing[@]}"; then
+  info "installing ${#missing[@]} missing packages with yay..."
+  if run_cmd yay -S --needed --noconfirm "${missing[@]}"; then
     return 0
   fi
-  # A single conflict (e.g. docker vs a compatibility shim) aborts the whole
-  # batch, so retry package by package and let the rest through.
+  # A single conflict aborts the whole batch, so retry package by package
+  # and let the rest through.
   warn "batch install failed; retrying package by package..."
   for package in "${missing[@]}"; do
-    run_cmd omarchy pkg add "$package" ||
-      fail "install official package $package"
+    run_cmd yay -S --needed --noconfirm "$package" ||
+      fail "install package $package"
   done
-}
-
-install_aur_packages() {
-  local -a missing=()
-
-  mapfile -t missing < <(missing_packages "${AUR_PACKAGES[@]}")
-  if ((${#missing[@]} == 0)); then
-    log "all AUR packages are already installed"
-    return 0
-  fi
-  command -v yay >/dev/null 2>&1 ||
-    {
-      warn "yay (Omarchy's AUR helper) is required for AUR packages"
-      return 1
-    }
-  info "installing ${#missing[@]} missing AUR packages..."
-  run_cmd omarchy pkg aur add "${missing[@]}"
 }
 
 remove_legacy_stack() {
@@ -530,8 +515,7 @@ main() {
   ((DRY_RUN)) || sudo -v || die "sudo authentication failed"
 
   run_step "remove superseded desktop stack" remove_legacy_stack
-  run_step "install missing official packages" install_official_packages
-  run_step "install missing AUR packages" install_aur_packages
+  run_step "install missing packages" install_packages
   run_step "configure mDNS" configure_mdns
 
   if ! getent group i2c >/dev/null; then

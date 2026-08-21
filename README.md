@@ -46,9 +46,9 @@ cd ~/.dotfiles
 ```
 
 Preview everything without making changes with `./setup.sh --dry-run`. The
-script installs personal apps (via `omarchy pkg add` / `omarchy pkg aur add`),
-links the config layer, retires the pre-Omarchy desktop stack, and sets up
-mDNS, DDC/CI brightness access, Zsh, tmux-sessionizer, and nvm.
+script installs personal apps with `yay -S --needed` (Omarchy's package
+helper), links the config layer, retires the pre-Omarchy desktop stack, and
+sets up mDNS, DDC/CI brightness access, Zsh, tmux-sessionizer, and nvm.
 
 The Cinder Grove theme is applied with `omarchy theme set cinder-grove` after
 linking (already done on this machine).

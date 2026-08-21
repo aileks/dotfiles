@@ -101,7 +101,7 @@ check_qt_theme() {
 	else
 		fail 'Qt 6 platform theme missing'
 	fi
-	if grep -Fxq '^\[Appearance\]' "$config_home/qt6ct/qt6ct.conf" 2>/dev/null &&
+	if grep -Fxq '[Appearance]' "$config_home/qt6ct/qt6ct.conf" 2>/dev/null &&
 		grep -Fxq 'style=Darkly' "$config_home/qt6ct/qt6ct.conf" 2>/dev/null; then
 		pass 'Qt Darkly style configured'
 	else
@@ -172,7 +172,7 @@ check_system() {
 	check_command omarchy
 	check_command vicinae
 	check_command ddcutil
-	for package in darkly-bin vicinae-bin yaru-icon-theme qt6ct rtkit; do
+	for package in darkly-bin vicinae-bin yaru-icon-theme qt6ct; do
 		check_package "$package"
 	done
 
