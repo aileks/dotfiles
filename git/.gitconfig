@@ -1,6 +1,6 @@
 [user]
-	name = Caspian Harper
-	email = caspian@aileks.dev
+	name = Kieran Pedrick
+	email = kieran@aileks.dev
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5gJUQIMKcvB3j7uilUFSDgKGfD9ZwF9VFzcX4WlSj7
 [commit]
 	gpgsign = true
