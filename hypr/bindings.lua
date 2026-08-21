@@ -23,7 +23,7 @@ bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t -sw"), "Notification center"
 bind("SUPER + CTRL + N", hl.dsp.exec_cmd(local_bin .. "desktop-nightlight toggle"), "Toggle Night Light")
 bind(
 	"SUPER + CTRL + R",
-	hl.dsp.exec_cmd("vicinae deeplink vicinae://launch/scripts/desktop-reminder"),
+	hl.dsp.exec_cmd(local_bin .. "desktop-reminder prompt"),
 	"Set reminder"
 )
 bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "keybinds-menu"), "Keybind help")

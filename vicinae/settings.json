@@ -10,6 +10,8 @@
 
 {
    "$schema": "https://vicinae.com/schemas/config.json",
+   "pop_to_root_on_close": true,
+   "escape_key_behavior": "",
    "font": {
       "normal": {
          "family": "Adwaita Sans",
@@ -25,6 +27,7 @@
       "system_info": false
    },
    "launcher_window": {
+      "opacity": 0.9,
       "compact_mode": {
          "enabled": true
       },

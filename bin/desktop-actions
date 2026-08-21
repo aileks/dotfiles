@@ -39,7 +39,7 @@ choice=$(printf '%s\n' \
 case "$choice" in
   *'Do Not Disturb') swaync-client -d -sw ;;
   *'Night Light') "$local_bin"desktop-nightlight toggle ;;
-  'Set Reminder') vicinae deeplink 'vicinae://launch/scripts/desktop-reminder' ;;
+  'Set Reminder') "$local_bin"desktop-reminder prompt ;;
   'View Reminders') "$local_bin"desktop-reminder show ;;
   'Clear Reminders') "$local_bin"desktop-reminder clear ;;
   'Screenshot Region') "$local_bin"desktop-screenshot region ;;

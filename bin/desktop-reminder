@@ -115,7 +115,24 @@ create_reminder() {
   notify-send -a Reminder "Reminder set for $minutes minute(s)"
 }
 
+prompt_reminder() {
+  local input minutes message
+  sleep 0.2
+  input=$(printf 'Enter minutes and an optional message\n' | vicinae dmenu \
+    --navigation-title 'Set Reminder' \
+    --placeholder 'Minutes [optional message]' \
+    --no-section \
+    --no-quick-look \
+    --no-footer \
+    --width 560 \
+    --height 140) || return 0
+  [[ -n $input ]] || return 0
+  read -r minutes message <<<"$input"
+  create_reminder "$minutes" "$message"
+}
+
 case "${1:-}" in
+  prompt) prompt_reminder ;;
   show) show_reminders ;;
   clear) clear_reminders ;;
   status) reminder_status ;;
@@ -124,7 +141,7 @@ case "${1:-}" in
     fire_reminder "$2"
     ;;
   '')
-    printf 'usage: desktop-reminder <minutes> [message] | show | clear | status\n' >&2
+    printf 'usage: desktop-reminder <minutes> [message] | prompt | show | clear | status\n' >&2
     exit 2
     ;;
   *)
