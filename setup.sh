@@ -102,12 +102,15 @@ has_tty() {
 }
 
 validate_environment() {
-  local distro_id os_release="${OS_RELEASE_FILE:-/etc/os-release}"
+  local distro_id distro_like os_release="${OS_RELEASE_FILE:-/etc/os-release}"
   [[ -r $os_release ]] || die "missing $os_release"
   # shellcheck disable=SC1090
   source "$os_release"
   distro_id=${ID:-unknown}
-  [[ $distro_id == arch ]] || die "Arch Linux is required"
+  distro_like=${ID_LIKE:-}
+  # Omarchy identifies as ID=omarchy, ID_LIKE=arch.
+  [[ $distro_id == arch || $distro_like == *arch* ]] ||
+    die "Arch Linux (or an Arch-based distro like Omarchy) is required"
   ((EUID != 0)) || die "run as the desktop user, not root"
   command -v sudo >/dev/null || die "sudo is required"
   getent passwd "$USER" >/dev/null || die "could not resolve user $USER"
