@@ -83,3 +83,11 @@ hl.animation({ leaf = "workspaces", enabled = true, speed = 4, bezier = "cinder"
 hl.animation({ leaf = "layers", enabled = true, speed = 4, bezier = "cinder", style = "fade" })
 
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
+
+hl.config({
+    group = {
+        groupbar = {
+            font_size = 14,
+        },
+    },
+})

@@ -4,6 +4,57 @@ local syncobj = " --enable-features=WaylandLinuxDrmSyncobj"
 local repeating = { repeating = true }
 local media = { locked = true, repeating = true }
 
+local omarchy_conflicts = {
+	"SUPER + SPACE",
+	"SUPER + RETURN",
+	"SUPER + W",
+	"SUPER + S",
+	"SUPER + V",
+	"SUPER + F",
+	"SUPER + P",
+	"SUPER + X",
+	"SUPER + J",
+	"SUPER + K",
+	"SUPER + L",
+	"SUPER + ESCAPE",
+	"SUPER + SHIFT + P",
+	"SUPER + SHIFT + SLASH",
+	"SUPER + SHIFT + comma",
+	"SUPER + comma",
+	"SUPER + CTRL + R",
+	"SUPER + CTRL + H",
+	"SUPER + CTRL + J",
+	"SUPER + CTRL + K",
+	"SUPER + CTRL + L",
+	"SUPER + mouse:272",
+	"SUPER + mouse:273",
+	"PRINT",
+	"SUPER + PRINT",
+	"SUPER + CTRL + PRINT",
+	"XF86AudioRaiseVolume",
+	"XF86AudioLowerVolume",
+	"XF86AudioMute",
+	"XF86AudioMicMute",
+	"XF86AudioPlay",
+	"XF86AudioPause",
+	"XF86AudioNext",
+	"XF86AudioPrev",
+	"XF86MonBrightnessUp",
+	"XF86MonBrightnessDown",
+}
+
+for _, key in ipairs(omarchy_conflicts) do
+	hl.unbind(key)
+end
+
+for code = 10, 21 do
+	local key = "code:" .. code
+	hl.unbind("SUPER + " .. key)
+	hl.unbind("SUPER + SHIFT + " .. key)
+	hl.unbind("SUPER + SHIFT + ALT + " .. key)
+	hl.unbind("SUPER + ALT + " .. key)
+end
+
 local function bind(keys, action, description, flags)
 	flags = flags or {}
 	flags.description = description
