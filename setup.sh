@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 
-# Omarchy post-install: installs personal apps and utilities, links this
-# repository's config override layer into ~/.config, and sets up personal
-# system bits (mDNS, DDC/CI brightness access, Zsh, tmux-sessionizer, nvm).
-#
-# Omarchy owns the desktop stack (Hyprland, shell/bar, notifications, OSD,
-# idle/lock, capture, theming); this script never writes to /usr/share/omarchy
-# or replaces Omarchy defaults — the hypr/ override files here merge on top.
+# Omarchy post-install: personal apps, config links, and personal system bits.
+# Never writes to /usr/share/omarchy or replaces Omarchy defaults.
 
 set -uo pipefail
 
@@ -38,7 +33,6 @@ readonly -a AUR_PACKAGES=(
   zen-browser-twilight-bin zsh-antidote
 )
 
-# Superseded by the Omarchy shell — removed when present.
 readonly -a LEGACY_PACKAGES=(
   hypridle hyprlock hyprpaper normcap swaync swayosd waybar wlogout
 )
@@ -281,8 +275,7 @@ install_packages() {
   if run_cmd yay -S --needed --noconfirm "${missing[@]}"; then
     return 0
   fi
-  # A single conflict aborts the whole batch, so retry package by package
-  # and let the rest through.
+  # One conflict aborts the whole batch; retry per package.
   warn "batch install failed; retrying package by package..."
   for package in "${missing[@]}"; do
     run_cmd yay -S --needed --noconfirm "$package" ||
@@ -377,14 +370,12 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
     "$data_home/vicinae/themes/cinder-grove.toml"
 
-  # Omarchy override files are linked individually: Omarchy owns the rest of
-  # ~/.config/omarchy (hooks, defaults, extensions, plugin state).
+  # Linked individually: Omarchy owns the rest of ~/.config/omarchy.
   link_path "$SCRIPT_DIR/omarchy/shell.toml" "$config_home/omarchy/shell.toml"
   link_path "$SCRIPT_DIR/omarchy/shell.json" "$config_home/omarchy/shell.json"
   link_path "$SCRIPT_DIR/omarchy/themes/cinder-grove" \
     "$config_home/omarchy/themes/cinder-grove"
 
-  # Pre-Omarchy leftovers this repository no longer manages.
   local config dir
   for dir in swaync swayosd waybar wlogout xdg-desktop-portal; do
     remove_managed_link "$SCRIPT_DIR/$dir" "$config_home/$dir"

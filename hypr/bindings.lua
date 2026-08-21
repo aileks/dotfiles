@@ -1,19 +1,16 @@
--- Personal keybinding overrides, merged on top of Omarchy's defaults.
--- View the full binding set: omarchy menu keybindings --print
---
--- hjkl replaces Omarchy's arrow navigation. SUPER+H was unbound; SUPER+J/K/L
--- are freed from their Omarchy defaults first.
+-- hjkl replaces Omarchy's arrow navigation; SUPER+H was already free.
 hl.unbind("SUPER + J") -- was: toggle window split
-hl.unbind("SUPER + K") -- was: keybindings menu (still available via `omarchy menu keybindings`)
+hl.unbind("SUPER + K") -- was: keybindings menu
 hl.unbind("SUPER + L") -- was: toggle workspace layout
 
+-- was: focus / swap window / move workspace to monitor
 for _, arrow in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
-	hl.unbind("SUPER + " .. arrow) -- was: focus window
-	hl.unbind("SUPER + SHIFT + " .. arrow) -- was: swap window
-	hl.unbind("SUPER + SHIFT + ALT + " .. arrow) -- was: move workspace to monitor
+	hl.unbind("SUPER + " .. arrow)
+	hl.unbind("SUPER + SHIFT + " .. arrow)
+	hl.unbind("SUPER + SHIFT + ALT + " .. arrow)
 end
 
--- Exactly eight workspaces: drop Omarchy's 9 and 0 bindings (code:18/19).
+-- code:18/19 are the 9 and 0 keys; exactly eight workspaces.
 for _, code in ipairs({ 18, 19 }) do
 	local key = "code:" .. code
 	hl.unbind("SUPER + " .. key)
@@ -21,7 +18,6 @@ for _, code in ipairs({ 18, 19 }) do
 	hl.unbind("SUPER + SHIFT + ALT + " .. key)
 end
 
--- Close window moves to SUPER+Q so SUPER+W can open the default browser.
 hl.unbind("SUPER + W") -- was: close window
 o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
 o.bind("SUPER + W", "Browser", { omarchy = "browser" })

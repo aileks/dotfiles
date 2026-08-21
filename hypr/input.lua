@@ -1,10 +1,9 @@
--- Personal input overrides. Omarchy defaults apply wherever this is silent.
 local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
 
 hl.config({
 	input = {
-		-- Caps Lock and Ctrl are swapped at the xkb level. Clearing the xkb
-		-- rule fields keeps them from overriding the compiled keymap file.
+		-- The xkb rule fields must be cleared or they override the compiled
+		-- keymap file (caps/ctrl swap).
 		kb_file = config_home .. "/hypr/keymap.xkb",
 		kb_layout = "",
 		kb_variant = "",

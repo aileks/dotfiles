@@ -176,7 +176,6 @@ check_system() {
 		check_package "$package"
 	done
 
-	# Dotfiles override layer is linked into the live config tree.
 	check_link "$config_home/hypr" "$dotfiles/hypr"
 	check_link "$config_home/omarchy/shell.toml" "$dotfiles/omarchy/shell.toml"
 	check_link "$config_home/omarchy/shell.json" "$dotfiles/omarchy/shell.json"
@@ -187,7 +186,6 @@ check_system() {
 		fail 'Omarchy cinder-grove theme missing'
 	fi
 
-	# Personal system bits.
 	if id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
 		pass "$USER is in the i2c group"
 	else
@@ -245,7 +243,7 @@ check_session() {
 		fail "Hyprland config errors: $errors"
 	fi
 
-	# hjkl merge is loaded on top of Omarchy's defaults.
+	# The menu pads output columns, hence the loose regexes.
 	keybindings=$(omarchy menu keybindings --print 2>/dev/null || true)
 	if grep -Eq '^SUPER \+ h[[:space:]].*Focus' <<<"$keybindings"; then
 		pass 'hjkl focus bindings present'
