@@ -26,7 +26,7 @@ readonly -a PACMAN_PACKAGES=(
   fontconfig fzf gedit gnome-disk-utility gnome-keyring localsend libva-nvidia-driver libva-utils
   gvfs gvfs-afc gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb hunspell-en_us imv inotify-tools jq
   kvantum lazygit less libnotify lua man-db mesa-utils nautilus networkmanager nss-mdns nvm
-  openssh pavucontrol playerctl podman podman-compose podman-docker python qt6-wayland qt6ct
+  openssh pavucontrol playerctl python qt6-wayland qt6ct
   ripgrep rsync satty shellcheck signal-desktop starship system-config-printer tesseract
   tesseract-data-eng tmux trash-cli udiskie udisks2 unzip uv vulkan-tools wev wget
   wl-clipboard xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh adwaita-fonts
@@ -268,14 +268,24 @@ missing_packages() {
 
 install_official_packages() {
   local -a missing=()
+  local package
 
   mapfile -t missing < <(missing_packages "${PACMAN_PACKAGES[@]}")
-  if ((${#missing[@]})); then
-    info "installing ${#missing[@]} missing official packages..."
-    run_cmd omarchy pkg add "${missing[@]}" || return
-  else
+  if ((${#missing[@]} == 0)); then
     log "all official packages are already installed"
+    return 0
   fi
+  info "installing ${#missing[@]} missing official packages..."
+  if run_cmd omarchy pkg add "${missing[@]}"; then
+    return 0
+  fi
+  # A single conflict (e.g. docker vs a compatibility shim) aborts the whole
+  # batch, so retry package by package and let the rest through.
+  warn "batch install failed; retrying package by package..."
+  for package in "${missing[@]}"; do
+    run_cmd omarchy pkg add "$package" ||
+      fail "install official package $package"
+  done
 }
 
 install_aur_packages() {
@@ -437,7 +447,7 @@ configure_default_apps() {
   local browser terminal editor image_viewer media_player mime
   ((DRY_RUN)) && return 0
 
-  browser=$(desktop_id zen.desktop zen-browser.desktop || true)
+  browser=$(desktop_id zen-browser-twilight.desktop zen.desktop zen-browser.desktop || true)
   terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
   editor=$(desktop_id org.gnome.gedit.desktop gedit.desktop || true)
   image_viewer=$(desktop_id imv.desktop || true)
@@ -474,6 +484,10 @@ configure_default_apps() {
 
 install_node_lts() {
   local default_version lts_version
+  [[ -r /usr/share/nvm/init-nvm.sh ]] || {
+    warn "nvm is not installed; skipping Node.js setup"
+    return 0
+  }
   export NVM_DIR="$HOME/.nvm"
   [[ -d $NVM_DIR ]] || run_cmd mkdir -p "$NVM_DIR" || return
   # shellcheck disable=SC1091
@@ -544,9 +558,8 @@ main() {
   run_step "configure tmux-sessionizer" run_cmd tms config --paths "$HOME/Projects"
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
-  for unit in udiskie.service podman.socket; do
-    run_step "enable $unit" run_cmd systemctl --user enable "$unit"
-  done
+  run_step "enable and start udiskie.service" run_cmd systemctl --user enable --now \
+    udiskie.service
 
   run_step "configure default applications" configure_default_apps
   run_step "install Node.js LTS when missing" install_node_lts

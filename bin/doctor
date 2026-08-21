@@ -172,7 +172,7 @@ check_system() {
 	check_command omarchy
 	check_command vicinae
 	check_command ddcutil
-	for package in darkly-bin vicinae-bin yaru-icon-theme qt6ct podman podman-compose podman-docker rtkit; do
+	for package in darkly-bin vicinae-bin yaru-icon-theme qt6ct rtkit; do
 		check_package "$package"
 	done
 
@@ -201,7 +201,6 @@ check_system() {
 	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service systemd-timesyncd.service; do
 		check_enabled "$file"
 	done
-	check_user_enabled podman.socket
 	check_user_enabled udiskie.service
 
 	if [[ -r $theme_file ]] && grep -Fq 'name = "Cinder Grove"' "$theme_file"; then
@@ -270,8 +269,8 @@ check_session() {
 	fi
 
 	if monitors=$(hyprctl -j monitors 2>/dev/null); then
-		main_count=$(jq '[.[] | select(.name == "DP-1" and .x == 1080 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")
-		side_count=$(jq '[.[] | select(.name == "HDMI-A-1" and .x == 0 and .y == -240 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
+		main_count=$(jq '[.[] | select(.name == "DP-1" and .x == 0 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")
+		side_count=$(jq '[.[] | select(.name == "HDMI-A-1" and .x == -1080 and .y == 0 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
 		if ((main_count == 1)); then
 			pass 'main monitor geometry correct'
 		else
