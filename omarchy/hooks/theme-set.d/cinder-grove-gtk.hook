@@ -1,0 +1,86 @@
+#!/bin/bash
+
+set -u
+
+theme_name=${1:-}
+theme_root="$HOME/.config/omarchy/themes/cinder-grove"
+gtk_source="$theme_root/gtk/Cinder-Grove-Dark"
+gtk_dest="$HOME/.local/share/themes/Cinder-Grove-Dark"
+gtk_config="$HOME/.config/gtk-4.0"
+gtk_css="$gtk_config/gtk.css"
+state_dir="$HOME/.local/state/omarchy/cinder-grove-gtk"
+active_marker="$state_dir/active"
+expected_css="$state_dir/gtk.css.expected"
+previous_css="$state_dir/gtk.css.previous"
+owned_theme="$state_dir/theme-owned"
+
+notify_warning() {
+  command -v omarchy-notification-send >/dev/null 2>&1 &&
+    omarchy-notification-send "$1" -t 5000 >/dev/null 2>&1 || true
+}
+
+activate_theme() {
+  if [[ ! -f $gtk_source/.cinder-grove-theme || ! -f $gtk_source/gtk-4.0/user.css ]]; then
+    notify_warning "Cinder Grove GTK assets are incomplete"
+    return
+  fi
+
+  mkdir -p "$HOME/.local/share/themes" "$gtk_config" "$state_dir"
+
+  if [[ -e $gtk_dest || -L $gtk_dest ]]; then
+    if [[ -f $owned_theme ]]; then
+      rm -rf "$gtk_dest"
+      cp -R "$gtk_source" "$gtk_dest"
+    fi
+  else
+    cp -R "$gtk_source" "$gtk_dest"
+    touch "$owned_theme"
+  fi
+
+  if [[ -e $gtk_css || -L $gtk_css ]]; then
+    if [[ -f $active_marker ]]; then
+      if [[ ! -f $expected_css ]] || ! cmp -s "$gtk_css" "$expected_css"; then
+        notify_warning "Cinder Grove left modified GTK CSS untouched"
+        gsettings set org.gnome.desktop.interface gtk-theme "Cinder-Grove-Dark"
+        gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+        return
+      fi
+    elif [[ ! -e $previous_css && ! -L $previous_css ]]; then
+      mv "$gtk_css" "$previous_css"
+    else
+      notify_warning "Cinder Grove could not back up existing GTK CSS"
+      return
+    fi
+  fi
+
+  install -m 644 "$gtk_source/gtk-4.0/user.css" "$gtk_css"
+  cp "$gtk_css" "$expected_css"
+  touch "$active_marker"
+
+  gsettings set org.gnome.desktop.interface gtk-theme "Cinder-Grove-Dark"
+  gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+}
+
+deactivate_theme() {
+  [[ -f $active_marker ]] || return
+
+  if [[ -e $gtk_css || -L $gtk_css ]]; then
+    if [[ ! -f $expected_css ]] || ! cmp -s "$gtk_css" "$expected_css"; then
+      notify_warning "Cinder Grove left modified GTK CSS untouched"
+      return
+    fi
+    rm -f "$gtk_css"
+  fi
+
+  if [[ -e $previous_css || -L $previous_css ]]; then
+    mv "$previous_css" "$gtk_css"
+  fi
+
+  rm -f "$active_marker" "$expected_css"
+}
+
+if [[ $theme_name == "cinder-grove" ]]; then
+  activate_theme
+else
+  deactivate_theme
+fi

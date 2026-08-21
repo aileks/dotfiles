@@ -145,9 +145,15 @@ check_system() {
 
 	check_command omarchy
 	check_command ddcutil
-	for package in yaru-icon-theme; do
+	check_command papirus-folders-cg
+	for package in papirus-icon-theme; do
 		check_package "$package"
 	done
+	if [[ $(gsettings get org.gnome.desktop.interface icon-theme 2>/dev/null) == "'Papirus-Dark'" ]]; then
+		pass 'Papirus-Dark icon theme selected'
+	else
+		fail 'Papirus-Dark icon theme not selected'
+	fi
 
 	check_link "$config_home/hypr" "$dotfiles/hypr"
 	check_link "$config_home/omarchy/shell.toml" "$dotfiles/omarchy/shell.toml"

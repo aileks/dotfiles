@@ -25,11 +25,11 @@ readonly -a PACMAN_PACKAGES=(
   ripgrep rsync satty shellcheck signal-desktop starship system-config-printer tesseract
   tesseract-data-eng tmux trash-cli udiskie udisks2 unzip uv vulkan-tools wev wget
   wl-clipboard xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh adwaita-fonts
-  ttf-adwaitamono-nerd otf-latin-modern otf-latinmodern-math
+  papirus-icon-theme ttf-adwaitamono-nerd otf-latin-modern otf-latinmodern-math
 )
 
 readonly -a AUR_PACKAGES=(
-  fastmail tmux-sessionizer-bin yaru-icon-theme
+  fastmail tmux-sessionizer-bin
   zen-browser-twilight-bin zsh-antidote
 )
 
@@ -39,7 +39,7 @@ readonly -a LEGACY_PACKAGES=(
 
 readonly -a LEGACY_USER_UNITS=(
   desktop-nightlight.service hypridle.service hyprlock.service hyprpaper.service
-  monitor-setup.service swaync.service swayosd-server.service vicinae.service
+  monitor-setup.service swaync.service swayosd-server.service
   waybar.service
 )
 
@@ -365,8 +365,9 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
   link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" \
     "$data_home/backgrounds/fantasy-woods.jpg"
-  link_path "$SCRIPT_DIR/vicinae/settings.json" "$config_home/vicinae/settings.json"
-  link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
+  remove_managed_link "$SCRIPT_DIR/vicinae/settings.json" \
+    "$config_home/vicinae/settings.json"
+  remove_managed_link "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
     "$data_home/vicinae/themes/cinder-grove.toml"
 
   # Linked individually: Omarchy owns the rest of ~/.config/omarchy.
@@ -374,6 +375,8 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/omarchy/shell.json" "$config_home/omarchy/shell.json"
   link_path "$SCRIPT_DIR/omarchy/themes/cinder-grove" \
     "$config_home/omarchy/themes/cinder-grove"
+  link_path "$SCRIPT_DIR/omarchy/hooks/theme-set.d/cinder-grove-gtk.hook" \
+    "$config_home/omarchy/hooks/theme-set.d/cinder-grove-gtk.hook"
   link_path "$SCRIPT_DIR/omarchy/hooks/post-boot.d/01-pin-bar-font" \
     "$config_home/omarchy/hooks/post-boot.d/01-pin-bar-font"
 
@@ -407,6 +410,17 @@ configure_dotfiles() {
   for script in "$SCRIPT_DIR"/bin/*; do
     link_path "$script" "$HOME/.local/bin/$(basename "$script")"
   done
+}
+
+install_papirus_folders() {
+  local installer_url="https://raw.githubusercontent.com/aileks/papirus-folders/cinder-grove-folders/install.sh"
+  info "installing Cinder Grove Papirus folders..."
+  if ((DRY_RUN)); then
+    format_command bash -o pipefail -c \
+      "curl -fsSL '$installer_url' | env TAG=cinder-grove-folders sh"
+    return 0
+  fi
+  curl -fsSL "$installer_url" | env TAG=cinder-grove-folders sh
 }
 
 desktop_id() {
@@ -536,6 +550,9 @@ main() {
     udiskie.service
 
   run_step "configure default applications" configure_default_apps
+  run_step "install Cinder Grove Papirus folders" install_papirus_folders
+  run_step "configure Papirus folders" run_cmd papirus-folders-cg --color orange \
+    --theme Papirus-Dark
   run_step "install Node.js LTS when missing" install_node_lts
   run_step "reload ddcutil rules" run_sudo udevadm control --reload-rules
   run_step "trigger ddcutil devices" run_sudo udevadm trigger --subsystem-match=i2c-dev
