@@ -374,6 +374,8 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/omarchy/shell.json" "$config_home/omarchy/shell.json"
   link_path "$SCRIPT_DIR/omarchy/themes/cinder-grove" \
     "$config_home/omarchy/themes/cinder-grove"
+  link_path "$SCRIPT_DIR/omarchy/hooks/post-boot.d/01-pin-bar-font" \
+    "$config_home/omarchy/hooks/post-boot.d/01-pin-bar-font"
 
   local config dir
   for dir in qt6ct swaync swayosd waybar wlogout xdg-desktop-portal; do

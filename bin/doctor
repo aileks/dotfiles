@@ -160,6 +160,11 @@ check_system() {
 	else
 		fail 'Omarchy cinder-grove theme missing'
 	fi
+	if grep -Fxq 'base-size = 14' "$config_home/omarchy/shell.toml" 2>/dev/null; then
+		pass 'bar font pinned to 14'
+	else
+		fail 'bar font is not pinned to 14'
+	fi
 
 	if id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
 		pass "$USER is in the i2c group"
