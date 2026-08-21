@@ -4,7 +4,6 @@ set -uo pipefail
 
 failures=0
 desktop_active=0
-booted_graphics=0
 ok_color=""
 warn_color=""
 out_reset=""
@@ -37,12 +36,17 @@ error() { printf '%s[error]%s %s\n' "$error_color" "$err_reset" "$*" >&2; }
 if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]] && command -v hyprctl >/dev/null; then
 	desktop_active=1
 fi
-if ((desktop_active)) || systemctl is-active --quiet sddm.service; then
-	booted_graphics=1
-fi
 
 check_command() {
 	if command -v "$1" >/dev/null; then
+		pass "$1 installed"
+	else
+		fail "$1 missing"
+	fi
+}
+
+check_package() {
+	if pacman -Qq "$1" >/dev/null 2>&1; then
 		pass "$1 installed"
 	else
 		fail "$1 missing"
@@ -57,14 +61,6 @@ check_enabled() {
 	fi
 }
 
-check_disabled() {
-	if systemctl is-enabled --quiet "$1"; then
-		fail "$1 enabled"
-	else
-		pass "$1 disabled"
-	fi
-}
-
 check_user_enabled() {
 	if systemctl --user is-enabled --quiet "$1"; then
 		pass "$1 enabled"
@@ -73,11 +69,20 @@ check_user_enabled() {
 	fi
 }
 
-check_package() {
-	if pacman -Qq "$1" >/dev/null 2>&1; then
-		pass "$1 installed"
+check_user_active() {
+	if systemctl --user is-active --quiet "$1"; then
+		pass "$1 active"
 	else
-		fail "$1 missing"
+		fail "$1 inactive"
+	fi
+}
+
+check_link() {
+	local target=$1 source=$2
+	if [[ -L $target && $(readlink "$target") == "$source" ]]; then
+		pass "$target linked to dotfiles"
+	else
+		fail "$target is not linked to $source"
 	fi
 }
 
@@ -96,7 +101,12 @@ check_qt_theme() {
 	else
 		fail 'Qt 6 platform theme missing'
 	fi
-	check_setting "$config_home/qt6ct/qt6ct.conf" style Darkly 'Qt Darkly style configured'
+	if grep -Fxq '^\[Appearance\]' "$config_home/qt6ct/qt6ct.conf" 2>/dev/null &&
+		grep -Fxq 'style=Darkly' "$config_home/qt6ct/qt6ct.conf" 2>/dev/null; then
+		pass 'Qt Darkly style configured'
+	else
+		fail 'Qt Darkly style missing'
+	fi
 	if [[ -r /usr/share/qt6ct/colors/cinder-grove.conf ]]; then
 		pass 'Qt cinder-grove color scheme installed'
 	else
@@ -106,40 +116,6 @@ check_qt_theme() {
 		pass 'Qt Darkly style available'
 	else
 		fail 'Qt Darkly style unavailable'
-	fi
-}
-
-check_limine_snapper_sync() {
-	if systemctl is-active --quiet limine-snapper-sync.service; then
-		pass 'Limine snapshot watcher active'
-	elif [[ -x /usr/lib/snapper/plugins/10-limine-snapper-sync ]]; then
-		pass 'Limine Snapper plugin available'
-	else
-		fail 'Limine snapshot synchronization unavailable'
-	fi
-}
-
-check_setting() {
-	local file="$1" key="$2" expected="$3" label="$4" value
-	value=$(awk -F= -v key="$key" '
-		$1 == key {
-			value = $2
-			gsub(/^"|"$/, "", value)
-			print value
-		}
-	' "$file" 2>/dev/null | tail -n 1)
-	if [[ $value == "$expected" ]]; then
-		pass "$label"
-	else
-		fail "$label"
-	fi
-}
-
-check_user_active() {
-	if systemctl --user is-active --quiet "$1"; then
-		pass "$1 active"
-	else
-		fail "$1 inactive"
 	fi
 }
 
@@ -166,184 +142,88 @@ check_nvidia_modeset() {
 		fi
 	elif [[ -e $parameter ]] && nvidia_drm_active; then
 		pass 'Nvidia DRM modesetting active'
-	elif ((!booted_graphics)); then
+	elif ((!desktop_active)); then
 		warn 'Nvidia module loads after reboot'
-	elif [[ -e $parameter ]]; then
-		warn 'Nvidia DRM modesetting value requires root and could not be verified'
 	else
-		fail 'Nvidia DRM module unavailable'
-	fi
-}
-
-check_nvidia_fbdev() {
-	local parameter=/sys/module/nvidia_drm/parameters/fbdev
-	if [[ -r $parameter ]]; then
-		if [[ $(<"$parameter") == Y ]]; then
-			pass 'Nvidia framebuffer enabled'
-		else
-			fail 'Nvidia framebuffer disabled'
-		fi
-	elif [[ -e $parameter ]] && grep -q 'nvidia-drmdrmfb' /proc/fb 2>/dev/null; then
-		pass 'Nvidia framebuffer active'
-	elif ((!booted_graphics)); then
-		warn 'Nvidia framebuffer loads after reboot'
-	elif [[ -e $parameter ]]; then
-		warn 'Nvidia framebuffer value requires root and could not be verified'
-	else
-		fail 'Nvidia framebuffer parameter unavailable'
+		warn 'Nvidia DRM modesetting could not be verified'
 	fi
 }
 
 check_nvidia_suspend() {
 	local parameters=/proc/driver/nvidia/params
 	if [[ -r $parameters ]]; then
-		if grep -Eq '^UseKernelSuspendNotifiers:[[:space:]]+1$' "$parameters"; then
-			pass 'Nvidia kernel suspend notifiers enabled'
-		else
-			fail 'Nvidia kernel suspend notifiers disabled'
-		fi
 		if grep -Eq '^PreserveVideoMemoryAllocations:[[:space:]]+1$' "$parameters"; then
 			pass 'Nvidia suspend memory preservation enabled'
 		else
 			fail 'Nvidia suspend memory preservation disabled'
 		fi
-	elif ((!booted_graphics)); then
+	elif ((!desktop_active)); then
 		warn 'Nvidia suspend parameters load after reboot'
 	else
 		fail 'Nvidia suspend parameters unavailable'
 	fi
 }
 
-check_snapper() {
-	local configs home_fstype package root_fstype
-	root_fstype=$(findmnt -no FSTYPE / 2>/dev/null || true)
-	home_fstype=$(findmnt -no FSTYPE /home 2>/dev/null || true)
-	if [[ $root_fstype == btrfs && $home_fstype == btrfs ]]; then
-		pass 'root and home use Btrfs'
-	else
-		fail 'root or home is not Btrfs'
-	fi
-	for package in btrfs-progs snapper snap-pac limine-tool limine-snapper-sync; do
-		check_package "$package"
-	done
-	configs=$(snapper --csvout --no-headers list-configs 2>/dev/null || true)
-	if cut -d, -f1 <<<"$configs" | grep -Fxq root; then
-		pass 'root Snapper config present'
-	else
-		fail 'root Snapper config missing'
-	fi
-	if cut -d, -f1 <<<"$configs" | grep -Fxq home; then
-		pass 'home Snapper config present'
-	else
-		fail 'home Snapper config missing'
-	fi
-	check_setting /etc/snapper/configs/root TIMELINE_CREATE no \
-		'root timeline snapshots disabled'
-	check_setting /etc/snapper/configs/root NUMBER_LIMIT 10 \
-		'root snapshot retention is 10'
-	check_setting /etc/snapper/configs/home TIMELINE_CREATE no \
-		'home hourly snapshots disabled'
-	check_setting /etc/snapper/configs/home TIMELINE_LIMIT_WEEKLY 8 \
-		'home weekly retention is 8'
-	check_setting /etc/default/limine LIMIT_USAGE_PERCENT 85 \
-		'Limine snapshot usage limit is 85 percent'
-	check_setting /etc/default/limine MAX_SNAPSHOT_ENTRIES auto \
-		'Limine snapshot entries auto-prune'
-	if grep -Eq '^[[:space:]]*HOOKS=.*[[:space:](]btrfs-overlayfs([[:space:])]|$)' \
-		/etc/mkinitcpio.conf 2>/dev/null; then
-		pass 'mkinitcpio snapshot overlay enabled'
-	else
-		fail 'mkinitcpio snapshot overlay missing'
-	fi
-	check_disabled snapper-timeline.timer
-	check_enabled snapper-cleanup.timer
-	check_enabled snapper-home-weekly.timer
-	check_enabled limine-snapper-sync.service
-	check_limine_snapper_sync
-	if [[ -f /var/lib/aileks-dotfiles/snapper-v1 ]]; then
-		pass 'Snapper setup marker present'
-	else
-		fail 'Snapper setup marker missing'
-	fi
-}
-
 check_system() {
-	local command file package theme_file="${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/themes/cinder-grove.toml"
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar vicinae swaync-client swayosd-client wlogout hyprlock hypridle hyprpaper hyprpicker hyprsunset nwg-look snapper limine-snapper-info zbarimg; do
-		check_command "$command"
-	done
-	for package in amd-ucode darkly-bin gpu-screen-recorder hyprpicker hyprsunset podman podman-compose podman-docker qt6ct rtkit vicinae-bin zbar; do
+	local dotfiles="${DOTFILES_DIR:-$HOME/.dotfiles}"
+	local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+	local theme_file="${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/themes/cinder-grove.toml"
+
+	check_command omarchy
+	check_command vicinae
+	check_command ddcutil
+	for package in darkly-bin vicinae-bin yaru-icon-theme qt6ct podman podman-compose podman-docker rtkit; do
 		check_package "$package"
 	done
-	for file in sddm sddm-autologin sddm-greeter hyprlock; do
-		if [[ -r /etc/pam.d/$file ]]; then
-			pass "/etc/pam.d/$file present"
-		else
-			fail "/etc/pam.d/$file missing"
-		fi
-	done
-	if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm &&
-		grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
-		pass 'SDDM PAM and keyring integration valid'
+
+	# Dotfiles override layer is linked into the live config tree.
+	check_link "$config_home/hypr" "$dotfiles/hypr"
+	check_link "$config_home/omarchy/shell.toml" "$dotfiles/omarchy/shell.toml"
+	check_link "$config_home/omarchy/shell.json" "$dotfiles/omarchy/shell.json"
+	check_link "$config_home/omarchy/themes/cinder-grove" "$dotfiles/omarchy/themes/cinder-grove"
+	if [[ -d $dotfiles/omarchy/themes/cinder-grove ]]; then
+		pass 'Omarchy cinder-grove theme present'
 	else
-		fail 'SDDM PAM integration invalid'
+		fail 'Omarchy cinder-grove theme missing'
 	fi
-	if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/sddm-autologin &&
-		grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm-autologin; then
-		pass 'SDDM autologin PAM integration valid'
+
+	# Personal system bits.
+	if id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
+		pass "$USER is in the i2c group"
 	else
-		fail 'SDDM autologin PAM integration invalid'
-	fi
-	if grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' /etc/pam.d/sddm-greeter; then
-		pass 'SDDM greeter PAM integration valid'
-	else
-		fail 'SDDM greeter PAM integration invalid'
-	fi
-	if [[ -r /etc/sddm.conf.d/10-autologin.conf ]]; then
-		pass 'SDDM autologin configured'
-	else
-		fail 'SDDM autologin config missing'
-	fi
-	if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] &&
-		grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-			/usr/share/wayland-sessions/hyprland-uwsm.desktop; then
-		pass 'UWSM session installed'
-	else
-		fail 'UWSM session missing'
-	fi
-	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service sddm.service systemd-timesyncd.service; do
-		check_enabled "$file"
-	done
-	check_enabled "hyprlock-suspend@$(id -u).service"
-	check_user_enabled podman.socket
-	check_user_enabled vicinae.service
-	if [[ -r $theme_file ]] && grep -Fq 'name = "Cinder Grove"' "$theme_file"; then
-		pass 'Vicinae Cinder Grove theme installed'
-	else
-		fail 'Vicinae Cinder Grove theme missing'
-	fi
-	if sed '/^[[:space:]]*\/\//d' \
-		"${XDG_CONFIG_HOME:-$HOME/.config}/vicinae/settings.json" 2>/dev/null |
-		jq -e '.theme.dark.name == "cinder-grove"' >/dev/null 2>&1; then
-		pass 'Vicinae Cinder Grove theme selected'
-	else
-		fail 'Vicinae Cinder Grove theme not selected'
+		fail "$USER is missing from the i2c group"
 	fi
 	if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
 		pass 'mDNS hostname resolution configured'
 	else
 		fail 'mDNS hostname resolution missing'
 	fi
-	check_snapper
+	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service systemd-timesyncd.service; do
+		check_enabled "$file"
+	done
+	check_user_enabled podman.socket
+	check_user_enabled udiskie.service
+
+	if [[ -r $theme_file ]] && grep -Fq 'name = "Cinder Grove"' "$theme_file"; then
+		pass 'Vicinae Cinder Grove theme installed'
+	else
+		fail 'Vicinae Cinder Grove theme missing'
+	fi
+	if sed '/^[[:space:]]*\/\//d' "$config_home/vicinae/settings.json" 2>/dev/null |
+		jq -e '.theme.dark.name == "cinder-grove"' >/dev/null 2>&1; then
+		pass 'Vicinae Cinder Grove theme selected'
+	else
+		fail 'Vicinae Cinder Grove theme not selected'
+	fi
+
 	check_bat_theme
 	check_qt_theme
 	check_nvidia_modeset
-	check_nvidia_fbdev
 	check_nvidia_suspend
 }
 
 check_session() {
-	local errors monitors main_count restore_lock side_count
+	local errors keybindings main_count monitors side_count workspaces
 	if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
 		pass 'Hyprland desktop environment exported'
 	else
@@ -354,47 +234,44 @@ check_session() {
 	else
 		fail 'graphical-session.target inactive'
 	fi
-	if systemctl --user cat hyprlock.service >/dev/null 2>&1; then
-		pass 'hyprlock.service available'
-	else
-		fail 'hyprlock.service missing'
-	fi
-	if systemctl --user cat desktop-nightlight.service >/dev/null 2>&1; then
-		pass 'desktop-nightlight.service available'
-	else
-		fail 'desktop-nightlight.service missing'
-	fi
-	for unit in waybar.service swaync.service hypridle.service swayosd-server.service \
-		udiskie.service hyprpaper.service hyprpolkitagent.service \
-		pipewire.service pipewire-pulse.service wireplumber.service \
-		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
-		vicinae.service \
-		app-blueman@autostart.service \
-		'app-geoclue\x2ddemo\x2dagent@autostart.service' \
-		'app-nm\x2dapplet@autostart.service'; do
-		check_user_active "$unit"
-	done
-	if vicinae ping >/dev/null 2>&1; then
-		pass 'Vicinae server responds'
-	else
-		fail 'Vicinae server unavailable'
-	fi
+	check_user_active udiskie.service
+	check_user_active pipewire.service
+	check_user_active pipewire-pulse.service
+	check_user_active wireplumber.service
+
 	errors=$(hyprctl configerrors 2>/dev/null || true)
 	if [[ -z $errors ]]; then
 		pass 'Hyprland config has no errors'
 	else
 		fail "Hyprland config errors: $errors"
 	fi
-	restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null |
-		awk '$1 == "bool:" {print $2; exit}')
-	if [[ $restore_lock == true ]]; then
-		pass 'Hyprland session lock restoration enabled'
+
+	# hjkl merge is loaded on top of Omarchy's defaults.
+	keybindings=$(omarchy menu keybindings --print 2>/dev/null || true)
+	if grep -Eq '^SUPER \+ h[[:space:]].*Focus' <<<"$keybindings"; then
+		pass 'hjkl focus bindings present'
 	else
-		fail 'Hyprland session lock restoration disabled'
+		fail 'hjkl focus bindings missing'
 	fi
+	if grep -Eq '^SUPER SHIFT \+ h[[:space:]].*Move window' <<<"$keybindings"; then
+		pass 'hjkl move bindings present'
+	else
+		fail 'hjkl move bindings missing'
+	fi
+	if grep -Eq 'SUPER \+ LEFT .*Focus on left' <<<"$keybindings"; then
+		fail 'Omarchy arrow focus bindings still present'
+	else
+		pass 'arrow navigation replaced by hjkl'
+	fi
+	if grep -Eq 'SUPER \+ 9|SUPER \+ code:18' <<<"$keybindings"; then
+		fail 'workspace 9/0 bindings still present'
+	else
+		pass 'exactly eight workspaces bound'
+	fi
+
 	if monitors=$(hyprctl -j monitors 2>/dev/null); then
-		main_count=$(jq '[.[] | select(.width == 2560 and .height == 1440 and .x == 1080 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")
-		side_count=$(jq '[.[] | select(.width == 1920 and .height == 1080 and .x == 0 and .y == -240 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
+		main_count=$(jq '[.[] | select(.name == "DP-1" and .x == 1080 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")
+		side_count=$(jq '[.[] | select(.name == "HDMI-A-1" and .x == 0 and .y == -240 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
 		if ((main_count == 1)); then
 			pass 'main monitor geometry correct'
 		else
@@ -408,6 +285,18 @@ check_session() {
 	else
 		fail 'could not query Hyprland monitors'
 	fi
+	if workspaces=$(hyprctl -j workspaces 2>/dev/null); then
+		main_count=$(jq '[.[] | select(.monitor == "DP-1") | .name] | length' <<<"$workspaces")
+		side_count=$(jq '[.[] | select(.monitor == "HDMI-A-1") | .name] | length' <<<"$workspaces")
+		if ((main_count == 7 && side_count == 1)); then
+			pass 'workspaces pinned to monitors (7 + 1)'
+		else
+			fail "unexpected workspace distribution: $main_count on DP-1, $side_count on HDMI-A-1"
+		fi
+	else
+		fail 'could not query Hyprland workspaces'
+	fi
+
 	if wpctl status >/dev/null 2>&1; then
 		pass 'PipeWire responds'
 	else

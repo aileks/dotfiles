@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Omarchy post-install: installs personal apps and utilities, links this
+# repository's config override layer into ~/.config, and sets up personal
+# system bits (mDNS, DDC/CI brightness access, Zsh, tmux-sessionizer, nvm).
+#
+# Omarchy owns the desktop stack (Hyprland, shell/bar, notifications, OSD,
+# idle/lock, capture, theming); this script never writes to /usr/share/omarchy
+# or replaces Omarchy defaults — the hypr/ override files here merge on top.
+
 set -uo pipefail
 
 SCRIPT_DIR=""
@@ -13,25 +21,32 @@ TEMP_DIR=""
 declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
-  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden blueman jq bluez bluez-utils btop
-  cava cups curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fwupd fzf
-  gedit geoclue git gnome-disk-utility gnome-keyring gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp
-  gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset
-  imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools libva-utils lua linux-firmware man-db mesa-utils
-  nautilus neovim network-manager-applet networkmanager nss-mdns nvidia-open nvidia-utils nvm openssh pavucontrol pipewire
-  papirus-icon-theme playerctl pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit python qt6-wayland
-  qt6ct ripgrep rsync rtkit satty sddm shellcheck signal-desktop snap-pac snapper slurp starship swaync swayosd tmux uv
-  trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm waybar wev wget wireplumber wl-clipboard
-  xdg-desktop-portal xdg-desktop-portal-gtk system-config-printer xdg-desktop-portal-hyprland xdg-user-dirs xdg-utils zbar
-  xorg-xwayland zip zoxide zsh vulkan-tools frameworkintegration otf-latin-modern otf-latinmodern-math tesseract celluloid
-  tesseract-data-eng
+  7zip alacritty alsa-utils avahi base-devel bat bitwarden bluez bluez-utils btop
+  cava celluloid cups curl ddcutil eza fastfetch fd ffmpeg ffmpegthumbnailer file-roller
+  fontconfig fzf gedit gnome-disk-utility gnome-keyring localsend libva-nvidia-driver libva-utils
+  gvfs gvfs-afc gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb hunspell-en_us imv inotify-tools jq
+  kvantum lazygit less libnotify lua man-db mesa-utils nautilus networkmanager nss-mdns nvm
+  openssh pavucontrol playerctl podman podman-compose podman-docker python qt6-wayland qt6ct
+  ripgrep rsync satty shellcheck signal-desktop starship system-config-printer tesseract
+  tesseract-data-eng tmux trash-cli udiskie udisks2 unzip uv vulkan-tools wev wget
+  wl-clipboard xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh adwaita-fonts
+  ttf-adwaitamono-nerd otf-latin-modern otf-latinmodern-math frameworkintegration
 )
 
 readonly -a AUR_PACKAGES=(
-  darkly-bin fastmail zen-browser-bin
-  limine-tool limine-snapper-sync localsend-bin
-  tmux-sessionizer-bin vicinae-bin zsh-antidote
-  normcap wlogout
+  darkly-bin fastmail tmux-sessionizer-bin vicinae-bin yaru-icon-theme
+  zen-browser-twilight-bin zsh-antidote
+)
+
+# Superseded by the Omarchy shell — removed when present.
+readonly -a LEGACY_PACKAGES=(
+  hypridle hyprlock hyprpaper normcap swaync swayosd waybar wlogout
+)
+
+readonly -a LEGACY_USER_UNITS=(
+  desktop-nightlight.service hypridle.service hyprlock.service hyprpaper.service
+  monitor-setup.service swaync.service swayosd-server.service vicinae.service
+  waybar.service
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -82,16 +97,6 @@ run_sudo() {
   sudo "$@"
 }
 
-run_pacman() {
-  local -a args=("$@")
-  local arg has_sync=0
-  for arg in "${args[@]}"; do
-    [[ $arg == -*S* ]] && has_sync=1
-  done
-  ((has_sync)) || die "run_pacman only supports sync operations"
-  run_sudo pacman "${args[@]}" --needed
-}
-
 has_tty() {
   [[ -r /dev/tty && -w /dev/tty ]] && (: </dev/tty) >/dev/null 2>&1
 }
@@ -108,33 +113,16 @@ validate_environment() {
   getent passwd "$USER" >/dev/null || die "could not resolve user $USER"
   [[ $(uname -m) == x86_64 ]] || die "x86_64 is required"
   [[ -d /run/systemd/system ]] || die "systemd must be running"
-}
-
-validate_target_system() {
-  local filesystem_root filesystem_type mountpoint
-  info "checking target hardware and filesystem layout..."
-
-  [[ -d /sys/firmware/efi ]] || die "UEFI boot is required"
-  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null ||
-    die "an Nvidia GPU supported by nvidia-open is required"
-
-  for mountpoint in / /home; do
-    read -r filesystem_type filesystem_root < <(
-      findmnt -nro FSTYPE,FSROOT --mountpoint "$mountpoint"
-    ) || die "$mountpoint must be a dedicated Btrfs mount"
-    [[ $filesystem_type == btrfs ]] || die "$mountpoint must use Btrfs"
-    [[ $filesystem_root != / ]] || die "$mountpoint must mount a Btrfs subvolume"
-  done
-
-  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) ||
-    die "the EFI system partition must be mounted at /boot"
-  [[ $filesystem_type == vfat ]] || die "/boot must be a FAT EFI system partition"
+  command -v omarchy >/dev/null ||
+    die "Omarchy is required; this script is an Omarchy post-install"
+  [[ -d ${OMARCHY_PATH:-/usr/share/omarchy} ]] ||
+    die "Omarchy installation not found at ${OMARCHY_PATH:-/usr/share/omarchy}"
 }
 
 ensure_git() {
   command -v git >/dev/null && return 0
   info "installing git for bootstrap..."
-  run_pacman -S --noconfirm git base-devel || die "Git installation failed"
+  run_cmd omarchy pkg add git base-devel || die "Git installation failed"
   ((DRY_RUN)) || command -v git >/dev/null || die "Git installation failed"
 }
 
@@ -219,49 +207,6 @@ resolve_script_dir() {
   readonly SCRIPT_DIR
 }
 
-ensure_root_file() {
-  local path="$1" content="$2" tmp
-  if ((DRY_RUN)); then
-    info "write $path"
-    return 0
-  fi
-  tmp="$TEMP_DIR/$(basename "$path").new"
-  printf '%s' "$content" >"$tmp" || return
-  if sudo test -f "$path" && sudo cmp --silent "$tmp" "$path"; then
-    return 0
-  fi
-  sudo install -D -o root -g root -m 0644 "$tmp" "$path"
-}
-
-backup_root_file() {
-  local source="$1" name="$2"
-  local target="/var/backups/aileks-dotfiles/$name"
-  if ((DRY_RUN)); then
-    info "back up $source to $target if needed"
-    return 0
-  fi
-  sudo test -f "$source" || return 0
-  sudo test -e "$target" && return 0
-  sudo install -D -o root -g root -m 0600 "$source" "$target"
-}
-
-ensure_root_managed_block() {
-  local path="$1" begin="$2" end="$3" block="$4" current="" stripped
-  if [[ -r $path ]]; then
-    current=$(<"$path")
-  elif ((DRY_RUN == 0)) && sudo test -r "$path"; then
-    current=$(sudo cat "$path")
-  fi
-  stripped=$(awk -v begin="$begin" -v end="$end" '
-    $0 == begin { skip = 1; next }
-    $0 == end { skip = 0; next }
-    !skip { print }
-  ' <<<"$current")
-  stripped=${stripped%$'\n'}
-  [[ -z $stripped ]] || stripped+=$'\n\n'
-  ensure_root_file "$path" "$stripped$begin"$'\n'"$block"$'\n'"$end"$'\n'
-}
-
 backup_target() {
   local target="$1" backup
   backup="$BACKUP_DIR/$(basename "$target")"
@@ -318,44 +263,19 @@ missing_packages() {
   done
 }
 
-install_paru() {
-  local paru_dir="$TEMP_DIR/paru"
-  if ((DRY_RUN)); then
-    info "installing paru..."
-    return 0
-  fi
-  has_tty || {
-    warn "paru bootstrap requires a terminal for PKGBUILD review"
-    return 1
-  }
-  GPG_TTY=$(tty </dev/tty) || return
-  export GPG_TTY
-  git clone https://aur.archlinux.org/paru.git "$paru_dir" || return
-  (
-    cd "$paru_dir" || exit
-    printf '\nReviewing paru PKGBUILD. Quit the pager to continue.\n' >/dev/tty
-    less PKGBUILD </dev/tty >/dev/tty || exit
-    makepkg -si </dev/tty
-  ) || return
-  if ! command -v paru >/dev/null || ! pacman -Qq paru >/dev/null 2>&1; then
-    return 1
-  fi
-}
-
 install_official_packages() {
   local -a missing=()
 
   mapfile -t missing < <(missing_packages "${PACMAN_PACKAGES[@]}")
   if ((${#missing[@]})); then
     info "installing ${#missing[@]} missing official packages..."
-    run_pacman -S --noconfirm "${missing[@]}" || return
+    run_cmd omarchy pkg add "${missing[@]}" || return
   else
     log "all official packages are already installed"
   fi
 }
 
 install_aur_packages() {
-  local aur_helper=paru
   local -a missing=()
 
   mapfile -t missing < <(missing_packages "${AUR_PACKAGES[@]}")
@@ -363,19 +283,51 @@ install_aur_packages() {
     log "all AUR packages are already installed"
     return 0
   fi
-  command -v "$aur_helper" >/dev/null 2>&1 || install_paru || return
-  info "installing ${#missing[@]} missing AUR packages with $aur_helper..."
+  command -v yay >/dev/null 2>&1 ||
+    {
+      warn "yay (Omarchy's AUR helper) is required for AUR packages"
+      return 1
+    }
+  info "installing ${#missing[@]} missing AUR packages..."
+  run_cmd omarchy pkg aur add "${missing[@]}"
+}
+
+remove_legacy_stack() {
+  local -a installed=()
+  local unit
+
+  info "retiring the pre-Omarchy desktop stack..."
+  for unit in "${LEGACY_USER_UNITS[@]}"; do
+    if ((DRY_RUN)); then
+      systemctl --user is-enabled --quiet "$unit" 2>/dev/null &&
+        info "disable user unit $unit"
+    else
+      systemctl --user disable --now "$unit" >/dev/null 2>&1 || true
+    fi
+  done
+
+  mapfile -t installed < <(
+    pacman -Qq "${LEGACY_PACKAGES[@]}" 2>/dev/null || true
+  )
+  ((${#installed[@]})) || {
+    log "no legacy packages installed"
+    return 0
+  }
+  run_sudo pacman -Rns --noconfirm "${installed[@]}"
+}
+
+ensure_root_file() {
+  local path="$1" content="$2" tmp
   if ((DRY_RUN)); then
-    format_command "$aur_helper" -S --needed "${missing[@]}"
+    info "write $path"
     return 0
   fi
-  has_tty || {
-    warn "AUR package review requires an interactive terminal"
-    return 1
-  }
-  GPG_TTY=$(tty </dev/tty) || return
-  export GPG_TTY
-  "$aur_helper" -S --needed "${missing[@]}" </dev/tty
+  tmp="$TEMP_DIR/$(basename "$path").new"
+  printf '%s' "$content" >"$tmp" || return
+  if sudo test -f "$path" && sudo cmp --silent "$tmp" "$path"; then
+    return 0
+  fi
+  sudo install -D -o root -g root -m 0644 "$tmp" "$path"
 }
 
 configure_mdns() {
@@ -399,212 +351,13 @@ configure_mdns() {
     warn "could not configure mDNS in $path"
     return 1
   }
-  backup_root_file "$path" nsswitch.conf || return
+  run_sudo cp "$path" "/var/backups/aileks-dotfiles-nsswitch.conf" 2>/dev/null || true
   ensure_root_file "$path" "$updated"$'\n'
-}
-
-snapper_config_exists() {
-  local config="$1"
-  if ((DRY_RUN)); then
-    command -v snapper >/dev/null || return 1
-    snapper --csvout --no-headers list-configs 2>/dev/null |
-      cut -d, -f1 | grep -Fxq "$config"
-    return
-  fi
-  sudo snapper --csvout --no-headers list-configs |
-    cut -d, -f1 | grep -Fxq "$config"
-}
-
-ensure_snapper_config() {
-  local config="$1" subvolume="$2"
-  if snapper_config_exists "$config"; then
-    return 0
-  fi
-  run_sudo snapper -c "$config" create-config "$subvolume"
-}
-
-configure_snapper_retention() {
-  run_sudo snapper -c root set-config \
-    'NUMBER_CLEANUP=yes' \
-    'NUMBER_MIN_AGE=3600' \
-    'NUMBER_LIMIT=10' \
-    'NUMBER_LIMIT_IMPORTANT=10' \
-    'TIMELINE_CREATE=no' || return
-  run_sudo snapper -c home set-config \
-    'TIMELINE_CREATE=no' \
-    'TIMELINE_CLEANUP=yes' \
-    'TIMELINE_MIN_AGE=3600' \
-    'TIMELINE_LIMIT_HOURLY=0' \
-    'TIMELINE_LIMIT_DAILY=0' \
-    'TIMELINE_LIMIT_WEEKLY=8' \
-    'TIMELINE_LIMIT_MONTHLY=0' \
-    'TIMELINE_LIMIT_QUARTERLY=0' \
-    'TIMELINE_LIMIT_YEARLY=0'
-}
-
-configure_mkinitcpio_overlay() {
-  local path=/etc/mkinitcpio.conf current updated
-  current=$(<"$path")
-  if grep -Eq '^[[:space:]]*HOOKS=.*[[:space:](]btrfs-overlayfs([[:space:])]|$)' \
-    <<<"$current"; then
-    return 0
-  fi
-  if ! updated=$(awk '
-    /^[[:space:]]*HOOKS=\(/ && /filesystems/ {
-      sub(/filesystems/, "filesystems btrfs-overlayfs")
-      changed = 1
-    }
-    { print }
-    END { if (!changed) exit 1 }
-  ' <<<"$current"); then
-    warn "could not add btrfs-overlayfs to $path"
-    return 1
-  fi
-  ensure_root_file "$path" "$updated"$'\n'
-}
-
-ensure_initial_snapshot() {
-  local config="$1" cleanup="$2" description="$3"
-  if ((DRY_RUN)); then
-    run_sudo snapper -c "$config" create --cleanup-algorithm "$cleanup" \
-      --description "$description"
-    return 0
-  fi
-  if sudo snapper --csvout --no-headers -c "$config" list \
-    --columns description | grep -Fxq "$description"; then
-    return 0
-  fi
-  sudo snapper -c "$config" create --cleanup-algorithm "$cleanup" \
-    --description "$description"
-}
-
-configure_snapper() {
-  local path unit
-  info "reconciling Snapper and Limine recovery..."
-  for path in / /home; do
-    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
-      {
-        warn "$path must be a Btrfs filesystem for Snapper"
-        return 1
-      }
-    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
-      {
-        warn "$path must be a Btrfs subvolume for Snapper"
-        return 1
-      }
-  done
-  backup_root_file /etc/snapper/configs/root snapper-root.conf || return
-  backup_root_file /etc/snapper/configs/home snapper-home.conf || return
-  backup_root_file /etc/mkinitcpio.conf mkinitcpio.conf || return
-  backup_root_file /etc/default/limine limine-default || return
-  backup_root_file /boot/limine.conf limine.conf || return
-
-  ensure_snapper_config root / || return
-  ensure_snapper_config home /home || return
-  configure_snapper_retention || return
-  for unit in snapper-home-weekly.service snapper-home-weekly.timer; do
-    ensure_root_file "/etc/systemd/system/$unit" \
-      "$(<"$SCRIPT_DIR/systemd/system/$unit")"$'\n' || return
-  done
-  configure_mkinitcpio_overlay || return
-  ensure_root_managed_block /etc/default/limine '# begin aileks snapper setup' \
-    '# end aileks snapper setup' 'ESP_PATH="/boot"
-ENABLE_UKI=yes
-CUSTOM_UKI_NAME="arch"
-MKINITCPIO_FALLBACK=no
-LIMIT_USAGE_PERCENT=85
-MAX_SNAPSHOT_ENTRIES=auto
-EXCLUDE_SNAPSHOT_TYPES="post"
-SNAPPER_CONFIG_NAME="root"
-RESTORE_METHOD=replace
-SNAPSHOT_FORMAT_CHOICE=8' || return
-
-  run_sudo systemctl daemon-reload || return
-  run_sudo systemctl disable --now snapper-timeline.timer || return
-  run_sudo systemctl enable --now snapper-cleanup.timer || return
-  run_sudo systemctl enable --now snapper-home-weekly.timer || return
-  run_sudo limine-update || return
-  run_sudo systemctl enable --now limine-snapper-sync.service || return
-
-  ensure_initial_snapshot root number 'snapper setup' || return
-  ensure_initial_snapshot home timeline 'initial weekly home snapshot' || return
-  run_sudo limine-snapper-sync || return
-  run_sudo limine-snapper-info || return
-  ensure_root_file /var/lib/aileks-dotfiles/snapper-v1 $'version=1\n'
-}
-
-configure_sddm() {
-  local autologin file manager="" pam_dir="${PAM_DIR:-/etc/pam.d}"
-  if [[ -L /etc/systemd/system/display-manager.service ]]; then
-    manager=$(readlink -f /etc/systemd/system/display-manager.service)
-  fi
-  if [[ -n $manager && $manager != */sddm.service ]]; then
-    warn "another display manager is enabled: $manager"
-    return 1
-  fi
-  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] ||
-    {
-      warn 'Hyprland UWSM session entry is missing'
-      return 1
-    }
-  ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-    /usr/share/wayland-sessions/hyprland-uwsm.desktop ||
-    {
-      warn 'Hyprland UWSM session entry is invalid'
-      return 1
-    }
-  autologin="[Autologin]
-User=$USER
-Session=hyprland-uwsm.desktop
-Relogin=false
-"
-  ensure_root_file /etc/sddm.conf.d/10-autologin.conf "$autologin" || return
-  ((DRY_RUN)) && return 0
-  for file in sddm sddm-autologin sddm-greeter hyprlock; do
-    [[ -r $pam_dir/$file ]] || {
-      warn "missing SDDM PAM file: $pam_dir/$file"
-      return 1
-    }
-  done
-  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" ||
-    {
-      warn "$pam_dir/sddm does not include system-login"
-      return 1
-    }
-  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" ||
-    {
-      warn "$pam_dir/sddm-autologin does not include system-local-login"
-      return 1
-    }
-  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" ||
-    {
-      warn "$pam_dir/sddm-greeter cannot authenticate the greeter"
-      return 1
-    }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" ||
-    {
-      warn "$pam_dir/sddm lacks GNOME Keyring integration"
-      return 1
-    }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" ||
-    {
-      warn "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
-      return 1
-    }
-}
-
-configure_suspend_workaround() {
-  local content unit
-  unit="hyprlock-suspend@$(id -u).service"
-  content="$(<"$SCRIPT_DIR/systemd/system/hyprlock-suspend@.service")"$'\n'
-  ensure_root_file /etc/systemd/system/hyprlock-suspend@.service "$content" || return
-  run_sudo systemctl daemon-reload || return
-  run_sudo systemctl enable "$unit"
 }
 
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}" unit source
+  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   info "linking configuration files..."
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
@@ -614,53 +367,55 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/cava" "$config_home/cava"
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
   link_path "$SCRIPT_DIR/hypr" "$config_home/hypr"
-  link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
-  link_path "$SCRIPT_DIR/swaync" "$config_home/swaync"
-  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
-  link_path "$SCRIPT_DIR/waybar" "$config_home/waybar"
-  link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
+  link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  link_path "$SCRIPT_DIR/swayosd" "$config_home/swayosd"
+  link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" \
+    "$data_home/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/vicinae/settings.json" "$config_home/vicinae/settings.json"
   link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
     "$data_home/vicinae/themes/cinder-grove.toml"
-  link_path "$SCRIPT_DIR/bin/desktop-reminder" \
-    "$data_home/vicinae/scripts/desktop-reminder"
-  link_path "$SCRIPT_DIR/wlogout" "$config_home/wlogout"
 
-  remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/nm-applet.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
-    "$config_home/systemd/user/nm-applet.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-image.service" \
-    "$config_home/systemd/user/cliphist-image.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
-    "$config_home/systemd/user/cliphist-text.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-image.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/cliphist-image.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/cliphist-text.service"
-  remove_managed_link "$SCRIPT_DIR/bin/clipboard-menu" "$HOME/.local/bin/clipboard-menu"
-  remove_managed_link "$SCRIPT_DIR/bin/power-menu" "$HOME/.local/bin/power-menu"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
-    "$config_home/systemd/user/first-login.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/first-login.service"
-  remove_managed_link "$SCRIPT_DIR/bin/first-login-check" \
-    "$HOME/.local/bin/first-login-check"
+  # Omarchy override files are linked individually: Omarchy owns the rest of
+  # ~/.config/omarchy (hooks, defaults, extensions, plugin state).
+  link_path "$SCRIPT_DIR/omarchy/shell.toml" "$config_home/omarchy/shell.toml"
+  link_path "$SCRIPT_DIR/omarchy/shell.json" "$config_home/omarchy/shell.json"
+  link_path "$SCRIPT_DIR/omarchy/themes/cinder-grove" \
+    "$config_home/omarchy/themes/cinder-grove"
+
+  # Pre-Omarchy leftovers this repository no longer manages.
+  local config dir
+  for dir in swaync swayosd waybar wlogout xdg-desktop-portal; do
+    remove_managed_link "$SCRIPT_DIR/$dir" "$config_home/$dir"
+  done
+  local unit
+  for unit in desktop-nightlight.service hyprlock.service monitor-setup.service \
+    swayosd-server.service; do
+    remove_managed_link "$SCRIPT_DIR/systemd/user/$unit" \
+      "$config_home/systemd/user/$unit"
+    remove_managed_link "$SCRIPT_DIR/systemd/user/$unit" \
+      "$config_home/systemd/user/graphical-session.target.wants/$unit"
+  done
+  local script
+  for script in configure-monitors desktop-actions desktop-nightlight desktop-ocr \
+    desktop-qr desktop-record desktop-reminder desktop-screenshot desktop-settings \
+    keybinds-menu monitor-brightness; do
+    remove_managed_link "$SCRIPT_DIR/bin/$script" "$HOME/.local/bin/$script"
+  done
+  remove_managed_link "$SCRIPT_DIR/bin/desktop-reminder" \
+    "$data_home/vicinae/scripts/desktop-reminder"
 
   run_cmd mkdir -p "$config_home/systemd/user" || return
-  for source in "$SCRIPT_DIR"/systemd/user/*.service; do
-    unit=$(basename "$source")
-    link_path "$source" "$config_home/systemd/user/$unit"
+  for config in "$SCRIPT_DIR"/systemd/user/*.service; do
+    unit=$(basename "$config")
+    link_path "$config" "$config_home/systemd/user/$unit"
   done
 
-  for source in "$SCRIPT_DIR"/bin/*; do
-    link_path "$source" "$HOME/.local/bin/$(basename "$source")"
+  for script in "$SCRIPT_DIR"/bin/*; do
+    link_path "$script" "$HOME/.local/bin/$(basename "$script")"
   done
 }
 
@@ -673,64 +428,6 @@ desktop_id() {
     fi
   done
   return 1
-}
-
-configure_gsettings() {
-  local schema="org.gnome.desktop.interface"
-  if ((DRY_RUN)); then
-    info "configure dark appearance, icons, cursor, fonts, and clock..."
-    return 0
-  fi
-  gsettings set "$schema" color-scheme prefer-dark || return
-  gsettings set "$schema" icon-theme Papirus-Dark || return
-  gsettings set "$schema" cursor-theme Adwaita || return
-  gsettings set "$schema" font-name 'Adwaita Sans 11' || return
-  gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11' || return
-  gsettings set "$schema" clock-format 24h || return
-  gsettings set org.gnome.desktop.wm.preferences button-layout ''
-}
-
-install_gtk_theme() {
-  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
-  local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
-  local gtk4_css="$config_home/gtk-4.0/gtk.css"
-  local installed_css="$state_home/cinder-grove-gtk/gtk4.css.installed"
-  local target theme_dir="$TEMP_DIR/cinder-grove-gtk" version
-
-  for version in gtk-3.0 gtk-4.0; do
-    target="$config_home/$version"
-    if [[ -L $target && $(readlink "$target") == "$SCRIPT_DIR/$version" ]]; then
-      run_cmd rm "$target" || return
-    fi
-  done
-
-  target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
-  if [[ -f $state_home/cinder-grove-gtk/installed &&
-    -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
-    if [[ -f $installed_css ]] &&
-      { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
-      run_cmd mkdir -p "$config_home/gtk-4.0" || return
-      run_cmd rm -f "$gtk4_css" || return
-      run_cmd cp "$installed_css" "$gtk4_css" || return
-    elif [[ ! -e $gtk4_css && ! -L $gtk4_css ]]; then
-      run_cmd mkdir -p "$config_home/gtk-4.0" || return
-      run_cmd ln -s "$target" "$gtk4_css" || return
-    fi
-  fi
-  run_cmd git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$theme_dir" || return
-  run_cmd "$theme_dir/install.sh"
-}
-
-install_papirus_folders() {
-  local installer_url="https://raw.githubusercontent.com/aileks/papirus-folders/cinder-grove-folders/install.sh"
-  info "installing Cinder Grove Papirus folders..."
-  if ((DRY_RUN)); then
-    format_command bash -o pipefail -c \
-      "curl -fsSL '$installer_url' | env TAG=cinder-grove-folders sh"
-    return 0
-  fi
-  curl -fsSL "$installer_url" | env TAG=cinder-grove-folders sh
 }
 
 configure_default_apps() {
@@ -806,7 +503,6 @@ main() {
     esac
   done
   validate_environment
-  validate_target_system
   if ((DRY_RUN)); then
     TEMP_DIR=/tmp/setup-dry-run
   else
@@ -816,27 +512,10 @@ main() {
   resolve_script_dir "${BASH_SOURCE[0]:-}"
   ((DRY_RUN)) || sudo -v || die "sudo authentication failed"
 
-  if systemctl --user is-active --quiet cliphist-image.service ||
-    systemctl --user is-active --quiet cliphist-text.service; then
-    run_step "stop legacy Cliphist services" run_cmd systemctl --user stop \
-      cliphist-image.service cliphist-text.service
-  fi
-  if pacman -Qq cliphist >/dev/null 2>&1; then
-    run_step "remove Cliphist" run_sudo pacman -Rns --noconfirm cliphist
-  fi
-
+  run_step "remove superseded desktop stack" remove_legacy_stack
   run_step "install missing official packages" install_official_packages
   run_step "install missing AUR packages" install_aur_packages
   run_step "configure mDNS" configure_mdns
-  run_step "configure Snapper and Limine" configure_snapper
-
-  info "configure SDDM..."
-  if configure_sddm; then
-    run_step "enable sddm.service" run_sudo systemctl enable sddm.service
-  else
-    status=$?
-    fail "configure SDDM" "$status"
-  fi
 
   if ! getent group i2c >/dev/null; then
     run_step "create i2c group" run_sudo groupadd --system i2c
@@ -844,7 +523,6 @@ main() {
   if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
     run_step "add $USER to i2c group" run_sudo usermod -aG i2c "$USER"
   fi
-  run_step "configure suspend lock workaround" configure_suspend_workaround
 
   for unit in NetworkManager.service avahi-daemon.service bluetooth.service cups.service \
     systemd-timesyncd.service; do
@@ -853,9 +531,8 @@ main() {
 
   run_step "link configuration files" configure_dotfiles
   run_step "build Bat theme cache" run_cmd bat cache --build
-  run_step "install Qt color scheme" ensure_root_file \
-    /usr/share/qt6ct/colors/cinder-grove.conf \
-    "$(<"$SCRIPT_DIR/qt6ct/colors/cinder-grove.conf")"$'\n'
+  run_step "install Qt color scheme" run_sudo install -D -o root -g root -m 0644 \
+    "$SCRIPT_DIR/qt6ct/colors/cinder-grove.conf" /usr/share/qt6ct/colors/cinder-grove.conf
 
   if [[ $(getent passwd "$USER" | cut -d: -f7) != /usr/bin/zsh ]]; then
     run_step "set Zsh as the login shell" run_sudo chsh -s /usr/bin/zsh "$USER"
@@ -864,19 +541,10 @@ main() {
   run_step "configure tmux-sessionizer" run_cmd tms config --paths "$HOME/Projects"
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
-  for unit in hypridle.service monitor-setup.service swaync.service \
-    swayosd-server.service udiskie.service waybar.service hyprpaper.service \
-    hyprpolkitagent.service pipewire-pulse.socket pipewire.socket podman.socket \
-    wireplumber.service; do
+  for unit in udiskie.service podman.socket; do
     run_step "enable $unit" run_cmd systemctl --user enable "$unit"
   done
-  run_step "enable and start vicinae.service" run_cmd systemctl --user enable --now \
-    vicinae.service
 
-  run_step "configure desktop appearance" configure_gsettings
-  run_step "install Cinder Grove GTK theme" install_gtk_theme
-  run_step "install Cinder Grove Papirus folders" install_papirus_folders
-  run_step "configure Papirus folders" run_cmd papirus-folders-cg --color orange --theme Papirus-Dark
   run_step "configure default applications" configure_default_apps
   run_step "install Node.js LTS when missing" install_node_lts
   run_step "reload ddcutil rules" run_sudo udevadm control --reload-rules
@@ -890,11 +558,11 @@ main() {
   run_step "run postflight checks" run_cmd "$HOME/.local/bin/doctor"
 
   if ((${#FAILURES[@]})); then
-    warn "Arch Hyprland setup finished with ${#FAILURES[@]} failure(s):"
+    warn "Omarchy post-install finished with ${#FAILURES[@]} failure(s):"
     printf '  - %s\n' "${FAILURES[@]}" >&2
   else
-    log "Arch Hyprland setup complete"
-    info "Reboot, then SDDM will autologin to Hyprland through UWSM!"
+    log "Omarchy post-install complete"
+    info "Reboot if this was a fresh install; otherwise enjoy!"
   fi
   return 0
 }

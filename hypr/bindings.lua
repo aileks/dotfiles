@@ -1,153 +1,34 @@
-local app = "uwsm app -- "
-local local_bin = os.getenv("HOME") .. "/.local/bin/"
-local syncobj = " --enable-features=WaylandLinuxDrmSyncobj"
-local repeating = { repeating = true }
-local media = { locked = true, repeating = true }
+-- Personal keybinding overrides, merged on top of Omarchy's defaults.
+-- View the full binding set: omarchy menu keybindings --print
+--
+-- hjkl replaces Omarchy's arrow navigation. SUPER+H was unbound; SUPER+J/K/L
+-- are freed from their Omarchy defaults first.
+hl.unbind("SUPER + J") -- was: toggle window split
+hl.unbind("SUPER + K") -- was: keybindings menu (still available via `omarchy menu keybindings`)
+hl.unbind("SUPER + L") -- was: toggle workspace layout
 
-local omarchy_conflicts = {
-	"SUPER + SPACE",
-	"SUPER + RETURN",
-	"SUPER + W",
-	"SUPER + S",
-	"SUPER + V",
-	"SUPER + F",
-	"SUPER + P",
-	"SUPER + X",
-	"SUPER + J",
-	"SUPER + K",
-	"SUPER + L",
-	"SUPER + ESCAPE",
-	"SUPER + SHIFT + P",
-	"SUPER + SHIFT + SLASH",
-	"SUPER + SHIFT + comma",
-	"SUPER + comma",
-	"SUPER + CTRL + R",
-	"SUPER + CTRL + H",
-	"SUPER + CTRL + J",
-	"SUPER + CTRL + K",
-	"SUPER + CTRL + L",
-	"SUPER + LEFT",
-	"SUPER + RIGHT",
-	"SUPER + UP",
-	"SUPER + DOWN",
-	"SUPER + SHIFT + LEFT",
-	"SUPER + SHIFT + RIGHT",
-	"SUPER + SHIFT + UP",
-	"SUPER + SHIFT + DOWN",
-	"SUPER + SHIFT + ALT + LEFT",
-	"SUPER + SHIFT + ALT + RIGHT",
-	"SUPER + SHIFT + ALT + UP",
-	"SUPER + SHIFT + ALT + DOWN",
-	"SUPER + mouse:272",
-	"SUPER + mouse:273",
-	"PRINT",
-	"SUPER + PRINT",
-	"SUPER + CTRL + PRINT",
-	"XF86AudioRaiseVolume",
-	"XF86AudioLowerVolume",
-	"XF86AudioMute",
-	"XF86AudioMicMute",
-	"XF86AudioPlay",
-	"XF86AudioPause",
-	"XF86AudioNext",
-	"XF86AudioPrev",
-	"XF86MonBrightnessUp",
-	"XF86MonBrightnessDown",
-}
-
-for _, key in ipairs(omarchy_conflicts) do
-	hl.unbind(key)
+for _, arrow in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
+	hl.unbind("SUPER + " .. arrow) -- was: focus window
+	hl.unbind("SUPER + SHIFT + " .. arrow) -- was: swap window
+	hl.unbind("SUPER + SHIFT + ALT + " .. arrow) -- was: move workspace to monitor
 end
 
-for code = 10, 21 do
+-- Exactly eight workspaces: drop Omarchy's 9 and 0 bindings (code:18/19).
+for _, code in ipairs({ 18, 19 }) do
 	local key = "code:" .. code
 	hl.unbind("SUPER + " .. key)
 	hl.unbind("SUPER + SHIFT + " .. key)
 	hl.unbind("SUPER + SHIFT + ALT + " .. key)
-	hl.unbind("SUPER + ALT + " .. key)
 end
-
-local function bind(keys, action, description, flags)
-	flags = flags or {}
-	flags.description = description
-	hl.bind(keys, action, flags)
-end
-
-bind("SUPER + Space", hl.dsp.exec_cmd("vicinae toggle"), "Application launcher")
-bind("SUPER + Return", hl.dsp.exec_cmd(app .. "alacritty"), "Terminal")
-bind("SUPER + W", hl.dsp.exec_cmd(app .. "zen-browser-twilight" .. syncobj), "Browser")
-bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
-bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop" .. syncobj), "Signal")
-bind("SUPER + M", hl.dsp.exec_cmd(app .. "fastmail" .. syncobj), "Fastmail")
-bind("SUPER + I", hl.dsp.exec_cmd(local_bin .. "desktop-settings"), "Desktop settings")
-bind("SUPER + A", hl.dsp.exec_cmd(local_bin .. "desktop-actions"), "Desktop actions")
-bind("SUPER + V", hl.dsp.exec_cmd("vicinae launch clipboard:history"), "Clipboard history")
-bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t -sw"), "Notification center")
-bind("SUPER + CTRL + N", hl.dsp.exec_cmd(local_bin .. "desktop-nightlight toggle"), "Toggle Night Light")
-bind(
-	"SUPER + CTRL + R",
-	hl.dsp.exec_cmd(local_bin .. "desktop-reminder prompt"),
-	"Set reminder"
-)
-bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "keybinds-menu"), "Keybind help")
-bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
-bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("wlogout -b 3 -c 20 -r 20 -L 900 -R 900 -T 550 -B 550"), "Power menu")
-
-bind("SUPER + Q", hl.dsp.window.close(), "Close window")
-bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Toggle fullscreen")
-bind("SUPER + SHIFT + Space", hl.dsp.window.float(), "Toggle floating")
-bind("SUPER + P", hl.dsp.window.pseudo(), "Toggle pseudotile")
-bind("SUPER + X", hl.dsp.layout("togglesplit"), "Toggle split direction")
 
 local directions = {
-	h = "left",
-	j = "down",
-	k = "up",
-	l = "right",
+	h = "l",
+	j = "d",
+	k = "u",
+	l = "r",
 }
 
 for key, direction in pairs(directions) do
-	bind("SUPER + " .. key, hl.dsp.focus({ direction = direction }), "Focus " .. direction)
-	bind("SUPER + SHIFT + " .. key, hl.dsp.window.move({ direction = direction }), "Move window " .. direction)
+	o.bind("SUPER + " .. key, "Focus " .. key, hl.dsp.focus({ direction = direction }))
+	o.bind("SUPER + SHIFT + " .. key, "Move window " .. key, hl.dsp.window.move({ direction = direction }))
 end
-
-for workspace = 1, 8 do
-	bind("SUPER + " .. workspace, hl.dsp.focus({ workspace = workspace }), "Workspace " .. workspace)
-	bind(
-		"SUPER + SHIFT + " .. workspace,
-		hl.dsp.window.move({ workspace = workspace, follow = false }),
-		"Move window to workspace " .. workspace
-	)
-end
-
-bind("SUPER + comma", hl.dsp.focus({ monitor = "-1" }), "Previous monitor")
-bind("SUPER + period", hl.dsp.focus({ monitor = "+1" }), "Next monitor")
-bind("SUPER + SHIFT + comma", hl.dsp.window.move({ monitor = "-1", follow = true }), "Move to previous monitor")
-bind("SUPER + SHIFT + period", hl.dsp.window.move({ monitor = "+1", follow = true }), "Move to next monitor")
-
-bind("SUPER + CTRL + h", hl.dsp.window.resize({ x = -30, y = 0, relative = true }), "Shrink width", repeating)
-bind("SUPER + CTRL + l", hl.dsp.window.resize({ x = 30, y = 0, relative = true }), "Grow width", repeating)
-bind("SUPER + CTRL + j", hl.dsp.window.resize({ x = 0, y = 30, relative = true }), "Grow height", repeating)
-bind("SUPER + CTRL + k", hl.dsp.window.resize({ x = 0, y = -30, relative = true }), "Shrink height", repeating)
-
-bind("SUPER + mouse:272", hl.dsp.window.drag(), "Move window with mouse", { mouse = true })
-bind("SUPER + mouse:273", hl.dsp.window.resize(), "Resize window with mouse", { mouse = true })
-
-bind("Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot region"), "Region screenshot")
-bind("CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot window"), "Window screenshot")
-bind("SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot output"), "Full screenshot")
-bind("SUPER + CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-ocr"), "Extract text from region")
-
-bind("SUPER + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record region"), "Region recording")
-bind("SUPER + SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record output"), "Output recording")
-
-bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume +5"), "Volume up", media)
-bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("swayosd-client --output-volume -5"), "Volume down", media)
-bind("XF86AudioMute", hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), "Mute audio", media)
-bind("XF86AudioMicMute", hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"), "Mute microphone", media)
-bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), "Play or pause", media)
-bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), "Play or pause", media)
-bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), "Next track", media)
-bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), "Previous track", media)
-bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(local_bin .. "monitor-brightness up"), "Brightness up", media)
-bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(local_bin .. "monitor-brightness down"), "Brightness down", media)

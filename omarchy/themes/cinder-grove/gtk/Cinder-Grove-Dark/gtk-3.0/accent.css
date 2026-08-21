@@ -1,0 +1,5 @@
+/* Default accent. install.sh replaces this file in the installed copy. */
+@define-color cinder_primary #E17A3F;
+@define-color accent_bg_color #E17A3F;
+@define-color accent_fg_color #131210;
+@define-color accent_color #E17A3F;
