@@ -29,7 +29,7 @@ readonly -a PACMAN_PACKAGES=(
 )
 
 readonly -a AUR_PACKAGES=(
-  fastmail tmux-sessionizer-bin vicinae-bin yaru-icon-theme
+  fastmail tmux-sessionizer-bin yaru-icon-theme
   zen-browser-twilight-bin zsh-antidote
 )
 

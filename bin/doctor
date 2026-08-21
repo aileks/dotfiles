@@ -142,12 +142,10 @@ check_nvidia_suspend() {
 check_system() {
 	local dotfiles="${DOTFILES_DIR:-$HOME/.dotfiles}"
 	local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-	local theme_file="${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/themes/cinder-grove.toml"
 
 	check_command omarchy
-	check_command vicinae
 	check_command ddcutil
-	for package in vicinae-bin yaru-icon-theme; do
+	for package in yaru-icon-theme; do
 		check_package "$package"
 	done
 
@@ -180,18 +178,6 @@ check_system() {
 		check_enabled "$file"
 	done
 	check_user_enabled udiskie.service
-
-	if [[ -r $theme_file ]] && grep -Fq 'name = "Cinder Grove"' "$theme_file"; then
-		pass 'Vicinae Cinder Grove theme installed'
-	else
-		fail 'Vicinae Cinder Grove theme missing'
-	fi
-	if sed '/^[[:space:]]*\/\//d' "$config_home/vicinae/settings.json" 2>/dev/null |
-		jq -e '.theme.dark.name == "cinder-grove"' >/dev/null 2>&1; then
-		pass 'Vicinae Cinder Grove theme selected'
-	else
-		fail 'Vicinae Cinder Grove theme not selected'
-	fi
 
 	check_bat_theme
 	check_nvidia_modeset
