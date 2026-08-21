@@ -224,10 +224,10 @@ check_session() {
 	else
 		fail 'hjkl focus bindings missing'
 	fi
-	if grep -Eq '^SUPER SHIFT \+ h[[:space:]].*Move window' <<<"$keybindings"; then
-		pass 'hjkl move bindings present'
+	if grep -Eq '^SUPER SHIFT \+ h[[:space:]].*Swap window' <<<"$keybindings"; then
+		pass 'hjkl swap bindings present'
 	else
-		fail 'hjkl move bindings missing'
+		fail 'hjkl swap bindings missing'
 	fi
 	if grep -Eq 'SUPER \+ LEFT .*Focus on left' <<<"$keybindings"; then
 		fail 'Omarchy arrow focus bindings still present'
