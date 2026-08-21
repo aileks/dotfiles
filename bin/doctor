@@ -94,31 +94,6 @@ check_bat_theme() {
 	fi
 }
 
-check_qt_theme() {
-	local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-	if grep -Fxq 'export QT_QPA_PLATFORMTHEME=qt6ct' "$config_home/uwsm/env" 2>/dev/null; then
-		pass 'Qt 6 platform theme configured'
-	else
-		fail 'Qt 6 platform theme missing'
-	fi
-	if grep -Fxq '[Appearance]' "$config_home/qt6ct/qt6ct.conf" 2>/dev/null &&
-		grep -Fxq 'style=Darkly' "$config_home/qt6ct/qt6ct.conf" 2>/dev/null; then
-		pass 'Qt Darkly style configured'
-	else
-		fail 'Qt Darkly style missing'
-	fi
-	if [[ -r /usr/share/qt6ct/colors/cinder-grove.conf ]]; then
-		pass 'Qt cinder-grove color scheme installed'
-	else
-		fail 'Qt cinder-grove color scheme missing'
-	fi
-	if [[ -r /usr/lib/qt6/plugins/styles/darkly6.so ]]; then
-		pass 'Qt Darkly style available'
-	else
-		fail 'Qt Darkly style unavailable'
-	fi
-}
-
 nvidia_drm_active() {
 	local card connector driver
 	for card in /sys/class/drm/card[0-9]*; do
@@ -172,7 +147,7 @@ check_system() {
 	check_command omarchy
 	check_command vicinae
 	check_command ddcutil
-	for package in darkly-bin vicinae-bin yaru-icon-theme qt6ct; do
+	for package in vicinae-bin yaru-icon-theme; do
 		check_package "$package"
 	done
 
@@ -214,7 +189,6 @@ check_system() {
 	fi
 
 	check_bat_theme
-	check_qt_theme
 	check_nvidia_modeset
 	check_nvidia_suspend
 }

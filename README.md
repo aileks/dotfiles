@@ -16,7 +16,7 @@ override files, linked into `~/.config`.
 | `omarchy/shell.json`               | `~/.config/omarchy/shell.json`           | Bar layout (default layout, battery plugin disabled)          |
 | `omarchy/themes/cinder-grove/`     | `~/.config/omarchy/themes/cinder-grove`  | Custom Cinder Grove theme (colors, GTK, icons, backgrounds)   |
 | `alacritty/`, `nvim/`, `tmux/`, …  | `~/.config/...`                          | Terminal, editor, and CLI configs                             |
-| `uwsm/`                            | `~/.config/uwsm`                         | Session env: Nvidia, Bitwarden SSH agent, Qt platform theme   |
+| `uwsm/`                            | `~/.config/uwsm`                         | Session env: Nvidia, Bitwarden SSH agent                      |
 | `bin/doctor`                       | `~/.local/bin/doctor`                    | Postflight checks for the layer above                         |
 | `setup.sh`                         | —                                        | Omarchy post-install (apps, links, personal system bits)      |
 

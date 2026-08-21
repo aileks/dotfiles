@@ -20,16 +20,16 @@ readonly -a PACMAN_PACKAGES=(
   cava celluloid cups curl ddcutil eza fastfetch fd ffmpeg ffmpegthumbnailer file-roller
   fontconfig fzf gedit gnome-disk-utility gnome-keyring localsend libva-nvidia-driver libva-utils
   gvfs gvfs-afc gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb hunspell-en_us imv inotify-tools jq
-  kvantum lazygit less libnotify lua man-db mesa-utils nautilus networkmanager nss-mdns nvm
-  openssh pavucontrol playerctl python qt6-wayland qt6ct
+  lazygit less libnotify lua man-db mesa-utils nautilus networkmanager nss-mdns nvm
+  openssh pavucontrol playerctl python
   ripgrep rsync satty shellcheck signal-desktop starship system-config-printer tesseract
   tesseract-data-eng tmux trash-cli udiskie udisks2 unzip uv vulkan-tools wev wget
   wl-clipboard xdg-user-dirs xdg-utils xorg-xwayland zip zoxide zsh adwaita-fonts
-  ttf-adwaitamono-nerd otf-latin-modern otf-latinmodern-math frameworkintegration
+  ttf-adwaitamono-nerd otf-latin-modern otf-latinmodern-math
 )
 
 readonly -a AUR_PACKAGES=(
-  darkly-bin fastmail tmux-sessionizer-bin vicinae-bin yaru-icon-theme
+  fastmail tmux-sessionizer-bin vicinae-bin yaru-icon-theme
   zen-browser-twilight-bin zsh-antidote
 )
 
@@ -359,7 +359,6 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/fastfetch" "$config_home/fastfetch"
   link_path "$SCRIPT_DIR/hypr" "$config_home/hypr"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
-  link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
   link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
@@ -377,7 +376,7 @@ configure_dotfiles() {
     "$config_home/omarchy/themes/cinder-grove"
 
   local config dir
-  for dir in swaync swayosd waybar wlogout xdg-desktop-portal; do
+  for dir in qt6ct swaync swayosd waybar wlogout xdg-desktop-portal; do
     remove_managed_link "$SCRIPT_DIR/$dir" "$config_home/$dir"
   done
   local unit
@@ -523,8 +522,6 @@ main() {
 
   run_step "link configuration files" configure_dotfiles
   run_step "build Bat theme cache" run_cmd bat cache --build
-  run_step "install Qt color scheme" run_sudo install -D -o root -g root -m 0644 \
-    "$SCRIPT_DIR/qt6ct/colors/cinder-grove.conf" /usr/share/qt6ct/colors/cinder-grove.conf
 
   if [[ $(getent passwd "$USER" | cut -d: -f7) != /usr/bin/zsh ]]; then
     run_step "set Zsh as the login shell" run_sudo chsh -s /usr/bin/zsh "$USER"
