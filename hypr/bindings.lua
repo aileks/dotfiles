@@ -21,6 +21,11 @@ for _, code in ipairs({ 18, 19 }) do
 	hl.unbind("SUPER + SHIFT + ALT + " .. key)
 end
 
+-- Close window moves to SUPER+Q so SUPER+W can open the default browser.
+hl.unbind("SUPER + W") -- was: close window
+o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+o.bind("SUPER + W", "Browser", { omarchy = "browser" })
+
 local directions = {
 	h = "l",
 	j = "d",
