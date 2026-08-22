@@ -302,7 +302,6 @@ configure_mdns() {
 
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  info "linking configuration files..."
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
@@ -340,7 +339,6 @@ configure_dotfiles() {
 
 install_papirus_folders() {
   local installer_url="https://raw.githubusercontent.com/aileks/papirus-folders/cinder-grove-folders/install.sh"
-  info "installing Cinder Grove Papirus folders..."
   if ((DRY_RUN)); then
     format_command bash -o pipefail -c \
       "curl -fsSL '$installer_url' | env TAG=cinder-grove-folders sh"
