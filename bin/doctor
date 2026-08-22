@@ -251,7 +251,7 @@ check_session() {
 
 	if monitors=$(hyprctl -j monitors 2>/dev/null); then
 		main_count=$(jq '[.[] | select(.name == "DP-1" and .x == 0 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")
-		side_count=$(jq '[.[] | select(.name == "HDMI-A-1" and .x == -1080 and .y == 0 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
+		side_count=$(jq '[.[] | select(.name == "HDMI-A-1" and .x == -1080 and .y == -240 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
 		if ((main_count == 1)); then
 			pass 'main monitor geometry correct'
 		else
