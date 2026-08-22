@@ -339,6 +339,7 @@ configure_dotfiles() {
 
 install_papirus_folders() {
   local installer_url="https://raw.githubusercontent.com/aileks/papirus-folders/cinder-grove-folders/install.sh"
+  info "installing Cinder Grove Papirus folders..."
   if ((DRY_RUN)); then
     format_command bash -o pipefail -c \
       "curl -fsSL '$installer_url' | env TAG=cinder-grove-folders sh"
