@@ -33,16 +33,6 @@ readonly -a AUR_PACKAGES=(
   zen-browser-twilight-bin zsh-antidote
 )
 
-readonly -a LEGACY_PACKAGES=(
-  hypridle hyprlock hyprpaper normcap swaync swayosd waybar wlogout
-)
-
-readonly -a LEGACY_USER_UNITS=(
-  desktop-nightlight.service hypridle.service hyprlock.service hyprpaper.service
-  monitor-setup.service swaync.service swayosd-server.service
-  waybar.service
-)
-
 log() { printf '[ok] %s\n' "$*"; }
 info() { printf '[..] %s\n' "$*"; }
 warn() { printf '[warn] %s\n' "$*" >&2; }
@@ -243,18 +233,6 @@ link_path() {
   ln -s "$source" "$target" || fail "link $target" "$?"
 }
 
-remove_managed_link() {
-  local source="$1" target="$2"
-  if [[ ! -L $target || $(readlink "$target") != "$source" ]]; then
-    return 0
-  fi
-  if ((DRY_RUN)); then
-    info "remove obsolete link $target"
-    return 0
-  fi
-  rm "$target" || fail "remove obsolete link $target" "$?"
-}
-
 missing_packages() {
   local package
   for package in "$@"; do
@@ -281,30 +259,6 @@ install_packages() {
     run_cmd yay -S --needed --noconfirm "$package" ||
       fail "install package $package"
   done
-}
-
-remove_legacy_stack() {
-  local -a installed=()
-  local unit
-
-  info "retiring the pre-Omarchy desktop stack..."
-  for unit in "${LEGACY_USER_UNITS[@]}"; do
-    if ((DRY_RUN)); then
-      systemctl --user is-enabled --quiet "$unit" 2>/dev/null &&
-        info "disable user unit $unit"
-    else
-      systemctl --user disable --now "$unit" >/dev/null 2>&1 || true
-    fi
-  done
-
-  mapfile -t installed < <(
-    pacman -Qq "${LEGACY_PACKAGES[@]}" 2>/dev/null || true
-  )
-  ((${#installed[@]})) || {
-    log "no legacy packages installed"
-    return 0
-  }
-  run_sudo pacman -Rns --noconfirm "${installed[@]}"
 }
 
 ensure_root_file() {
@@ -348,7 +302,6 @@ configure_mdns() {
 
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   info "linking configuration files..."
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
@@ -363,12 +316,6 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  remove_managed_link "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" \
-    "$data_home/backgrounds/fantasy-woods.jpg"
-  remove_managed_link "$SCRIPT_DIR/vicinae/settings.json" \
-    "$config_home/vicinae/settings.json"
-  remove_managed_link "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
-    "$data_home/vicinae/themes/cinder-grove.toml"
 
   # Linked individually: Omarchy owns the rest of ~/.config/omarchy.
   link_path "$SCRIPT_DIR/omarchy/shell.toml" "$config_home/omarchy/shell.toml"
@@ -379,27 +326,6 @@ configure_dotfiles() {
     "$config_home/omarchy/hooks/theme-set.d/cinder-grove-gtk.hook"
   link_path "$SCRIPT_DIR/omarchy/hooks/post-boot.d/01-pin-bar-font" \
     "$config_home/omarchy/hooks/post-boot.d/01-pin-bar-font"
-
-  local config dir
-  for dir in qt6ct swaync swayosd waybar wlogout xdg-desktop-portal; do
-    remove_managed_link "$SCRIPT_DIR/$dir" "$config_home/$dir"
-  done
-  local unit
-  for unit in desktop-nightlight.service hyprlock.service monitor-setup.service \
-    swayosd-server.service; do
-    remove_managed_link "$SCRIPT_DIR/systemd/user/$unit" \
-      "$config_home/systemd/user/$unit"
-    remove_managed_link "$SCRIPT_DIR/systemd/user/$unit" \
-      "$config_home/systemd/user/graphical-session.target.wants/$unit"
-  done
-  local script
-  for script in configure-monitors desktop-actions desktop-nightlight desktop-ocr \
-    desktop-qr desktop-record desktop-reminder desktop-screenshot desktop-settings \
-    keybinds-menu monitor-brightness; do
-    remove_managed_link "$SCRIPT_DIR/bin/$script" "$HOME/.local/bin/$script"
-  done
-  remove_managed_link "$SCRIPT_DIR/bin/desktop-reminder" \
-    "$data_home/vicinae/scripts/desktop-reminder"
 
   run_cmd mkdir -p "$config_home/systemd/user" || return
   for config in "$SCRIPT_DIR"/systemd/user/*.service; do
@@ -520,7 +446,6 @@ main() {
   resolve_script_dir "${BASH_SOURCE[0]:-}"
   ((DRY_RUN)) || sudo -v || die "sudo authentication failed"
 
-  run_step "remove superseded desktop stack" remove_legacy_stack
   run_step "install missing packages" install_packages
   run_step "configure mDNS" configure_mdns
 
