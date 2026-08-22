@@ -363,7 +363,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" \
+  remove_managed_link "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" \
     "$data_home/backgrounds/fantasy-woods.jpg"
   remove_managed_link "$SCRIPT_DIR/vicinae/settings.json" \
     "$config_home/vicinae/settings.json"

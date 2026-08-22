@@ -164,6 +164,11 @@ check_system() {
 	else
 		fail 'Omarchy cinder-grove theme missing'
 	fi
+	if [[ $(readlink "$HOME/.local/state/omarchy/current/background" 2>/dev/null) == *fantasy-woods.jpg ]]; then
+		pass 'fantasy-woods wallpaper active'
+	else
+		fail 'fantasy-woods wallpaper not active'
+	fi
 	if grep -Fxq 'base-size = 14' "$config_home/omarchy/shell.toml" 2>/dev/null; then
 		pass 'bar font pinned to 14'
 	else
