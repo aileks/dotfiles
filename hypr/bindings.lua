@@ -1,16 +1,17 @@
--- hjkl replaces Omarchy's arrow navigation; SUPER+H was already free.
-hl.unbind("SUPER + J") -- was: toggle window split
-hl.unbind("SUPER + K") -- was: keybindings menu, now on SUPER+SLASH below
-hl.unbind("SUPER + L") -- was: toggle workspace layout
+hl.unbind("SUPER + J")
+hl.unbind("SUPER + K")
+hl.unbind("SUPER + L")
+hl.unbind("SUPER + L")
+hl.unbind("SUPER + SHIFT + F")
 
--- was: focus / swap window / move workspace to monitor
+o.bind("SUPER + E", "File Manager", "nautilus")
+
 for _, arrow in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
   hl.unbind("SUPER + " .. arrow)
   hl.unbind("SUPER + SHIFT + " .. arrow)
   hl.unbind("SUPER + SHIFT + ALT + " .. arrow)
 end
 
--- code:18/19 are the 9 and 0 keys; exactly eight workspaces.
 for _, code in ipairs({ 18, 19 }) do
   local key = "code:" .. code
   hl.unbind("SUPER + " .. key)
@@ -18,15 +19,15 @@ for _, code in ipairs({ 18, 19 }) do
   hl.unbind("SUPER + SHIFT + ALT + " .. key)
 end
 
-hl.unbind("SUPER + W") -- was: close window
+hl.unbind("SUPER + W")
 o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
 o.bind("SUPER + W", "Browser", { omarchy = "browser" })
 
-hl.unbind("SUPER + SLASH") -- was: monitor scaling up
+hl.unbind("SUPER + SLASH")
 o.bind("SUPER + SLASH", "Keybindings", "omarchy-menu-keybindings")
-hl.unbind("SUPER + SHIFT + SLASH") -- was: 1Password
+hl.unbind("SUPER + SHIFT + SLASH")
 o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden-desktop", focus = "^bitwarden-desktop$" })
-hl.unbind("SUPER + ALT + SLASH") -- was: monitor scaling down
+hl.unbind("SUPER + ALT + SLASH")
 
 local directions = {
   h = "l",
