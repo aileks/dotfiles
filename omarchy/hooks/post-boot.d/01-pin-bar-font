@@ -3,7 +3,7 @@
 # omarchy commands replace shell.toml with regular files (mktemp+mv), breaking
 # the dotfiles link; restoring it re-pins the bar font to the repo's base-size.
 config="$HOME/.config/omarchy/shell.toml"
-target="$HOME/.dotfiles/omarchy/shell.toml"
+target="${DOTFILES_DIR:-$HOME/.dotfiles}/omarchy/shell.toml"
 if [[ $(readlink -f "$config") != "$target" ]]; then
   rm -f "$config"
   ln -s "$target" "$config"

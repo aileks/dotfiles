@@ -1,7 +1,6 @@
 hl.unbind("SUPER + J")
 hl.unbind("SUPER + K")
 hl.unbind("SUPER + L")
-hl.unbind("SUPER + L")
 hl.unbind("SUPER + SHIFT + F")
 
 o.bind("SUPER + E", "File Manager", "nautilus")

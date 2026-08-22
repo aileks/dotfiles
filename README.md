@@ -20,7 +20,6 @@ Personal override layer on top of [Omarchy](https://omarchy.org/).
 > [!NOTE]  
 > Some things get clobbered when Omarchy updates occur.
 
--
 - DP-1 primary, HDMI-A-1 portrait left; eight persistent workspaces (1–7 on
   DP-1, 8 on HDMI-A-1).
 - Bar font pinned to 14 (`shell.toml` plus a post-boot hook).

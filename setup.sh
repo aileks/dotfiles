@@ -278,7 +278,7 @@ ensure_root_file() {
 configure_mdns() {
   local current path=/etc/nsswitch.conf updated
   current=$(<"$path")
-  if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' <<<"$current"; then
+  if grep -Eq "$MDNS_HOSTS_REGEX" <<<"$current"; then
     return 0
   fi
   updated=$(awk '
@@ -301,7 +301,7 @@ configure_mdns() {
 }
 
 configure_dotfiles() {
-  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}" config unit
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
@@ -443,6 +443,8 @@ main() {
     trap 'rm -rf "${TEMP_DIR:-}"' EXIT
   fi
   resolve_script_dir "${BASH_SOURCE[0]:-}"
+  # shellcheck source=lib/deploy.sh
+  source "$SCRIPT_DIR/lib/deploy.sh" || die "could not load $SCRIPT_DIR/lib/deploy.sh"
   ((DRY_RUN)) || sudo -v || die "sudo authentication failed"
 
   run_step "install missing packages" install_packages
@@ -451,12 +453,11 @@ main() {
   if ! getent group i2c >/dev/null; then
     run_step "create i2c group" run_sudo groupadd --system i2c
   fi
-  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
+  if ! user_in_group "$USER" i2c; then
     run_step "add $USER to i2c group" run_sudo usermod -aG i2c "$USER"
   fi
 
-  for unit in NetworkManager.service avahi-daemon.service bluetooth.service cups.service \
-    systemd-timesyncd.service; do
+  for unit in "${ENABLED_SYSTEM_UNITS[@]}"; do
     run_step "enable $unit" run_sudo systemctl enable "$unit"
   done
 

@@ -33,6 +33,15 @@ error() { printf '%s[error]%s %s\n' "$error_color" "$err_reset" "$*" >&2; }
 	exit 2
 }
 
+deploy_lib="${DOTFILES_DIR:-$HOME/.dotfiles}/lib/deploy.sh"
+if [[ -r $deploy_lib ]]; then
+	# shellcheck source=lib/deploy.sh
+	source "$deploy_lib"
+else
+	error "missing $deploy_lib; run setup.sh first"
+	exit 2
+fi
+
 if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]] && command -v hyprctl >/dev/null; then
 	desktop_active=1
 fi
@@ -146,9 +155,7 @@ check_system() {
 	check_command omarchy
 	check_command ddcutil
 	check_command papirus-folders-cg
-	for package in papirus-icon-theme; do
-		check_package "$package"
-	done
+	check_package papirus-icon-theme
 	if [[ $(gsettings get org.gnome.desktop.interface icon-theme 2>/dev/null) == "'Papirus-Dark'" ]]; then
 		pass 'Papirus-Dark icon theme selected'
 	else
@@ -175,17 +182,17 @@ check_system() {
 		fail 'bar font is not pinned to 14'
 	fi
 
-	if id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
+	if user_in_group "$USER" i2c; then
 		pass "$USER is in the i2c group"
 	else
 		fail "$USER is missing from the i2c group"
 	fi
-	if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
+	if grep -Eq "$MDNS_HOSTS_REGEX" /etc/nsswitch.conf; then
 		pass 'mDNS hostname resolution configured'
 	else
 		fail 'mDNS hostname resolution missing'
 	fi
-	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service systemd-timesyncd.service; do
+	for file in "${ENABLED_SYSTEM_UNITS[@]}"; do
 		check_enabled "$file"
 	done
 	check_user_enabled udiskie.service
