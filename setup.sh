@@ -187,10 +187,10 @@ update_dotfiles_repo() {
 
 clone_dotfiles_repo() {
   if ((DRY_RUN)); then
-    format_command git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
+    format_command git clone --recurse-submodules "$DOTFILES_REPO" "$DOTFILES_DIR"
     return 0
   fi
-  git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
+  git clone --recurse-submodules "$DOTFILES_REPO" "$DOTFILES_DIR"
 }
 
 resolve_script_dir() {
