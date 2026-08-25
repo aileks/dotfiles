@@ -640,7 +640,7 @@ configure_snapper() {
 ENABLE_UKI=yes
 CUSTOM_UKI_NAME="arch"
 MKINITCPIO_FALLBACK=no
-LIMIT_USAGE_PERCENT=85
+LIMIT_USAGE_PERCENT=65
 MAX_SNAPSHOT_ENTRIES=auto
 EXCLUDE_SNAPSHOT_TYPES="post"
 SNAPPER_CONFIG_NAME="root"
@@ -806,7 +806,7 @@ configure_gsettings() {
   gsettings set "$schema" font-name 'Adwaita Sans 11' || return
   gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11' || return
   gsettings set "$schema" font-antialiasing rgba || return
-  gsettings set "$schema" font-hinting medium || return
+  gsettings set "$schema" font-hinting slight || return
   gsettings set "$schema" font-rgba-order rgb || return
   gsettings set "$schema" clock-format 24h || return
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
@@ -823,7 +823,7 @@ gtk-cursor-theme-name=Adwaita
 gtk-cursor-theme-size=24
 gtk-xft-antialias=1
 gtk-xft-hinting=1
-gtk-xft-hintstyle=hintmedium
+gtk-xft-hintstyle=hintslight
 gtk-xft-rgba=rgb
 gtk-application-prefer-dark-theme=1
 '
