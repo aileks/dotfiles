@@ -22,7 +22,7 @@ readonly -a PACMAN_PACKAGES=(
   go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
   hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools
   libva-utils lua linux-firmware man-db mesa-utils mise nautilus neovim networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib
-  papers pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit qt5-wayland
+  noto-fonts noto-fonts-cjk noto-fonts-emoji papers pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit qt5-wayland
   qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop snap-pac snapper slurp socat
   starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uwsm wev wget wireplumber wl-clipboard jdk21-openjdk
   xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils zbar system-config-printer xdg-desktop-portal-hyprland xdg-user-dirs xorg-xwayland zip
@@ -236,6 +236,23 @@ ensure_root_file() {
   sudo install -D -o root -g root -m 0644 "$tmp" "$path"
 }
 
+ensure_user_file() {
+  local path="$1" content="$2" tmp
+  if ((DRY_RUN)); then
+    info "write $path"
+    return 0
+  fi
+  tmp=$(mktemp "$TEMP_DIR/user-file.XXXXXX") || return
+  printf '%s' "$content" >"$tmp" || return
+  if [[ -f $path && ! -L $path ]] && cmp --silent "$tmp" "$path"; then
+    return 0
+  fi
+  if [[ -e $path || -L $path ]]; then
+    backup_target "$path" || return
+  fi
+  install -D -m 0644 "$tmp" "$path"
+}
+
 backup_root_file() {
   local source="$1" name="$2"
   local target="/var/backups/aileks-dotfiles/$name"
@@ -328,9 +345,19 @@ install_yay() {
     less PKGBUILD </dev/tty >/dev/tty || exit
     makepkg -si </dev/tty
   ) || return
-  if ! command -v yay >/dev/null || ! pacman -Qq yay >/dev/null 2>&1; then
-    return 1
+  yay_is_available
+}
+
+yay_is_available() {
+  command -v yay >/dev/null 2>&1 && yay --version >/dev/null 2>&1
+}
+
+ensure_yay() {
+  if yay_is_available; then
+    log "yay is already installed"
+    return 0
   fi
+  install_yay
 }
 
 install_official_packages() {
@@ -349,12 +376,15 @@ install_aur_packages() {
   local aur_helper=yay
   local -a missing=()
 
+  if ((DRY_RUN == 0)) && ! yay_is_available; then
+    warn "yay is required to install AUR packages"
+    return 1
+  fi
   mapfile -t missing < <(missing_packages "${AUR_PACKAGES[@]}")
   if ((${#missing[@]} == 0)); then
     log "all AUR packages are already installed"
     return 0
   fi
-  command -v "$aur_helper" >/dev/null 2>&1 || install_yay || return
   info "installing ${#missing[@]} missing AUR packages with $aur_helper..."
   if ((DRY_RUN)); then
     format_command "$aur_helper" -S --needed "${missing[@]}"
@@ -729,6 +759,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
+  link_path "$SCRIPT_DIR/fontconfig/fonts.conf" "$config_home/fontconfig/fonts.conf"
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
@@ -768,12 +799,43 @@ configure_gsettings() {
     return 0
   fi
   gsettings set "$schema" color-scheme prefer-dark || return
+  gsettings set "$schema" gtk-theme Cinder-Grove-Dark || return
   gsettings set "$schema" icon-theme Papirus-Dark || return
   gsettings set "$schema" cursor-theme Adwaita || return
+  gsettings set "$schema" cursor-size 24 || return
   gsettings set "$schema" font-name 'Adwaita Sans 11' || return
   gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11' || return
+  gsettings set "$schema" font-antialiasing rgba || return
+  gsettings set "$schema" font-hinting medium || return
+  gsettings set "$schema" font-rgba-order rgb || return
   gsettings set "$schema" clock-format 24h || return
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
+}
+
+install_gtk_settings() {
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local gtk3_settings gtk4_settings
+  gtk3_settings='[Settings]
+gtk-theme-name=Cinder-Grove-Dark
+gtk-icon-theme-name=Papirus-Dark
+gtk-font-name=Adwaita Sans 11
+gtk-cursor-theme-name=Adwaita
+gtk-cursor-theme-size=24
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle=hintmedium
+gtk-xft-rgba=rgb
+gtk-application-prefer-dark-theme=1
+'
+  gtk4_settings='[Settings]
+gtk-theme-name=Cinder-Grove-Dark
+gtk-icon-theme-name=Papirus-Dark
+gtk-font-name=Adwaita Sans 11
+gtk-cursor-theme-name=Adwaita
+gtk-cursor-theme-size=24
+'
+  ensure_user_file "$config_home/gtk-3.0/settings.ini" "$gtk3_settings" || return
+  ensure_user_file "$config_home/gtk-4.0/settings.ini" "$gtk4_settings"
 }
 
 install_gtk_theme() {
@@ -781,7 +843,8 @@ install_gtk_theme() {
   local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
   local gtk4_css="$config_home/gtk-4.0/gtk.css"
-  local installed_css="$state_home/cinder-grove-gtk/gtk4.css.installed"
+  local state_dir="$state_home/cinder-grove-gtk"
+  local installed_css="$state_dir/gtk4.css.installed"
   local target theme_dir="$TEMP_DIR/cinder-grove-gtk" version
 
   for version in gtk-3.0 gtk-4.0; do
@@ -792,7 +855,7 @@ install_gtk_theme() {
   done
 
   target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
-  if [[ -f $state_home/cinder-grove-gtk/installed &&
+  if [[ -f $state_dir/installed &&
     -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
     if [[ -f $installed_css ]] &&
       { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
@@ -803,15 +866,34 @@ install_gtk_theme() {
       run_cmd mkdir -p "$config_home/gtk-4.0" || return
       run_cmd ln -s "$target" "$gtk4_css" || return
     fi
+    log "Cinder Grove GTK theme is already installed"
+    return 0
+  fi
+  if [[ -e $state_dir || -L $state_dir ]]; then
+    if ((DRY_RUN)); then
+      info "back up incomplete Cinder Grove GTK state at $state_dir"
+    else
+      backup_target "$state_dir" || return
+    fi
   fi
   run_cmd git clone https://github.com/aileks/cinder-grove-gtk.git "$theme_dir" || return
-  run_cmd "$theme_dir/install.sh"
+  if ((DRY_RUN)); then
+    info "install Cinder Grove GTK theme with orange accent"
+    return 0
+  fi
+  if [[ -e $data_home/themes/Cinder-Grove-Dark || -L $data_home/themes/Cinder-Grove-Dark ||
+    -e $gtk4_css || -L $gtk4_css ]]; then
+    printf 'y\norange\n' | "$theme_dir/install.sh"
+  else
+    printf 'orange\n' | "$theme_dir/install.sh"
+  fi
 }
 
 install_papirus_folders() {
   local source="$TEMP_DIR/papirus-folders"
   info "installing Cinder Grove Papirus folders..."
-  run_cmd git clone https://github.com/aileks/papirus-folders.git "$source" || return
+  run_cmd git clone --branch cinder-grove-folders --single-branch \
+    https://github.com/aileks/papirus-folders.git "$source" || return
   run_cmd env TAG=cinder-grove-folders sh "$source/install.sh"
 }
 
@@ -902,6 +984,7 @@ main() {
   ((DRY_RUN)) || sudo -v || die "sudo authentication failed"
 
   run_step "install missing official packages" install_official_packages
+  run_step "install yay" ensure_yay
   run_step "install missing AUR packages" install_aur_packages
   run_step "install Mitishell $MITISHELL_TAG" install_mitishell
   run_step "configure mDNS" configure_mdns
@@ -956,10 +1039,11 @@ main() {
     wireplumber.service; do
     run_step "enable $unit" run_cmd systemctl --user enable "$unit"
   done
-  run_step "configure desktop appearance" configure_gsettings
   run_step "install Cinder Grove GTK theme" install_gtk_theme
+  run_step "configure desktop appearance" configure_gsettings
+  run_step "install GTK settings" install_gtk_settings
   run_step "install Cinder Grove Papirus folders" install_papirus_folders
-  run_step "configure Papirus folders" run_cmd papirus-folders-cg --color orange --theme Papirus-Dark
+  run_step "configure Papirus folders" run_cmd papirus-folders-cg --color grove --theme Papirus-Dark
   run_step "configure default applications" configure_default_apps
   run_step "configure Node.js LTS with mise" install_node_lts
   run_step "reload ddcutil rules" run_sudo udevadm control --reload-rules

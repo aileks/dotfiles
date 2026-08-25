@@ -46,14 +46,6 @@ if ((desktop_active)) || systemctl is-active --quiet sddm.service; then
   booted_graphics=1
 fi
 
-check_command() {
-  if command -v "$1" >/dev/null; then
-    pass "$1 installed"
-  else
-    fail "$1 missing"
-  fi
-}
-
 check_enabled() {
   if systemctl is-enabled --quiet "$1"; then
     pass "$1 enabled"
@@ -83,14 +75,6 @@ check_user_enabled() {
     pass "$1 enabled"
   else
     fail "$1 disabled"
-  fi
-}
-
-check_package() {
-  if pacman -Qq "$1" >/dev/null 2>&1; then
-    pass "$1 installed"
-  else
-    fail "$1 missing"
   fi
 }
 
@@ -138,14 +122,6 @@ check_failed_units() {
   else
     fail "failed user units: ${failed//$'\n'/; }"
   fi
-}
-
-check_package_hygiene() {
-  local leftovers orphans
-  leftovers=$(find /etc -type f \( -name '*.pacnew' -o -name '*.pacsave' \) -print 2>/dev/null || true)
-  [[ -z $leftovers ]] || warn "pacman config leftovers: ${leftovers//$'\n'/, }"
-  orphans=$(pacman -Qdtq 2>/dev/null || true)
-  [[ -z $orphans ]] || warn "orphan packages: ${orphans//$'\n'/, }"
 }
 
 check_backup() {
@@ -304,6 +280,90 @@ check_qt_theme() {
   fi
 }
 
+check_appearance() {
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local schema=org.gnome.desktop.interface value
+  local -a appearance_settings=(
+    "gtk-theme|'Cinder-Grove-Dark'"
+    "color-scheme|'prefer-dark'"
+    "icon-theme|'Papirus-Dark'"
+    "cursor-theme|'Adwaita'"
+    "cursor-size|24"
+    "font-name|'Adwaita Sans 11'"
+    "monospace-font-name|'AdwaitaMono Nerd Font Mono 11'"
+    "font-antialiasing|'rgba'"
+    "font-hinting|'medium'"
+    "font-rgba-order|'rgb'"
+  )
+
+  for value in "${appearance_settings[@]}"; do
+    if [[ $(gsettings get "$schema" "${value%%|*}" 2>/dev/null) != "${value#*|}" ]]; then
+      fail 'global GTK appearance settings differ from setup defaults'
+      return
+    fi
+  done
+  pass 'global GTK appearance configured'
+
+  if [[ -f $config_home/gtk-3.0/settings.ini && ! -L $config_home/gtk-3.0/settings.ini &&
+    -f $config_home/gtk-4.0/settings.ini && ! -L $config_home/gtk-4.0/settings.ini ]] &&
+    grep -Fxq 'gtk-theme-name=Cinder-Grove-Dark' "$config_home/gtk-3.0/settings.ini" &&
+    grep -Fxq 'gtk-theme-name=Cinder-Grove-Dark' "$config_home/gtk-4.0/settings.ini" &&
+    grep -Fxq 'gtk-icon-theme-name=Papirus-Dark' "$config_home/gtk-3.0/settings.ini" &&
+    grep -Fxq 'gtk-icon-theme-name=Papirus-Dark' "$config_home/gtk-4.0/settings.ini"; then
+    pass 'GTK 3 and GTK 4 settings installed'
+  else
+    fail 'GTK 3 or GTK 4 settings missing'
+  fi
+
+  if [[ -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme &&
+    -f $config_home/gtk-4.0/gtk.css ]]; then
+    pass 'Cinder Grove GTK theme installed'
+  else
+    fail 'Cinder Grove GTK theme incomplete'
+  fi
+
+  if command -v papirus-folders-cg >/dev/null 2>&1 &&
+    papirus-folders-cg --list --theme Papirus-Dark 2>/dev/null | grep -Eq '^ *> grove$'; then
+    pass 'Papirus-Dark uses grove folders'
+  else
+    fail 'Papirus-Dark grove folders not configured'
+  fi
+}
+
+check_fontconfig() {
+  local family match pattern properties
+  local -a matches=(
+    'sans-serif|Adwaita Sans'
+    'serif|Noto Serif'
+    'monospace|AdwaitaMono Nerd Font Mono'
+    ':family=system-ui|Adwaita Sans'
+    ':family=ui-serif|Noto Serif'
+    ':family=ui-monospace|AdwaitaMono Nerd Font Mono'
+    'emoji|Noto Color Emoji'
+    'math|Latin Modern Math'
+    ':lang=ar|Noto Naskh Arabic'
+    ':lang=ur|Noto Nastaliq Urdu'
+    ':lang=ja|Noto Sans CJK JP'
+  )
+  for match in "${matches[@]}"; do
+    pattern=${match%%|*}
+    family=$(fc-match -f '%{family[0]}' "$pattern" 2>/dev/null)
+    if [[ $family != "${match#*|}" ]]; then
+      fail "$pattern resolves to ${family:-unknown}"
+      return
+    fi
+  done
+  properties=$(fc-match -v sans-serif 2>/dev/null)
+  if grep -Fq 'hintstyle: 2' <<<"$properties" &&
+    grep -Fq 'rgba: 1' <<<"$properties" &&
+    grep -Fq 'lcdfilter: 1' <<<"$properties"; then
+    pass 'fontconfig families and rendering configured'
+  else
+    fail 'fontconfig rendering settings differ from setup defaults'
+  fi
+}
+
 check_limine_snapper_sync() {
   if systemctl is-active --quiet limine-snapper-sync.service; then
     pass 'Limine snapshot watcher active'
@@ -410,7 +470,7 @@ check_nvidia_suspend() {
 }
 
 check_snapper() {
-  local configs home_fstype package root_fstype
+  local configs home_fstype root_fstype
   root_fstype=$(findmnt -no FSTYPE / 2>/dev/null || true)
   home_fstype=$(findmnt -no FSTYPE /home 2>/dev/null || true)
   if [[ $root_fstype == btrfs && $home_fstype == btrfs ]]; then
@@ -418,9 +478,6 @@ check_snapper() {
   else
     fail 'root or home is not Btrfs'
   fi
-  for package in btrfs-progs snapper snap-pac limine-tool limine-snapper-sync; do
-    check_package "$package"
-  done
   configs=$(snapper --csvout --no-headers list-configs 2>/dev/null || true)
   if cut -d, -f1 <<<"$configs" | grep -Fxq root; then
     pass 'root Snapper config present'
@@ -463,28 +520,12 @@ check_snapper() {
 }
 
 check_system() {
-  local command file package walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
+  local walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
   local walker_theme="${XDG_CONFIG_HOME:-$HOME/.config}/walker/themes/cinder-grove/style.css"
-
-  for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire walker elephant mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprshutdown hyprsunset home-backup monitor-watch papers powerprofilesctl snapper tensaku limine-snapper-info zbarimg; do
-    check_command "$command"
-  done
-
-  for package in amd-ucode darkly-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin go gpu-screen-recorder hyprpicker hyprshutdown hyprsunset mise pacman-contrib papers podman podman-compose podman-docker power-profiles-daemon quickshell qt5-wayland qt6ct rtkit socat tensaku-bin ufw walker-bin zbar; do
-    check_package "$package"
-  done
 
   check_quickshell_version
   check_mitishell_install
   check_mise_node
-
-  for file in sddm sddm-autologin sddm-greeter hyprlock; do
-    if [[ -r /etc/pam.d/$file ]]; then
-      pass "/etc/pam.d/$file present"
-    else
-      fail "/etc/pam.d/$file missing"
-    fi
-  done
 
   if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm &&
     grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
@@ -566,11 +607,12 @@ check_system() {
   check_snapper
   check_bat_theme
   check_qt_theme
+  check_appearance
+  check_fontconfig
   check_nvidia_modeset
   check_nvidia_fbdev
   check_nvidia_suspend
   check_failed_units
-  check_package_hygiene
   check_backup
 }
 
