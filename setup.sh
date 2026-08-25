@@ -32,7 +32,7 @@ readonly -a PACMAN_PACKAGES=(
 readonly -a AUR_PACKAGES=(
   darkly-bin fastmail zen-browser-twilight-bin elephant-bin elephant-calc-bin elephant-clipboard-bin
   elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin tensaku-bin limine-tool
-  limine-snapper-sync localsend-bin tmux-sessionizer-bin walker-bin zsh-antidote
+  limine-snapper-sync localsend tmux-sessionizer-bin walker-bin zsh-antidote
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -56,6 +56,21 @@ run_step() {
   status=$?
   fail "$label" "$status"
   return 0
+}
+
+# Interactive variant for re-run-safe cosmetic steps; defaults to yes
+# (install) so a first install can just hit enter or run non-interactively.
+prompt_step() {
+  local label="$1" answer=""
+  shift
+  if ((!DRY_RUN)) && [[ -r /dev/tty && -w /dev/tty ]]; then
+    printf '[ask] %s? [Y/n] ' "$label" >&2
+    IFS= read -r answer </dev/tty || answer=""
+  fi
+  case "${answer:-y}" in
+  [nN]*) info "skipping: $label" && return 0 ;;
+  esac
+  run_step "$label" "$@"
 }
 
 format_command() {
@@ -1039,10 +1054,10 @@ main() {
     wireplumber.service; do
     run_step "enable $unit" run_cmd systemctl --user enable "$unit"
   done
-  run_step "install Cinder Grove GTK theme" install_gtk_theme
+  prompt_step "install Cinder Grove GTK theme" install_gtk_theme
   run_step "configure desktop appearance" configure_gsettings
   run_step "install GTK settings" install_gtk_settings
-  run_step "install Cinder Grove Papirus folders" install_papirus_folders
+  prompt_step "install Cinder Grove Papirus folders" install_papirus_folders
   run_step "configure Papirus folders" run_cmd papirus-folders-cg --color grove --theme Papirus-Dark
   run_step "configure default applications" configure_default_apps
   run_step "configure Node.js LTS with mise" install_node_lts
