@@ -6,7 +6,7 @@ After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
-ExecStart=/usr/bin/quickshell -n -p %h/.local/share/mitishell/shell
+ExecStart=/usr/bin/env MITISHELL_BIN=%h/.local/bin/mitishell /usr/bin/quickshell -n -p %h/.local/share/mitishell/shell
 Restart=on-failure
 RestartSec=2
 Slice=session.slice
