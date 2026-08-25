@@ -17,7 +17,7 @@ event_stream() {
 while true; do
   while IFS= read -r event; do
     case "$event" in
-      monitoraddedv2\>\>*|monitorremovedv2\>\>*) ;;
+      monitoraddedv2\>\>* | monitorremovedv2\>\>*) ;;
       *) continue ;;
     esac
 

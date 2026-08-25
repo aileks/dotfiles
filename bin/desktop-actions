@@ -49,9 +49,9 @@ case "$choice" in
   'Stop Recording') "$local_bin"desktop-record stop ;;
   'Power Profile')
     active_profile=$(powerprofilesctl get)
-    profile=$(powerprofilesctl list | sed -n 's/^[ *]*\([^:]*\):$/\1/p' |
-      awk -v active="$active_profile" '{ print ($0 == active ? "* " : "  ") $0 }' |
-      choose "Power profile: $active_profile") || exit 0
+    profile=$(powerprofilesctl list | sed -n 's/^[ *]*\([^:]*\):$/\1/p' \
+      | awk -v active="$active_profile" '{ print ($0 == active ? "* " : "  ") $0 }' \
+      | choose "Power profile: $active_profile") || exit 0
     profile=${profile#\* }
     profile=${profile#  }
     [[ -z $profile || $profile == "$active_profile" ]] || powerprofilesctl set "$profile"
@@ -59,7 +59,7 @@ case "$choice" in
   'Firmware Updates')
     uwsm app -- alacritty --hold -e bash -lc 'fwupdmgr refresh && fwupdmgr update'
     ;;
-  'Record Region'|'Record Output')
+  'Record Region' | 'Record Output')
     mode=${choice#Record }
     "$local_bin"desktop-record "${mode,,}"
     ;;

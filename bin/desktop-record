@@ -44,8 +44,8 @@ stop_recording() {
     [[ $(awk '{ print $3 }' "/proc/$pid/stat" 2>/dev/null) != Z ]] || break
     sleep 0.1
   done
-  if [[ -r /proc/$pid/stat ]] &&
-    [[ $(awk '{ print $3 }' "/proc/$pid/stat" 2>/dev/null) != Z ]]; then
+  if [[ -r /proc/$pid/stat ]] \
+    && [[ $(awk '{ print $3 }' "/proc/$pid/stat" 2>/dev/null) != Z ]]; then
     notify-send -u critical -a Recording "Recording did not stop" \
       "The recorder is still finalizing. Try again before starting another recording."
     return 1
@@ -66,8 +66,8 @@ prompt_audio() {
     'No Audio' \
     'Microphone' \
     'Desktop Audio' \
-    'Desktop + Microphone' |
-    walker --dmenu --placeholder 'Recording audio') || return 1
+    'Desktop + Microphone' \
+    | walker --dmenu --placeholder 'Recording audio') || return 1
   case "$selection" in
     'No Audio') printf 'none\n' ;;
     'Microphone') printf 'mic\n' ;;
@@ -80,19 +80,31 @@ prompt_audio() {
 mode=${1:-output}
 audio=${2:-}
 case "$mode" in
-  region|output)
-    (($# <= 2)) || { usage; exit 2; }
+  region | output)
+    (($# <= 2)) || {
+      usage
+      exit 2
+    }
     if [[ -n $audio ]]; then
       case "$audio" in
-        none|mic|desktop|desktop+mic) ;;
-        *) usage; exit 2 ;;
+        none | mic | desktop | desktop+mic) ;;
+        *)
+          usage
+          exit 2
+          ;;
       esac
     fi
     ;;
-  stop|status)
-    (($# == 1)) || { usage; exit 2; }
+  stop | status)
+    (($# == 1)) || {
+      usage
+      exit 2
+    }
     ;;
-  *) usage; exit 2 ;;
+  *)
+    usage
+    exit 2
+    ;;
 esac
 
 exec 9>"$lockfile"
@@ -156,8 +168,8 @@ esac
 "$recorder" "${video_args[@]}" -f 60 "${audio_args[@]}" -c mp4 -o "$file" 9>&- &
 pid=$!
 sleep 0.2
-if ! kill -0 "$pid" 2>/dev/null ||
-  ! start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null); then
+if ! kill -0 "$pid" 2>/dev/null \
+  || ! start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null); then
   wait "$pid" || status=$?
   notify-send -u critical -a Recording "Recording failed to start" \
     "gpu-screen-recorder exited with status ${status:-0}."

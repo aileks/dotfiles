@@ -310,26 +310,26 @@ missing_packages() {
   done
 }
 
-install_paru() {
-  local paru_dir="$TEMP_DIR/paru"
+install_yay() {
+  local yay_dir="$TEMP_DIR/yay"
   if ((DRY_RUN)); then
-    info "installing paru..."
+    info "installing yay..."
     return 0
   fi
   has_tty || {
-    warn "paru bootstrap requires a terminal for PKGBUILD review"
+    warn "yay bootstrap requires a terminal for PKGBUILD review"
     return 1
   }
   GPG_TTY=$(tty </dev/tty) || return
   export GPG_TTY
-  git clone https://aur.archlinux.org/paru.git "$paru_dir" || return
+  git clone https://aur.archlinux.org/yay.git "$yay_dir" || return
   (
-    cd "$paru_dir" || exit
-    printf '\nReviewing paru PKGBUILD. Quit the pager to continue.\n' >/dev/tty
+    cd "$yay_dir" || exit
+    printf '\nReviewing yay PKGBUILD. Quit the pager to continue.\n' >/dev/tty
     less PKGBUILD </dev/tty >/dev/tty || exit
     makepkg -si </dev/tty
   ) || return
-  if ! command -v paru >/dev/null || ! pacman -Qq paru >/dev/null 2>&1; then
+  if ! command -v yay >/dev/null || ! pacman -Qq yay >/dev/null 2>&1; then
     return 1
   fi
 }
@@ -347,7 +347,7 @@ install_official_packages() {
 }
 
 install_aur_packages() {
-  local aur_helper=paru
+  local aur_helper=yay
   local -a missing=()
 
   mapfile -t missing < <(missing_packages "${AUR_PACKAGES[@]}")
@@ -355,7 +355,7 @@ install_aur_packages() {
     log "all AUR packages are already installed"
     return 0
   fi
-  command -v "$aur_helper" >/dev/null 2>&1 || install_paru || return
+  command -v "$aur_helper" >/dev/null 2>&1 || install_yay || return
   info "installing ${#missing[@]} missing AUR packages with $aur_helper..."
   if ((DRY_RUN)); then
     format_command "$aur_helper" -S --needed "${missing[@]}"
@@ -952,8 +952,8 @@ main() {
   run_step "reload user services" run_cmd systemctl --user daemon-reload
   for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
     home-backup.timer monitor-setup.service monitor-watch.service walker.service \
-    udiskie.service hyprpaper.service \
-    hyprpolkitagent.service pipewire-pulse.socket pipewire.socket podman.socket \
+    udiskie.service hyprpaper.service hyprpolkitagent.service \
+    pipewire-pulse.socket pipewire.socket podman.socket \
     wireplumber.service; do
     run_step "enable $unit" run_cmd systemctl --user enable "$unit"
   done

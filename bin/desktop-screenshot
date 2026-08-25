@@ -9,7 +9,7 @@ usage() {
 mode=${1:-}
 shift || true
 case "$mode" in
-  region|window|output|desktop) ;;
+  region | window | output | desktop) ;;
   *)
     usage
     exit 2

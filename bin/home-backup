@@ -74,7 +74,7 @@ if ((${#expired_snapshots[@]})); then
 fi
 
 if command -v notify-send >/dev/null 2>&1; then
-  notify_args=(-t 5000 -u normal -a home-backup -i drive-harddisk \
+  notify_args=(-t 5000 -u normal -a home-backup -i drive-harddisk
     -h string:desktop-entry:home-backup)
   [[ -z $notification_id ]] || notify_args+=(-r "$notification_id")
   notify-send "${notify_args[@]}" "Home Backup" "Backup complete"

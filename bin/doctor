@@ -17,161 +17,161 @@ repository_root=$(dirname "$(dirname "$script_path")")
 source "$repository_root/setup.sh"
 
 if [[ ! -v NO_COLOR && -t 1 ]]; then
-	ok_color=$'\e[32m'
-	warn_color=$'\e[33m'
-	out_reset=$'\e[0m'
+  ok_color=$'\e[32m'
+  warn_color=$'\e[33m'
+  out_reset=$'\e[0m'
 fi
 if [[ ! -v NO_COLOR && -t 2 ]]; then
-	error_color=$'\e[31m'
-	err_reset=$'\e[0m'
+  error_color=$'\e[31m'
+  err_reset=$'\e[0m'
 fi
 
 pass() { printf '%s[ok]%s %s\n' "$ok_color" "$out_reset" "$*"; }
 warn() { printf '%s[warn]%s %s\n' "$warn_color" "$out_reset" "$*"; }
 fail() {
-	printf '%s[fail]%s %s\n' "$error_color" "$err_reset" "$*" >&2
-	failures=$((failures + 1))
+  printf '%s[fail]%s %s\n' "$error_color" "$err_reset" "$*" >&2
+  failures=$((failures + 1))
 }
 error() { printf '%s[error]%s %s\n' "$error_color" "$err_reset" "$*" >&2; }
 
 [[ $# == 0 ]] || {
-	error 'doctor takes no arguments'
-	exit 2
+  error 'doctor takes no arguments'
+  exit 2
 }
 
 if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]] && command -v hyprctl >/dev/null; then
-	desktop_active=1
+  desktop_active=1
 fi
 if ((desktop_active)) || systemctl is-active --quiet sddm.service; then
-	booted_graphics=1
+  booted_graphics=1
 fi
 
 check_command() {
-	if command -v "$1" >/dev/null; then
-		pass "$1 installed"
-	else
-		fail "$1 missing"
-	fi
+  if command -v "$1" >/dev/null; then
+    pass "$1 installed"
+  else
+    fail "$1 missing"
+  fi
 }
 
 check_enabled() {
-	if systemctl is-enabled --quiet "$1"; then
-		pass "$1 enabled"
-	else
-		fail "$1 disabled"
-	fi
+  if systemctl is-enabled --quiet "$1"; then
+    pass "$1 enabled"
+  else
+    fail "$1 disabled"
+  fi
 }
 
 check_disabled() {
-	if systemctl is-enabled --quiet "$1"; then
-		fail "$1 enabled"
-	else
-		pass "$1 disabled"
-	fi
+  if systemctl is-enabled --quiet "$1"; then
+    fail "$1 enabled"
+  else
+    pass "$1 disabled"
+  fi
 }
 
 check_masked() {
-	if [[ $(systemctl is-enabled "$1" 2>/dev/null) == masked ]]; then
-		pass "$1 masked"
-	else
-		fail "$1 unmasked"
-	fi
+  if [[ $(systemctl is-enabled "$1" 2>/dev/null) == masked ]]; then
+    pass "$1 masked"
+  else
+    fail "$1 unmasked"
+  fi
 }
 
 check_user_enabled() {
-	if systemctl --user is-enabled --quiet "$1"; then
-		pass "$1 enabled"
-	else
-		fail "$1 disabled"
-	fi
+  if systemctl --user is-enabled --quiet "$1"; then
+    pass "$1 enabled"
+  else
+    fail "$1 disabled"
+  fi
 }
 
 check_package() {
-	if pacman -Qq "$1" >/dev/null 2>&1; then
-		pass "$1 installed"
-	else
-		fail "$1 missing"
-	fi
+  if pacman -Qq "$1" >/dev/null 2>&1; then
+    pass "$1 installed"
+  else
+    fail "$1 missing"
+  fi
 }
 
 check_quickshell_version() {
-	local minimum=0.3.0 output version
-	output=$(quickshell --version 2>/dev/null || true)
-	version=$(grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' <<<"$output" | head -n 1)
-	if [[ -n $version && $(printf '%s\n%s\n' "$minimum" "$version" | sort -V | head -n 1) == "$minimum" ]]; then
-		pass "Quickshell $version supported"
-	else
-		fail "Quickshell ${version:-unknown} is older than $minimum"
-	fi
+  local minimum=0.3.0 output version
+  output=$(quickshell --version 2>/dev/null || true)
+  version=$(grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' <<<"$output" | head -n 1)
+  if [[ -n $version && $(printf '%s\n%s\n' "$minimum" "$version" | sort -V | head -n 1) == "$minimum" ]]; then
+    pass "Quickshell $version supported"
+  else
+    fail "Quickshell ${version:-unknown} is older than $minimum"
+  fi
 }
 
 check_mitishell_install() {
-	local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
-	local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
-	local marker="$state_home/dotfiles/mitishell-version"
-	if [[ -x $HOME/.local/bin/mitishell &&
-		-f $data_home/mitishell/shell/shell.qml &&
-		-f $data_home/applications/mitishell.desktop ]]; then
-		pass 'Mitishell program files installed'
-	else
-		fail 'Mitishell program files incomplete'
-	fi
-	if [[ -r $marker ]] &&
-		grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"; then
-		pass "Mitishell $MITISHELL_TAG install marker valid"
-	else
-		fail "Mitishell $MITISHELL_TAG install marker missing"
-	fi
+  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+  local marker="$state_home/dotfiles/mitishell-version"
+  if [[ -x $HOME/.local/bin/mitishell &&
+    -f $data_home/mitishell/shell/shell.qml &&
+    -f $data_home/applications/mitishell.desktop ]]; then
+    pass 'Mitishell program files installed'
+  else
+    fail 'Mitishell program files incomplete'
+  fi
+  if [[ -r $marker ]] \
+    && grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"; then
+    pass "Mitishell $MITISHELL_TAG install marker valid"
+  else
+    fail "Mitishell $MITISHELL_TAG install marker missing"
+  fi
 }
 
 check_failed_units() {
-	local failed
-	failed=$(systemctl --failed --no-legend --plain 2>/dev/null || true)
-	if [[ -z $failed ]]; then
-		pass 'no failed system units'
-	else
-		fail "failed system units: ${failed//$'\n'/; }"
-	fi
-	failed=$(systemctl --user --failed --no-legend --plain 2>/dev/null || true)
-	if [[ -z $failed ]]; then
-		pass 'no failed user units'
-	else
-		fail "failed user units: ${failed//$'\n'/; }"
-	fi
+  local failed
+  failed=$(systemctl --failed --no-legend --plain 2>/dev/null || true)
+  if [[ -z $failed ]]; then
+    pass 'no failed system units'
+  else
+    fail "failed system units: ${failed//$'\n'/; }"
+  fi
+  failed=$(systemctl --user --failed --no-legend --plain 2>/dev/null || true)
+  if [[ -z $failed ]]; then
+    pass 'no failed user units'
+  else
+    fail "failed user units: ${failed//$'\n'/; }"
+  fi
 }
 
 check_package_hygiene() {
-	local leftovers orphans
-	leftovers=$(find /etc -type f \( -name '*.pacnew' -o -name '*.pacsave' \) -print 2>/dev/null || true)
-	[[ -z $leftovers ]] || warn "pacman config leftovers: ${leftovers//$'\n'/, }"
-	orphans=$(pacman -Qdtq 2>/dev/null || true)
-	[[ -z $orphans ]] || warn "orphan packages: ${orphans//$'\n'/, }"
+  local leftovers orphans
+  leftovers=$(find /etc -type f \( -name '*.pacnew' -o -name '*.pacsave' \) -print 2>/dev/null || true)
+  [[ -z $leftovers ]] || warn "pacman config leftovers: ${leftovers//$'\n'/, }"
+  orphans=$(pacman -Qdtq 2>/dev/null || true)
+  [[ -z $orphans ]] || warn "orphan packages: ${orphans//$'\n'/, }"
 }
 
 check_backup() {
-	local external="/run/media/${USER:-$(id -un)}/External" latest age_seconds now
-	check_user_enabled home-backup.timer
-	if ! mountpoint -q "$external"; then
-		warn "backup media unavailable: $external"
-		return
-	fi
-	latest="$external/Backups/$(hostnamectl --static)/latest"
-	if [[ ! -e $latest ]]; then
-		warn 'no latest home backup found'
-		return
-	fi
-	now=$(date +%s)
-	age_seconds=$((now - $(stat -c %Y "$latest")))
-	if ((age_seconds > 172800)); then
-		warn 'latest home backup is older than 48 hours'
-	else
-		pass 'latest home backup is fresh'
-	fi
+  local external="/run/media/${USER:-$(id -un)}/External" latest age_seconds now
+  check_user_enabled home-backup.timer
+  if ! mountpoint -q "$external"; then
+    warn "backup media unavailable: $external"
+    return
+  fi
+  latest="$external/Backups/$(hostnamectl --static)/latest"
+  if [[ ! -e $latest ]]; then
+    warn 'no latest home backup found'
+    return
+  fi
+  now=$(date +%s)
+  age_seconds=$((now - $(stat -c %Y "$latest")))
+  if ((age_seconds > 172800)); then
+    warn 'latest home backup is older than 48 hours'
+  else
+    pass 'latest home backup is fresh'
+  fi
 }
 
 check_monitor_state() {
-	local state="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/monitor-topology.json"
-	if jq -e '
+  local state="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/monitor-topology.json"
+  if jq -e '
 		type == "object" and
 		(.kind | IN("dual", "main-only", "portrait-only", "unknown-single", "multi-unknown")) and
 		(.outputs | type == "array" and length > 0) and
@@ -179,466 +179,466 @@ check_monitor_state() {
 			(.make | type == "string") and (.model | type == "string") and
 			(.serial | type == "string") and (.selectedMode | type == "string" and length > 0))
 	' "$state" >/dev/null 2>&1; then
-		pass 'generated monitor topology valid'
-	else
-		fail 'generated monitor topology invalid or missing'
-	fi
+    pass 'generated monitor topology valid'
+  else
+    fail 'generated monitor topology invalid or missing'
+  fi
 }
 
 check_papers_defaults() {
-	local desktop=/usr/share/applications/org.gnome.Papers.desktop mime incorrect=""
-	if [[ ! -r $desktop ]]; then
-		fail 'Papers desktop entry missing'
-		return
-	fi
-	while IFS= read -r mime; do
-		[[ -z $mime ]] && continue
-		if [[ $(xdg-mime query default "$mime" 2>/dev/null) != org.gnome.Papers.desktop ]]; then
-			incorrect+="${incorrect:+, }$mime"
-		fi
-	done < <(sed -n 's/^MimeType=//p' "$desktop" | tr ';' '\n')
-	if [[ -z $incorrect ]]; then
-		pass 'Papers handles its advertised document types'
-	else
-		fail "Papers defaults missing for: $incorrect"
-	fi
+  local desktop=/usr/share/applications/org.gnome.Papers.desktop mime incorrect=""
+  if [[ ! -r $desktop ]]; then
+    fail 'Papers desktop entry missing'
+    return
+  fi
+  while IFS= read -r mime; do
+    [[ -z $mime ]] && continue
+    if [[ $(xdg-mime query default "$mime" 2>/dev/null) != org.gnome.Papers.desktop ]]; then
+      incorrect+="${incorrect:+, }$mime"
+    fi
+  done < <(sed -n 's/^MimeType=//p' "$desktop" | tr ';' '\n')
+  if [[ -z $incorrect ]]; then
+    pass 'Papers handles its advertised document types'
+  else
+    fail "Papers defaults missing for: $incorrect"
+  fi
 }
 
 check_default_keyring() {
-	local directory="$HOME/.local/share/keyrings"
-	local keyring="$directory/Default_keyring.keyring"
-	local pointer="$directory/default"
-	if [[ -f $keyring && -f $pointer && $(<"$pointer") == Default_keyring ]]; then
-		pass 'passwordless default keyring provisioned'
-	else
-		fail 'passwordless default keyring missing'
-	fi
-	if [[ $(stat -c %a "$directory" 2>/dev/null) == 700 &&
-		$(stat -c %a "$keyring" 2>/dev/null) == 600 &&
-		$(stat -c %a "$pointer" 2>/dev/null) == 644 ]]; then
-		pass 'default keyring permissions valid'
-	else
-		fail 'default keyring permissions invalid'
-	fi
+  local directory="$HOME/.local/share/keyrings"
+  local keyring="$directory/Default_keyring.keyring"
+  local pointer="$directory/default"
+  if [[ -f $keyring && -f $pointer && $(<"$pointer") == Default_keyring ]]; then
+    pass 'passwordless default keyring provisioned'
+  else
+    fail 'passwordless default keyring missing'
+  fi
+  if [[ $(stat -c %a "$directory" 2>/dev/null) == 700 &&
+  $(stat -c %a "$keyring" 2>/dev/null) == 600 &&
+  $(stat -c %a "$pointer" 2>/dev/null) == 644 ]]; then
+    pass 'default keyring permissions valid'
+  else
+    fail 'default keyring permissions invalid'
+  fi
 }
 
 check_firewall() {
-	if grep -Fxq 'ENABLED=yes' /etc/ufw/ufw.conf 2>/dev/null &&
-		grep -Fxq 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null &&
-		grep -Fxq 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw 2>/dev/null; then
-		pass 'UFW default policy configured'
-	else
-		fail 'UFW default policy invalid'
-	fi
-	if grep -Eq -- '-p udp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null &&
-		grep -Eq -- '-p tcp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null; then
-		pass 'UFW LocalSend rules configured'
-	else
-		fail 'UFW LocalSend rules missing'
-	fi
+  if grep -Fxq 'ENABLED=yes' /etc/ufw/ufw.conf 2>/dev/null \
+    && grep -Fxq 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null \
+    && grep -Fxq 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw 2>/dev/null; then
+    pass 'UFW default policy configured'
+  else
+    fail 'UFW default policy invalid'
+  fi
+  if grep -Eq -- '-p udp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null \
+    && grep -Eq -- '-p tcp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null; then
+    pass 'UFW LocalSend rules configured'
+  else
+    fail 'UFW LocalSend rules missing'
+  fi
 }
 
 check_oomd() {
-	check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
-		DefaultMemoryPressureDurationSec 20s 'oomd pressure duration is 20 seconds'
-	check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
-		DefaultMemoryPressureLimit 50% 'oomd pressure limit is 50 percent'
-	check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
-		SwapUsedLimit 90% 'oomd swap limit is 90 percent'
-	if systemctl --user cat app.slice 2>/dev/null |
-		grep -Fq 'ManagedOOMMemoryPressure=kill' &&
-		systemctl --user cat app.slice 2>/dev/null |
-		grep -Fq 'ManagedOOMSwap=kill' &&
-		[[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] &&
-		[[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
-		pass 'user app.slice is the oomd kill candidate'
-	else
-		fail 'user app.slice oomd policy missing'
-	fi
+  check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
+    DefaultMemoryPressureDurationSec 20s 'oomd pressure duration is 20 seconds'
+  check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
+    DefaultMemoryPressureLimit 50% 'oomd pressure limit is 50 percent'
+  check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
+    SwapUsedLimit 90% 'oomd swap limit is 90 percent'
+  if systemctl --user cat app.slice 2>/dev/null \
+    | grep -Fq 'ManagedOOMMemoryPressure=kill' \
+    && systemctl --user cat app.slice 2>/dev/null \
+    | grep -Fq 'ManagedOOMSwap=kill' \
+    && [[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] \
+    && [[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
+    pass 'user app.slice is the oomd kill candidate'
+  else
+    fail 'user app.slice oomd policy missing'
+  fi
 }
 
 check_ssh_keepalive() {
-	local path=/etc/ssh/ssh_config.d/20-aileks-keepalive.conf
-	if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null &&
-		grep -Eq '^[[:space:]]*ServerAliveCountMax[[:space:]]+3$' "$path" 2>/dev/null &&
-		grep -Eq '^[[:space:]]*ConnectTimeout[[:space:]]+10$' "$path" 2>/dev/null; then
-		pass 'SSH keepalive defaults configured'
-	else
-		fail 'SSH keepalive defaults missing'
-	fi
+  local path=/etc/ssh/ssh_config.d/20-aileks-keepalive.conf
+  if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null \
+    && grep -Eq '^[[:space:]]*ServerAliveCountMax[[:space:]]+3$' "$path" 2>/dev/null \
+    && grep -Eq '^[[:space:]]*ConnectTimeout[[:space:]]+10$' "$path" 2>/dev/null; then
+    pass 'SSH keepalive defaults configured'
+  else
+    fail 'SSH keepalive defaults missing'
+  fi
 }
 
 check_mise_node() {
-	if command -v mise >/dev/null && mise exec -- node --version >/dev/null 2>&1; then
-		pass 'Node.js managed by mise'
-	else
-		fail 'mise Node.js runtime unavailable'
-	fi
+  if command -v mise >/dev/null && mise exec -- node --version >/dev/null 2>&1; then
+    pass 'Node.js managed by mise'
+  else
+    fail 'mise Node.js runtime unavailable'
+  fi
 }
 
 check_nwg_absent() {
-	local installed
-	installed=$(pacman -Qq 2>/dev/null | grep -E '^nwg-' || true)
-	if [[ -z $installed ]]; then
-		pass 'NWG packages absent'
-	else
-		fail "NWG packages installed: ${installed//$'\n'/, }"
-	fi
+  local installed
+  installed=$(pacman -Qq 2>/dev/null | grep -E '^nwg-' || true)
+  if [[ -z $installed ]]; then
+    pass 'NWG packages absent'
+  else
+    fail "NWG packages installed: ${installed//$'\n'/, }"
+  fi
 }
 
 check_bat_theme() {
-	if bat --list-themes 2>/dev/null | grep -Fxq cinder-grove; then
-		pass 'Bat cinder-grove theme available'
-	else
-		fail 'Bat cinder-grove theme unavailable; rebuild the Bat cache'
-	fi
+  if bat --list-themes 2>/dev/null | grep -Fxq cinder-grove; then
+    pass 'Bat cinder-grove theme available'
+  else
+    fail 'Bat cinder-grove theme unavailable; rebuild the Bat cache'
+  fi
 }
 
 check_qt_theme() {
-	local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-	if grep -Fxq 'export QT_QPA_PLATFORMTHEME=qt6ct' "$config_home/uwsm/env" 2>/dev/null; then
-		pass 'Qt 6 platform theme configured'
-	else
-		fail 'Qt 6 platform theme missing'
-	fi
-	check_setting "$config_home/qt6ct/qt6ct.conf" style Darkly 'Qt Darkly style configured'
-	if [[ -r /usr/share/qt6ct/colors/cinder-grove.conf ]]; then
-		pass 'Qt cinder-grove color scheme installed'
-	else
-		fail 'Qt cinder-grove color scheme missing'
-	fi
-	if [[ -r /usr/lib/qt6/plugins/styles/darkly6.so ]]; then
-		pass 'Qt Darkly style available'
-	else
-		fail 'Qt Darkly style unavailable'
-	fi
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  if grep -Fxq 'export QT_QPA_PLATFORMTHEME=qt6ct' "$config_home/uwsm/env" 2>/dev/null; then
+    pass 'Qt 6 platform theme configured'
+  else
+    fail 'Qt 6 platform theme missing'
+  fi
+  check_setting "$config_home/qt6ct/qt6ct.conf" style Darkly 'Qt Darkly style configured'
+  if [[ -r /usr/share/qt6ct/colors/cinder-grove.conf ]]; then
+    pass 'Qt cinder-grove color scheme installed'
+  else
+    fail 'Qt cinder-grove color scheme missing'
+  fi
+  if [[ -r /usr/lib/qt6/plugins/styles/darkly6.so ]]; then
+    pass 'Qt Darkly style available'
+  else
+    fail 'Qt Darkly style unavailable'
+  fi
 }
 
 check_limine_snapper_sync() {
-	if systemctl is-active --quiet limine-snapper-sync.service; then
-		pass 'Limine snapshot watcher active'
-	elif [[ -x /usr/lib/snapper/plugins/10-limine-snapper-sync ]]; then
-		pass 'Limine Snapper plugin available'
-	else
-		fail 'Limine snapshot synchronization unavailable'
-	fi
+  if systemctl is-active --quiet limine-snapper-sync.service; then
+    pass 'Limine snapshot watcher active'
+  elif [[ -x /usr/lib/snapper/plugins/10-limine-snapper-sync ]]; then
+    pass 'Limine Snapper plugin available'
+  else
+    fail 'Limine snapshot synchronization unavailable'
+  fi
 }
 
 check_setting() {
-	local file="$1" key="$2" expected="$3" label="$4" value
-	value=$(awk -F= -v key="$key" '
+  local file="$1" key="$2" expected="$3" label="$4" value
+  value=$(awk -F= -v key="$key" '
 		$1 == key {
 			value = $2
 			gsub(/^"|"$/, "", value)
 			print value
 		}
 	' "$file" 2>/dev/null | tail -n 1)
-	if [[ $value == "$expected" ]]; then
-		pass "$label"
-	else
-		fail "$label"
-	fi
+  if [[ $value == "$expected" ]]; then
+    pass "$label"
+  else
+    fail "$label"
+  fi
 }
 
 check_user_active() {
-	if systemctl --user is-active --quiet "$1"; then
-		pass "$1 active"
-	else
-		fail "$1 inactive"
-	fi
+  if systemctl --user is-active --quiet "$1"; then
+    pass "$1 active"
+  else
+    fail "$1 inactive"
+  fi
 }
 
 nvidia_drm_active() {
-	local card connector driver
-	for card in /sys/class/drm/card[0-9]*; do
-		[[ -e $card ]] || continue
-		driver=$(basename "$(readlink -f "$card/device/driver" 2>/dev/null)")
-		[[ $driver == nvidia ]] || continue
-		for connector in "$card"-*; do
-			[[ -e $connector ]] && return 0
-		done
-	done
-	return 1
+  local card connector driver
+  for card in /sys/class/drm/card[0-9]*; do
+    [[ -e $card ]] || continue
+    driver=$(basename "$(readlink -f "$card/device/driver" 2>/dev/null)")
+    [[ $driver == nvidia ]] || continue
+    for connector in "$card"-*; do
+      [[ -e $connector ]] && return 0
+    done
+  done
+  return 1
 }
 
 check_nvidia_modeset() {
-	local parameter=/sys/module/nvidia_drm/parameters/modeset
-	if [[ -r $parameter ]]; then
-		if [[ $(<"$parameter") == Y ]]; then
-			pass 'Nvidia DRM modesetting enabled'
-		else
-			fail 'Nvidia DRM modesetting disabled'
-		fi
-	elif [[ -e $parameter ]] && nvidia_drm_active; then
-		pass 'Nvidia DRM modesetting active'
-	elif ((!booted_graphics)); then
-		warn 'Nvidia module loads after reboot'
-	elif [[ -e $parameter ]]; then
-		warn 'Nvidia DRM modesetting value requires root and could not be verified'
-	else
-		fail 'Nvidia DRM module unavailable'
-	fi
+  local parameter=/sys/module/nvidia_drm/parameters/modeset
+  if [[ -r $parameter ]]; then
+    if [[ $(<"$parameter") == Y ]]; then
+      pass 'Nvidia DRM modesetting enabled'
+    else
+      fail 'Nvidia DRM modesetting disabled'
+    fi
+  elif [[ -e $parameter ]] && nvidia_drm_active; then
+    pass 'Nvidia DRM modesetting active'
+  elif ((!booted_graphics)); then
+    warn 'Nvidia module loads after reboot'
+  elif [[ -e $parameter ]]; then
+    warn 'Nvidia DRM modesetting value requires root and could not be verified'
+  else
+    fail 'Nvidia DRM module unavailable'
+  fi
 }
 
 check_nvidia_fbdev() {
-	local parameter=/sys/module/nvidia_drm/parameters/fbdev
-	if [[ -r $parameter ]]; then
-		if [[ $(<"$parameter") == Y ]]; then
-			pass 'Nvidia framebuffer enabled'
-		else
-			fail 'Nvidia framebuffer disabled'
-		fi
-	elif [[ -e $parameter ]] && grep -q 'nvidia-drmdrmfb' /proc/fb 2>/dev/null; then
-		pass 'Nvidia framebuffer active'
-	elif ((!booted_graphics)); then
-		warn 'Nvidia framebuffer loads after reboot'
-	elif [[ -e $parameter ]]; then
-		warn 'Nvidia framebuffer value requires root and could not be verified'
-	else
-		fail 'Nvidia framebuffer parameter unavailable'
-	fi
+  local parameter=/sys/module/nvidia_drm/parameters/fbdev
+  if [[ -r $parameter ]]; then
+    if [[ $(<"$parameter") == Y ]]; then
+      pass 'Nvidia framebuffer enabled'
+    else
+      fail 'Nvidia framebuffer disabled'
+    fi
+  elif [[ -e $parameter ]] && grep -q 'nvidia-drmdrmfb' /proc/fb 2>/dev/null; then
+    pass 'Nvidia framebuffer active'
+  elif ((!booted_graphics)); then
+    warn 'Nvidia framebuffer loads after reboot'
+  elif [[ -e $parameter ]]; then
+    warn 'Nvidia framebuffer value requires root and could not be verified'
+  else
+    fail 'Nvidia framebuffer parameter unavailable'
+  fi
 }
 
 check_nvidia_suspend() {
-	local parameters=/proc/driver/nvidia/params
-	if [[ -r $parameters ]]; then
-		if grep -Eq '^UseKernelSuspendNotifiers:[[:space:]]+1$' "$parameters"; then
-			pass 'Nvidia kernel suspend notifiers enabled'
-		else
-			fail 'Nvidia kernel suspend notifiers disabled'
-		fi
-		if grep -Eq '^PreserveVideoMemoryAllocations:[[:space:]]+1$' "$parameters"; then
-			pass 'Nvidia suspend memory preservation enabled'
-		else
-			fail 'Nvidia suspend memory preservation disabled'
-		fi
-	elif ((!booted_graphics)); then
-		warn 'Nvidia suspend parameters load after reboot'
-	else
-		fail 'Nvidia suspend parameters unavailable'
-	fi
+  local parameters=/proc/driver/nvidia/params
+  if [[ -r $parameters ]]; then
+    if grep -Eq '^UseKernelSuspendNotifiers:[[:space:]]+1$' "$parameters"; then
+      pass 'Nvidia kernel suspend notifiers enabled'
+    else
+      fail 'Nvidia kernel suspend notifiers disabled'
+    fi
+    if grep -Eq '^PreserveVideoMemoryAllocations:[[:space:]]+1$' "$parameters"; then
+      pass 'Nvidia suspend memory preservation enabled'
+    else
+      fail 'Nvidia suspend memory preservation disabled'
+    fi
+  elif ((!booted_graphics)); then
+    warn 'Nvidia suspend parameters load after reboot'
+  else
+    fail 'Nvidia suspend parameters unavailable'
+  fi
 }
 
 check_snapper() {
-	local configs home_fstype package root_fstype
-	root_fstype=$(findmnt -no FSTYPE / 2>/dev/null || true)
-	home_fstype=$(findmnt -no FSTYPE /home 2>/dev/null || true)
-	if [[ $root_fstype == btrfs && $home_fstype == btrfs ]]; then
-		pass 'root and home use Btrfs'
-	else
-		fail 'root or home is not Btrfs'
-	fi
-	for package in btrfs-progs snapper snap-pac limine-tool limine-snapper-sync; do
-		check_package "$package"
-	done
-	configs=$(snapper --csvout --no-headers list-configs 2>/dev/null || true)
-	if cut -d, -f1 <<<"$configs" | grep -Fxq root; then
-		pass 'root Snapper config present'
-	else
-		fail 'root Snapper config missing'
-	fi
-	if cut -d, -f1 <<<"$configs" | grep -Fxq home; then
-		pass 'home Snapper config present'
-	else
-		fail 'home Snapper config missing'
-	fi
-	check_setting /etc/snapper/configs/root TIMELINE_CREATE no \
-		'root timeline snapshots disabled'
-	check_setting /etc/snapper/configs/root NUMBER_LIMIT 10 \
-		'root snapshot retention is 10'
-	check_setting /etc/snapper/configs/home TIMELINE_CREATE no \
-		'home hourly snapshots disabled'
-	check_setting /etc/snapper/configs/home TIMELINE_LIMIT_WEEKLY 8 \
-		'home weekly retention is 8'
-	check_setting /etc/default/limine LIMIT_USAGE_PERCENT 85 \
-		'Limine snapshot usage limit is 85 percent'
-	check_setting /etc/default/limine MAX_SNAPSHOT_ENTRIES auto \
-		'Limine snapshot entries auto-prune'
-	if grep -Eq '^[[:space:]]*HOOKS=.*[[:space:](]btrfs-overlayfs([[:space:])]|$)' \
-		/etc/mkinitcpio.conf 2>/dev/null; then
-		pass 'mkinitcpio snapshot overlay enabled'
-	else
-		fail 'mkinitcpio snapshot overlay missing'
-	fi
-	check_disabled snapper-timeline.timer
-	check_enabled snapper-cleanup.timer
-	check_enabled snapper-home-weekly.timer
-	check_enabled limine-snapper-sync.service
-	check_limine_snapper_sync
-	if [[ -f /var/lib/aileks-dotfiles/snapper-v1 ]]; then
-		pass 'Snapper setup marker present'
-	else
-		fail 'Snapper setup marker missing'
-	fi
+  local configs home_fstype package root_fstype
+  root_fstype=$(findmnt -no FSTYPE / 2>/dev/null || true)
+  home_fstype=$(findmnt -no FSTYPE /home 2>/dev/null || true)
+  if [[ $root_fstype == btrfs && $home_fstype == btrfs ]]; then
+    pass 'root and home use Btrfs'
+  else
+    fail 'root or home is not Btrfs'
+  fi
+  for package in btrfs-progs snapper snap-pac limine-tool limine-snapper-sync; do
+    check_package "$package"
+  done
+  configs=$(snapper --csvout --no-headers list-configs 2>/dev/null || true)
+  if cut -d, -f1 <<<"$configs" | grep -Fxq root; then
+    pass 'root Snapper config present'
+  else
+    fail 'root Snapper config missing'
+  fi
+  if cut -d, -f1 <<<"$configs" | grep -Fxq home; then
+    pass 'home Snapper config present'
+  else
+    fail 'home Snapper config missing'
+  fi
+  check_setting /etc/snapper/configs/root TIMELINE_CREATE no \
+    'root timeline snapshots disabled'
+  check_setting /etc/snapper/configs/root NUMBER_LIMIT 10 \
+    'root snapshot retention is 10'
+  check_setting /etc/snapper/configs/home TIMELINE_CREATE no \
+    'home hourly snapshots disabled'
+  check_setting /etc/snapper/configs/home TIMELINE_LIMIT_WEEKLY 8 \
+    'home weekly retention is 8'
+  check_setting /etc/default/limine LIMIT_USAGE_PERCENT 85 \
+    'Limine snapshot usage limit is 85 percent'
+  check_setting /etc/default/limine MAX_SNAPSHOT_ENTRIES auto \
+    'Limine snapshot entries auto-prune'
+  if grep -Eq '^[[:space:]]*HOOKS=.*[[:space:](]btrfs-overlayfs([[:space:])]|$)' \
+    /etc/mkinitcpio.conf 2>/dev/null; then
+    pass 'mkinitcpio snapshot overlay enabled'
+  else
+    fail 'mkinitcpio snapshot overlay missing'
+  fi
+  check_disabled snapper-timeline.timer
+  check_enabled snapper-cleanup.timer
+  check_enabled snapper-home-weekly.timer
+  check_enabled limine-snapper-sync.service
+  check_limine_snapper_sync
+  if [[ -f /var/lib/aileks-dotfiles/snapper-v1 ]]; then
+    pass 'Snapper setup marker present'
+  else
+    fail 'Snapper setup marker missing'
+  fi
 }
 
 check_system() {
-	local command file package walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
-	local walker_theme="${XDG_CONFIG_HOME:-$HOME/.config}/walker/themes/cinder-grove/style.css"
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire walker elephant mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprshutdown hyprsunset home-backup monitor-watch papers powerprofilesctl snapper tensaku limine-snapper-info zbarimg; do
-		check_command "$command"
-	done
-	for package in amd-ucode darkly-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin go gpu-screen-recorder hyprpicker hyprshutdown hyprsunset mise pacman-contrib papers podman podman-compose podman-docker power-profiles-daemon quickshell qt5-wayland qt6ct rtkit socat tensaku-bin ufw walker-bin zbar; do
-		check_package "$package"
-	done
-	check_quickshell_version
-	check_mitishell_install
-	check_mise_node
-	check_nwg_absent
-	for file in sddm sddm-autologin sddm-greeter hyprlock; do
-		if [[ -r /etc/pam.d/$file ]]; then
-			pass "/etc/pam.d/$file present"
-		else
-			fail "/etc/pam.d/$file missing"
-		fi
-	done
-	if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm &&
-		grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
-		pass 'SDDM PAM and keyring integration valid'
-	else
-		fail 'SDDM PAM integration invalid'
-	fi
-	if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/sddm-autologin &&
-		grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm-autologin; then
-		pass 'SDDM autologin PAM integration valid'
-	else
-		fail 'SDDM autologin PAM integration invalid'
-	fi
-	if grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' /etc/pam.d/sddm-greeter; then
-		pass 'SDDM greeter PAM integration valid'
-	else
-		fail 'SDDM greeter PAM integration invalid'
-	fi
-	if [[ -r /etc/sddm.conf.d/10-autologin.conf ]]; then
-		pass 'SDDM autologin configured'
-	else
-		fail 'SDDM autologin config missing'
-	fi
-	if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] &&
-		grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-			/usr/share/wayland-sessions/hyprland-uwsm.desktop; then
-		pass 'UWSM session installed'
-	else
-		fail 'UWSM session missing'
-	fi
-	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service power-profiles-daemon.service sddm.service systemd-oomd.service systemd-timesyncd.service ufw.service paccache.timer btrfs-scrub@-.timer; do
-		check_enabled "$file"
-	done
-	check_masked NetworkManager-wait-online.service
-	check_user_enabled podman.socket
-	check_user_enabled elephant.service
-	check_user_enabled monitor-setup.service
-	check_user_enabled monitor-watch.service
-	check_user_enabled walker.service
-	check_user_enabled hyprsunset.service
-	check_user_enabled mitishell.service
-	if [[ -r $walker_theme ]] && grep -Fq '#E17A3F' "$walker_theme"; then
-		pass 'Walker Cinder Grove theme installed'
-	else
-		fail 'Walker Cinder Grove theme missing'
-	fi
-	if grep -Eq '^[[:space:]]*theme[[:space:]]*=[[:space:]]*"cinder-grove"' \
-		"$walker_config" 2>/dev/null; then
-		pass 'Walker Cinder Grove theme selected'
-	else
-		fail 'Walker Cinder Grove theme not selected'
-	fi
-	if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
-		pass 'mDNS hostname resolution configured'
-	else
-		fail 'mDNS hostname resolution missing'
-	fi
-	if [[ $(xdg-mime query default x-scheme-handler/mailto 2>/dev/null) == fastmail.desktop ]]; then
-		pass 'Fastmail handles mailto links'
-	else
-		fail 'Fastmail is not the mailto handler'
-	fi
-	check_papers_defaults
-	check_default_keyring
-	check_firewall
-	check_oomd
-	check_ssh_keepalive
-	check_snapper
-	check_bat_theme
-	check_qt_theme
-	check_nvidia_modeset
-	check_nvidia_fbdev
-	check_nvidia_suspend
-	check_failed_units
-	check_package_hygiene
-	check_backup
+  local command file package walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
+  local walker_theme="${XDG_CONFIG_HOME:-$HOME/.config}/walker/themes/cinder-grove/style.css"
+  for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire walker elephant mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprshutdown hyprsunset home-backup monitor-watch papers powerprofilesctl snapper tensaku limine-snapper-info zbarimg; do
+    check_command "$command"
+  done
+  for package in amd-ucode darkly-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin go gpu-screen-recorder hyprpicker hyprshutdown hyprsunset mise pacman-contrib papers podman podman-compose podman-docker power-profiles-daemon quickshell qt5-wayland qt6ct rtkit socat tensaku-bin ufw walker-bin zbar; do
+    check_package "$package"
+  done
+  check_quickshell_version
+  check_mitishell_install
+  check_mise_node
+  check_nwg_absent
+  for file in sddm sddm-autologin sddm-greeter hyprlock; do
+    if [[ -r /etc/pam.d/$file ]]; then
+      pass "/etc/pam.d/$file present"
+    else
+      fail "/etc/pam.d/$file missing"
+    fi
+  done
+  if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm \
+    && grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
+    pass 'SDDM PAM and keyring integration valid'
+  else
+    fail 'SDDM PAM integration invalid'
+  fi
+  if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/sddm-autologin \
+    && grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm-autologin; then
+    pass 'SDDM autologin PAM integration valid'
+  else
+    fail 'SDDM autologin PAM integration invalid'
+  fi
+  if grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' /etc/pam.d/sddm-greeter; then
+    pass 'SDDM greeter PAM integration valid'
+  else
+    fail 'SDDM greeter PAM integration invalid'
+  fi
+  if [[ -r /etc/sddm.conf.d/10-autologin.conf ]]; then
+    pass 'SDDM autologin configured'
+  else
+    fail 'SDDM autologin config missing'
+  fi
+  if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
+    && grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
+      /usr/share/wayland-sessions/hyprland-uwsm.desktop; then
+    pass 'UWSM session installed'
+  else
+    fail 'UWSM session missing'
+  fi
+  for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service power-profiles-daemon.service sddm.service systemd-oomd.service systemd-timesyncd.service ufw.service paccache.timer btrfs-scrub@-.timer; do
+    check_enabled "$file"
+  done
+  check_masked NetworkManager-wait-online.service
+  check_user_enabled podman.socket
+  check_user_enabled elephant.service
+  check_user_enabled monitor-setup.service
+  check_user_enabled monitor-watch.service
+  check_user_enabled walker.service
+  check_user_enabled hyprsunset.service
+  check_user_enabled mitishell.service
+  if [[ -r $walker_theme ]] && grep -Fq '#E17A3F' "$walker_theme"; then
+    pass 'Walker Cinder Grove theme installed'
+  else
+    fail 'Walker Cinder Grove theme missing'
+  fi
+  if grep -Eq '^[[:space:]]*theme[[:space:]]*=[[:space:]]*"cinder-grove"' \
+    "$walker_config" 2>/dev/null; then
+    pass 'Walker Cinder Grove theme selected'
+  else
+    fail 'Walker Cinder Grove theme not selected'
+  fi
+  if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
+    pass 'mDNS hostname resolution configured'
+  else
+    fail 'mDNS hostname resolution missing'
+  fi
+  if [[ $(xdg-mime query default x-scheme-handler/mailto 2>/dev/null) == fastmail.desktop ]]; then
+    pass 'Fastmail handles mailto links'
+  else
+    fail 'Fastmail is not the mailto handler'
+  fi
+  check_papers_defaults
+  check_default_keyring
+  check_firewall
+  check_oomd
+  check_ssh_keepalive
+  check_snapper
+  check_bat_theme
+  check_qt_theme
+  check_nvidia_modeset
+  check_nvidia_fbdev
+  check_nvidia_suspend
+  check_failed_units
+  check_package_hygiene
+  check_backup
 }
 
 check_session() {
-	local errors providers restore_lock
-	if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
-		pass 'Hyprland desktop environment exported'
-	else
-		fail 'XDG_CURRENT_DESKTOP is not Hyprland'
-	fi
-	if systemctl --user is-active --quiet graphical-session.target; then
-		pass 'graphical-session.target active'
-	else
-		fail 'graphical-session.target inactive'
-	fi
-	if systemctl --user cat hyprlock.service >/dev/null 2>&1; then
-		pass 'hyprlock.service available'
-	else
-		fail 'hyprlock.service missing'
-	fi
-	for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
-		udiskie.service hyprpaper.service hyprpolkitagent.service \
-		pipewire.service pipewire-pulse.service wireplumber.service \
-		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
-		walker.service monitor-watch.service; do
-		check_user_active "$unit"
-	done
-	providers=$(elephant listproviders 2>/dev/null || true)
-	if grep -qx 'desktopapplications' <<<"$providers" &&
-		grep -qx 'clipboard' <<<"$providers" &&
-		grep -qx 'calc' <<<"$providers" &&
-		grep -qx 'runner' <<<"$providers" &&
-		grep -qx 'symbols' <<<"$providers"; then
-		pass 'Elephant launcher providers available'
-	else
-		fail 'Elephant launcher providers unavailable'
-	fi
-	if [[ -S ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/walker/walker.sock ]]; then
-		pass 'Walker IPC socket available'
-	else
-		fail 'Walker IPC socket unavailable'
-	fi
-	if mitishell ping >/dev/null 2>&1; then
-		pass 'Mitishell IPC responds'
-	else
-		fail 'Mitishell IPC unavailable'
-	fi
-	errors=$(hyprctl configerrors 2>/dev/null || true)
-	if [[ -z $errors ]]; then
-		pass 'Hyprland config has no errors'
-	else
-		fail "Hyprland config errors: $errors"
-	fi
-	restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null |
-		awk '$1 == "bool:" {print $2; exit}')
-	if [[ $restore_lock == true ]]; then
-		pass 'Hyprland session lock restoration enabled'
-	else
-		fail 'Hyprland session lock restoration disabled'
-	fi
-	check_monitor_state
-	if wpctl status >/dev/null 2>&1; then
-		pass 'PipeWire responds'
-	else
-		fail 'PipeWire unavailable'
-	fi
+  local errors providers restore_lock
+  if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
+    pass 'Hyprland desktop environment exported'
+  else
+    fail 'XDG_CURRENT_DESKTOP is not Hyprland'
+  fi
+  if systemctl --user is-active --quiet graphical-session.target; then
+    pass 'graphical-session.target active'
+  else
+    fail 'graphical-session.target inactive'
+  fi
+  if systemctl --user cat hyprlock.service >/dev/null 2>&1; then
+    pass 'hyprlock.service available'
+  else
+    fail 'hyprlock.service missing'
+  fi
+  for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
+    udiskie.service hyprpaper.service hyprpolkitagent.service \
+    pipewire.service pipewire-pulse.service wireplumber.service \
+    xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
+    walker.service monitor-watch.service; do
+    check_user_active "$unit"
+  done
+  providers=$(elephant listproviders 2>/dev/null || true)
+  if grep -qx 'desktopapplications' <<<"$providers" \
+    && grep -qx 'clipboard' <<<"$providers" \
+    && grep -qx 'calc' <<<"$providers" \
+    && grep -qx 'runner' <<<"$providers" \
+    && grep -qx 'symbols' <<<"$providers"; then
+    pass 'Elephant launcher providers available'
+  else
+    fail 'Elephant launcher providers unavailable'
+  fi
+  if [[ -S ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/walker/walker.sock ]]; then
+    pass 'Walker IPC socket available'
+  else
+    fail 'Walker IPC socket unavailable'
+  fi
+  if mitishell ping >/dev/null 2>&1; then
+    pass 'Mitishell IPC responds'
+  else
+    fail 'Mitishell IPC unavailable'
+  fi
+  errors=$(hyprctl configerrors 2>/dev/null || true)
+  if [[ -z $errors ]]; then
+    pass 'Hyprland config has no errors'
+  else
+    fail "Hyprland config errors: $errors"
+  fi
+  restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null \
+    | awk '$1 == "bool:" {print $2; exit}')
+  if [[ $restore_lock == true ]]; then
+    pass 'Hyprland session lock restoration enabled'
+  else
+    fail 'Hyprland session lock restoration disabled'
+  fi
+  check_monitor_state
+  if wpctl status >/dev/null 2>&1; then
+    pass 'PipeWire responds'
+  else
+    fail 'PipeWire unavailable'
+  fi
 }
 
 check_system
 if ((desktop_active)); then
-	check_session
+  check_session
 else
-	warn 'Hyprland session checks skipped'
+  warn 'Hyprland session checks skipped'
 fi
 
 ((failures == 0))
