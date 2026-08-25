@@ -33,8 +33,9 @@ readonly -a PACMAN_PACKAGES=(
 
 readonly -a AUR_PACKAGES=(
   darkly-bin fastmail zen-browser-bin
+  elephant-bin elephant-clipboard-bin elephant-desktopapplications-bin
   limine-tool limine-snapper-sync localsend-bin
-  tmux-sessionizer-bin vicinae-bin zsh-antidote
+  tmux-sessionizer-bin walker-bin zsh-antidote
   normcap
 )
 
@@ -703,7 +704,7 @@ configure_suspend_workaround() {
 
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}" unit source
+  local unit source
   info "linking configuration files..."
 
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
@@ -722,9 +723,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  link_path "$SCRIPT_DIR/vicinae/settings.json" "$config_home/vicinae/settings.json"
-  link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
-    "$data_home/vicinae/themes/cinder-grove.toml"
+  link_path "$SCRIPT_DIR/walker" "$config_home/walker"
 
   run_cmd mkdir -p "$config_home/systemd/user" || return
   link_path "$SCRIPT_DIR/systemd/user/app.slice.d/10-oomd.conf" \
@@ -922,15 +921,13 @@ main() {
   run_step "configure tmux-sessionizer" run_cmd tms config --paths "$HOME/Projects"
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
-  for unit in hypridle.service hyprsunset.service mitishell.service monitor-setup.service \
+  for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
+    monitor-setup.service walker.service \
     udiskie.service hyprpaper.service \
     hyprpolkitagent.service pipewire-pulse.socket pipewire.socket podman.socket \
     wireplumber.service; do
     run_step "enable $unit" run_cmd systemctl --user enable "$unit"
   done
-  run_step "enable and start vicinae.service" run_cmd systemctl --user enable --now \
-    vicinae.service
-
   run_step "configure desktop appearance" configure_gsettings
   run_step "install Cinder Grove GTK theme" install_gtk_theme
   run_step "install Cinder Grove Papirus folders" install_papirus_folders

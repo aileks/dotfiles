@@ -388,11 +388,12 @@ check_snapper() {
 }
 
 check_system() {
-	local command file package theme_file="${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/themes/cinder-grove.toml"
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire vicinae mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprsunset snapper limine-snapper-info zbarimg; do
+	local command file package walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
+	local walker_theme="${XDG_CONFIG_HOME:-$HOME/.config}/walker/themes/cinder-grove/style.css"
+	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire walker elephant mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprsunset snapper limine-snapper-info zbarimg; do
 		check_command "$command"
 	done
-	for package in amd-ucode darkly-bin go gpu-screen-recorder hyprpicker hyprsunset mise pacman-contrib podman podman-compose podman-docker quickshell qt6ct rtkit ufw vicinae-bin zbar; do
+	for package in amd-ucode darkly-bin elephant-bin elephant-clipboard-bin elephant-desktopapplications-bin go gpu-screen-recorder hyprpicker hyprsunset mise pacman-contrib podman podman-compose podman-docker quickshell qt6ct rtkit ufw walker-bin zbar; do
 		check_package "$package"
 	done
 	check_quickshell_version
@@ -441,20 +442,20 @@ check_system() {
 	check_masked NetworkManager-wait-online.service
 	check_enabled "hyprlock-suspend@$(id -u).service"
 	check_user_enabled podman.socket
-	check_user_enabled vicinae.service
+	check_user_enabled elephant.service
+	check_user_enabled walker.service
 	check_user_enabled hyprsunset.service
 	check_user_enabled mitishell.service
-	if [[ -r $theme_file ]] && grep -Fq 'name = "Cinder Grove"' "$theme_file"; then
-		pass 'Vicinae Cinder Grove theme installed'
+	if [[ -r $walker_theme ]] && grep -Fq '#E17A3F' "$walker_theme"; then
+		pass 'Walker Cinder Grove theme installed'
 	else
-		fail 'Vicinae Cinder Grove theme missing'
+		fail 'Walker Cinder Grove theme missing'
 	fi
-	if sed '/^[[:space:]]*\/\//d' \
-		"${XDG_CONFIG_HOME:-$HOME/.config}/vicinae/settings.json" 2>/dev/null |
-		jq -e '.theme.dark.name == "cinder-grove"' >/dev/null 2>&1; then
-		pass 'Vicinae Cinder Grove theme selected'
+	if grep -Eq '^[[:space:]]*theme[[:space:]]*=[[:space:]]*"cinder-grove"' \
+		"$walker_config" 2>/dev/null; then
+		pass 'Walker Cinder Grove theme selected'
 	else
-		fail 'Vicinae Cinder Grove theme not selected'
+		fail 'Walker Cinder Grove theme not selected'
 	fi
 	if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
 		pass 'mDNS hostname resolution configured'
@@ -479,7 +480,7 @@ check_system() {
 }
 
 check_session() {
-	local errors monitors main_count restore_lock side_count
+	local errors monitors main_count providers restore_lock side_count
 	if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
 		pass 'Hyprland desktop environment exported'
 	else
@@ -495,20 +496,27 @@ check_session() {
 	else
 		fail 'hyprlock.service missing'
 	fi
-	for unit in hypridle.service hyprsunset.service mitishell.service \
+	for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
 		udiskie.service hyprpaper.service hyprpolkitagent.service \
 		pipewire.service pipewire-pulse.service wireplumber.service \
 		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
-		vicinae.service \
+		walker.service \
 		app-blueman@autostart.service \
 		'app-geoclue\x2ddemo\x2dagent@autostart.service' \
 		'app-nm\x2dapplet@autostart.service'; do
 		check_user_active "$unit"
 	done
-	if vicinae ping >/dev/null 2>&1; then
-		pass 'Vicinae server responds'
+	providers=$(elephant listproviders 2>/dev/null || true)
+	if grep -qx 'desktopapplications' <<<"$providers" &&
+		grep -qx 'clipboard' <<<"$providers"; then
+		pass 'Elephant launcher providers available'
 	else
-		fail 'Vicinae server unavailable'
+		fail 'Elephant launcher providers unavailable'
+	fi
+	if [[ -S ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/walker/walker.sock ]]; then
+		pass 'Walker IPC socket available'
+	else
+		fail 'Walker IPC socket unavailable'
 	fi
 	if mitishell ping >/dev/null 2>&1; then
 		pass 'Mitishell IPC responds'

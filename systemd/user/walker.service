@@ -1,0 +1,15 @@
+[Unit]
+Description=Walker application launcher
+PartOf=graphical-session.target
+Requires=graphical-session.target elephant.service
+After=graphical-session.target elephant.service
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+ExecStart=/usr/bin/walker --gapplication-service
+Restart=on-failure
+RestartSec=2
+Slice=session.slice
+
+[Install]
+WantedBy=graphical-session.target

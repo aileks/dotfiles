@@ -5,7 +5,7 @@ set -Eeuo pipefail
 readonly local_bin="$HOME/.local/bin/"
 
 choose() {
-  vicinae dmenu --placeholder "$1"
+  walker --dmenu --placeholder "$1"
 }
 
 nightlight_label='Enable Night Light'
