@@ -497,8 +497,6 @@ check_snapper() {
     'home hourly snapshots disabled'
   check_setting /etc/snapper/configs/home TIMELINE_LIMIT_WEEKLY 8 \
     'home weekly retention is 8'
-  check_setting /etc/default/limine LIMIT_USAGE_PERCENT 85 \
-    'Limine snapshot usage limit is 85 percent'
   check_setting /etc/default/limine MAX_SNAPSHOT_ENTRIES auto \
     'Limine snapshot entries auto-prune'
   if grep -Eq '^[[:space:]]*HOOKS=.*[[:space:](]btrfs-overlayfs([[:space:])]|$)' \
