@@ -32,7 +32,7 @@ readonly -a PACMAN_PACKAGES=(
 readonly -a AUR_PACKAGES=(
   darkly-bin fastmail zen-browser-twilight-bin elephant-bin elephant-calc-bin elephant-clipboard-bin
   elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin tensaku-bin limine-tool
-  limine-snapper-sync localsend tmux-sessionizer-bin walker-bin zsh-antidote
+  limine-snapper-sync localsend tmux-sessionizer-bin walker-bin zsh-antidote cliamp-bin
 )
 
 log() { printf '[ok] %s\n' "$*"; }
