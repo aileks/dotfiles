@@ -1,7 +1,7 @@
 [Unit]
 Description=Reconcile Hyprland monitor topology after hotplug
 PartOf=graphical-session.target
-After=monitor-setup.service
+After=graphical-session.target monitor-setup.service
 
 [Service]
 ExecStart=%h/.local/bin/monitor-watch
