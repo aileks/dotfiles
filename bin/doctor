@@ -293,7 +293,7 @@ check_appearance() {
     "font-name|'Adwaita Sans 11'"
     "monospace-font-name|'AdwaitaMono Nerd Font Mono 11'"
     "font-antialiasing|'rgba'"
-    "font-hinting|'medium'"
+    "font-hinting|'slight'"
     "font-rgba-order|'rgb'"
   )
 
@@ -355,7 +355,7 @@ check_fontconfig() {
     fi
   done
   properties=$(fc-match -v sans-serif 2>/dev/null)
-  if grep -Fq 'hintstyle: 2' <<<"$properties" &&
+  if grep -Fq 'hintstyle: 1' <<<"$properties" &&
     grep -Fq 'rgba: 1' <<<"$properties" &&
     grep -Fq 'lcdfilter: 1' <<<"$properties"; then
     pass 'fontconfig families and rendering configured'

@@ -58,8 +58,6 @@ run_step() {
   return 0
 }
 
-# Interactive variant for re-run-safe cosmetic steps; defaults to yes
-# (install) so a first install can just hit enter or run non-interactively.
 prompt_step() {
   local label="$1" answer=""
   shift
