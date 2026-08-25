@@ -116,8 +116,8 @@ check_mitishell_install() {
   else
     fail 'Mitishell program files incomplete'
   fi
-  if [[ -r $marker ]] \
-    && grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"; then
+  if [[ -r $marker ]] &&
+    grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"; then
     pass "Mitishell $MITISHELL_TAG install marker valid"
   else
     fail "Mitishell $MITISHELL_TAG install marker missing"
@@ -223,15 +223,15 @@ check_default_keyring() {
 }
 
 check_firewall() {
-  if grep -Fxq 'ENABLED=yes' /etc/ufw/ufw.conf 2>/dev/null \
-    && grep -Fxq 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null \
-    && grep -Fxq 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw 2>/dev/null; then
+  if grep -Fxq 'ENABLED=yes' /etc/ufw/ufw.conf 2>/dev/null &&
+    grep -Fxq 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null &&
+    grep -Fxq 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw 2>/dev/null; then
     pass 'UFW default policy configured'
   else
     fail 'UFW default policy invalid'
   fi
-  if grep -Eq -- '-p udp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null \
-    && grep -Eq -- '-p tcp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null; then
+  if grep -Eq -- '-p udp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null &&
+    grep -Eq -- '-p tcp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null; then
     pass 'UFW LocalSend rules configured'
   else
     fail 'UFW LocalSend rules missing'
@@ -245,12 +245,12 @@ check_oomd() {
     DefaultMemoryPressureLimit 50% 'oomd pressure limit is 50 percent'
   check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
     SwapUsedLimit 90% 'oomd swap limit is 90 percent'
-  if systemctl --user cat app.slice 2>/dev/null \
-    | grep -Fq 'ManagedOOMMemoryPressure=kill' \
-    && systemctl --user cat app.slice 2>/dev/null \
-    | grep -Fq 'ManagedOOMSwap=kill' \
-    && [[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] \
-    && [[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
+  if systemctl --user cat app.slice 2>/dev/null |
+    grep -Fq 'ManagedOOMMemoryPressure=kill' &&
+    systemctl --user cat app.slice 2>/dev/null |
+    grep -Fq 'ManagedOOMSwap=kill' &&
+    [[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] &&
+    [[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
     pass 'user app.slice is the oomd kill candidate'
   else
     fail 'user app.slice oomd policy missing'
@@ -259,9 +259,9 @@ check_oomd() {
 
 check_ssh_keepalive() {
   local path=/etc/ssh/ssh_config.d/20-aileks-keepalive.conf
-  if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null \
-    && grep -Eq '^[[:space:]]*ServerAliveCountMax[[:space:]]+3$' "$path" 2>/dev/null \
-    && grep -Eq '^[[:space:]]*ConnectTimeout[[:space:]]+10$' "$path" 2>/dev/null; then
+  if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null &&
+    grep -Eq '^[[:space:]]*ServerAliveCountMax[[:space:]]+3$' "$path" 2>/dev/null &&
+    grep -Eq '^[[:space:]]*ConnectTimeout[[:space:]]+10$' "$path" 2>/dev/null; then
     pass 'SSH keepalive defaults configured'
   else
     fail 'SSH keepalive defaults missing'
@@ -273,16 +273,6 @@ check_mise_node() {
     pass 'Node.js managed by mise'
   else
     fail 'mise Node.js runtime unavailable'
-  fi
-}
-
-check_nwg_absent() {
-  local installed
-  installed=$(pacman -Qq 2>/dev/null | grep -E '^nwg-' || true)
-  if [[ -z $installed ]]; then
-    pass 'NWG packages absent'
-  else
-    fail "NWG packages installed: ${installed//$'\n'/, }"
   fi
 }
 
@@ -475,16 +465,19 @@ check_snapper() {
 check_system() {
   local command file package walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
   local walker_theme="${XDG_CONFIG_HOME:-$HOME/.config}/walker/themes/cinder-grove/style.css"
+
   for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire walker elephant mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprshutdown hyprsunset home-backup monitor-watch papers powerprofilesctl snapper tensaku limine-snapper-info zbarimg; do
     check_command "$command"
   done
+
   for package in amd-ucode darkly-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin go gpu-screen-recorder hyprpicker hyprshutdown hyprsunset mise pacman-contrib papers podman podman-compose podman-docker power-profiles-daemon quickshell qt5-wayland qt6ct rtkit socat tensaku-bin ufw walker-bin zbar; do
     check_package "$package"
   done
+
   check_quickshell_version
   check_mitishell_install
   check_mise_node
-  check_nwg_absent
+
   for file in sddm sddm-autologin sddm-greeter hyprlock; do
     if [[ -r /etc/pam.d/$file ]]; then
       pass "/etc/pam.d/$file present"
@@ -492,38 +485,45 @@ check_system() {
       fail "/etc/pam.d/$file missing"
     fi
   done
-  if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm \
-    && grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
+
+  if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm &&
+    grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
     pass 'SDDM PAM and keyring integration valid'
   else
     fail 'SDDM PAM integration invalid'
   fi
-  if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/sddm-autologin \
-    && grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm-autologin; then
+
+  if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/sddm-autologin &&
+    grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm-autologin; then
     pass 'SDDM autologin PAM integration valid'
   else
     fail 'SDDM autologin PAM integration invalid'
   fi
+
   if grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' /etc/pam.d/sddm-greeter; then
     pass 'SDDM greeter PAM integration valid'
   else
     fail 'SDDM greeter PAM integration invalid'
   fi
+
   if [[ -r /etc/sddm.conf.d/10-autologin.conf ]]; then
     pass 'SDDM autologin configured'
   else
     fail 'SDDM autologin config missing'
   fi
-  if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
-    && grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
+
+  if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] &&
+    grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
       /usr/share/wayland-sessions/hyprland-uwsm.desktop; then
     pass 'UWSM session installed'
   else
     fail 'UWSM session missing'
   fi
+
   for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service power-profiles-daemon.service sddm.service systemd-oomd.service systemd-timesyncd.service ufw.service paccache.timer btrfs-scrub@-.timer; do
     check_enabled "$file"
   done
+
   check_masked NetworkManager-wait-online.service
   check_user_enabled podman.socket
   check_user_enabled elephant.service
@@ -532,27 +532,32 @@ check_system() {
   check_user_enabled walker.service
   check_user_enabled hyprsunset.service
   check_user_enabled mitishell.service
+
   if [[ -r $walker_theme ]] && grep -Fq '#E17A3F' "$walker_theme"; then
     pass 'Walker Cinder Grove theme installed'
   else
     fail 'Walker Cinder Grove theme missing'
   fi
+
   if grep -Eq '^[[:space:]]*theme[[:space:]]*=[[:space:]]*"cinder-grove"' \
     "$walker_config" 2>/dev/null; then
     pass 'Walker Cinder Grove theme selected'
   else
     fail 'Walker Cinder Grove theme not selected'
   fi
+
   if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
     pass 'mDNS hostname resolution configured'
   else
     fail 'mDNS hostname resolution missing'
   fi
+
   if [[ $(xdg-mime query default x-scheme-handler/mailto 2>/dev/null) == fastmail.desktop ]]; then
     pass 'Fastmail handles mailto links'
   else
     fail 'Fastmail is not the mailto handler'
   fi
+
   check_papers_defaults
   check_default_keyring
   check_firewall
@@ -571,21 +576,25 @@ check_system() {
 
 check_session() {
   local errors providers restore_lock
+
   if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
     pass 'Hyprland desktop environment exported'
   else
     fail 'XDG_CURRENT_DESKTOP is not Hyprland'
   fi
+
   if systemctl --user is-active --quiet graphical-session.target; then
     pass 'graphical-session.target active'
   else
     fail 'graphical-session.target inactive'
   fi
+
   if systemctl --user cat hyprlock.service >/dev/null 2>&1; then
     pass 'hyprlock.service available'
   else
     fail 'hyprlock.service missing'
   fi
+
   for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
     udiskie.service hyprpaper.service hyprpolkitagent.service \
     pipewire.service pipewire-pulse.service wireplumber.service \
@@ -593,40 +602,47 @@ check_session() {
     walker.service monitor-watch.service; do
     check_user_active "$unit"
   done
+
   providers=$(elephant listproviders 2>/dev/null || true)
-  if grep -qx 'desktopapplications' <<<"$providers" \
-    && grep -qx 'clipboard' <<<"$providers" \
-    && grep -qx 'calc' <<<"$providers" \
-    && grep -qx 'runner' <<<"$providers" \
-    && grep -qx 'symbols' <<<"$providers"; then
+  if grep -qx 'desktopapplications' <<<"$providers" &&
+    grep -qx 'clipboard' <<<"$providers" &&
+    grep -qx 'calc' <<<"$providers" &&
+    grep -qx 'runner' <<<"$providers" &&
+    grep -qx 'symbols' <<<"$providers"; then
     pass 'Elephant launcher providers available'
   else
     fail 'Elephant launcher providers unavailable'
   fi
+
   if [[ -S ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/walker/walker.sock ]]; then
     pass 'Walker IPC socket available'
   else
     fail 'Walker IPC socket unavailable'
   fi
+
   if mitishell ping >/dev/null 2>&1; then
     pass 'Mitishell IPC responds'
   else
     fail 'Mitishell IPC unavailable'
   fi
+
   errors=$(hyprctl configerrors 2>/dev/null || true)
   if [[ -z $errors ]]; then
     pass 'Hyprland config has no errors'
   else
     fail "Hyprland config errors: $errors"
   fi
-  restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null \
-    | awk '$1 == "bool:" {print $2; exit}')
+
+  restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null |
+    awk '$1 == "bool:" {print $2; exit}')
   if [[ $restore_lock == true ]]; then
     pass 'Hyprland session lock restoration enabled'
   else
     fail 'Hyprland session lock restoration disabled'
   fi
+
   check_monitor_state
+
   if wpctl status >/dev/null 2>&1; then
     pass 'PipeWire responds'
   else
