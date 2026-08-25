@@ -31,7 +31,7 @@ readonly -a PACMAN_PACKAGES=(
 )
 
 readonly -a AUR_PACKAGES=(
-  darkly-bin fastmail zen-browser-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin
+  darkly-bin fastmail zen-browser-twilight-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin
   elephant-runner-bin elephant-symbols-bin tensaku-bin
   limine-tool limine-snapper-sync localsend-bin tmux-sessionizer-bin walker-bin zsh-antidote
 )
