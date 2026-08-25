@@ -525,6 +525,12 @@ configure_ssh_keepalive() {
 }
 
 configure_firewall() {
+  local status=""
+  ((DRY_RUN)) || status=$(sudo ufw status 2>/dev/null) || status=""
+  if [[ $status == *53317* ]]; then
+    log "UFW is already configured"
+    return 0
+  fi
   run_sudo ufw default deny incoming || return
   run_sudo ufw default allow outgoing || return
   run_sudo ufw allow 53317/udp comment LocalSend || return
