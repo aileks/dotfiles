@@ -10,6 +10,11 @@ warn_color=""
 out_reset=""
 error_color=""
 err_reset=""
+script_path=$(readlink -f "${BASH_SOURCE[0]}")
+repository_root=$(dirname "$(dirname "$script_path")")
+# setup.sh owns the pinned Mitishell metadata and does not execute when sourced.
+# shellcheck disable=SC1090,SC1091
+source "$repository_root/setup.sh"
 
 if [[ ! -v NO_COLOR && -t 1 ]]; then
 	ok_color=$'\e[32m'
@@ -112,10 +117,90 @@ check_mitishell_install() {
 		fail 'Mitishell program files incomplete'
 	fi
 	if [[ -r $marker ]] &&
-		grep -Fxq 'v0.9.0 262bbb8676bb9935ba82e64394a2602382b32ad6' "$marker"; then
-		pass 'Mitishell v0.9.0 install marker valid'
+		grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"; then
+		pass "Mitishell $MITISHELL_TAG install marker valid"
 	else
-		fail 'Mitishell v0.9.0 install marker missing'
+		fail "Mitishell $MITISHELL_TAG install marker missing"
+	fi
+}
+
+check_failed_units() {
+	local failed
+	failed=$(systemctl --failed --no-legend --plain 2>/dev/null || true)
+	if [[ -z $failed ]]; then
+		pass 'no failed system units'
+	else
+		fail "failed system units: ${failed//$'\n'/; }"
+	fi
+	failed=$(systemctl --user --failed --no-legend --plain 2>/dev/null || true)
+	if [[ -z $failed ]]; then
+		pass 'no failed user units'
+	else
+		fail "failed user units: ${failed//$'\n'/; }"
+	fi
+}
+
+check_package_hygiene() {
+	local leftovers orphans
+	leftovers=$(find /etc -type f \( -name '*.pacnew' -o -name '*.pacsave' \) -print 2>/dev/null || true)
+	[[ -z $leftovers ]] || warn "pacman config leftovers: ${leftovers//$'\n'/, }"
+	orphans=$(pacman -Qdtq 2>/dev/null || true)
+	[[ -z $orphans ]] || warn "orphan packages: ${orphans//$'\n'/, }"
+}
+
+check_backup() {
+	local external="/run/media/${USER:-$(id -un)}/External" latest age_seconds now
+	check_user_enabled home-backup.timer
+	if ! mountpoint -q "$external"; then
+		warn "backup media unavailable: $external"
+		return
+	fi
+	latest="$external/Backups/$(hostnamectl --static)/latest"
+	if [[ ! -e $latest ]]; then
+		warn 'no latest home backup found'
+		return
+	fi
+	now=$(date +%s)
+	age_seconds=$((now - $(stat -c %Y "$latest")))
+	if ((age_seconds > 172800)); then
+		warn 'latest home backup is older than 48 hours'
+	else
+		pass 'latest home backup is fresh'
+	fi
+}
+
+check_monitor_state() {
+	local state="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/monitor-topology.json"
+	if jq -e '
+		type == "object" and
+		(.kind | IN("dual", "main-only", "portrait-only", "unknown-single", "multi-unknown")) and
+		(.outputs | type == "array" and length > 0) and
+		all(.outputs[]; (.connector | type == "string" and length > 0) and
+			(.make | type == "string") and (.model | type == "string") and
+			(.serial | type == "string") and (.selectedMode | type == "string" and length > 0))
+	' "$state" >/dev/null 2>&1; then
+		pass 'generated monitor topology valid'
+	else
+		fail 'generated monitor topology invalid or missing'
+	fi
+}
+
+check_papers_defaults() {
+	local desktop=/usr/share/applications/org.gnome.Papers.desktop mime incorrect=""
+	if [[ ! -r $desktop ]]; then
+		fail 'Papers desktop entry missing'
+		return
+	fi
+	while IFS= read -r mime; do
+		[[ -z $mime ]] && continue
+		if [[ $(xdg-mime query default "$mime" 2>/dev/null) != org.gnome.Papers.desktop ]]; then
+			incorrect+="${incorrect:+, }$mime"
+		fi
+	done < <(sed -n 's/^MimeType=//p' "$desktop" | tr ';' '\n')
+	if [[ -z $incorrect ]]; then
+		pass 'Papers handles its advertised document types'
+	else
+		fail "Papers defaults missing for: $incorrect"
 	fi
 }
 
@@ -390,10 +475,10 @@ check_snapper() {
 check_system() {
 	local command file package walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
 	local walker_theme="${XDG_CONFIG_HOME:-$HOME/.config}/walker/themes/cinder-grove/style.css"
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire walker elephant mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprsunset snapper limine-snapper-info zbarimg; do
+	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire walker elephant mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprshutdown hyprsunset home-backup monitor-watch papers powerprofilesctl snapper tensaku limine-snapper-info zbarimg; do
 		check_command "$command"
 	done
-	for package in amd-ucode darkly-bin elephant-bin elephant-clipboard-bin elephant-desktopapplications-bin go gpu-screen-recorder hyprpicker hyprsunset mise pacman-contrib podman podman-compose podman-docker quickshell qt6ct rtkit ufw walker-bin zbar; do
+	for package in amd-ucode darkly-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin go gpu-screen-recorder hyprpicker hyprshutdown hyprsunset mise pacman-contrib papers podman podman-compose podman-docker power-profiles-daemon quickshell qt5-wayland qt6ct rtkit socat tensaku-bin ufw walker-bin zbar; do
 		check_package "$package"
 	done
 	check_quickshell_version
@@ -436,13 +521,14 @@ check_system() {
 	else
 		fail 'UWSM session missing'
 	fi
-	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service sddm.service systemd-oomd.service systemd-timesyncd.service ufw.service; do
+	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service power-profiles-daemon.service sddm.service systemd-oomd.service systemd-timesyncd.service ufw.service paccache.timer btrfs-scrub@-.timer; do
 		check_enabled "$file"
 	done
 	check_masked NetworkManager-wait-online.service
-	check_enabled "hyprlock-suspend@$(id -u).service"
 	check_user_enabled podman.socket
 	check_user_enabled elephant.service
+	check_user_enabled monitor-setup.service
+	check_user_enabled monitor-watch.service
 	check_user_enabled walker.service
 	check_user_enabled hyprsunset.service
 	check_user_enabled mitishell.service
@@ -467,6 +553,7 @@ check_system() {
 	else
 		fail 'Fastmail is not the mailto handler'
 	fi
+	check_papers_defaults
 	check_default_keyring
 	check_firewall
 	check_oomd
@@ -477,10 +564,13 @@ check_system() {
 	check_nvidia_modeset
 	check_nvidia_fbdev
 	check_nvidia_suspend
+	check_failed_units
+	check_package_hygiene
+	check_backup
 }
 
 check_session() {
-	local errors monitors main_count providers restore_lock side_count
+	local errors providers restore_lock
 	if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]]; then
 		pass 'Hyprland desktop environment exported'
 	else
@@ -500,15 +590,15 @@ check_session() {
 		udiskie.service hyprpaper.service hyprpolkitagent.service \
 		pipewire.service pipewire-pulse.service wireplumber.service \
 		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
-		walker.service \
-		app-blueman@autostart.service \
-		'app-geoclue\x2ddemo\x2dagent@autostart.service' \
-		'app-nm\x2dapplet@autostart.service'; do
+		walker.service monitor-watch.service; do
 		check_user_active "$unit"
 	done
 	providers=$(elephant listproviders 2>/dev/null || true)
 	if grep -qx 'desktopapplications' <<<"$providers" &&
-		grep -qx 'clipboard' <<<"$providers"; then
+		grep -qx 'clipboard' <<<"$providers" &&
+		grep -qx 'calc' <<<"$providers" &&
+		grep -qx 'runner' <<<"$providers" &&
+		grep -qx 'symbols' <<<"$providers"; then
 		pass 'Elephant launcher providers available'
 	else
 		fail 'Elephant launcher providers unavailable'
@@ -536,22 +626,7 @@ check_session() {
 	else
 		fail 'Hyprland session lock restoration disabled'
 	fi
-	if monitors=$(hyprctl -j monitors 2>/dev/null); then
-		main_count=$(jq '[.[] | select(.width == 2560 and .height == 1440 and .x == 1080 and .y == 0 and .refreshRate >= 199)] | length' <<<"$monitors")
-		side_count=$(jq '[.[] | select(.width == 1920 and .height == 1080 and .x == 0 and .y == -240 and .transform == 1 and .refreshRate >= 199)] | length' <<<"$monitors")
-		if ((main_count == 1)); then
-			pass 'main monitor geometry correct'
-		else
-			fail 'main monitor geometry incorrect'
-		fi
-		if ((side_count == 1)); then
-			pass 'portrait monitor geometry correct'
-		else
-			fail 'portrait monitor geometry incorrect'
-		fi
-	else
-		fail 'could not query Hyprland monitors'
-	fi
+	check_monitor_state
 	if wpctl status >/dev/null 2>&1; then
 		pass 'PipeWire responds'
 	else

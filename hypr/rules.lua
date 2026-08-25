@@ -12,8 +12,8 @@ hl.window_rule({
 })
 
 hl.window_rule({
-	name = "satty-float",
-	match = { class = "^(org.satty.satty)$" },
+	name = "tensaku-float",
+	match = { class = "^(dev.tensaku.Tensaku)$" },
 	float = true,
 	center = true,
 })
@@ -21,7 +21,7 @@ hl.window_rule({
 hl.window_rule({
 	name = "settings-float",
 	match = {
-		class = [[^(blueman-manager|nm-connection-editor|org\.gnome\.DiskUtility|org\.pulseaudio\.pavucontrol|qalculate-gtk)$]],
+		class = [[^(org\.gnome\.DiskUtility|qalculate-gtk)$]],
 	},
 	float = true,
 	center = true,

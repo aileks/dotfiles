@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+if [[ ! -f /etc/arch-release ]] && ! command -v pacman >/dev/null 2>&1; then
+  printf 'error: unsupported OS (requires Arch Linux)\n' >&2
+  exit 1
+fi
+
+user_name="${USER:-$(id -un)}"
+backup_label="${BACKUP_LABEL:-External}"
+backup_mount_base="${BACKUP_MOUNT_BASE:-/run/media/$user_name}"
+source_directory="$HOME/"
+external_mount="$backup_mount_base/$backup_label"
+backup_root="$external_mount/Backups/$(hostnamectl --static)"
+snapshots_directory="$backup_root/snapshots"
+latest_link="$backup_root/latest"
+logs_directory="$backup_root/logs"
+timestamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
+new_snapshot="$snapshots_directory/$timestamp"
+excludes="$HOME/.config/rsync-home.excludes"
+runtime_directory="${XDG_RUNTIME_DIR:-/run/user/$UID}"
+
+exec 9>"$runtime_directory/home-backup.lock"
+if ! flock -n 9; then
+  printf 'home-backup is already running\n'
+  exit 0
+fi
+
+if ! mountpoint -q "$external_mount"; then
+  message="Backup mount not available: $external_mount"
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send -t 5000 -u critical -a home-backup -i dialog-error \
+      -h string:desktop-entry:home-backup "Home Backup" "$message"
+  fi
+  printf 'error: %s\n' "$message" >&2
+  exit 1
+fi
+
+notification_id=""
+if command -v notify-send >/dev/null 2>&1; then
+  notification_id=$(notify-send -p -t 5000 -u normal -a home-backup \
+    -i drive-harddisk -h string:desktop-entry:home-backup \
+    "Home Backup" "Backup starting..." 2>/dev/null || true)
+fi
+
+mkdir -p "$new_snapshot" "$logs_directory"
+
+previous_snapshot=""
+if [[ -L $latest_link ]]; then
+  previous_snapshot=$(readlink -f "$latest_link" || true)
+fi
+
+rsync_options=(
+  -aAXH --numeric-ids -x
+  --delete-delay --delete-excluded
+  --partial-dir=.rsync-partial
+  --info=progress2 --itemize-changes
+  --log-file="$logs_directory/$timestamp.log"
+  --exclude-from="$excludes"
+)
+
+if [[ -n $previous_snapshot && -d $previous_snapshot ]]; then
+  rsync_options+=(--link-dest="$previous_snapshot")
+fi
+
+rsync "${rsync_options[@]}" "$source_directory" "$new_snapshot/"
+ln -sfn "$new_snapshot" "$latest_link"
+
+mapfile -t expired_snapshots < <(find "$snapshots_directory" -mindepth 1 -maxdepth 1 \
+  -type d -printf '%T@ %p\n' | sort -rn | tail -n +31 | cut -d' ' -f2-)
+if ((${#expired_snapshots[@]})); then
+  rm -rf -- "${expired_snapshots[@]}"
+fi
+
+if command -v notify-send >/dev/null 2>&1; then
+  notify_args=(-t 5000 -u normal -a home-backup -i drive-harddisk \
+    -h string:desktop-entry:home-backup)
+  [[ -z $notification_id ]] || notify_args+=(-r "$notification_id")
+  notify-send "${notify_args[@]}" "Home Backup" "Backup complete"
+fi

@@ -1,0 +1,12 @@
+[Unit]
+Description=Run home backup
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/bin
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=%t/bus
+ExecStartPre=/usr/bin/mkdir -p %h/.local/state
+ExecStart=%h/.local/bin/home-backup
+StandardOutput=append:%h/.local/state/home-backup.log
+StandardError=append:%h/.local/state/home-backup.log

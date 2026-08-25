@@ -5,9 +5,9 @@ set -uo pipefail
 SCRIPT_DIR=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-readonly MITISHELL_TAG="v0.9.0"
-readonly MITISHELL_COMMIT="262bbb8676bb9935ba82e64394a2602382b32ad6"
-readonly MITISHELL_ARCHIVE_SHA256="a40092f488d3af050d792d939cad1da52f0132849659a3695d347c87a6124230"
+readonly MITISHELL_TAG="v0.9.1"
+readonly MITISHELL_COMMIT="09cb02f41e3c200e6cdaebc87c150801a1280333"
+readonly MITISHELL_ARCHIVE_SHA256="b42f184ee2456d92a4125168bda7b4bac41015796187735541944d8fa2775f99"
 readonly MITISHELL_ARCHIVE_URL="https://github.com/aileks/mitishell/archive/refs/tags/$MITISHELL_TAG.tar.gz"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
@@ -17,21 +17,22 @@ TEMP_DIR=""
 declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
-  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden blueman jq bluez bluez-utils btop cava cups
-  curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fwupd fzf gedit geoclue git
+  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups
+  curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fwupd fzf gedit git
   gnome-disk-utility gnome-keyring go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs
   gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset imv kvantum lazygit less
   libnotify libva-nvidia-driver inotify-tools libva-utils lua linux-firmware man-db mesa-utils mise nautilus neovim networkmanager
-  network-manager-applet nss-mdns nvidia-open nvidia-utils openssh pacman-contrib pavucontrol pipewire papirus-icon-theme playerctl
-  pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit python qt6-wayland qt6ct quickshell ripgrep rsync rtkit
-  satty sddm shellcheck signal-desktop snap-pac snapper slurp starship tmux ufw uv trash-cli adwaita-fonts ttf-adwaitamono-nerd
+  nss-mdns nvidia-open nvidia-utils openssh pacman-contrib papers pipewire papirus-icon-theme playerctl
+  pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit power-profiles-daemon python qt5-wayland qt6-wayland qt6ct quickshell ripgrep rsync rtkit
+  sddm shellcheck signal-desktop snap-pac snapper slurp socat starship tmux ufw uv trash-cli adwaita-fonts ttf-adwaitamono-nerd
   udisks2 udiskie unzip uwsm wev wget wireplumber wl-clipboard jdk21-openjdk xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils
   zbar system-config-printer xdg-desktop-portal-hyprland xdg-user-dirs xorg-xwayland zip zoxide zsh vulkan-tools otf-latin-modern
-  otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration qalculate-gtk
+  otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration hyprshutdown qalculate-gtk
 )
 
 readonly -a AUR_PACKAGES=(
-  darkly-bin fastmail zen-browser-bin elephant-bin elephant-clipboard-bin elephant-desktopapplications-bin
+  darkly-bin fastmail zen-browser-bin elephant-bin elephant-calc-bin elephant-clipboard-bin elephant-desktopapplications-bin
+  elephant-runner-bin elephant-symbols-bin tensaku-bin
   limine-tool limine-snapper-sync localsend-bin tmux-sessionizer-bin walker-bin zsh-antidote
 )
 
@@ -116,8 +117,10 @@ validate_target_system() {
   info "checking target hardware and filesystem layout..."
 
   [[ -d /sys/firmware/efi ]] || die "UEFI boot is required"
-  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null ||
-    die "an Nvidia GPU supported by nvidia-open is required"
+  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo \
+    || die "an AMD CPU is required"
+  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null \
+    || die "an Nvidia GPU supported by nvidia-open is required"
 
   for mountpoint in / /home; do
     read -r filesystem_type filesystem_root < <(
@@ -127,8 +130,8 @@ validate_target_system() {
     [[ $filesystem_root != / ]] || die "$mountpoint must mount a Btrfs subvolume"
   done
 
-  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) ||
-    die "the EFI system partition must be mounted at /boot"
+  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) \
+    || die "the EFI system partition must be mounted at /boot"
   [[ $filesystem_type == vfat ]] || die "/boot must be a FAT EFI system partition"
 }
 
@@ -179,8 +182,8 @@ update_dotfiles_repo() {
     return 0
   fi
   if git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
-    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
-      warn "fast-forward failed; using local checkout"
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" \
+      || warn "fast-forward failed; using local checkout"
   else
     warn "local checkout diverged; leaving it unchanged"
   fi
@@ -214,8 +217,8 @@ resolve_script_dir() {
   else
     clone_dotfiles_repo
   fi
-  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] ||
-    die "dotfiles checkout is incomplete: $DOTFILES_DIR"
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] \
+    || die "dotfiles checkout is incomplete: $DOTFILES_DIR"
   SCRIPT_DIR="$DOTFILES_DIR"
   readonly SCRIPT_DIR
 }
@@ -398,8 +401,8 @@ install_mitishell() {
     return 0
   fi
   curl -fL "$MITISHELL_ARCHIVE_URL" -o "$archive" || return
-  printf '%s  %s\n' "$MITISHELL_ARCHIVE_SHA256" "$archive" |
-    sha256sum --check --status - || {
+  printf '%s  %s\n' "$MITISHELL_ARCHIVE_SHA256" "$archive" \
+    | sha256sum --check --status - || {
     warn "Mitishell archive checksum mismatch"
     return 1
   }
@@ -503,12 +506,12 @@ snapper_config_exists() {
   local config="$1"
   if ((DRY_RUN)); then
     command -v snapper >/dev/null || return 1
-    snapper --csvout --no-headers list-configs 2>/dev/null |
-      cut -d, -f1 | grep -Fxq "$config"
+    snapper --csvout --no-headers list-configs 2>/dev/null \
+      | cut -d, -f1 | grep -Fxq "$config"
     return
   fi
-  sudo snapper --csvout --no-headers list-configs |
-    cut -d, -f1 | grep -Fxq "$config"
+  sudo snapper --csvout --no-headers list-configs \
+    | cut -d, -f1 | grep -Fxq "$config"
 }
 
 ensure_snapper_config() {
@@ -578,13 +581,13 @@ configure_snapper() {
   local path unit
   info "reconciling Snapper and Limine recovery..."
   for path in / /home; do
-    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
-      {
+    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] \
+      || {
         warn "$path must be a Btrfs filesystem for Snapper"
         return 1
       }
-    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
-      {
+    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null \
+      || {
         warn "$path must be a Btrfs subvolume for Snapper"
         return 1
       }
@@ -638,14 +641,14 @@ configure_sddm() {
     warn "another display manager is enabled: $manager"
     return 1
   fi
-  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] ||
-    {
+  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
+    || {
       warn 'Hyprland UWSM session entry is missing'
       return 1
     }
   ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-    /usr/share/wayland-sessions/hyprland-uwsm.desktop ||
-    {
+    /usr/share/wayland-sessions/hyprland-uwsm.desktop \
+    || {
       warn 'Hyprland UWSM session entry is invalid'
       return 1
     }
@@ -662,40 +665,53 @@ Relogin=false
       return 1
     }
   done
-  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" ||
-    {
+  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" \
+    || {
       warn "$pam_dir/sddm does not include system-login"
       return 1
     }
-  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" ||
-    {
+  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" \
+    || {
       warn "$pam_dir/sddm-autologin does not include system-local-login"
       return 1
     }
-  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" ||
-    {
+  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" \
+    || {
       warn "$pam_dir/sddm-greeter cannot authenticate the greeter"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" ||
-    {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" \
+    || {
       warn "$pam_dir/sddm lacks GNOME Keyring integration"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" ||
-    {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" \
+    || {
       warn "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
       return 1
     }
 }
 
-configure_suspend_workaround() {
-  local content unit
+remove_suspend_workaround() {
+  local path=/etc/systemd/system/hyprlock-suspend@.service
+  local unit
   unit="hyprlock-suspend@$(id -u).service"
-  content="$(<"$SCRIPT_DIR/systemd/system/hyprlock-suspend@.service")"$'\n'
-  ensure_root_file /etc/systemd/system/hyprlock-suspend@.service "$content" || return
-  run_sudo systemctl daemon-reload || return
-  run_sudo systemctl enable "$unit"
+  if ((DRY_RUN)); then
+    format_command sudo systemctl disable --now "$unit"
+    format_command sudo rm -f "$path"
+  else
+    if systemctl is-enabled --quiet "$unit" 2>/dev/null || sudo test -e "$path"; then
+      sudo systemctl disable --now "$unit" || return
+    fi
+    if sudo test -e "$path"; then
+      if ! sudo grep -Fq 'Description=Stop hyprlock before suspend' "$path"; then
+        warn "$path is not the dotfiles-managed suspend workaround"
+        return 1
+      fi
+      sudo rm -f "$path" || return
+    fi
+  fi
+  run_sudo systemctl daemon-reload
 }
 
 configure_dotfiles() {
@@ -720,11 +736,12 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
   link_path "$SCRIPT_DIR/walker" "$config_home/walker"
+  link_path "$SCRIPT_DIR/rsync-home.excludes" "$config_home/rsync-home.excludes"
 
   run_cmd mkdir -p "$config_home/systemd/user" || return
   link_path "$SCRIPT_DIR/systemd/user/app.slice.d/10-oomd.conf" \
     "$config_home/systemd/user/app.slice.d/10-oomd.conf"
-  for source in "$SCRIPT_DIR"/systemd/user/*.service; do
+  for source in "$SCRIPT_DIR"/systemd/user/*.service "$SCRIPT_DIR"/systemd/user/*.timer; do
     unit=$(basename "$source")
     link_path "$source" "$config_home/systemd/user/$unit"
   done
@@ -778,8 +795,8 @@ install_gtk_theme() {
   target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
   if [[ -f $state_home/cinder-grove-gtk/installed &&
     -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
-    if [[ -f $installed_css ]] &&
-      { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
+    if [[ -f $installed_css ]] \
+      && { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
       run_cmd mkdir -p "$config_home/gtk-4.0" || return
       run_cmd rm -f "$gtk4_css" || return
       run_cmd cp "$installed_css" "$gtk4_css" || return
@@ -788,23 +805,19 @@ install_gtk_theme() {
       run_cmd ln -s "$target" "$gtk4_css" || return
     fi
   fi
-  run_cmd git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$theme_dir" || return
+  run_cmd git clone https://github.com/aileks/cinder-grove-gtk.git "$theme_dir" || return
   run_cmd "$theme_dir/install.sh"
 }
 
 install_papirus_folders() {
-  local installer_url="https://raw.githubusercontent.com/aileks/papirus-folders/cinder-grove-folders/install.sh"
+  local source="$TEMP_DIR/papirus-folders"
   info "installing Cinder Grove Papirus folders..."
-  if ((DRY_RUN)); then
-    format_command bash -o pipefail -c \
-      "curl -fsSL '$installer_url' | env TAG=cinder-grove-folders sh"
-    return 0
-  fi
-  curl -fsSL "$installer_url" | env TAG=cinder-grove-folders sh
+  run_cmd git clone https://github.com/aileks/papirus-folders.git "$source" || return
+  run_cmd env TAG=cinder-grove-folders sh "$source/install.sh"
 }
 
 configure_default_apps() {
-  local browser terminal editor image_viewer mail_client media_player mime
+  local browser terminal editor image_viewer mail_client media_player papers mime
   ((DRY_RUN)) && return 0
 
   browser=$(desktop_id zen.desktop zen-browser.desktop || true)
@@ -813,6 +826,7 @@ configure_default_apps() {
   image_viewer=$(desktop_id imv.desktop || true)
   mail_client=$(desktop_id fastmail.desktop || true)
   media_player=$(desktop_id io.github.celluloid_player.Celluloid.desktop || true)
+  papers=$(desktop_id org.gnome.Papers.desktop || true)
 
   if [[ -n $browser ]]; then
     xdg-settings set default-web-browser "$browser" || return
@@ -846,18 +860,35 @@ configure_default_apps() {
   else
     warn "Celluloid desktop entry was not found"
   fi
+  if [[ -n $papers ]]; then
+    while IFS= read -r mime; do
+      [[ -z $mime ]] || xdg-mime default "$papers" "$mime" || return
+    done < <(sed -n 's/^MimeType=//p' "/usr/share/applications/$papers" | tr ';' '\n')
+  else
+    warn "Papers desktop entry was not found"
+  fi
 }
 
 install_node_lts() {
   run_cmd mise use --global --yes node@lts
 }
 
+finish_setup() {
+  if ((${#FAILURES[@]})); then
+    warn "Arch Hyprland setup finished with ${#FAILURES[@]} failure(s):"
+    printf '  - %s\n' "${FAILURES[@]}" >&2
+    return 1
+  fi
+  log "Arch Hyprland setup complete"
+  info "Reboot, then SDDM will autologin to Hyprland through UWSM!"
+}
+
 main() {
   local arg status unit
   for arg in "$@"; do
     case "$arg" in
-    --dry-run) DRY_RUN=1 ;;
-    *) die "unknown option: $arg" ;;
+      --dry-run) DRY_RUN=1 ;;
+      *) die "unknown option: $arg" ;;
     esac
   done
   validate_environment
@@ -895,11 +926,13 @@ main() {
   if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
     run_step "add $USER to i2c group" run_sudo usermod -aG i2c "$USER"
   fi
-  run_step "configure suspend lock workaround" configure_suspend_workaround
-
+  run_step "remove obsolete suspend lock workaround" remove_suspend_workaround
   for unit in NetworkManager.service avahi-daemon.service bluetooth.service cups.service \
-    systemd-timesyncd.service; do
+    power-profiles-daemon.service systemd-timesyncd.service; do
     run_step "enable $unit" run_sudo systemctl enable "$unit"
+  done
+  for unit in paccache.timer btrfs-scrub@-.timer; do
+    run_step "enable $unit" run_sudo systemctl enable --now "$unit"
   done
   run_step "mask NetworkManager-wait-online.service" run_sudo systemctl mask \
     NetworkManager-wait-online.service
@@ -918,7 +951,7 @@ main() {
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
   for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
-    monitor-setup.service walker.service \
+    home-backup.timer monitor-setup.service monitor-watch.service walker.service \
     udiskie.service hyprpaper.service \
     hyprpolkitagent.service pipewire-pulse.socket pipewire.socket podman.socket \
     wireplumber.service; do
@@ -940,14 +973,7 @@ main() {
   fi
   run_step "run postflight checks" run_cmd "$HOME/.local/bin/doctor"
 
-  if ((${#FAILURES[@]})); then
-    warn "Arch Hyprland setup finished with ${#FAILURES[@]} failure(s):"
-    printf '  - %s\n' "${FAILURES[@]}" >&2
-  else
-    log "Arch Hyprland setup complete"
-    info "Reboot, then SDDM will autologin to Hyprland through UWSM!"
-  fi
-  return 0
+  finish_setup
 }
 
 if [[ -z ${BASH_SOURCE[0]:-} || ${BASH_SOURCE[0]:-} == "$0" ]]; then

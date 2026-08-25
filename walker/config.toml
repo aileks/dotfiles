@@ -6,6 +6,9 @@ hide_quick_activation = true
 [placeholders]
 default = { input = "Search applications", list = "No applications found" }
 clipboard = { input = "Search clipboard", list = "Clipboard is empty" }
+calc = { input = "Calculate", list = "No result" }
+runner = { input = "Run command", list = "No command found" }
+symbols = { input = "Search symbols and emoji", list = "No symbols found" }
 
 [providers]
 default = ["desktopapplications"]
@@ -15,3 +18,15 @@ max_results = 30
 [[providers.prefixes]]
 prefix = ":"
 provider = "clipboard"
+
+[[providers.prefixes]]
+prefix = "="
+provider = "calc"
+
+[[providers.prefixes]]
+prefix = ">"
+provider = "runner"
+
+[[providers.prefixes]]
+prefix = "."
+provider = "symbols"

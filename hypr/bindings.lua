@@ -17,6 +17,8 @@ bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
 bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop" .. syncobj), "Signal")
 bind("SUPER + M", hl.dsp.exec_cmd(app .. "fastmail" .. syncobj), "Fastmail")
 bind("SUPER + I", hl.dsp.exec_cmd("mitishell settings"), "Desktop settings")
+bind("SUPER + D", hl.dsp.exec_cmd("mitishell control"), "Desktop control center")
+bind("SUPER + semicolon", hl.dsp.exec_cmd("mitishell emoji"), "Emoji picker")
 bind("SUPER + A", hl.dsp.exec_cmd(local_bin .. "desktop-actions"), "Desktop actions")
 bind("SUPER + V", hl.dsp.exec_cmd("walker --provider clipboard"), "Clipboard history")
 bind("SUPER + N", hl.dsp.exec_cmd("mitishell notifications dnd"), "Toggle Do Not Disturb")
@@ -68,7 +70,7 @@ bind("SUPER + mouse:273", hl.dsp.window.resize(), "Resize window with mouse", { 
 
 bind("Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot region"), "Region screenshot")
 bind("CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot window"), "Window screenshot")
-bind("SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot output"), "Full screenshot")
+bind("SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-screenshot output"), "Focused output screenshot")
 bind("SUPER + CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-ocr"), "Extract text from region")
 
 bind("SUPER + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record region"), "Region recording")

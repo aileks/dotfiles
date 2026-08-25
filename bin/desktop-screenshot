@@ -3,13 +3,13 @@
 set -Eeuo pipefail
 
 usage() {
-  printf 'usage: desktop-screenshot <region|window|output> [--copy] [--save]\n' >&2
+  printf 'usage: desktop-screenshot <region|window|output|desktop> [--copy] [--save]\n' >&2
 }
 
 mode=${1:-}
 shift || true
 case "$mode" in
-  region|window|output) ;;
+  region|window|output|desktop) ;;
   *)
     usage
     exit 2
@@ -61,6 +61,14 @@ fi
 
 case "$mode" in
   output)
+    focused_output=$(hyprctl -j monitors | jq -er '.[] | select(.focused) | .name') || {
+      notify-send -u critical -a Screenshot 'Screenshot failed' \
+        'Could not determine the focused output.'
+      exit 1
+    }
+    grim -o "$focused_output" "$file"
+    ;;
+  desktop)
     grim "$file"
     ;;
   region)
@@ -87,17 +95,14 @@ if ((save)); then
   ((copy)) && title='Screenshot saved and copied'
   if [[ $(notify-send -a Screenshot -i "$file" -A annotate=Annotate \
     "$title" "$file") == annotate ]]; then
-    satty \
+    tensaku \
       --filename "$file" \
       --output-filename "$file" \
       --copy-command wl-copy \
-      --app-id org.satty.satty \
+      --app-id dev.tensaku.Tensaku \
       --actions-on-enter save-to-file \
       --actions-on-enter save-to-clipboard \
-      --actions-on-enter exit \
-      --actions-on-right-click save-to-file \
-      --actions-on-right-click save-to-clipboard \
-      --actions-on-right-click exit
+      --actions-on-enter exit
   fi
 else
   notify-send -a Screenshot 'Screenshot copied'

@@ -2,21 +2,33 @@
 
 set -Eeuo pipefail
 
+usage() {
+  printf 'usage: desktop-record [region|output] [none|mic|desktop|desktop+mic] | stop | status\n' >&2
+}
+
 videos_directory=$(xdg-user-dir VIDEOS 2>/dev/null || true)
 directory="${videos_directory:-${XDG_VIDEOS_DIR:-$HOME/Videos}}/Recordings"
-statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.state"
+runtime_directory="${XDG_RUNTIME_DIR:-/run/user/$UID}"
+statefile="$runtime_directory/desktop-record.state"
+lockfile="$runtime_directory/desktop-record.lock"
+recorder="${DESKTOP_RECORD_RECORDER:-gpu-screen-recorder}"
+recorder_process_name="${DESKTOP_RECORD_PROCESS_NAME:-gpu-screen-recorder}"
+stop_signal="${DESKTOP_RECORD_STOP_SIGNAL:-INT}"
 
 recording_is_live() {
-  local current_start_time executable
+  local current_start_time executable process_state
   [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] || return 1
   kill -0 "$pid" 2>/dev/null || return 1
+  process_state=$(awk '{ print $3 }' "/proc/$pid/stat" 2>/dev/null) || return 1
+  [[ $process_state != Z ]] || return 1
   current_start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null) || return 1
   [[ $current_start_time == "$start_time" ]] || return 1
   executable=$(readlink -f "/proc/$pid/exe" 2>/dev/null) || return 1
-  [[ ${executable##*/} == gpu-screen-recorder ]]
+  [[ ${executable##*/} == "$recorder_process_name" ]]
 }
 
 read_state() {
+  unset pid start_time file
   [[ -f $statefile ]] || return 1
   {
     read -r pid
@@ -26,16 +38,17 @@ read_state() {
 }
 
 stop_recording() {
-  # gpu-screen-recorder finalizes the mp4 on SIGINT.
-  kill -INT "$pid"
+  kill -"$stop_signal" "$pid"
   for _ in {1..50}; do
-    kill -0 "$pid" 2>/dev/null || break
+    [[ -r /proc/$pid/stat ]] || break
+    [[ $(awk '{ print $3 }' "/proc/$pid/stat" 2>/dev/null) != Z ]] || break
     sleep 0.1
   done
-  if kill -0 "$pid" 2>/dev/null; then
+  if [[ -r /proc/$pid/stat ]] &&
+    [[ $(awk '{ print $3 }' "/proc/$pid/stat" 2>/dev/null) != Z ]]; then
     notify-send -u critical -a Recording "Recording did not stop" \
       "The recorder is still finalizing. Try again before starting another recording."
-    exit 1
+    return 1
   fi
   rm -f "$statefile"
   if [[ -s $file ]]; then
@@ -43,31 +56,47 @@ stop_recording() {
   else
     notify-send -u critical -a Recording "Recording failed" \
       "No completed recording was written."
-    exit 1
+    return 1
   fi
 }
 
-mode=${1:-output}
-audio=${2:-none}
-case "$mode" in
-  region|output|stop|status) ;;
-  *)
-    printf 'usage: desktop-record [region|output] [none|desktop|desktop+mic] | stop | status\n' >&2
-    exit 2
-    ;;
-esac
-if [[ $mode == region || $mode == output ]]; then
-  case "$audio" in
-    none|desktop|desktop+mic) ;;
-    *)
-      printf 'usage: desktop-record [region|output] [none|desktop|desktop+mic] | stop | status\n' >&2
-      exit 2
-      ;;
+prompt_audio() {
+  local selection
+  selection=$(printf '%s\n' \
+    'No Audio' \
+    'Microphone' \
+    'Desktop Audio' \
+    'Desktop + Microphone' |
+    walker --dmenu --placeholder 'Recording audio') || return 1
+  case "$selection" in
+    'No Audio') printf 'none\n' ;;
+    'Microphone') printf 'mic\n' ;;
+    'Desktop Audio') printf 'desktop\n' ;;
+    'Desktop + Microphone') printf 'desktop+mic\n' ;;
+    *) return 1 ;;
   esac
-elif (($# > 1)); then
-  printf 'usage: desktop-record [region|output] [none|desktop|desktop+mic] | stop | status\n' >&2
-  exit 2
-fi
+}
+
+mode=${1:-output}
+audio=${2:-}
+case "$mode" in
+  region|output)
+    (($# <= 2)) || { usage; exit 2; }
+    if [[ -n $audio ]]; then
+      case "$audio" in
+        none|mic|desktop|desktop+mic) ;;
+        *) usage; exit 2 ;;
+      esac
+    fi
+    ;;
+  stop|status)
+    (($# == 1)) || { usage; exit 2; }
+    ;;
+  *) usage; exit 2 ;;
+esac
+
+exec 9>"$lockfile"
+flock 9
 
 if read_state && recording_is_live; then
   if [[ $mode == status ]]; then
@@ -75,21 +104,30 @@ if read_state && recording_is_live; then
     exit 0
   fi
   stop_recording
-  exit 0
+  exit
 fi
+rm -f "$statefile"
 
 if [[ $mode == status ]]; then
   printf 'not recording\n'
   exit 1
 fi
-
 if [[ $mode == stop ]]; then
-  rm -f "$statefile"
   notify-send -a Recording "No active recording"
   exit 0
 fi
 
-rm -f "$statefile"
+if [[ -z $audio ]]; then
+  flock -u 9
+  audio=$(prompt_audio) || exit 0
+  flock 9
+  if read_state && recording_is_live; then
+    notify-send -a Recording "Recording already started" "$file"
+    exit 0
+  fi
+  rm -f "$statefile"
+fi
+
 mkdir -p "$directory"
 file="$directory/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
@@ -100,38 +138,33 @@ case "$mode" in
         "Could not determine the focused output."
       exit 1
     }
-    args=(-w "$focused_output")
+    video_args=(-w "$focused_output")
     ;;
   region)
     geometry=$(slurp -f '%wx%h+%x+%y') || exit 0
-    args=(-w region -region "$geometry")
+    video_args=(-w region -region "$geometry")
     ;;
-  *) exit 2 ;;
 esac
 
 case "$audio" in
   none) audio_args=() ;;
+  mic) audio_args=(-a default_input) ;;
   desktop) audio_args=(-a default_output) ;;
   desktop+mic) audio_args=(-a 'default_output|default_input') ;;
 esac
 
-gpu-screen-recorder "${args[@]}" -f 60 "${audio_args[@]}" -c mp4 -o "$file" &
+"$recorder" "${video_args[@]}" -f 60 "${audio_args[@]}" -c mp4 -o "$file" 9>&- &
 pid=$!
 sleep 0.2
-if ! kill -0 "$pid" 2>/dev/null; then
+if ! kill -0 "$pid" 2>/dev/null ||
+  ! start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null); then
   wait "$pid" || status=$?
   notify-send -u critical -a Recording "Recording failed to start" \
     "gpu-screen-recorder exited with status ${status:-0}."
   exit 1
 fi
-if ! start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null); then
-  wait "$pid" || status=$?
-  notify-send -u critical -a Recording "Recording failed to start" \
-    "gpu-screen-recorder exited with status ${status:-0}."
-  exit 1
-fi
+
 statefile_tmp="$statefile.tmp.$pid"
 printf '%s\n%s\n%s\n' "$pid" "$start_time" "$file" >"$statefile_tmp"
 mv "$statefile_tmp" "$statefile"
-
 notify-send -a Recording "Recording started" "$file"
