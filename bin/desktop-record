@@ -6,10 +6,6 @@ videos_directory=$(xdg-user-dir VIDEOS 2>/dev/null || true)
 directory="${videos_directory:-${XDG_VIDEOS_DIR:-$HOME/Videos}}/Recordings"
 statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/desktop-record.state"
 
-refresh_waybar() {
-  pkill -RTMIN+10 -x waybar 2>/dev/null || true
-}
-
 recording_is_live() {
   local current_start_time executable
   [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] || return 1
@@ -43,7 +39,6 @@ stop_recording() {
   fi
   rm -f "$statefile"
   if [[ -s $file ]]; then
-    refresh_waybar
     notify-send -a Recording "Recording saved" "$file"
   else
     notify-send -u critical -a Recording "Recording failed" \
@@ -90,7 +85,6 @@ fi
 
 if [[ $mode == stop ]]; then
   rm -f "$statefile"
-  refresh_waybar
   notify-send -a Recording "No active recording"
   exit 0
 fi
@@ -140,5 +134,4 @@ statefile_tmp="$statefile.tmp.$pid"
 printf '%s\n%s\n%s\n' "$pid" "$start_time" "$file" >"$statefile_tmp"
 mv "$statefile_tmp" "$statefile"
 
-refresh_waybar
 notify-send -a Recording "Recording started" "$file"

@@ -1,12 +1,15 @@
 [Unit]
-Description=Manual Night Light
+Description=Mitishell desktop shell
 PartOf=graphical-session.target
 Requires=graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/hyprsunset --temperature 4000
+ExecStart=/usr/bin/quickshell -n -p %h/.local/share/mitishell/shell
 Restart=on-failure
+RestartSec=2
 Slice=session.slice
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,6 +1,6 @@
 # Arch Hyprland dotfiles
 
-Personal Arch desktop built around Hyprland with `uwsm`.
+Personal Arch desktop built around Hyprland, `uwsm`, and [Mitishell](https://github.com/aileks/mitishell)
 
 ![Desktop Showcase](./assets/screenshot.png)
 
@@ -35,12 +35,12 @@ cd ~/.dotfiles
 | Super + `w`                           | Web Browser                       |
 | Super + `e`                           | File Manager                      |
 | Super + `m`                           | Mail application                  |
-| Super + `s`                           | Signal Desktop                    |
-| Super + `i`                           | Desktop settings menu             |
+| Super + `i`                           | Mitishell settings                |
 | Super + `a`                           | Desktop actions                   |
 | Super + `q`                           | Close                             |
 | Super + `f`                           | Fullscreen                        |
 | Super + Shift + Space                 | Float                             |
+| Super + `x`                           | Toggle split direction            |
 | Super + `h`/`j`/`k`/`l`               | Focus window                      |
 | Super + Shift + `h`/`j`/`k`/`l`       | Move window                       |
 | Super + Ctrl + `h`/`j`/`k`/`l`        | Resize window                     |
@@ -49,10 +49,9 @@ cd ~/.dotfiles
 | Super + `,` / `.`                     | Select monitor                    |
 | Super + Shift + `,` / `.`             | Move window to monitor            |
 | Super + `v`                           | Clipboard history                 |
-| Super + `n`                           | Notification center               |
+| Super + `n`                           | Toggle Do Not Disturb             |
 | Super + Ctrl + `n`                    | Toggle Night Light                |
-| Super + Ctrl + `r`                    | Set reminder                      |
-| Super + Shift + `/`                   | Keybind help                      |
+| Super + Ctrl + `r`                    | Open reminders                    |
 | Super + Escape                        | Lock                              |
 | Super + Shift + `p`                   | Power menu                        |
 | Print / Ctrl + Print / Shift + Print  | Region / window / full screenshot |

@@ -1,12 +1,11 @@
 # PATH
-export PATH="$HOME/.local/bin:$HOME.opencode/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$PATH"
 
 # Core environment
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 export MANPAGER='bat --theme="cinder-grove" -plman'
-export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/podman/podman.sock"
 bindkey -e
 
@@ -54,7 +53,6 @@ alias ff="fastfetch"
 alias lg="lazygit"
 alias vim="nvim"
 alias docker="podman"
-alias vim="nvim"
 
 # FZF
 export FZF_CTRL_T_OPTS="
@@ -112,15 +110,12 @@ unset antidote_script
 # Evals
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
+eval "$(mise activate zsh)"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-export PNPM_HOME="/home/aileks/.local/share/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME/bin:"*) ;;
-  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 
 source <(fzf --zsh)

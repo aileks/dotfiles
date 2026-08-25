@@ -5,6 +5,10 @@ set -uo pipefail
 SCRIPT_DIR=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+readonly MITISHELL_TAG="v0.9.0"
+readonly MITISHELL_COMMIT="262bbb8676bb9935ba82e64394a2602382b32ad6"
+readonly MITISHELL_ARCHIVE_SHA256="a40092f488d3af050d792d939cad1da52f0132849659a3695d347c87a6124230"
+readonly MITISHELL_ARCHIVE_URL="https://github.com/aileks/mitishell/archive/refs/tags/$MITISHELL_TAG.tar.gz"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
 
@@ -15,13 +19,13 @@ declare -a FAILURES=()
 readonly -a PACMAN_PACKAGES=(
   7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden blueman jq bluez bluez-utils btop
   cava cups curl ddcutil dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fwupd fzf
-  gedit geoclue git gnome-disk-utility gnome-keyring gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp
+  gedit geoclue git gnome-disk-utility gnome-keyring go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp
   gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset
   imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools libva-utils lua linux-firmware man-db mesa-utils
-  nautilus neovim network-manager-applet networkmanager nss-mdns nvidia-open nvidia-utils nvm openssh pavucontrol pipewire
+  mise nautilus neovim network-manager-applet networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib pavucontrol pipewire
   papirus-icon-theme playerctl pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit python qt6-wayland
-  qt6ct ripgrep rsync rtkit satty sddm shellcheck signal-desktop snap-pac snapper slurp starship swaync swayosd tmux uv
-  trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm waybar wev wget wireplumber wl-clipboard
+  qt6ct quickshell ripgrep rsync rtkit satty sddm shellcheck signal-desktop snap-pac snapper slurp starship tmux ufw uv
+  trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uwsm wev wget wireplumber wl-clipboard
   xdg-desktop-portal xdg-desktop-portal-gtk system-config-printer xdg-desktop-portal-hyprland xdg-user-dirs xdg-utils zbar
   xorg-xwayland zip zoxide zsh vulkan-tools frameworkintegration otf-latin-modern otf-latinmodern-math tesseract celluloid
   tesseract-data-eng
@@ -31,7 +35,7 @@ readonly -a AUR_PACKAGES=(
   darkly-bin fastmail zen-browser-bin
   limine-tool limine-snapper-sync localsend-bin
   tmux-sessionizer-bin vicinae-bin zsh-antidote
-  normcap wlogout
+  normcap
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -299,18 +303,6 @@ link_path() {
   ln -s "$source" "$target" || fail "link $target" "$?"
 }
 
-remove_managed_link() {
-  local source="$1" target="$2"
-  if [[ ! -L $target || $(readlink "$target") != "$source" ]]; then
-    return 0
-  fi
-  if ((DRY_RUN)); then
-    info "remove obsolete link $target"
-    return 0
-  fi
-  rm "$target" || fail "remove obsolete link $target" "$?"
-}
-
 missing_packages() {
   local package
   for package in "$@"; do
@@ -378,6 +370,48 @@ install_aur_packages() {
   "$aur_helper" -S --needed "${missing[@]}" </dev/tty
 }
 
+mitishell_is_current() {
+  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+  local marker="$state_home/dotfiles/mitishell-version"
+  [[ -x $HOME/.local/bin/mitishell ]] || return 1
+  [[ -f $data_home/mitishell/shell/shell.qml ]] || return 1
+  [[ -f $data_home/applications/mitishell.desktop ]] || return 1
+  [[ -r $marker ]] || return 1
+  grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"
+}
+
+install_mitishell() {
+  local archive="$TEMP_DIR/mitishell.tar.gz"
+  local source="$TEMP_DIR/mitishell-${MITISHELL_TAG#v}"
+  local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+  local marker="$state_home/dotfiles/mitishell-version"
+
+  if mitishell_is_current; then
+    log "Mitishell $MITISHELL_TAG is already installed"
+    return 0
+  fi
+  info "installing Mitishell $MITISHELL_TAG..."
+  if ((DRY_RUN)); then
+    format_command curl -fL "$MITISHELL_ARCHIVE_URL" -o "$archive"
+    printf '  verify sha256 %s\n' "$MITISHELL_ARCHIVE_SHA256"
+    format_command tar -xzf "$archive" -C "$TEMP_DIR"
+    format_command make -C "$source" install
+    info "write $marker"
+    return 0
+  fi
+  curl -fL "$MITISHELL_ARCHIVE_URL" -o "$archive" || return
+  printf '%s  %s\n' "$MITISHELL_ARCHIVE_SHA256" "$archive" |
+    sha256sum --check --status - || {
+      warn "Mitishell archive checksum mismatch"
+      return 1
+    }
+  tar -xzf "$archive" -C "$TEMP_DIR" || return
+  make -C "$source" install || return
+  mkdir -p "$(dirname "$marker")" || return
+  printf '%s %s\n' "$MITISHELL_TAG" "$MITISHELL_COMMIT" >"$marker"
+}
+
 configure_mdns() {
   local current path=/etc/nsswitch.conf updated
   current=$(<"$path")
@@ -401,6 +435,71 @@ configure_mdns() {
   }
   backup_root_file "$path" nsswitch.conf || return
   ensure_root_file "$path" "$updated"$'\n'
+}
+
+configure_default_keyring() {
+  local keyring_dir="$HOME/.local/share/keyrings"
+  local keyring_file="$keyring_dir/Default_keyring.keyring"
+  local default_file="$keyring_dir/default"
+  local keyring_content default_content='Default_keyring'
+
+  keyring_content="[keyring]
+display-name=Default keyring
+ctime=$(date +%s)
+mtime=0
+lock-on-idle=false
+lock-after=false
+"
+  if ((DRY_RUN)); then
+    info "provision passwordless default keyring when missing"
+    return 0
+  fi
+  mkdir -p "$keyring_dir" || return
+  if [[ ! -f $keyring_file ]]; then
+    printf '%s' "$keyring_content" >"$keyring_file" || return
+  fi
+  if [[ ! -f $default_file ]] || [[ $(<"$default_file") != "$default_content" ]]; then
+    if [[ -e $default_file || -L $default_file ]]; then
+      backup_target "$default_file" || return
+    fi
+    printf '%s\n' "$default_content" >"$default_file" || return
+  fi
+  chmod 700 "$keyring_dir" || return
+  chmod 600 "$keyring_file" || return
+  chmod 644 "$default_file"
+}
+
+configure_ssh_keepalive() {
+  local path=/etc/ssh/ssh_config.d/20-aileks-keepalive.conf
+  local content='Host *
+  ServerAliveInterval 15
+  ServerAliveCountMax 3
+  ConnectTimeout 10
+'
+  backup_root_file "$path" ssh-keepalive.conf || return
+  ensure_root_file "$path" "$content"
+}
+
+configure_firewall() {
+  run_sudo ufw default deny incoming || return
+  run_sudo ufw default allow outgoing || return
+  run_sudo ufw allow 53317/udp comment LocalSend || return
+  run_sudo ufw allow 53317/tcp comment LocalSend || return
+  run_sudo ufw --force enable || return
+  run_sudo systemctl enable ufw.service
+}
+
+configure_oomd() {
+  local path=/etc/systemd/oomd.conf.d/10-aileks.conf
+  local content='[OOM]
+DefaultMemoryPressureDurationSec=20s
+DefaultMemoryPressureLimit=50%
+SwapUsedLimit=90%
+'
+  backup_root_file "$path" oomd.conf || return
+  ensure_root_file "$path" "$content" || return
+  run_sudo systemctl daemon-reload || return
+  run_sudo systemctl enable systemd-oomd.service
 }
 
 snapper_config_exists() {
@@ -606,6 +705,7 @@ configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   local data_home="${XDG_DATA_HOME:-$HOME/.local/share}" unit source
   info "linking configuration files..."
+
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
@@ -617,43 +717,18 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/wallpaper/fantasy-woods.jpg" "$HOME/.local/share/backgrounds/fantasy-woods.jpg"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
-  link_path "$SCRIPT_DIR/swaync" "$config_home/swaync"
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
-  link_path "$SCRIPT_DIR/waybar" "$config_home/waybar"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  link_path "$SCRIPT_DIR/swayosd" "$config_home/swayosd"
   link_path "$SCRIPT_DIR/vicinae/settings.json" "$config_home/vicinae/settings.json"
   link_path "$SCRIPT_DIR/vicinae/themes/cinder-grove.toml" \
     "$data_home/vicinae/themes/cinder-grove.toml"
-  link_path "$SCRIPT_DIR/bin/desktop-reminder" \
-    "$data_home/vicinae/scripts/desktop-reminder"
-  link_path "$SCRIPT_DIR/wlogout" "$config_home/wlogout"
-
-  remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/nm-applet.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/nm-applet.service" \
-    "$config_home/systemd/user/nm-applet.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-image.service" \
-    "$config_home/systemd/user/cliphist-image.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
-    "$config_home/systemd/user/cliphist-text.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-image.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/cliphist-image.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/cliphist-text.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/cliphist-text.service"
-  remove_managed_link "$SCRIPT_DIR/bin/clipboard-menu" "$HOME/.local/bin/clipboard-menu"
-  remove_managed_link "$SCRIPT_DIR/bin/power-menu" "$HOME/.local/bin/power-menu"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
-    "$config_home/systemd/user/first-login.service"
-  remove_managed_link "$SCRIPT_DIR/systemd/user/first-login.service" \
-    "$config_home/systemd/user/graphical-session.target.wants/first-login.service"
-  remove_managed_link "$SCRIPT_DIR/bin/first-login-check" \
-    "$HOME/.local/bin/first-login-check"
 
   run_cmd mkdir -p "$config_home/systemd/user" || return
+  link_path "$SCRIPT_DIR/systemd/user/app.slice.d/10-oomd.conf" \
+    "$config_home/systemd/user/app.slice.d/10-oomd.conf"
   for source in "$SCRIPT_DIR"/systemd/user/*.service; do
     unit=$(basename "$source")
     link_path "$source" "$config_home/systemd/user/$unit"
@@ -734,13 +809,14 @@ install_papirus_folders() {
 }
 
 configure_default_apps() {
-  local browser terminal editor image_viewer media_player mime
+  local browser terminal editor image_viewer mail_client media_player mime
   ((DRY_RUN)) && return 0
 
   browser=$(desktop_id zen.desktop zen-browser.desktop || true)
   terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
   editor=$(desktop_id org.gnome.gedit.desktop gedit.desktop || true)
   image_viewer=$(desktop_id imv.desktop || true)
+  mail_client=$(desktop_id fastmail.desktop || true)
   media_player=$(desktop_id io.github.celluloid_player.Celluloid.desktop || true)
 
   if [[ -n $browser ]]; then
@@ -750,6 +826,11 @@ configure_default_apps() {
     xdg-mime default "$browser" text/html || return
   else
     warn "Zen Browser desktop entry was not found"
+  fi
+  if [[ -n $mail_client ]]; then
+    xdg-mime default "$mail_client" x-scheme-handler/mailto || return
+  else
+    warn "Fastmail desktop entry was not found"
   fi
   xdg-mime default org.gnome.Nautilus.desktop inode/directory || return
   [[ -z $editor ]] || xdg-mime default "$editor" text/plain || return
@@ -773,28 +854,7 @@ configure_default_apps() {
 }
 
 install_node_lts() {
-  local default_version lts_version
-  export NVM_DIR="$HOME/.nvm"
-  [[ -d $NVM_DIR ]] || run_cmd mkdir -p "$NVM_DIR" || return
-  # shellcheck disable=SC1091
-  source /usr/share/nvm/init-nvm.sh || return
-  lts_version=$(nvm version 'lts/*')
-  if [[ $lts_version != N/A ]]; then
-    log "Node.js LTS is already installed"
-  elif ((DRY_RUN)); then
-    format_command nvm install --lts
-  else
-    nvm install --lts || return
-    lts_version=$(nvm version 'lts/*')
-  fi
-  default_version=$(nvm version default 2>/dev/null || true)
-  if [[ $default_version != "$lts_version" ]]; then
-    if ((DRY_RUN)); then
-      format_command nvm alias default 'lts/*'
-    else
-      nvm alias default 'lts/*'
-    fi
-  fi
+  run_cmd mise use --global --yes node@lts
 }
 
 main() {
@@ -816,18 +876,13 @@ main() {
   resolve_script_dir "${BASH_SOURCE[0]:-}"
   ((DRY_RUN)) || sudo -v || die "sudo authentication failed"
 
-  if systemctl --user is-active --quiet cliphist-image.service ||
-    systemctl --user is-active --quiet cliphist-text.service; then
-    run_step "stop legacy Cliphist services" run_cmd systemctl --user stop \
-      cliphist-image.service cliphist-text.service
-  fi
-  if pacman -Qq cliphist >/dev/null 2>&1; then
-    run_step "remove Cliphist" run_sudo pacman -Rns --noconfirm cliphist
-  fi
-
   run_step "install missing official packages" install_official_packages
   run_step "install missing AUR packages" install_aur_packages
+  run_step "install Mitishell $MITISHELL_TAG" install_mitishell
   run_step "configure mDNS" configure_mdns
+  run_step "configure SSH keepalives" configure_ssh_keepalive
+  run_step "configure UFW" configure_firewall
+  run_step "configure systemd-oomd" configure_oomd
   run_step "configure Snapper and Limine" configure_snapper
 
   info "configure SDDM..."
@@ -837,6 +892,7 @@ main() {
     status=$?
     fail "configure SDDM" "$status"
   fi
+  run_step "configure passwordless default keyring" configure_default_keyring
 
   if ! getent group i2c >/dev/null; then
     run_step "create i2c group" run_sudo groupadd --system i2c
@@ -850,6 +906,8 @@ main() {
     systemd-timesyncd.service; do
     run_step "enable $unit" run_sudo systemctl enable "$unit"
   done
+  run_step "mask NetworkManager-wait-online.service" run_sudo systemctl mask \
+    NetworkManager-wait-online.service
 
   run_step "link configuration files" configure_dotfiles
   run_step "build Bat theme cache" run_cmd bat cache --build
@@ -864,8 +922,8 @@ main() {
   run_step "configure tmux-sessionizer" run_cmd tms config --paths "$HOME/Projects"
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
-  for unit in hypridle.service monitor-setup.service swaync.service \
-    swayosd-server.service udiskie.service waybar.service hyprpaper.service \
+  for unit in hypridle.service hyprsunset.service mitishell.service monitor-setup.service \
+    udiskie.service hyprpaper.service \
     hyprpolkitagent.service pipewire-pulse.socket pipewire.socket podman.socket \
     wireplumber.service; do
     run_step "enable $unit" run_cmd systemctl --user enable "$unit"
@@ -878,7 +936,7 @@ main() {
   run_step "install Cinder Grove Papirus folders" install_papirus_folders
   run_step "configure Papirus folders" run_cmd papirus-folders-cg --color orange --theme Papirus-Dark
   run_step "configure default applications" configure_default_apps
-  run_step "install Node.js LTS when missing" install_node_lts
+  run_step "configure Node.js LTS with mise" install_node_lts
   run_step "reload ddcutil rules" run_sudo udevadm control --reload-rules
   run_step "trigger ddcutil devices" run_sudo udevadm trigger --subsystem-match=i2c-dev
   if ((DRY_RUN)); then

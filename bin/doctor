@@ -65,6 +65,14 @@ check_disabled() {
 	fi
 }
 
+check_masked() {
+	if [[ $(systemctl is-enabled "$1" 2>/dev/null) == masked ]]; then
+		pass "$1 masked"
+	else
+		fail "$1 unmasked"
+	fi
+}
+
 check_user_enabled() {
 	if systemctl --user is-enabled --quiet "$1"; then
 		pass "$1 enabled"
@@ -78,6 +86,118 @@ check_package() {
 		pass "$1 installed"
 	else
 		fail "$1 missing"
+	fi
+}
+
+check_quickshell_version() {
+	local minimum=0.3.0 output version
+	output=$(quickshell --version 2>/dev/null || true)
+	version=$(grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' <<<"$output" | head -n 1)
+	if [[ -n $version && $(printf '%s\n%s\n' "$minimum" "$version" | sort -V | head -n 1) == "$minimum" ]]; then
+		pass "Quickshell $version supported"
+	else
+		fail "Quickshell ${version:-unknown} is older than $minimum"
+	fi
+}
+
+check_mitishell_install() {
+	local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+	local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+	local marker="$state_home/dotfiles/mitishell-version"
+	if [[ -x $HOME/.local/bin/mitishell &&
+		-f $data_home/mitishell/shell/shell.qml &&
+		-f $data_home/applications/mitishell.desktop ]]; then
+		pass 'Mitishell program files installed'
+	else
+		fail 'Mitishell program files incomplete'
+	fi
+	if [[ -r $marker ]] &&
+		grep -Fxq 'v0.9.0 262bbb8676bb9935ba82e64394a2602382b32ad6' "$marker"; then
+		pass 'Mitishell v0.9.0 install marker valid'
+	else
+		fail 'Mitishell v0.9.0 install marker missing'
+	fi
+}
+
+check_default_keyring() {
+	local directory="$HOME/.local/share/keyrings"
+	local keyring="$directory/Default_keyring.keyring"
+	local pointer="$directory/default"
+	if [[ -f $keyring && -f $pointer && $(<"$pointer") == Default_keyring ]]; then
+		pass 'passwordless default keyring provisioned'
+	else
+		fail 'passwordless default keyring missing'
+	fi
+	if [[ $(stat -c %a "$directory" 2>/dev/null) == 700 &&
+		$(stat -c %a "$keyring" 2>/dev/null) == 600 &&
+		$(stat -c %a "$pointer" 2>/dev/null) == 644 ]]; then
+		pass 'default keyring permissions valid'
+	else
+		fail 'default keyring permissions invalid'
+	fi
+}
+
+check_firewall() {
+	if grep -Fxq 'ENABLED=yes' /etc/ufw/ufw.conf 2>/dev/null &&
+		grep -Fxq 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null &&
+		grep -Fxq 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw 2>/dev/null; then
+		pass 'UFW default policy configured'
+	else
+		fail 'UFW default policy invalid'
+	fi
+	if grep -Eq -- '-p udp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null &&
+		grep -Eq -- '-p tcp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null; then
+		pass 'UFW LocalSend rules configured'
+	else
+		fail 'UFW LocalSend rules missing'
+	fi
+}
+
+check_oomd() {
+	check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
+		DefaultMemoryPressureDurationSec 20s 'oomd pressure duration is 20 seconds'
+	check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
+		DefaultMemoryPressureLimit 50% 'oomd pressure limit is 50 percent'
+	check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
+		SwapUsedLimit 90% 'oomd swap limit is 90 percent'
+	if systemctl --user cat app.slice 2>/dev/null |
+		grep -Fq 'ManagedOOMMemoryPressure=kill' &&
+		systemctl --user cat app.slice 2>/dev/null |
+		grep -Fq 'ManagedOOMSwap=kill' &&
+		[[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] &&
+		[[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
+		pass 'user app.slice is the oomd kill candidate'
+	else
+		fail 'user app.slice oomd policy missing'
+	fi
+}
+
+check_ssh_keepalive() {
+	local path=/etc/ssh/ssh_config.d/20-aileks-keepalive.conf
+	if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null &&
+		grep -Eq '^[[:space:]]*ServerAliveCountMax[[:space:]]+3$' "$path" 2>/dev/null &&
+		grep -Eq '^[[:space:]]*ConnectTimeout[[:space:]]+10$' "$path" 2>/dev/null; then
+		pass 'SSH keepalive defaults configured'
+	else
+		fail 'SSH keepalive defaults missing'
+	fi
+}
+
+check_mise_node() {
+	if command -v mise >/dev/null && mise exec -- node --version >/dev/null 2>&1; then
+		pass 'Node.js managed by mise'
+	else
+		fail 'mise Node.js runtime unavailable'
+	fi
+}
+
+check_nwg_absent() {
+	local installed
+	installed=$(pacman -Qq 2>/dev/null | grep -E '^nwg-' || true)
+	if [[ -z $installed ]]; then
+		pass 'NWG packages absent'
+	else
+		fail "NWG packages installed: ${installed//$'\n'/, }"
 	fi
 }
 
@@ -269,12 +389,16 @@ check_snapper() {
 
 check_system() {
 	local command file package theme_file="${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/themes/cinder-grove.toml"
-	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire waybar vicinae swaync-client swayosd-client wlogout hyprlock hypridle hyprpaper hyprpicker hyprsunset nwg-look snapper limine-snapper-info zbarimg; do
+	for command in Hyprland uwsm sddm nvidia-smi NetworkManager pipewire vicinae mitishell quickshell qs go mise hyprlock hypridle hyprpaper hyprpicker hyprsunset snapper limine-snapper-info zbarimg; do
 		check_command "$command"
 	done
-	for package in amd-ucode darkly-bin gpu-screen-recorder hyprpicker hyprsunset podman podman-compose podman-docker qt6ct rtkit vicinae-bin zbar; do
+	for package in amd-ucode darkly-bin go gpu-screen-recorder hyprpicker hyprsunset mise pacman-contrib podman podman-compose podman-docker quickshell qt6ct rtkit ufw vicinae-bin zbar; do
 		check_package "$package"
 	done
+	check_quickshell_version
+	check_mitishell_install
+	check_mise_node
+	check_nwg_absent
 	for file in sddm sddm-autologin sddm-greeter hyprlock; do
 		if [[ -r /etc/pam.d/$file ]]; then
 			pass "/etc/pam.d/$file present"
@@ -311,12 +435,15 @@ check_system() {
 	else
 		fail 'UWSM session missing'
 	fi
-	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service sddm.service systemd-timesyncd.service; do
+	for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service sddm.service systemd-oomd.service systemd-timesyncd.service ufw.service; do
 		check_enabled "$file"
 	done
+	check_masked NetworkManager-wait-online.service
 	check_enabled "hyprlock-suspend@$(id -u).service"
 	check_user_enabled podman.socket
 	check_user_enabled vicinae.service
+	check_user_enabled hyprsunset.service
+	check_user_enabled mitishell.service
 	if [[ -r $theme_file ]] && grep -Fq 'name = "Cinder Grove"' "$theme_file"; then
 		pass 'Vicinae Cinder Grove theme installed'
 	else
@@ -334,6 +461,15 @@ check_system() {
 	else
 		fail 'mDNS hostname resolution missing'
 	fi
+	if [[ $(xdg-mime query default x-scheme-handler/mailto 2>/dev/null) == fastmail.desktop ]]; then
+		pass 'Fastmail handles mailto links'
+	else
+		fail 'Fastmail is not the mailto handler'
+	fi
+	check_default_keyring
+	check_firewall
+	check_oomd
+	check_ssh_keepalive
 	check_snapper
 	check_bat_theme
 	check_qt_theme
@@ -359,12 +495,7 @@ check_session() {
 	else
 		fail 'hyprlock.service missing'
 	fi
-	if systemctl --user cat desktop-nightlight.service >/dev/null 2>&1; then
-		pass 'desktop-nightlight.service available'
-	else
-		fail 'desktop-nightlight.service missing'
-	fi
-	for unit in waybar.service swaync.service hypridle.service swayosd-server.service \
+	for unit in hypridle.service hyprsunset.service mitishell.service \
 		udiskie.service hyprpaper.service hyprpolkitagent.service \
 		pipewire.service pipewire-pulse.service wireplumber.service \
 		xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
@@ -378,6 +509,11 @@ check_session() {
 		pass 'Vicinae server responds'
 	else
 		fail 'Vicinae server unavailable'
+	fi
+	if mitishell ping >/dev/null 2>&1; then
+		pass 'Mitishell IPC responds'
+	else
+		fail 'Mitishell IPC unavailable'
 	fi
 	errors=$(hyprctl configerrors 2>/dev/null || true)
 	if [[ -z $errors ]]; then
@@ -412,11 +548,6 @@ check_session() {
 		pass 'PipeWire responds'
 	else
 		fail 'PipeWire unavailable'
-	fi
-	if busctl --user --list 2>/dev/null | grep -q org.freedesktop.secrets; then
-		pass 'Secret Service available'
-	else
-		warn 'Secret Service has not been activated; first use will request keyring unlock'
 	fi
 }
 

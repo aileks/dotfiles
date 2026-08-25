@@ -6,8 +6,9 @@ printf '%s\n' \
   'Super + Space       Application launcher' \
   'Super + Return      Terminal' \
   'Super + W/E/S/M     Browser / Files / Signal / Fastmail' \
-  'Super + I           Desktop settings' \
+  'Super + I           Mitishell settings' \
   'Super + Q/F/Shift + Space  Close / Fullscreen / Float' \
+  'Super + X           Toggle split direction' \
   'Super + H/J/K/L     Focus window' \
   'Super + Shift + H/J/K/L  Move window' \
   'Super + Ctrl + H/J/K/L  Resize window' \
@@ -15,7 +16,8 @@ printf '%s\n' \
   'Super + Shift + 1..8  Move to workspace' \
   'Super + ,/.         Select monitor' \
   'Super + Shift + ,/. Move to monitor' \
-  'Super + V/N         Clipboard / Notifications' \
+  'Super + V/N         Clipboard / Do Not Disturb' \
+  'Super + Ctrl + N/R  Night Light / Reminder' \
   'Super + Shift + /   Keybind help' \
   'Super + Escape      Lock' \
   'Super + Shift + P   Power menu' \

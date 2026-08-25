@@ -8,13 +8,8 @@ choose() {
   vicinae dmenu --placeholder "$1"
 }
 
-dnd_label='Enable Do Not Disturb'
-if [[ $(swaync-client -D -sw 2>/dev/null || true) == true ]]; then
-  dnd_label='Disable Do Not Disturb'
-fi
-
 nightlight_label='Enable Night Light'
-if "$local_bin"desktop-nightlight status >/dev/null 2>&1; then
+if mitishell night-light status 2>/dev/null | grep -q '^on '; then
   nightlight_label='Disable Night Light'
 fi
 
@@ -24,7 +19,7 @@ if "$local_bin"desktop-record status >/dev/null 2>&1; then
 fi
 
 choice=$(printf '%s\n' \
-  "$dnd_label" \
+  'Toggle Do Not Disturb' \
   "$nightlight_label" \
   'Set Reminder' \
   'View Reminders' \
@@ -37,11 +32,11 @@ choice=$(printf '%s\n' \
   "$recording_actions" | choose 'Desktop action') || exit 0
 
 case "$choice" in
-  *'Do Not Disturb') swaync-client -d -sw ;;
-  *'Night Light') "$local_bin"desktop-nightlight toggle ;;
-  'Set Reminder') "$local_bin"desktop-reminder prompt ;;
-  'View Reminders') "$local_bin"desktop-reminder show ;;
-  'Clear Reminders') "$local_bin"desktop-reminder clear ;;
+  *'Do Not Disturb') mitishell notifications dnd ;;
+  *'Night Light') mitishell night-light toggle ;;
+  'Set Reminder') mitishell reminder ;;
+  'View Reminders') mitishell reminder list ;;
+  'Clear Reminders') mitishell reminder clear ;;
   'Screenshot Region') "$local_bin"desktop-screenshot region ;;
   'Screenshot Window') "$local_bin"desktop-screenshot window ;;
   'Screenshot Output') "$local_bin"desktop-screenshot output ;;

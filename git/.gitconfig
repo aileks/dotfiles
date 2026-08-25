@@ -13,7 +13,7 @@
 [init]
 	defaultBranch = main
 [core]
-	excludesFile = /home/aileks/.gitignore_global
+	excludesFile = ~/.gitignore_global
 [push]
 	autoSetupRemote = true
 [pull]
