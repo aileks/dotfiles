@@ -1,76 +1,76 @@
 local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
 
 hl.config({
-    general = {
-        gaps_in = 5,
-        gaps_out = 10,
-        border_size = 2,
-        col = {
-            active_border = { colors = { "rgba(E17A3Fee)", "rgba(879B5Cee)" }, angle = 45 },
-            inactive_border = "rgba(58534C99)",
-        },
-        resize_on_border = true,
-        extend_border_grab_area = 10,
-        allow_tearing = false,
-        layout = "dwindle",
-    },
-    decoration = {
-        rounding = 9,
-        rounding_power = 2,
-        active_opacity = 1.0,
-        inactive_opacity = 0.96,
-        shadow = {
-            enabled = true,
-            range = 14,
-            render_power = 3,
-            color = 0x99131210,
-        },
-        blur = {
-            enabled = true,
-            size = 7,
-            passes = 2,
-            vibrancy = 0.12,
-        },
-    },
-    animations = {
-        enabled = true,
-    },
-    dwindle = {
-        preserve_split = true,
-        smart_split = false,
-        smart_resizing = true,
-    },
-    input = {
-        kb_file = config_home .. "/hypr/keymap.xkb",
-        numlock_by_default = true,
-        repeat_rate = 50,
-        repeat_delay = 250,
-        follow_mouse = 1,
-        accel_profile = "flat",
-        sensitivity = 0,
-        touchpad = {
-            natural_scroll = true,
-            tap_to_click = true,
-            disable_while_typing = true,
-        },
-    },
-    gestures = {
-        workspace_swipe_distance = 500,
-    },
-    misc = {
-        disable_hyprland_logo = true,
-        disable_splash_rendering = true,
-        focus_on_activate = false,
-        animate_manual_resizes = true,
-        enable_swallow = true,
-        swallow_regex = "^(Alacritty)$",
-        allow_session_lock_restore = true,
-    },
-    binds = {
-        scroll_event_delay = 250,
-        movefocus_cycles_fullscreen = true,
-        window_direction_monitor_fallback = false,
-    },
+	general = {
+		gaps_in = 6,
+		gaps_out = 12,
+		border_size = 2,
+		col = {
+			active_border = { colors = { "rgba(E17A3Fee)", "rgba(879B5Cee)" }, angle = 45 },
+			inactive_border = "rgba(58534C99)",
+		},
+		resize_on_border = true,
+		extend_border_grab_area = 10,
+		allow_tearing = false,
+		layout = "dwindle",
+	},
+	decoration = {
+		rounding = 9,
+		rounding_power = 2,
+		active_opacity = 1.0,
+		inactive_opacity = 0.96,
+		shadow = {
+			enabled = true,
+			range = 14,
+			render_power = 3,
+			color = 0x99131210,
+		},
+		blur = {
+			enabled = true,
+			size = 7,
+			passes = 2,
+			vibrancy = 0.12,
+		},
+	},
+	animations = {
+		enabled = true,
+	},
+	dwindle = {
+		preserve_split = true,
+		smart_split = false,
+		smart_resizing = true,
+	},
+	input = {
+		kb_file = config_home .. "/hypr/keymap.xkb",
+		numlock_by_default = true,
+		repeat_rate = 50,
+		repeat_delay = 250,
+		follow_mouse = 1,
+		accel_profile = "flat",
+		sensitivity = 0,
+		touchpad = {
+			natural_scroll = true,
+			tap_to_click = true,
+			disable_while_typing = true,
+		},
+	},
+	gestures = {
+		workspace_swipe_distance = 500,
+	},
+	misc = {
+		disable_hyprland_logo = true,
+		disable_splash_rendering = true,
+		focus_on_activate = false,
+		animate_manual_resizes = true,
+		enable_swallow = true,
+		swallow_regex = "^(Alacritty)$",
+		allow_session_lock_restore = true,
+	},
+	binds = {
+		scroll_event_delay = 250,
+		movefocus_cycles_fullscreen = true,
+		window_direction_monitor_fallback = false,
+	},
 })
 
 hl.curve("cinder", { type = "bezier", points = { { 0.22, 1 }, { 0.36, 1 } } })
