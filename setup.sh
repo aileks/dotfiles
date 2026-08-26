@@ -5,9 +5,9 @@ set -uo pipefail
 SCRIPT_DIR=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-readonly MITISHELL_TAG="v0.9.1"
-readonly MITISHELL_COMMIT="09cb02f41e3c200e6cdaebc87c150801a1280333"
-readonly MITISHELL_ARCHIVE_SHA256="b42f184ee2456d92a4125168bda7b4bac41015796187735541944d8fa2775f99"
+readonly MITISHELL_TAG="v0.9.2"
+readonly MITISHELL_COMMIT="c5a0eec8578b12e9d9e15557d06c3e92a964a98d"
+readonly MITISHELL_ARCHIVE_SHA256="0d46b8ba635de8683af4b360cacb494badad890343e41cfa8d0ff690c8816461"
 readonly MITISHELL_ARCHIVE_URL="https://github.com/aileks/mitishell/archive/refs/tags/$MITISHELL_TAG.tar.gz"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
