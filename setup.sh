@@ -26,13 +26,14 @@ readonly -a PACMAN_PACKAGES=(
   qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop snap-pac snapper slurp socat
   starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uwsm wev wget wireplumber wl-clipboard jdk21-openjdk
   xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils zbar system-config-printer xdg-desktop-portal-hyprland xdg-user-dirs xorg-xwayland zip
-  zoxide zsh vulkan-tools otf-latin-modern otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration qalculate-gtk
+  zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration qalculate-gtk
 )
 
 readonly -a AUR_PACKAGES=(
   darkly-bin fastmail zen-browser-twilight-bin elephant-bin elephant-calc-bin elephant-clipboard-bin
   elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin tensaku-bin limine-tool
   limine-snapper-sync localsend tmux-sessionizer-bin walker-bin zsh-antidote cliamp-bin
+  voxtype-bin
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -782,6 +783,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
+  link_path "$SCRIPT_DIR/voxtype" "$config_home/voxtype"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
   link_path "$SCRIPT_DIR/walker" "$config_home/walker"
@@ -790,6 +792,8 @@ configure_dotfiles() {
   run_cmd mkdir -p "$config_home/systemd/user" || return
   link_path "$SCRIPT_DIR/systemd/user/app.slice.d/10-oomd.conf" \
     "$config_home/systemd/user/app.slice.d/10-oomd.conf"
+  link_path "$SCRIPT_DIR/systemd/user/voxtype.service.d/10-nvidia.conf" \
+    "$config_home/systemd/user/voxtype.service.d/10-nvidia.conf"
   for source in "$SCRIPT_DIR"/systemd/user/*.service "$SCRIPT_DIR"/systemd/user/*.timer; do
     unit=$(basename "$source")
     link_path "$source" "$config_home/systemd/user/$unit"
@@ -798,6 +802,29 @@ configure_dotfiles() {
   for source in "$SCRIPT_DIR"/bin/*; do
     link_path "$source" "$HOME/.local/bin/$(basename "$source")"
   done
+}
+
+configure_voxtype() {
+  if ((DRY_RUN == 0)) && ! command -v voxtype >/dev/null; then
+    warn 'voxtype is not installed'
+    return 1
+  fi
+
+  # Omarchy's integration downloads the configured model, selects the GPU
+  # backend, and enables the package-owned user service. Whisper uses Vulkan;
+  # the service drop-in pins Vulkan to the discrete Nvidia GPU.
+  run_cmd voxtype setup --download --no-post-install || return
+  run_sudo voxtype setup gpu --enable || return
+  run_cmd systemctl --user daemon-reload || return
+
+  if ((DRY_RUN)); then
+    format_command systemctl --user enable --now voxtype.service
+  elif systemctl --user is-active --quiet graphical-session.target; then
+    systemctl --user enable --now voxtype.service || return
+    systemctl --user restart voxtype.service
+  else
+    systemctl --user enable voxtype.service
+  fi
 }
 
 desktop_id() {
@@ -1027,6 +1054,9 @@ main() {
   if ! id -nG "$USER" | tr ' ' '\n' | grep -qx i2c; then
     run_step "add $USER to i2c group" run_sudo usermod -aG i2c "$USER"
   fi
+  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx input; then
+    run_step "add $USER to input group" run_sudo usermod -aG input "$USER"
+  fi
   run_step "remove obsolete suspend lock workaround" remove_suspend_workaround
   for unit in NetworkManager.service avahi-daemon.service bluetooth.service cups.service \
     power-profiles-daemon.service systemd-timesyncd.service; do
@@ -1039,6 +1069,7 @@ main() {
     NetworkManager-wait-online.service
 
   run_step "link configuration files" configure_dotfiles
+  run_step "configure Voxtype dictation" configure_voxtype
   run_step "build Bat theme cache" run_cmd bat cache --build
   run_step "install Qt color scheme" ensure_root_file \
     /usr/share/qt6ct/colors/cinder-grove.conf \

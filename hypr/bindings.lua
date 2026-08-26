@@ -24,6 +24,7 @@ bind("SUPER + V", hl.dsp.exec_cmd("walker --provider clipboard"), "Clipboard his
 bind("SUPER + N", hl.dsp.exec_cmd("mitishell notifications dnd"), "Toggle Do Not Disturb")
 bind("SUPER + CTRL + N", hl.dsp.exec_cmd("mitishell night-light toggle"), "Toggle Night Light")
 bind("SUPER + CTRL + R", hl.dsp.exec_cmd("mitishell reminder"), "Set reminder")
+bind("SUPER + CTRL + X", hl.dsp.exec_cmd("voxtype record toggle"), "Toggle dictation")
 bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "keybinds-menu"), "Keybind help")
 bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
 bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("mitishell power menu"), "Power menu")
@@ -75,6 +76,9 @@ bind("SUPER + CTRL + Print", hl.dsp.exec_cmd(local_bin .. "desktop-ocr"), "Extra
 
 bind("SUPER + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record region"), "Region recording")
 bind("SUPER + SHIFT + Print", hl.dsp.exec_cmd(local_bin .. "desktop-record output"), "Output recording")
+
+bind("F9", hl.dsp.exec_cmd("voxtype record start"), "Start dictation (push-to-talk)")
+bind("F9", hl.dsp.exec_cmd("voxtype record stop"), "Stop dictation (push-to-talk)", { release = true })
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("mitishell volume up"), "Volume up", media)
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("mitishell volume down"), "Volume down", media)

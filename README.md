@@ -29,3 +29,5 @@ cd ~/.dotfiles
 ## Keybinds
 
 Press `Super + Shift + /` or run `keybinds-menu` to search the live Hyprland bindings and their descriptions.
+
+For voice dictation, hold `F9` while speaking, or press `Super + Ctrl + X` to toggle recording.

@@ -260,6 +260,33 @@ check_bat_theme() {
   fi
 }
 
+check_voxtype() {
+  local binary
+  if ! command -v voxtype >/dev/null; then
+    fail 'Voxtype unavailable'
+    return
+  fi
+
+  binary=$(voxtype info variants 2>/dev/null || true)
+  if grep -Eq 'Active:.*Whisper \(Vulkan\)' <<<"$binary"; then
+    pass 'Voxtype Whisper Vulkan backend active'
+  else
+    fail 'Voxtype Whisper Vulkan backend inactive'
+  fi
+
+  check_user_enabled voxtype.service
+  if command -v wtype >/dev/null; then
+    pass 'Voxtype Wayland typing backend available'
+  else
+    fail 'wtype unavailable'
+  fi
+  if id -nG "$USER" | tr ' ' '\n' | grep -qx input; then
+    pass 'Voxtype modifier-release guard available'
+  else
+    fail 'user is not in the input group'
+  fi
+}
+
 check_qt_theme() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   if grep -Fxq 'export QT_QPA_PLATFORMTHEME=qt6ct' "$config_home/uwsm/env" 2>/dev/null; then
@@ -604,6 +631,7 @@ check_system() {
   check_ssh_keepalive
   check_snapper
   check_bat_theme
+  check_voxtype
   check_qt_theme
   check_appearance
   check_fontconfig
