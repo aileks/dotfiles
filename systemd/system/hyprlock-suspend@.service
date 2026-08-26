@@ -1,0 +1,11 @@
+[Unit]
+Description=Stop hyprlock before suspend for UID %i
+Before=systemd-suspend.service
+
+[Service]
+Type=oneshot
+ExecCondition=/usr/bin/test -S /run/user/%i/bus
+ExecStart=/usr/bin/systemctl --user --machine=%i@ stop hyprlock.service
+
+[Install]
+RequiredBy=systemd-suspend.service

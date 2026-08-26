@@ -741,26 +741,13 @@ Relogin=false
     }
 }
 
-remove_suspend_workaround() {
-  local path=/etc/systemd/system/hyprlock-suspend@.service
-  local unit
+configure_suspend_workaround() {
+  local content unit
   unit="hyprlock-suspend@$(id -u).service"
-  if ((DRY_RUN)); then
-    format_command sudo systemctl disable --now "$unit"
-    format_command sudo rm -f "$path"
-  else
-    if systemctl is-enabled --quiet "$unit" 2>/dev/null || sudo test -e "$path"; then
-      sudo systemctl disable --now "$unit" || return
-    fi
-    if sudo test -e "$path"; then
-      if ! sudo grep -Fq 'Description=Stop hyprlock before suspend' "$path"; then
-        warn "$path is not the dotfiles-managed suspend workaround"
-        return 1
-      fi
-      sudo rm -f "$path" || return
-    fi
-  fi
-  run_sudo systemctl daemon-reload
+  content="$(<"$SCRIPT_DIR/systemd/system/hyprlock-suspend@.service")"$'\n'
+  ensure_root_file /etc/systemd/system/hyprlock-suspend@.service "$content" || return
+  run_sudo systemctl daemon-reload || return
+  run_sudo systemctl enable "$unit"
 }
 
 configure_dotfiles() {
@@ -1057,7 +1044,7 @@ main() {
   if ! id -nG "$USER" | tr ' ' '\n' | grep -qx input; then
     run_step "add $USER to input group" run_sudo usermod -aG input "$USER"
   fi
-  run_step "remove obsolete suspend lock workaround" remove_suspend_workaround
+  run_step "configure suspend lock workaround" configure_suspend_workaround
   for unit in NetworkManager.service avahi-daemon.service bluetooth.service cups.service \
     power-profiles-daemon.service systemd-timesyncd.service; do
     run_step "enable $unit" run_sudo systemctl enable "$unit"

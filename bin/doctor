@@ -591,6 +591,7 @@ check_system() {
   done
 
   check_masked NetworkManager-wait-online.service
+  check_enabled "hyprlock-suspend@$(id -u).service"
   check_user_enabled podman.socket
   check_user_enabled elephant.service
   check_user_enabled monitor-setup.service
