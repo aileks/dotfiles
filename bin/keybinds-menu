@@ -10,9 +10,18 @@ hyprctl -j binds | jq -r '
       if (.modmask / 4 | floor) % 2 == 1 then "Ctrl" else empty end,
       if .modmask % 2 == 1 then "Shift" else empty end
     ];
+  def display_key:
+    {
+      "comma": ",",
+      "period": ".",
+      "semicolon": ";",
+      "slash": "/"
+    }[.] // if test("^[a-z]$") then ascii_upcase
+    elif startswith("mouse:") then sub("^mouse"; "Mouse")
+    else . end;
   map(select(.description != ""))
   | unique_by([.modmask, .key, .description])
   | sort_by(.description)
   | .[]
-  | ((modifiers + [.key]) | join(" + ")) + "\t" + .description
+  | ((modifiers + [(.key | display_key)]) | join(" + ")) + "  " + .description
 ' | walker --dmenu --placeholder 'Search keybinds' >/dev/null || exit 0
