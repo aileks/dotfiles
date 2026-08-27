@@ -5,9 +5,9 @@ set -uo pipefail
 SCRIPT_DIR=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-readonly MITISHELL_TAG="v0.9.4"
-readonly MITISHELL_COMMIT="f426142be080e20f65fe70d34277ee56a17766ce"
-readonly MITISHELL_ARCHIVE_SHA256="a9df32afe4a1a6e8d0894334ce7981422441c6ae5bcf76d1e4d732a091dd9c9e"
+readonly MITISHELL_TAG="v0.9.5"
+readonly MITISHELL_COMMIT="977c93ba99bcde4032242ffde90dacde2cdcde14"
+readonly MITISHELL_ARCHIVE_SHA256="19ff183c62d729f0cf2bde90e55b7050cc55ec9cf90ed6a595db84b996f238e5"
 readonly MITISHELL_ARCHIVE_URL="https://github.com/aileks/mitishell/archive/refs/tags/$MITISHELL_TAG.tar.gz"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
@@ -66,7 +66,7 @@ prompt_step() {
     IFS= read -r answer </dev/tty || answer=""
   fi
   case "${answer:-y}" in
-  [nN]*) info "skipping: $label" && return 0 ;;
+    [nN]*) info "skipping: $label" && return 0 ;;
   esac
   run_step "$label" "$@"
 }
@@ -129,10 +129,10 @@ validate_target_system() {
   info "checking target hardware and filesystem layout..."
 
   [[ -d /sys/firmware/efi ]] || die "UEFI boot is required"
-  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo ||
-    die "an AMD CPU is required"
-  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null ||
-    die "an Nvidia GPU supported by nvidia-open is required"
+  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo \
+    || die "an AMD CPU is required"
+  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null \
+    || die "an Nvidia GPU supported by nvidia-open is required"
 
   for mountpoint in / /home; do
     read -r filesystem_type filesystem_root < <(
@@ -142,8 +142,8 @@ validate_target_system() {
     [[ $filesystem_root != / ]] || die "$mountpoint must mount a Btrfs subvolume"
   done
 
-  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) ||
-    die "the EFI system partition must be mounted at /boot"
+  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) \
+    || die "the EFI system partition must be mounted at /boot"
   [[ $filesystem_type == vfat ]] || die "/boot must be a FAT EFI system partition"
 }
 
@@ -194,8 +194,8 @@ update_dotfiles_repo() {
     return 0
   fi
   if git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
-    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
-      warn "fast-forward failed; using local checkout"
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" \
+      || warn "fast-forward failed; using local checkout"
   else
     warn "local checkout diverged; leaving it unchanged"
   fi
@@ -229,8 +229,8 @@ resolve_script_dir() {
   else
     clone_dotfiles_repo
   fi
-  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] ||
-    die "dotfiles checkout is incomplete: $DOTFILES_DIR"
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] \
+    || die "dotfiles checkout is incomplete: $DOTFILES_DIR"
   SCRIPT_DIR="$DOTFILES_DIR"
   readonly SCRIPT_DIR
 }
@@ -443,8 +443,8 @@ install_mitishell() {
     return 0
   fi
   curl -fL "$MITISHELL_ARCHIVE_URL" -o "$archive" || return
-  printf '%s  %s\n' "$MITISHELL_ARCHIVE_SHA256" "$archive" |
-    sha256sum --check --status - || {
+  printf '%s  %s\n' "$MITISHELL_ARCHIVE_SHA256" "$archive" \
+    | sha256sum --check --status - || {
     warn "Mitishell archive checksum mismatch"
     return 1
   }
@@ -554,12 +554,12 @@ snapper_config_exists() {
   local config="$1"
   if ((DRY_RUN)); then
     command -v snapper >/dev/null || return 1
-    snapper --csvout --no-headers list-configs 2>/dev/null |
-      cut -d, -f1 | grep -Fxq "$config"
+    snapper --csvout --no-headers list-configs 2>/dev/null \
+      | cut -d, -f1 | grep -Fxq "$config"
     return
   fi
-  sudo snapper --csvout --no-headers list-configs |
-    cut -d, -f1 | grep -Fxq "$config"
+  sudo snapper --csvout --no-headers list-configs \
+    | cut -d, -f1 | grep -Fxq "$config"
 }
 
 ensure_snapper_config() {
@@ -629,13 +629,13 @@ configure_snapper() {
   local path unit
   info "reconciling Snapper and Limine recovery..."
   for path in / /home; do
-    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
-      {
+    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] \
+      || {
         warn "$path must be a Btrfs filesystem for Snapper"
         return 1
       }
-    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
-      {
+    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null \
+      || {
         warn "$path must be a Btrfs subvolume for Snapper"
         return 1
       }
@@ -689,14 +689,14 @@ configure_sddm() {
     warn "another display manager is enabled: $manager"
     return 1
   fi
-  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] ||
-    {
+  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
+    || {
       warn 'Hyprland UWSM session entry is missing'
       return 1
     }
   ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-    /usr/share/wayland-sessions/hyprland-uwsm.desktop ||
-    {
+    /usr/share/wayland-sessions/hyprland-uwsm.desktop \
+    || {
       warn 'Hyprland UWSM session entry is invalid'
       return 1
     }
@@ -713,28 +713,28 @@ Relogin=false
       return 1
     }
   done
-  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" ||
-    {
+  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" \
+    || {
       warn "$pam_dir/sddm does not include system-login"
       return 1
     }
-  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" ||
-    {
+  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" \
+    || {
       warn "$pam_dir/sddm-autologin does not include system-local-login"
       return 1
     }
-  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" ||
-    {
+  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" \
+    || {
       warn "$pam_dir/sddm-greeter cannot authenticate the greeter"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" ||
-    {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" \
+    || {
       warn "$pam_dir/sddm lacks GNOME Keyring integration"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" ||
-    {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" \
+    || {
       warn "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
       return 1
     }
@@ -889,8 +889,8 @@ install_gtk_theme() {
   target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
   if [[ -f $state_dir/installed &&
     -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
-    if [[ -f $installed_css ]] &&
-      { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
+    if [[ -f $installed_css ]] \
+      && { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
       run_cmd mkdir -p "$config_home/gtk-4.0" || return
       run_cmd rm -f "$gtk4_css" || return
       run_cmd cp "$installed_css" "$gtk4_css" || return
@@ -1000,8 +1000,8 @@ main() {
   local arg status unit
   for arg in "$@"; do
     case "$arg" in
-    --dry-run) DRY_RUN=1 ;;
-    *) die "unknown option: $arg" ;;
+      --dry-run) DRY_RUN=1 ;;
+      *) die "unknown option: $arg" ;;
     esac
   done
   validate_environment
