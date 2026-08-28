@@ -22,11 +22,12 @@ readonly -a PACMAN_PACKAGES=(
   go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
   hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools
   libva-utils lua linux-firmware man-db mesa-utils mise nautilus neovim networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib
-  noto-fonts noto-fonts-cjk noto-fonts-emoji papers pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse podman podman-compose podman-docker polkit qt5-wayland
-  qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop snap-pac snapper slurp socat
-  starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uwsm wev wget wireplumber wl-clipboard jdk21-openjdk
-  xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils zbar system-config-printer xdg-desktop-portal-hyprland xdg-user-dirs xorg-xwayland zip
-  zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration qalculate-gtk
+  noto-fonts noto-fonts-cjk noto-fonts-emoji papers pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland
+  podman podman-compose podman-docker qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop
+  snap-pac snapper slurp socat starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uwsm wev wget wireplumber
+  wl-clipboard jdk21-openjdk xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils zbar system-config-printer xdg-desktop-portal-hyprland zip
+  xdg-user-dirs xorg-xwayland zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid
+  tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli
 )
 
 readonly -a AUR_PACKAGES=(
