@@ -15,17 +15,17 @@ TEMP_DIR=""
 declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
-  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups curl ddcutil
-  dconf duckdb eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf gedit git gnome-disk-utility gnome-keyring
-  go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
-  hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools
-  libva-utils lua linux-firmware man-db mesa-utils mise nautilus neovim networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib
-  noto-fonts noto-fonts-cjk noto-fonts-emoji papers pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland
-  podman podman-compose podman-docker postgresql-libs qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop
-  snap-pac snapper slurp socat sqlite starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm wev wget wireplumber
-  wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils zbar system-config-printer xdg-desktop-portal-hyprland zip
-  xdg-user-dirs xorg-xwayland zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid
-  tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli
+  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups curl ddcutil dconf duckdb
+  eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf git gnome-disk-utility gnome-keyring go lua
+  gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock
+  hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools libva-utils
+  linux-firmware man-db mesa-utils mise nautilus neovim networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib noto-fonts papers
+  noto-fonts-cjk noto-fonts-emoji pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman podman-compose
+  podman-docker postgresql-libs qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop snap-pac
+  snapper slurp socat sqlite starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm wev wget wireplumber
+  wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils system-config-printer xdg-desktop-portal-hyprland zip xdg-user-dirs xorg-xwayland
+  zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration
+  qalculate-gtk tree-sitter-cli
 )
 
 readonly -a AUR_PACKAGES=(
