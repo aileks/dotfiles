@@ -18,14 +18,14 @@ declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
   7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups curl ddcutil
-  dconf eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fwupd fzf gedit git gnome-disk-utility gnome-keyring
+  dconf duckdb eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf gedit git gnome-disk-utility gnome-keyring
   go gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland
   hyprlock hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools
   libva-utils lua linux-firmware man-db mesa-utils mise nautilus neovim networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib
   noto-fonts noto-fonts-cjk noto-fonts-emoji papers pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland
-  podman podman-compose podman-docker qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop
-  snap-pac snapper slurp socat starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uwsm wev wget wireplumber
-  wl-clipboard jdk21-openjdk xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils zbar system-config-printer xdg-desktop-portal-hyprland zip
+  podman podman-compose podman-docker postgresql-libs qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop
+  snap-pac snapper slurp socat sqlite starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm wev wget wireplumber
+  wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils zbar system-config-printer xdg-desktop-portal-hyprland zip
   xdg-user-dirs xorg-xwayland zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid
   tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli
 )
@@ -775,6 +775,13 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
   link_path "$SCRIPT_DIR/walker" "$config_home/walker"
   link_path "$SCRIPT_DIR/rsync-home.excludes" "$config_home/rsync-home.excludes"
+  link_path "$SCRIPT_DIR/containers/storage.conf" "$config_home/containers/storage.conf"
+
+  run_cmd mkdir -p "$config_home/containers/systemd" || return
+  for source in "$SCRIPT_DIR"/containers/systemd/*.container \
+    "$SCRIPT_DIR"/containers/systemd/*.volume; do
+    link_path "$source" "$config_home/containers/systemd/$(basename "$source")"
+  done
 
   run_cmd mkdir -p "$config_home/systemd/user" || return
   link_path "$SCRIPT_DIR/systemd/user/app.slice.d/10-oomd.conf" \
@@ -987,6 +994,11 @@ install_node_lts() {
   run_cmd mise use --global --yes node@lts
 }
 
+configure_local_postgres() {
+  run_cmd podman pull docker.io/library/postgres:18 || return
+  run_cmd systemctl --user restart postgres-local.service
+}
+
 finish_setup() {
   if ((${#FAILURES[@]})); then
     warn "Arch Hyprland setup finished with ${#FAILURES[@]} failure(s):"
@@ -1069,6 +1081,7 @@ main() {
   run_step "configure tmux-sessionizer" run_cmd tms config --paths "$HOME/Projects" "$HOME/Documents"
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
+  run_step "configure local PostgreSQL" configure_local_postgres
   for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
     home-backup.timer monitor-setup.service monitor-watch.service walker.service \
     udiskie.service hyprpaper.service hyprpolkitagent.service \

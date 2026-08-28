@@ -252,6 +252,71 @@ check_mise_node() {
   fi
 }
 
+check_data_tools() {
+  local command
+  for command in uv duckdb sqlite3 psql fuse-overlayfs; do
+    if command -v "$command" >/dev/null; then
+      pass "$command available"
+    else
+      fail "$command unavailable"
+    fi
+  done
+
+  if command -v uv >/dev/null && uv --version >/dev/null 2>&1; then
+    pass 'uv responds'
+  else
+    fail 'uv does not respond'
+  fi
+  if command -v duckdb >/dev/null \
+    && [[ $(duckdb :memory: -noheader -list -c 'select 1;' 2>/dev/null) == 1 ]]; then
+    pass 'DuckDB query succeeds'
+  else
+    fail 'DuckDB query failed'
+  fi
+  if command -v sqlite3 >/dev/null \
+    && [[ $(sqlite3 :memory: 'select 1;' 2>/dev/null) == 1 ]]; then
+    pass 'SQLite query succeeds'
+  else
+    fail 'SQLite query failed'
+  fi
+}
+
+check_local_postgres() {
+  local health username
+  username=$(id -un)
+
+  if systemctl --user cat postgres-local.service >/dev/null 2>&1; then
+    pass 'postgres-local.service available'
+  else
+    fail 'postgres-local.service missing'
+  fi
+  check_user_active postgres-local.service
+
+  health=$(podman inspect --format '{{.State.Health.Status}}' postgres-local 2>/dev/null || true)
+  if [[ $health == healthy ]]; then
+    pass 'local PostgreSQL container healthy'
+  else
+    fail "local PostgreSQL container ${health:-unavailable}"
+  fi
+  if podman volume exists postgres-local-data; then
+    pass 'local PostgreSQL data volume available'
+  else
+    fail 'local PostgreSQL data volume missing'
+  fi
+  if pg_isready -q -h 127.0.0.1 -p 5432 -U "$username" -d "$username"; then
+    pass 'local PostgreSQL accepts connections'
+  else
+    fail 'local PostgreSQL connection unavailable'
+  fi
+  if [[ -x $HOME/.local/bin/psql-local ]] \
+    && [[ $("$HOME/.local/bin/psql-local" -Atqc \
+      'select current_user = current_database();' 2>/dev/null) == t ]]; then
+    pass 'psql-local uses the desktop identity'
+  else
+    fail 'psql-local connection failed'
+  fi
+}
+
 check_bat_theme() {
   if bat --list-themes 2>/dev/null | grep -Fxq cinder-grove; then
     pass 'Bat cinder-grove theme available'
@@ -551,6 +616,7 @@ check_system() {
   check_quickshell_version
   check_mitishell_install
   check_mise_node
+  check_data_tools
 
   if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm \
     && grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
@@ -593,6 +659,7 @@ check_system() {
   check_masked NetworkManager-wait-online.service
   check_enabled "hyprlock-suspend@$(id -u).service"
   check_user_enabled podman.socket
+  check_local_postgres
   check_user_enabled elephant.service
   check_user_enabled monitor-setup.service
   check_user_enabled monitor-watch.service

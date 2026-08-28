@@ -1,0 +1,25 @@
+[Unit]
+Description=Local PostgreSQL development database
+
+[Container]
+Image=docker.io/library/postgres:18
+ContainerName=postgres-local
+Environment=POSTGRES_DB=%u
+Environment=POSTGRES_HOST_AUTH_METHOD=trust
+Environment=POSTGRES_USER=%u
+PublishPort=127.0.0.1:5432:5432
+Volume=postgres-local.volume:/var/lib/postgresql
+HealthCmd=pg_isready -U %u -d %u
+HealthInterval=5s
+HealthRetries=12
+HealthStartPeriod=10s
+HealthTimeout=5s
+Notify=healthy
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=120
+TimeoutStopSec=60
+
+[Install]
+WantedBy=default.target

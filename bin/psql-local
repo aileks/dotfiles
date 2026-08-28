@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+if ! command -v psql >/dev/null; then
+  printf '[error] PostgreSQL client is unavailable\n' >&2
+  exit 127
+fi
+
+postgres_user=$(id -un)
+readonly postgres_user
+export PGDATABASE="$postgres_user"
+export PGHOST=127.0.0.1
+export PGPORT=5432
+export PGUSER="$postgres_user"
+
+exec psql "$@"
