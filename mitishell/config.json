@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "bar": {
+    "outputs": [
+      "DP-1"
+    ],
+    "height": 36,
+    "marginTop": 6,
+    "marginHorizontal": 5,
+    "systemMetrics": "separate",
+    "layout": {
+      "left": [
+        "workspaces",
+        "windowTitle"
+      ],
+      "center": [
+        "weather",
+        "media",
+        "clock"
+      ],
+      "right": [
+        "system",
+        "updates",
+        "audio",
+        "network",
+        "bluetooth",
+        "notifications",
+        "quickSettings",
+        "tray",
+        "power"
+      ],
+      "hidden": [
+        "keyboardLayout",
+        "status"
+      ]
+    }
+  },
+  "clock": {
+    "format": "24h",
+    "showDate": true,
+    "timezones": null
+  },
+  "calendar": {
+    "showWeekNumbers": false
+  },
+  "weather": {
+    "enabled": true,
+    "units": "auto",
+    "location": ""
+  },
+  "motion": {
+    "enabled": false,
+    "reduced": false
+  }
+}
