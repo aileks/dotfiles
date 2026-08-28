@@ -65,7 +65,7 @@ prompt_step() {
     IFS= read -r answer </dev/tty || answer=""
   fi
   case "${answer:-y}" in
-    [nN]*) info "skipping: $label" && return 0 ;;
+  [nN]*) info "skipping: $label" && return 0 ;;
   esac
   run_step "$label" "$@"
 }
@@ -128,10 +128,10 @@ validate_target_system() {
   info "checking target hardware and filesystem layout..."
 
   [[ -d /sys/firmware/efi ]] || die "UEFI boot is required"
-  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo \
-    || die "an AMD CPU is required"
-  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null \
-    || die "an Nvidia GPU supported by nvidia-open is required"
+  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo ||
+    die "an AMD CPU is required"
+  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null ||
+    die "an Nvidia GPU supported by nvidia-open is required"
 
   for mountpoint in / /home; do
     read -r filesystem_type filesystem_root < <(
@@ -141,8 +141,8 @@ validate_target_system() {
     [[ $filesystem_root != / ]] || die "$mountpoint must mount a Btrfs subvolume"
   done
 
-  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) \
-    || die "the EFI system partition must be mounted at /boot"
+  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) ||
+    die "the EFI system partition must be mounted at /boot"
   [[ $filesystem_type == vfat ]] || die "/boot must be a FAT EFI system partition"
 }
 
@@ -193,8 +193,8 @@ update_dotfiles_repo() {
     return 0
   fi
   if git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
-    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" \
-      || warn "fast-forward failed; using local checkout"
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
+      warn "fast-forward failed; using local checkout"
   else
     warn "local checkout diverged; leaving it unchanged"
   fi
@@ -228,8 +228,8 @@ resolve_script_dir() {
   else
     clone_dotfiles_repo
   fi
-  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] \
-    || die "dotfiles checkout is incomplete: $DOTFILES_DIR"
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] ||
+    die "dotfiles checkout is incomplete: $DOTFILES_DIR"
   SCRIPT_DIR="$DOTFILES_DIR"
   readonly SCRIPT_DIR
 }
@@ -424,8 +424,8 @@ mitishell_is_current() {
 }
 
 mitishell_resolve_latest_tag() {
-  curl -fsSL "https://api.github.com/repos/$MITISHELL_REPO/releases/latest" \
-    | jq -r '.tag_name // empty'
+  curl -fsSL "https://api.github.com/repos/$MITISHELL_REPO/releases/latest" |
+    jq -r '.tag_name // empty'
 }
 
 install_mitishell() {
@@ -572,12 +572,12 @@ snapper_config_exists() {
   local config="$1"
   if ((DRY_RUN)); then
     command -v snapper >/dev/null || return 1
-    snapper --csvout --no-headers list-configs 2>/dev/null \
-      | cut -d, -f1 | grep -Fxq "$config"
+    snapper --csvout --no-headers list-configs 2>/dev/null |
+      cut -d, -f1 | grep -Fxq "$config"
     return
   fi
-  sudo snapper --csvout --no-headers list-configs \
-    | cut -d, -f1 | grep -Fxq "$config"
+  sudo snapper --csvout --no-headers list-configs |
+    cut -d, -f1 | grep -Fxq "$config"
 }
 
 ensure_snapper_config() {
@@ -647,13 +647,13 @@ configure_snapper() {
   local path unit
   info "reconciling Snapper and Limine recovery..."
   for path in / /home; do
-    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] \
-      || {
+    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
+      {
         warn "$path must be a Btrfs filesystem for Snapper"
         return 1
       }
-    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null \
-      || {
+    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
+      {
         warn "$path must be a Btrfs subvolume for Snapper"
         return 1
       }
@@ -707,14 +707,14 @@ configure_sddm() {
     warn "another display manager is enabled: $manager"
     return 1
   fi
-  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
-    || {
+  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] ||
+    {
       warn 'Hyprland UWSM session entry is missing'
       return 1
     }
   ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-    /usr/share/wayland-sessions/hyprland-uwsm.desktop \
-    || {
+    /usr/share/wayland-sessions/hyprland-uwsm.desktop ||
+    {
       warn 'Hyprland UWSM session entry is invalid'
       return 1
     }
@@ -731,28 +731,28 @@ Relogin=false
       return 1
     }
   done
-  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" \
-    || {
+  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" ||
+    {
       warn "$pam_dir/sddm does not include system-login"
       return 1
     }
-  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" \
-    || {
+  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" ||
+    {
       warn "$pam_dir/sddm-autologin does not include system-local-login"
       return 1
     }
-  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" \
-    || {
+  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" ||
+    {
       warn "$pam_dir/sddm-greeter cannot authenticate the greeter"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" \
-    || {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" ||
+    {
       warn "$pam_dir/sddm lacks GNOME Keyring integration"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" \
-    || {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" ||
+    {
       warn "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
       return 1
     }
@@ -784,7 +784,7 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/mitishell" "$config_home/mitishell"
   link_path "$SCRIPT_DIR/nvim" "$config_home/nvim"
   link_path "$SCRIPT_DIR/qt6ct" "$config_home/qt6ct"
-  link_path "$SCRIPT_DIR/fontconfig/fonts.conf" "$config_home/fontconfig/fonts.conf"
+  link_path "$SCRIPT_DIR/fontconfig" "$config_home/fontconfig"
   link_path "$SCRIPT_DIR/zsh/zshrc" "$HOME/.zshrc"
   link_path "$SCRIPT_DIR/tmux" "$config_home/tmux"
   link_path "$SCRIPT_DIR/uwsm" "$config_home/uwsm"
@@ -862,7 +862,7 @@ configure_gsettings() {
   gsettings set "$schema" cursor-theme Adwaita || return
   gsettings set "$schema" cursor-size 24 || return
   gsettings set "$schema" font-name 'Adwaita Sans 11' || return
-  gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Mono 11' || return
+  gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Propo 11' || return
   gsettings set "$schema" font-antialiasing rgba || return
   gsettings set "$schema" font-hinting slight || return
   gsettings set "$schema" font-rgba-order rgb || return
@@ -915,8 +915,8 @@ install_gtk_theme() {
   target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
   if [[ -f $state_dir/installed &&
     -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
-    if [[ -f $installed_css ]] \
-      && { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
+    if [[ -f $installed_css ]] &&
+      { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
       run_cmd mkdir -p "$config_home/gtk-4.0" || return
       run_cmd rm -f "$gtk4_css" || return
       run_cmd cp "$installed_css" "$gtk4_css" || return
@@ -1031,8 +1031,8 @@ main() {
   local arg status unit
   for arg in "$@"; do
     case "$arg" in
-      --dry-run) DRY_RUN=1 ;;
-      *) die "unknown option: $arg" ;;
+    --dry-run) DRY_RUN=1 ;;
+    *) die "unknown option: $arg" ;;
     esac
   done
   validate_environment

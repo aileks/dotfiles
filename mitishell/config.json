@@ -24,9 +24,9 @@
         "audio",
         "network",
         "bluetooth",
+        "tray",
         "notifications",
         "quickSettings",
-        "tray",
         "power"
       ],
       "hidden": [
