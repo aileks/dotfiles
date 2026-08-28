@@ -3,10 +3,10 @@ local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.con
 hl.config({
 	general = {
 		gaps_in = 6,
-		gaps_out = 12,
+		gaps_out = 6,
 		border_size = 2,
 		col = {
-			active_border = { colors = { "rgba(E17A3Fee)", "rgba(879B5Cee)" }, angle = 45 },
+			active_border = "rgba(E17A3Fee)",
 			inactive_border = "rgba(58534C99)",
 		},
 		resize_on_border = true,
@@ -15,10 +15,8 @@ hl.config({
 		layout = "dwindle",
 	},
 	decoration = {
-		rounding = 9,
-		rounding_power = 2,
 		active_opacity = 1.0,
-		inactive_opacity = 0.96,
+		inactive_opacity = 0.95,
 		shadow = {
 			enabled = true,
 			range = 14,
