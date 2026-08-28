@@ -5,10 +5,8 @@ set -uo pipefail
 SCRIPT_DIR=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-readonly MITISHELL_TAG="v1.0.0"
-readonly MITISHELL_COMMIT="2e5407e7a7924d44fd0f883741aa213549e823c3"
-readonly MITISHELL_ARCHIVE_SHA256="6da5fd54605f33765ce9e9e16bc5238fb1d55e94e586804862bef663412c6dce"
-readonly MITISHELL_ARCHIVE_URL="https://github.com/aileks/mitishell/releases/download/$MITISHELL_TAG/mitishell-$MITISHELL_TAG-linux-amd64.tar.gz"
+readonly MITISHELL_REPO="aileks/mitishell"
+readonly MITISHELL_ARCH="amd64"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
 
@@ -67,7 +65,7 @@ prompt_step() {
     IFS= read -r answer </dev/tty || answer=""
   fi
   case "${answer:-y}" in
-  [nN]*) info "skipping: $label" && return 0 ;;
+    [nN]*) info "skipping: $label" && return 0 ;;
   esac
   run_step "$label" "$@"
 }
@@ -130,10 +128,10 @@ validate_target_system() {
   info "checking target hardware and filesystem layout..."
 
   [[ -d /sys/firmware/efi ]] || die "UEFI boot is required"
-  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo ||
-    die "an AMD CPU is required"
-  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null ||
-    die "an Nvidia GPU supported by nvidia-open is required"
+  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo \
+    || die "an AMD CPU is required"
+  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null \
+    || die "an Nvidia GPU supported by nvidia-open is required"
 
   for mountpoint in / /home; do
     read -r filesystem_type filesystem_root < <(
@@ -143,8 +141,8 @@ validate_target_system() {
     [[ $filesystem_root != / ]] || die "$mountpoint must mount a Btrfs subvolume"
   done
 
-  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) ||
-    die "the EFI system partition must be mounted at /boot"
+  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) \
+    || die "the EFI system partition must be mounted at /boot"
   [[ $filesystem_type == vfat ]] || die "/boot must be a FAT EFI system partition"
 }
 
@@ -195,8 +193,8 @@ update_dotfiles_repo() {
     return 0
   fi
   if git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
-    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
-      warn "fast-forward failed; using local checkout"
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" \
+      || warn "fast-forward failed; using local checkout"
   else
     warn "local checkout diverged; leaving it unchanged"
   fi
@@ -230,8 +228,8 @@ resolve_script_dir() {
   else
     clone_dotfiles_repo
   fi
-  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] ||
-    die "dotfiles checkout is incomplete: $DOTFILES_DIR"
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] \
+    || die "dotfiles checkout is incomplete: $DOTFILES_DIR"
   SCRIPT_DIR="$DOTFILES_DIR"
   readonly SCRIPT_DIR
 }
@@ -414,6 +412,7 @@ install_aur_packages() {
 }
 
 mitishell_is_current() {
+  local latest_tag=$1
   local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
   local marker="$state_home/dotfiles/mitishell-version"
@@ -421,38 +420,56 @@ mitishell_is_current() {
   [[ -f $data_home/mitishell/shell/shell.qml ]] || return 1
   [[ -f $data_home/applications/mitishell.desktop ]] || return 1
   [[ -r $marker ]] || return 1
-  grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"
+  grep -Fxq "$latest_tag" "$marker"
+}
+
+mitishell_resolve_latest_tag() {
+  curl -fsSL "https://api.github.com/repos/$MITISHELL_REPO/releases/latest" \
+    | jq -r '.tag_name // empty'
 }
 
 install_mitishell() {
-  local archive="$TEMP_DIR/mitishell.tar.gz"
-  local package="$TEMP_DIR/mitishell-$MITISHELL_TAG-linux-amd64"
   local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
   local marker="$state_home/dotfiles/mitishell-version"
+  local latest_tag base_url archive package
 
-  if mitishell_is_current; then
-    log "Mitishell $MITISHELL_TAG is already installed"
+  info "resolving latest Mitishell release..."
+  latest_tag=$(mitishell_resolve_latest_tag) || {
+    warn "could not resolve latest Mitishell release"
+    return 1
+  }
+  [[ -n $latest_tag ]] || {
+    warn "could not resolve latest Mitishell release"
+    return 1
+  }
+  base_url="https://github.com/$MITISHELL_REPO/releases/download/$latest_tag"
+  archive="mitishell-$latest_tag-linux-$MITISHELL_ARCH.tar.gz"
+  package="mitishell-$latest_tag-linux-$MITISHELL_ARCH"
+
+  if mitishell_is_current "$latest_tag"; then
+    log "Mitishell $latest_tag is already installed"
     return 0
   fi
-  info "installing Mitishell $MITISHELL_TAG..."
+  info "installing Mitishell $latest_tag..."
   if ((DRY_RUN)); then
-    format_command curl -fL "$MITISHELL_ARCHIVE_URL" -o "$archive"
-    printf '  verify sha256 %s\n' "$MITISHELL_ARCHIVE_SHA256"
-    format_command tar -xzf "$archive" -C "$TEMP_DIR"
-    format_command make -C "$package" install-prebuilt
+    format_command curl -fL "$base_url/SHA256SUMS" -o "$TEMP_DIR/SHA256SUMS"
+    format_command curl -fL "$base_url/$archive" -o "$TEMP_DIR/$archive"
+    format_command sha256sum -c SHA256SUMS --ignore-missing
+    format_command tar -xzf "$TEMP_DIR/$archive" -C "$TEMP_DIR"
+    format_command make -C "$TEMP_DIR/$package" install-prebuilt
     info "write $marker"
     return 0
   fi
-  curl -fL "$MITISHELL_ARCHIVE_URL" -o "$archive" || return
-  printf '%s  %s\n' "$MITISHELL_ARCHIVE_SHA256" "$archive" |
-    sha256sum --check --status - || {
+  curl -fL "$base_url/SHA256SUMS" -o "$TEMP_DIR/SHA256SUMS" || return
+  curl -fL "$base_url/$archive" -o "$TEMP_DIR/$archive" || return
+  (cd "$TEMP_DIR" && sha256sum -c SHA256SUMS --ignore-missing --status) || {
     warn "Mitishell archive checksum mismatch"
     return 1
   }
-  tar -xzf "$archive" -C "$TEMP_DIR" || return
-  make -C "$package" install-prebuilt || return
+  tar -xzf "$TEMP_DIR/$archive" -C "$TEMP_DIR" || return
+  make -C "$TEMP_DIR/$package" install-prebuilt || return
   mkdir -p "$(dirname "$marker")" || return
-  printf '%s %s\n' "$MITISHELL_TAG" "$MITISHELL_COMMIT" >"$marker"
+  printf '%s\n' "$latest_tag" >"$marker"
 }
 
 configure_mdns() {
@@ -555,12 +572,12 @@ snapper_config_exists() {
   local config="$1"
   if ((DRY_RUN)); then
     command -v snapper >/dev/null || return 1
-    snapper --csvout --no-headers list-configs 2>/dev/null |
-      cut -d, -f1 | grep -Fxq "$config"
+    snapper --csvout --no-headers list-configs 2>/dev/null \
+      | cut -d, -f1 | grep -Fxq "$config"
     return
   fi
-  sudo snapper --csvout --no-headers list-configs |
-    cut -d, -f1 | grep -Fxq "$config"
+  sudo snapper --csvout --no-headers list-configs \
+    | cut -d, -f1 | grep -Fxq "$config"
 }
 
 ensure_snapper_config() {
@@ -630,13 +647,13 @@ configure_snapper() {
   local path unit
   info "reconciling Snapper and Limine recovery..."
   for path in / /home; do
-    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
-      {
+    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] \
+      || {
         warn "$path must be a Btrfs filesystem for Snapper"
         return 1
       }
-    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
-      {
+    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null \
+      || {
         warn "$path must be a Btrfs subvolume for Snapper"
         return 1
       }
@@ -690,14 +707,14 @@ configure_sddm() {
     warn "another display manager is enabled: $manager"
     return 1
   fi
-  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] ||
-    {
+  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
+    || {
       warn 'Hyprland UWSM session entry is missing'
       return 1
     }
   ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-    /usr/share/wayland-sessions/hyprland-uwsm.desktop ||
-    {
+    /usr/share/wayland-sessions/hyprland-uwsm.desktop \
+    || {
       warn 'Hyprland UWSM session entry is invalid'
       return 1
     }
@@ -714,28 +731,28 @@ Relogin=false
       return 1
     }
   done
-  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" ||
-    {
+  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" \
+    || {
       warn "$pam_dir/sddm does not include system-login"
       return 1
     }
-  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" ||
-    {
+  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" \
+    || {
       warn "$pam_dir/sddm-autologin does not include system-local-login"
       return 1
     }
-  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" ||
-    {
+  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" \
+    || {
       warn "$pam_dir/sddm-greeter cannot authenticate the greeter"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" ||
-    {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" \
+    || {
       warn "$pam_dir/sddm lacks GNOME Keyring integration"
       return 1
     }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" ||
-    {
+  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" \
+    || {
       warn "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
       return 1
     }
@@ -898,8 +915,8 @@ install_gtk_theme() {
   target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
   if [[ -f $state_dir/installed &&
     -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
-    if [[ -f $installed_css ]] &&
-      { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
+    if [[ -f $installed_css ]] \
+      && { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
       run_cmd mkdir -p "$config_home/gtk-4.0" || return
       run_cmd rm -f "$gtk4_css" || return
       run_cmd cp "$installed_css" "$gtk4_css" || return
@@ -1014,8 +1031,8 @@ main() {
   local arg status unit
   for arg in "$@"; do
     case "$arg" in
-    --dry-run) DRY_RUN=1 ;;
-    *) die "unknown option: $arg" ;;
+      --dry-run) DRY_RUN=1 ;;
+      *) die "unknown option: $arg" ;;
     esac
   done
   validate_environment
@@ -1032,7 +1049,7 @@ main() {
   run_step "install missing official packages" install_official_packages
   run_step "install yay" ensure_yay
   run_step "install missing AUR packages" install_aur_packages
-  run_step "install Mitishell $MITISHELL_TAG" install_mitishell
+  run_step "install Mitishell (latest release)" install_mitishell
   run_step "configure mDNS" configure_mdns
   run_step "configure SSH keepalives" configure_ssh_keepalive
   run_step "configure UFW" configure_firewall

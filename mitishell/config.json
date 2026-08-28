@@ -4,7 +4,7 @@
     "outputs": [
       "DP-1"
     ],
-    "height": 36,
+    "height": 34,
     "marginTop": 6,
     "marginHorizontal": 5,
     "systemMetrics": "separate",
@@ -49,7 +49,7 @@
     "location": ""
   },
   "motion": {
-    "enabled": false,
+    "enabled": true,
     "reduced": false
   }
 }

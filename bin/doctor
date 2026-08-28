@@ -10,11 +10,6 @@ warn_color=""
 out_reset=""
 error_color=""
 err_reset=""
-script_path=$(readlink -f "${BASH_SOURCE[0]}")
-repository_root=$(dirname "$(dirname "$script_path")")
-# setup.sh owns the pinned Mitishell metadata and does not execute when sourced.
-# shellcheck disable=SC1090,SC1091
-source "$repository_root/setup.sh"
 
 if [[ ! -v NO_COLOR && -t 1 ]]; then
   ok_color=$'\e[32m'
@@ -100,11 +95,10 @@ check_mitishell_install() {
   else
     fail 'Mitishell program files incomplete'
   fi
-  if [[ -r $marker ]] \
-    && grep -Fxq "$MITISHELL_TAG $MITISHELL_COMMIT" "$marker"; then
-    pass "Mitishell $MITISHELL_TAG install marker valid"
+  if [[ -s $marker ]]; then
+    pass "Mitishell $(<"$marker") install marker valid"
   else
-    fail "Mitishell $MITISHELL_TAG install marker missing"
+    fail 'Mitishell install marker missing'
   fi
 }
 
