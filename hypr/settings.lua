@@ -2,7 +2,7 @@ local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.con
 
 hl.config({
 	general = {
-		gaps_in = 6,
+		gaps_in = 3,
 		gaps_out = 6,
 		border_size = 2,
 		col = {
