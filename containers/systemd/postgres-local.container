@@ -1,6 +1,9 @@
 [Unit]
 Description=Local PostgreSQL development database
 
+[Quadlet]
+DefaultDependencies=false
+
 [Container]
 Image=docker.io/library/postgres:18
 ContainerName=postgres-local
