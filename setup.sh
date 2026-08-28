@@ -5,10 +5,10 @@ set -uo pipefail
 SCRIPT_DIR=""
 readonly DOTFILES_REPO="https://github.com/aileks/dotfiles.git"
 readonly DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-readonly MITISHELL_TAG="v0.9.5"
-readonly MITISHELL_COMMIT="977c93ba99bcde4032242ffde90dacde2cdcde14"
-readonly MITISHELL_ARCHIVE_SHA256="19ff183c62d729f0cf2bde90e55b7050cc55ec9cf90ed6a595db84b996f238e5"
-readonly MITISHELL_ARCHIVE_URL="https://github.com/aileks/mitishell/archive/refs/tags/$MITISHELL_TAG.tar.gz"
+readonly MITISHELL_TAG="v1.0.0"
+readonly MITISHELL_COMMIT="2e5407e7a7924d44fd0f883741aa213549e823c3"
+readonly MITISHELL_ARCHIVE_SHA256="6da5fd54605f33765ce9e9e16bc5238fb1d55e94e586804862bef663412c6dce"
+readonly MITISHELL_ARCHIVE_URL="https://github.com/aileks/mitishell/releases/download/$MITISHELL_TAG/mitishell-$MITISHELL_TAG-linux-amd64.tar.gz"
 BACKUP_DIR="$HOME/.config-backup.$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
 
@@ -426,7 +426,7 @@ mitishell_is_current() {
 
 install_mitishell() {
   local archive="$TEMP_DIR/mitishell.tar.gz"
-  local source="$TEMP_DIR/mitishell-${MITISHELL_TAG#v}"
+  local package="$TEMP_DIR/mitishell-$MITISHELL_TAG-linux-amd64"
   local state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
   local marker="$state_home/dotfiles/mitishell-version"
 
@@ -439,7 +439,7 @@ install_mitishell() {
     format_command curl -fL "$MITISHELL_ARCHIVE_URL" -o "$archive"
     printf '  verify sha256 %s\n' "$MITISHELL_ARCHIVE_SHA256"
     format_command tar -xzf "$archive" -C "$TEMP_DIR"
-    format_command make -C "$source" install
+    format_command make -C "$package" install-prebuilt
     info "write $marker"
     return 0
   fi
@@ -450,7 +450,7 @@ install_mitishell() {
     return 1
   }
   tar -xzf "$archive" -C "$TEMP_DIR" || return
-  make -C "$source" install || return
+  make -C "$package" install-prebuilt || return
   mkdir -p "$(dirname "$marker")" || return
   printf '%s %s\n' "$MITISHELL_TAG" "$MITISHELL_COMMIT" >"$marker"
 }
