@@ -21,7 +21,7 @@ readonly -a PACMAN_PACKAGES=(
   hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools libva-utils
   linux-firmware man-db mesa-utils mise nautilus neovim networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib noto-fonts papers
   noto-fonts-cjk noto-fonts-emoji pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman podman-compose
-  podman-docker postgresql-libs qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit sddm shellcheck signal-desktop snap-pac
+  podman-docker postgresql-libs qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit shellcheck signal-desktop snap-pac
   snapper slurp socat sqlite starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm wev wget wireplumber
   wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils system-config-printer xdg-desktop-portal-hyprland zip xdg-user-dirs xorg-xwayland
   zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration
@@ -698,64 +698,51 @@ SNAPSHOT_FORMAT_CHOICE=8' || return
   ensure_root_file /var/lib/aileks-dotfiles/snapper-v1 $'version=1\n'
 }
 
-configure_sddm() {
-  local autologin file manager="" pam_dir="${PAM_DIR:-/etc/pam.d}"
-  if [[ -L /etc/systemd/system/display-manager.service ]]; then
-    manager=$(readlink -f /etc/systemd/system/display-manager.service)
+configure_autologin() {
+  local dropin
+  if [[ -e /etc/systemd/system/display-manager.service || -L /etc/systemd/system/display-manager.service ]]; then
+    warn 'a display manager is still enabled; disable it so tty1 autologin takes effect'
   fi
-  if [[ -n $manager && $manager != */sddm.service ]]; then
-    warn "another display manager is enabled: $manager"
-    return 1
-  fi
-  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
+  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland.desktop ]] \
     || {
-      warn 'Hyprland UWSM session entry is missing'
+      warn 'Hyprland session entry is missing'
       return 1
     }
-  ((DRY_RUN)) || grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-    /usr/share/wayland-sessions/hyprland-uwsm.desktop \
+  ((DRY_RUN)) || grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/login \
     || {
-      warn 'Hyprland UWSM session entry is invalid'
+      warn '/etc/pam.d/login does not include system-local-login'
       return 1
     }
-  autologin="[Autologin]
-User=$USER
-Session=hyprland-uwsm.desktop
-Relogin=false
+  dropin="[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --noreset --noclear --autologin $USER - \${TERM}
+Type=simple
 "
-  ensure_root_file /etc/sddm.conf.d/10-autologin.conf "$autologin" || return
+  ensure_root_file /etc/systemd/system/getty@tty1.service.d/autologin.conf "$dropin" || return
   ((DRY_RUN)) && return 0
-  for file in sddm sddm-autologin sddm-greeter hyprlock; do
-    [[ -r $pam_dir/$file ]] || {
-      warn "missing SDDM PAM file: $pam_dir/$file"
-      return 1
-    }
-  done
-  grep -Eq 'include[[:space:]]+system-login' "$pam_dir/sddm" \
-    || {
-      warn "$pam_dir/sddm does not include system-login"
-      return 1
-    }
-  grep -Eq 'include[[:space:]]+system-local-login' "$pam_dir/sddm-autologin" \
-    || {
-      warn "$pam_dir/sddm-autologin does not include system-local-login"
-      return 1
-    }
-  grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' "$pam_dir/sddm-greeter" \
-    || {
-      warn "$pam_dir/sddm-greeter cannot authenticate the greeter"
-      return 1
-    }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm" \
-    || {
-      warn "$pam_dir/sddm lacks GNOME Keyring integration"
-      return 1
-    }
-  grep -q 'pam_gnome_keyring[.]so' "$pam_dir/sddm-autologin" \
-    || {
-      warn "$pam_dir/sddm-autologin lacks GNOME Keyring startup"
-      return 1
-    }
+  run_sudo systemctl daemon-reload || return
+  if [[ $(systemctl get-default) != graphical.target ]]; then
+    run_sudo systemctl set-default graphical.target || return
+  fi
+}
+
+configure_uwsm_autostart() {
+  local profile="$HOME/.zprofile"
+  local block='if uwsm check may-start; then
+  exec uwsm start hyprland.desktop
+fi
+'
+  if [[ -f $profile ]] && grep -q 'uwsm check may-start' "$profile"; then
+    return 0
+  fi
+  if ((DRY_RUN)); then
+    info "write UWSM autostart block to $profile"
+    return 0
+  fi
+  if [[ -s $profile && -n $(tail -c 1 "$profile") ]]; then
+    printf '\n' >>"$profile"
+  fi
+  printf '%s' "$block" >>"$profile"
 }
 
 configure_suspend_workaround() {
@@ -1024,11 +1011,11 @@ finish_setup() {
     return 1
   fi
   log "Arch Hyprland setup complete"
-  info "Reboot, then SDDM will autologin to Hyprland through UWSM!"
+  info "Reboot to apply changes."
 }
 
 main() {
-  local arg status unit
+  local arg unit
   for arg in "$@"; do
     case "$arg" in
       --dry-run) DRY_RUN=1 ;;
@@ -1056,13 +1043,8 @@ main() {
   run_step "configure systemd-oomd" configure_oomd
   run_step "configure Snapper and Limine" configure_snapper
 
-  info "configure SDDM..."
-  if configure_sddm; then
-    run_step "enable sddm.service" run_sudo systemctl enable sddm.service
-  else
-    status=$?
-    fail "configure SDDM" "$status"
-  fi
+  run_step "configure tty1 autologin" configure_autologin
+  run_step "configure UWSM autostart in zprofile" configure_uwsm_autostart
   run_step "configure passwordless default keyring" configure_default_keyring
 
   if ! getent group i2c >/dev/null; then

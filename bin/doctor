@@ -37,7 +37,7 @@ error() { printf '%s[error]%s %s\n' "$error_color" "$err_reset" "$*" >&2; }
 if [[ ${XDG_CURRENT_DESKTOP:-} == *Hyprland* ]] && command -v hyprctl >/dev/null; then
   desktop_active=1
 fi
-if ((desktop_active)) || systemctl is-active --quiet sddm.service; then
+if ((desktop_active)) || systemctl --user is-active --quiet wayland-wm@hyprland.desktop.service; then
   booted_graphics=1
 fi
 
@@ -193,15 +193,15 @@ check_default_keyring() {
 }
 
 check_firewall() {
-  if grep -Fxq 'ENABLED=yes' /etc/ufw/ufw.conf 2>/dev/null \
-    && grep -Fxq 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null \
-    && grep -Fxq 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw 2>/dev/null; then
+  if grep -Fxq 'ENABLED=yes' /etc/ufw/ufw.conf 2>/dev/null &&
+    grep -Fxq 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null &&
+    grep -Fxq 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw 2>/dev/null; then
     pass 'UFW default policy configured'
   else
     fail 'UFW default policy invalid'
   fi
-  if grep -Eq -- '-p udp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null \
-    && grep -Eq -- '-p tcp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null; then
+  if grep -Eq -- '-p udp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null &&
+    grep -Eq -- '-p tcp .*--dport 53317 .*ACCEPT' /etc/ufw/user.rules 2>/dev/null; then
     pass 'UFW LocalSend rules configured'
   else
     fail 'UFW LocalSend rules missing'
@@ -215,12 +215,12 @@ check_oomd() {
     DefaultMemoryPressureLimit 50% 'oomd pressure limit is 50 percent'
   check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
     SwapUsedLimit 90% 'oomd swap limit is 90 percent'
-  if systemctl --user cat app.slice 2>/dev/null \
-    | grep -Fq 'ManagedOOMMemoryPressure=kill' \
-    && systemctl --user cat app.slice 2>/dev/null \
-    | grep -Fq 'ManagedOOMSwap=kill' \
-    && [[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] \
-    && [[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
+  if systemctl --user cat app.slice 2>/dev/null |
+    grep -Fq 'ManagedOOMMemoryPressure=kill' &&
+    systemctl --user cat app.slice 2>/dev/null |
+    grep -Fq 'ManagedOOMSwap=kill' &&
+    [[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] &&
+    [[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
     pass 'user app.slice is the oomd kill candidate'
   else
     fail 'user app.slice oomd policy missing'
@@ -229,9 +229,9 @@ check_oomd() {
 
 check_ssh_keepalive() {
   local path=/etc/ssh/ssh_config.d/20-aileks-keepalive.conf
-  if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null \
-    && grep -Eq '^[[:space:]]*ServerAliveCountMax[[:space:]]+3$' "$path" 2>/dev/null \
-    && grep -Eq '^[[:space:]]*ConnectTimeout[[:space:]]+10$' "$path" 2>/dev/null; then
+  if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null &&
+    grep -Eq '^[[:space:]]*ServerAliveCountMax[[:space:]]+3$' "$path" 2>/dev/null &&
+    grep -Eq '^[[:space:]]*ConnectTimeout[[:space:]]+10$' "$path" 2>/dev/null; then
     pass 'SSH keepalive defaults configured'
   else
     fail 'SSH keepalive defaults missing'
@@ -261,14 +261,14 @@ check_data_tools() {
   else
     fail 'uv does not respond'
   fi
-  if command -v duckdb >/dev/null \
-    && [[ $(duckdb :memory: -noheader -list -c 'select 1;' 2>/dev/null) == 1 ]]; then
+  if command -v duckdb >/dev/null &&
+    [[ $(duckdb :memory: -noheader -list -c 'select 1;' 2>/dev/null) == 1 ]]; then
     pass 'DuckDB query succeeds'
   else
     fail 'DuckDB query failed'
   fi
-  if command -v sqlite3 >/dev/null \
-    && [[ $(sqlite3 :memory: 'select 1;' 2>/dev/null) == 1 ]]; then
+  if command -v sqlite3 >/dev/null &&
+    [[ $(sqlite3 :memory: 'select 1;' 2>/dev/null) == 1 ]]; then
     pass 'SQLite query succeeds'
   else
     fail 'SQLite query failed'
@@ -302,8 +302,8 @@ check_local_postgres() {
   else
     fail 'local PostgreSQL connection unavailable'
   fi
-  if [[ -x $HOME/.local/bin/psql-local ]] \
-    && [[ $("$HOME/.local/bin/psql-local" -Atqc \
+  if [[ -x $HOME/.local/bin/psql-local ]] &&
+    [[ $("$HOME/.local/bin/psql-local" -Atqc \
       'select current_user = current_database();' 2>/dev/null) == t ]]; then
     pass 'psql-local uses the desktop identity'
   else
@@ -392,11 +392,11 @@ check_appearance() {
   pass 'global GTK appearance configured'
 
   if [[ -f $config_home/gtk-3.0/settings.ini && ! -L $config_home/gtk-3.0/settings.ini &&
-    -f $config_home/gtk-4.0/settings.ini && ! -L $config_home/gtk-4.0/settings.ini ]] \
-    && grep -Fxq 'gtk-theme-name=Cinder-Grove-Dark' "$config_home/gtk-3.0/settings.ini" \
-    && grep -Fxq 'gtk-theme-name=Cinder-Grove-Dark' "$config_home/gtk-4.0/settings.ini" \
-    && grep -Fxq 'gtk-icon-theme-name=Papirus-Dark' "$config_home/gtk-3.0/settings.ini" \
-    && grep -Fxq 'gtk-icon-theme-name=Papirus-Dark' "$config_home/gtk-4.0/settings.ini"; then
+    -f $config_home/gtk-4.0/settings.ini && ! -L $config_home/gtk-4.0/settings.ini ]] &&
+    grep -Fxq 'gtk-theme-name=Cinder-Grove-Dark' "$config_home/gtk-3.0/settings.ini" &&
+    grep -Fxq 'gtk-theme-name=Cinder-Grove-Dark' "$config_home/gtk-4.0/settings.ini" &&
+    grep -Fxq 'gtk-icon-theme-name=Papirus-Dark' "$config_home/gtk-3.0/settings.ini" &&
+    grep -Fxq 'gtk-icon-theme-name=Papirus-Dark' "$config_home/gtk-4.0/settings.ini"; then
     pass 'GTK 3 and GTK 4 settings installed'
   else
     fail 'GTK 3 or GTK 4 settings missing'
@@ -409,8 +409,8 @@ check_appearance() {
     fail 'Cinder Grove GTK theme incomplete'
   fi
 
-  if command -v papirus-folders-cg >/dev/null 2>&1 \
-    && papirus-folders-cg --list --theme Papirus-Dark 2>/dev/null | grep -Eq '^ *> grove$'; then
+  if command -v papirus-folders-cg >/dev/null 2>&1 &&
+    papirus-folders-cg --list --theme Papirus-Dark 2>/dev/null | grep -Eq '^ *> grove$'; then
     pass 'Papirus-Dark uses grove folders'
   else
     fail 'Papirus-Dark grove folders not configured'
@@ -441,9 +441,9 @@ check_fontconfig() {
     fi
   done
   properties=$(fc-match -v sans-serif 2>/dev/null)
-  if grep -Fq 'hintstyle: 1' <<<"$properties" \
-    && grep -Fq 'rgba: 1' <<<"$properties" \
-    && grep -Fq 'lcdfilter: 1' <<<"$properties"; then
+  if grep -Fq 'hintstyle: 1' <<<"$properties" &&
+    grep -Fq 'rgba: 1' <<<"$properties" &&
+    grep -Fq 'lcdfilter: 1' <<<"$properties"; then
     pass 'fontconfig families and rendering configured'
   else
     fail 'fontconfig rendering settings differ from setup defaults'
@@ -612,41 +612,39 @@ check_system() {
   check_mise_node
   check_data_tools
 
-  if grep -Eq 'include[[:space:]]+system-login' /etc/pam.d/sddm \
-    && grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm; then
-    pass 'SDDM PAM and keyring integration valid'
+  if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/login; then
+    pass 'login PAM stack valid'
   else
-    fail 'SDDM PAM integration invalid'
+    fail 'login PAM stack invalid'
   fi
 
-  if grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/sddm-autologin \
-    && grep -q 'pam_gnome_keyring[.]so' /etc/pam.d/sddm-autologin; then
-    pass 'SDDM autologin PAM integration valid'
+  if [[ -r /etc/systemd/system/getty@tty1.service.d/autologin.conf ]] &&
+    grep -q -- "--autologin $(id -un)" /etc/systemd/system/getty@tty1.service.d/autologin.conf; then
+    pass 'tty1 autologin configured'
   else
-    fail 'SDDM autologin PAM integration invalid'
+    fail 'tty1 autologin config missing'
   fi
 
-  if grep -Eq 'auth[[:space:]]+required[[:space:]]+pam_permit[.]so' /etc/pam.d/sddm-greeter; then
-    pass 'SDDM greeter PAM integration valid'
+  if [[ $(systemctl get-default) == graphical.target ]]; then
+    pass 'graphical.target is the default target'
   else
-    fail 'SDDM greeter PAM integration invalid'
+    fail "default target is $(systemctl get-default), expected graphical.target"
   fi
 
-  if [[ -r /etc/sddm.conf.d/10-autologin.conf ]]; then
-    pass 'SDDM autologin configured'
+  if [[ -r $HOME/.zprofile ]] && grep -q 'uwsm check may-start' "$HOME/.zprofile" &&
+    grep -q 'exec uwsm start hyprland.desktop' "$HOME/.zprofile"; then
+    pass 'UWSM autostart configured'
   else
-    fail 'SDDM autologin config missing'
+    fail 'UWSM autostart config missing'
   fi
 
-  if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
-    && grep -Eq '^Exec=uwsm start .*hyprland[.]desktop$' \
-      /usr/share/wayland-sessions/hyprland-uwsm.desktop; then
-    pass 'UWSM session installed'
+  if [[ -r /usr/share/wayland-sessions/hyprland.desktop ]]; then
+    pass 'Hyprland session entry installed'
   else
-    fail 'UWSM session missing'
+    fail 'Hyprland session entry missing'
   fi
 
-  for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service power-profiles-daemon.service sddm.service systemd-oomd.service systemd-timesyncd.service ufw.service paccache.timer btrfs-scrub@-.timer; do
+  for file in NetworkManager.service avahi-daemon.service bluetooth.service cups.service power-profiles-daemon.service systemd-oomd.service systemd-timesyncd.service ufw.service paccache.timer btrfs-scrub@-.timer; do
     check_enabled "$file"
   done
 
@@ -734,11 +732,11 @@ check_session() {
   done
 
   providers=$(elephant listproviders 2>/dev/null || true)
-  if grep -qx 'desktopapplications' <<<"$providers" \
-    && grep -qx 'clipboard' <<<"$providers" \
-    && grep -qx 'calc' <<<"$providers" \
-    && grep -qx 'runner' <<<"$providers" \
-    && grep -qx 'symbols' <<<"$providers"; then
+  if grep -qx 'desktopapplications' <<<"$providers" &&
+    grep -qx 'clipboard' <<<"$providers" &&
+    grep -qx 'calc' <<<"$providers" &&
+    grep -qx 'runner' <<<"$providers" &&
+    grep -qx 'symbols' <<<"$providers"; then
     pass 'Elephant launcher providers available'
   else
     fail 'Elephant launcher providers unavailable'
@@ -763,8 +761,8 @@ check_session() {
     fail "Hyprland config errors: $errors"
   fi
 
-  restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null \
-    | awk '$1 == "bool:" {print $2; exit}')
+  restore_lock=$(hyprctl getoption misc:allow_session_lock_restore 2>/dev/null |
+    awk '$1 == "bool:" {print $2; exit}')
   if [[ $restore_lock == true ]]; then
     pass 'Hyprland session lock restoration enabled'
   else
