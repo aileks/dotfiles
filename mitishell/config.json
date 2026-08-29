@@ -53,6 +53,7 @@
     "reduced": false
   },
   "font": {
-    "family": ""
+    "family": "Adwaita Sans",
+    "monoFamily": "AdwaitaMono Nerd Font"
   }
 }
