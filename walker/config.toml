@@ -1,3 +1,4 @@
+app_launch_prefix = "uwsm app -- "
 theme = "cinder-grove"
 close_when_open = true
 selection_wrap = true
