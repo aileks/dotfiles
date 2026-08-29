@@ -377,7 +377,7 @@ check_appearance() {
     "cursor-theme|'Adwaita'"
     "cursor-size|24"
     "font-name|'Adwaita Sans 11'"
-    "monospace-font-name|'AdwaitaMono Nerd Font Mono 11'"
+    "monospace-font-name|'AdwaitaMono Nerd Font Propo 11'"
     "font-antialiasing|'rgba'"
     "font-hinting|'slight'"
     "font-rgba-order|'rgb'"
@@ -422,10 +422,10 @@ check_fontconfig() {
   local -a matches=(
     'sans-serif|Adwaita Sans'
     'serif|Noto Serif'
-    'monospace|AdwaitaMono Nerd Font Mono'
+    'monospace|AdwaitaMono Nerd Font'
     ':family=system-ui|Adwaita Sans'
     ':family=ui-serif|Noto Serif'
-    ':family=ui-monospace|AdwaitaMono Nerd Font'
+    ':family=ui-monospace|AdwaitaMono Nerd Font Propo'
     'emoji|Noto Color Emoji'
     'math|Latin Modern Math'
     ':lang=ar|Noto Naskh Arabic'
