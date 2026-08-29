@@ -1,5 +1,8 @@
 [Unit]
 Description=Local PostgreSQL development data
 
+[Quadlet]
+DefaultDependencies=false
+
 [Volume]
 VolumeName=postgres-local-data
