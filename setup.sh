@@ -17,15 +17,14 @@ declare -a FAILURES=()
 readonly -a PACMAN_PACKAGES=(
   7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups curl ddcutil dconf duckdb
   eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf git gnome-disk-utility gnome-keyring go lua
-  gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock
-  hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify libva-nvidia-driver inotify-tools libva-utils
-  linux-firmware man-db mesa-utils mise nautilus neovim networkmanager nss-mdns nvidia-open nvidia-utils openssh pacman-contrib noto-fonts papers
-  noto-fonts-cjk noto-fonts-emoji pipewire papirus-icon-theme playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman podman-compose
-  podman-docker postgresql-libs qt6-wayland power-profiles-daemon python qt6ct quickshell ripgrep rsync rtkit shellcheck signal-desktop snap-pac
-  snapper slurp socat sqlite starship tmux ufw trash-cli adwaita-fonts ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm wev wget wireplumber
-  wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils system-config-printer xdg-desktop-portal-hyprland zip xdg-user-dirs xorg-xwayland
-  zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern otf-latinmodern-math tesseract celluloid tesseract-data-eng frameworkintegration
-  qalculate-gtk tree-sitter-cli
+  gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper
+  hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db mesa-utils mise
+  nautilus neovim networkmanager nss-mdns openssh pacman-contrib noto-fonts papers noto-fonts-cjk podman noto-fonts-emoji pipewire papirus-icon-theme
+  playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman-compose podman-docker postgresql-libs qt6-wayland ufw tmux python qt6ct
+  quickshell ripgrep rsync rtkit shellcheck signal-desktop snap-pac snapper slurp socat sqlite starship trash-cli power-profiles-daemon adwaita-fonts
+  ttf-adwaitamono-nerd udisks2 udiskie unzip uv uwsm wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils xdg-user-dirs
+  system-config-printer xdg-desktop-portal-hyprland zip xorg-xwayland zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern tesseract
+  celluloid tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli otf-latinmodern-math
 )
 
 readonly -a AUR_PACKAGES=(
@@ -128,10 +127,6 @@ validate_target_system() {
   info "checking target hardware and filesystem layout..."
 
   [[ -d /sys/firmware/efi ]] || die "UEFI boot is required"
-  grep -Eqi 'vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' /proc/cpuinfo \
-    || die "an AMD CPU is required"
-  grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null \
-    || die "an Nvidia GPU supported by nvidia-open is required"
 
   for mountpoint in / /home; do
     read -r filesystem_type filesystem_root < <(
@@ -373,9 +368,12 @@ ensure_yay() {
 }
 
 install_official_packages() {
-  local -a missing=()
+  local -a packages=("${PACMAN_PACKAGES[@]}") missing=()
 
-  mapfile -t missing < <(missing_packages "${PACMAN_PACKAGES[@]}")
+  if grep -Fqx 0x10de /sys/bus/pci/devices/*/vendor 2>/dev/null; then
+    packages+=(nvidia-open nvidia-utils libva-nvidia-driver)
+  fi
+  mapfile -t missing < <(missing_packages "${packages[@]}")
   if ((${#missing[@]})); then
     info "installing ${#missing[@]} missing official packages..."
     run_pacman -S --noconfirm "${missing[@]}" || return
@@ -939,7 +937,8 @@ install_papirus_folders() {
   info "installing Cinder Grove Papirus folders..."
   run_cmd git clone --branch cinder-grove-folders --single-branch \
     https://github.com/aileks/papirus-folders.git "$source" || return
-  run_cmd env TAG=cinder-grove-folders sh "$source/install.sh"
+  run_cmd env TAG=cinder-grove-folders sh "$source/install.sh" || return
+  run_cmd papirus-folders-cg --color grove --theme Papirus-Dark
 }
 
 configure_default_apps() {
@@ -1068,7 +1067,7 @@ main() {
     NetworkManager-wait-online.service
 
   run_step "link configuration files" configure_dotfiles
-  run_step "configure Voxtype dictation" configure_voxtype
+  prompt_step "configure Voxtype dictation" configure_voxtype
   run_step "build Bat theme cache" run_cmd bat cache --build
   run_step "install Qt color scheme" ensure_root_file \
     /usr/share/qt6ct/colors/cinder-grove.conf \
@@ -1093,7 +1092,6 @@ main() {
   run_step "configure desktop appearance" configure_gsettings
   run_step "install GTK settings" install_gtk_settings
   prompt_step "install Cinder Grove Papirus folders" install_papirus_folders
-  run_step "configure Papirus folders" run_cmd papirus-folders-cg --color grove --theme Papirus-Dark
   run_step "configure default applications" configure_default_apps
   run_step "configure Node.js LTS with mise" install_node_lts
   run_step "reload ddcutil rules" run_sudo udevadm control --reload-rules
