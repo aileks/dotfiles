@@ -726,7 +726,7 @@ Type=simple
 
 configure_uwsm_autostart() {
   local profile="$HOME/.zprofile"
-  local block='if uwsm check may-start; then
+  local block='if uwsm check may-start -q; then
   exec uwsm start hyprland.desktop
 fi
 '
