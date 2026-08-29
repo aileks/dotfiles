@@ -1,23 +1,14 @@
 {
   "version": 2,
   "bar": {
-    "outputs": [
-      "DP-1"
-    ],
-    "height": 34,
+    "outputs": ["DP-1"],
+    "height": 36,
     "marginTop": 6,
     "marginHorizontal": 5,
     "systemMetrics": "separate",
     "layout": {
-      "left": [
-        "workspaces",
-        "windowTitle"
-      ],
-      "center": [
-        "weather",
-        "media",
-        "clock"
-      ],
+      "left": ["workspaces", "windowTitle"],
+      "center": ["weather", "media", "clock"],
       "right": [
         "system",
         "updates",
@@ -29,10 +20,7 @@
         "quickSettings",
         "power"
       ],
-      "hidden": [
-        "keyboardLayout",
-        "status"
-      ]
+      "hidden": ["keyboardLayout", "status"]
     }
   },
   "clock": {
@@ -51,5 +39,8 @@
   "motion": {
     "enabled": true,
     "reduced": false
+  },
+  "font": {
+    "family": "AdwaitaMono Nerd Font Propo"
   }
 }
