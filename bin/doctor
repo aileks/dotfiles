@@ -425,7 +425,7 @@ check_fontconfig() {
     'monospace|AdwaitaMono Nerd Font Mono'
     ':family=system-ui|Adwaita Sans'
     ':family=ui-serif|Noto Serif'
-    ':family=ui-monospace|AdwaitaMono Nerd Font Mono'
+    ':family=ui-monospace|AdwaitaMono Nerd Font'
     'emoji|Noto Color Emoji'
     'math|Latin Modern Math'
     ':lang=ar|Noto Naskh Arabic'
