@@ -1,26 +1,38 @@
 {
   "version": 2,
   "bar": {
-    "outputs": ["DP-1"],
+    "outputs": [
+      "DP-1"
+    ],
     "height": 36,
     "marginTop": 6,
     "marginHorizontal": 5,
     "systemMetrics": "separate",
     "layout": {
-      "left": ["workspaces", "windowTitle"],
-      "center": ["weather", "media", "clock"],
+      "left": [
+        "workspaces",
+        "windowTitle"
+      ],
+      "center": [
+        "weather",
+        "media",
+        "clock"
+      ],
       "right": [
         "system",
         "updates",
         "audio",
         "network",
         "bluetooth",
-        "tray",
         "notifications",
         "quickSettings",
+        "tray",
         "power"
       ],
-      "hidden": ["keyboardLayout", "status"]
+      "hidden": [
+        "keyboardLayout",
+        "status"
+      ]
     }
   },
   "clock": {
