@@ -22,7 +22,6 @@
         "system",
         "updates",
         "audio",
-        "network",
         "bluetooth",
         "notifications",
         "quickSettings",
@@ -31,7 +30,8 @@
       ],
       "hidden": [
         "keyboardLayout",
-        "status"
+        "status",
+        "network"
       ]
     }
   },
@@ -53,6 +53,6 @@
     "reduced": false
   },
   "font": {
-    "family": "AdwaitaMono Nerd Font Propo"
+    "family": ""
   }
 }
