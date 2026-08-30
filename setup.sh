@@ -64,7 +64,7 @@ prompt_step() {
     IFS= read -r answer </dev/tty || answer=""
   fi
   case "${answer:-y}" in
-  [nN]*) info "skipping: $label" && return 0 ;;
+    [nN]*) info "skipping: $label" && return 0 ;;
   esac
   run_step "$label" "$@"
 }
@@ -136,8 +136,8 @@ validate_target_system() {
     [[ $filesystem_root != / ]] || die "$mountpoint must mount a Btrfs subvolume"
   done
 
-  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) ||
-    die "the EFI system partition must be mounted at /boot"
+  filesystem_type=$(findmnt -nro FSTYPE --mountpoint /boot) \
+    || die "the EFI system partition must be mounted at /boot"
   [[ $filesystem_type == vfat ]] || die "/boot must be a FAT EFI system partition"
 }
 
@@ -188,8 +188,8 @@ update_dotfiles_repo() {
     return 0
   fi
   if git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "origin/$branch"; then
-    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" ||
-      warn "fast-forward failed; using local checkout"
+    git -C "$DOTFILES_DIR" merge --ff-only "origin/$branch" \
+      || warn "fast-forward failed; using local checkout"
   else
     warn "local checkout diverged; leaving it unchanged"
   fi
@@ -223,8 +223,8 @@ resolve_script_dir() {
   else
     clone_dotfiles_repo
   fi
-  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] ||
-    die "dotfiles checkout is incomplete: $DOTFILES_DIR"
+  ((DRY_RUN)) || [[ -d $DOTFILES_DIR/hypr ]] \
+    || die "dotfiles checkout is incomplete: $DOTFILES_DIR"
   SCRIPT_DIR="$DOTFILES_DIR"
   readonly SCRIPT_DIR
 }
@@ -422,8 +422,8 @@ mitishell_is_current() {
 }
 
 mitishell_resolve_latest_tag() {
-  curl -fsSL "https://api.github.com/repos/$MITISHELL_REPO/releases/latest" |
-    jq -r '.tag_name // empty'
+  curl -fsSL "https://api.github.com/repos/$MITISHELL_REPO/releases/latest" \
+    | jq -r '.tag_name // empty'
 }
 
 install_mitishell() {
@@ -570,12 +570,12 @@ snapper_config_exists() {
   local config="$1"
   if ((DRY_RUN)); then
     command -v snapper >/dev/null || return 1
-    snapper --csvout --no-headers list-configs 2>/dev/null |
-      cut -d, -f1 | grep -Fxq "$config"
+    snapper --csvout --no-headers list-configs 2>/dev/null \
+      | cut -d, -f1 | grep -Fxq "$config"
     return
   fi
-  sudo snapper --csvout --no-headers list-configs |
-    cut -d, -f1 | grep -Fxq "$config"
+  sudo snapper --csvout --no-headers list-configs \
+    | cut -d, -f1 | grep -Fxq "$config"
 }
 
 ensure_snapper_config() {
@@ -645,13 +645,13 @@ configure_snapper() {
   local path unit
   info "reconciling Snapper and Limine recovery..."
   for path in / /home; do
-    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] ||
-      {
+    [[ $(findmnt -no FSTYPE "$path") == btrfs ]] \
+      || {
         warn "$path must be a Btrfs filesystem for Snapper"
         return 1
       }
-    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null ||
-      {
+    ((DRY_RUN)) || sudo btrfs subvolume show "$path" >/dev/null \
+      || {
         warn "$path must be a Btrfs subvolume for Snapper"
         return 1
       }
@@ -701,13 +701,13 @@ configure_autologin() {
   if [[ -e /etc/systemd/system/display-manager.service || -L /etc/systemd/system/display-manager.service ]]; then
     warn 'a display manager is still enabled; disable it so tty1 autologin takes effect'
   fi
-  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland.desktop ]] ||
-    {
+  ((DRY_RUN)) || [[ -r /usr/share/wayland-sessions/hyprland.desktop ]] \
+    || {
       warn 'Hyprland session entry is missing'
       return 1
     }
-  ((DRY_RUN)) || grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/login ||
-    {
+  ((DRY_RUN)) || grep -Eq 'include[[:space:]]+system-local-login' /etc/pam.d/login \
+    || {
       warn '/etc/pam.d/login does not include system-local-login'
       return 1
     }
@@ -900,8 +900,8 @@ install_gtk_theme() {
   target="$data_home/themes/Cinder-Grove-Dark/gtk-4.0/cinder-grove.css"
   if [[ -f $state_dir/installed &&
     -f $data_home/themes/Cinder-Grove-Dark/.cinder-grove-theme ]]; then
-    if [[ -f $installed_css ]] &&
-      { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
+    if [[ -f $installed_css ]] \
+      && { [[ -L $gtk4_css || ! -f $gtk4_css ]] || ! cmp -s "$gtk4_css" "$installed_css"; }; then
       run_cmd mkdir -p "$config_home/gtk-4.0" || return
       run_cmd rm -f "$gtk4_css" || return
       run_cmd cp "$installed_css" "$gtk4_css" || return
@@ -1017,8 +1017,8 @@ main() {
   local arg unit
   for arg in "$@"; do
     case "$arg" in
-    --dry-run) DRY_RUN=1 ;;
-    *) die "unknown option: $arg" ;;
+      --dry-run) DRY_RUN=1 ;;
+      *) die "unknown option: $arg" ;;
     esac
   done
   validate_environment

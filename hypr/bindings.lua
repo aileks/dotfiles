@@ -1,3 +1,5 @@
+---@diagnostic disable: undefined-global
+
 local app = "uwsm app -- "
 local local_bin = os.getenv("HOME") .. "/.local/bin/"
 local syncobj = " --enable-features=WaylandLinuxDrmSyncobj"
@@ -9,6 +11,12 @@ local function bind(keys, action, description, flags)
 	flags.description = description
 	hl.bind(keys, action, flags)
 end
+
+bind("SUPER + Q", hl.dsp.window.close(), "Close window")
+bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Toggle fullscreen")
+bind("SUPER + SHIFT + Space", hl.dsp.window.float(), "Toggle floating")
+bind("SUPER + P", hl.dsp.window.pseudo(), "Toggle pseudotile")
+bind("SUPER + X", hl.dsp.layout("togglesplit"), "Toggle split direction")
 
 bind("SUPER + Space", hl.dsp.exec_cmd("mitishell launcher"), "Application launcher")
 bind("SUPER + Return", hl.dsp.exec_cmd(app .. "alacritty"), "Terminal")
@@ -28,12 +36,6 @@ bind("SUPER + CTRL + X", hl.dsp.exec_cmd("voxtype record toggle"), "Toggle dicta
 bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "mitishell keybinds"), "Keybind help")
 bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
 bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("mitishell power menu"), "Power menu")
-
-bind("SUPER + Q", hl.dsp.window.close(), "Close window")
-bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Toggle fullscreen")
-bind("SUPER + SHIFT + Space", hl.dsp.window.float(), "Toggle floating")
-bind("SUPER + P", hl.dsp.window.pseudo(), "Toggle pseudotile")
-bind("SUPER + X", hl.dsp.layout("togglesplit"), "Toggle split direction")
 
 local directions = {
 	h = "left",
