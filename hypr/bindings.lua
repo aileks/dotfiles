@@ -10,7 +10,7 @@ local function bind(keys, action, description, flags)
 	hl.bind(keys, action, flags)
 end
 
-bind("SUPER + Space", hl.dsp.exec_cmd("walker"), "Application launcher")
+bind("SUPER + Space", hl.dsp.exec_cmd("mitishell launcher"), "Application launcher")
 bind("SUPER + Return", hl.dsp.exec_cmd(app .. "alacritty"), "Terminal")
 bind("SUPER + W", hl.dsp.exec_cmd(app .. "zen-browser-twilight" .. syncobj), "Browser")
 bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
@@ -25,7 +25,7 @@ bind("SUPER + N", hl.dsp.exec_cmd("mitishell notifications dnd"), "Toggle Do Not
 bind("SUPER + CTRL + N", hl.dsp.exec_cmd("mitishell night-light toggle"), "Toggle Night Light")
 bind("SUPER + CTRL + R", hl.dsp.exec_cmd("mitishell reminder"), "Set reminder")
 bind("SUPER + CTRL + X", hl.dsp.exec_cmd("voxtype record toggle"), "Toggle dictation")
-bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "keybinds-menu"), "Keybind help")
+bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd(local_bin .. "mitishell keybinds"), "Keybind help")
 bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"), "Lock session")
 bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("mitishell power menu"), "Power menu")
 
