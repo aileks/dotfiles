@@ -2,9 +2,9 @@
   "version": 2,
   "bar": {
     "outputs": [
-      "DP-1"
+      "*"
     ],
-    "height": 36,
+    "height": 32,
     "marginTop": 6,
     "marginHorizontal": 5,
     "systemMetrics": "separate",
@@ -26,12 +26,12 @@
         "notifications",
         "quickSettings",
         "tray",
-        "power"
+        "power",
+        "status"
       ],
       "hidden": [
-        "keyboardLayout",
-        "status",
-        "network"
+        "network",
+        "keyboardLayout"
       ]
     }
   },
@@ -53,7 +53,11 @@
     "reduced": false
   },
   "font": {
-    "family": "GeistMono NFP Medium",
+    "family": "Adwaita Sans",
     "monoFamily": "GeistMono Nerd Font Propo"
+  },
+  "clipboard": {
+    "enabled": true,
+    "maxEntries": 25
   }
 }
