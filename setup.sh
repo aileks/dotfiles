@@ -15,7 +15,7 @@ TEMP_DIR=""
 declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
-  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups curl ddcutil dconf duckdb
+  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups cuda cudnn curl ddcutil dconf duckdb
   eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf git gnome-disk-utility gnome-keyring go lua
   gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper
   hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db mesa-utils mise
@@ -806,8 +806,8 @@ configure_voxtype() {
   fi
 
   # Omarchy's integration downloads the configured model, selects the GPU
-  # backend, and enables the package-owned user service. Whisper uses Vulkan;
-  # the service drop-in pins Vulkan to the discrete Nvidia GPU.
+  # backend, and enables the package-owned user service. ONNX engines use CUDA
+  # and cuDNN; Whisper uses Vulkan. The service drop-in pins Vulkan to Nvidia.
   run_cmd voxtype setup --download --no-post-install || return
   run_sudo voxtype setup gpu --enable || return
   run_cmd systemctl --user daemon-reload || return

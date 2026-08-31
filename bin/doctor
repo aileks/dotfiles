@@ -327,10 +327,10 @@ check_voxtype() {
   fi
 
   binary=$(voxtype info variants 2>/dev/null || true)
-  if grep -Eq 'Active:.*Whisper \(Vulkan\)' <<<"$binary"; then
-    pass 'Voxtype Whisper Vulkan backend active'
+  if grep -Eq 'Running: +ONNX \(CUDA( [0-9]+)?\)' <<<"$binary"; then
+    pass 'Voxtype ONNX CUDA backend active'
   else
-    fail 'Voxtype Whisper Vulkan backend inactive'
+    fail 'Voxtype ONNX CUDA backend inactive'
   fi
 
   check_user_enabled voxtype.service
