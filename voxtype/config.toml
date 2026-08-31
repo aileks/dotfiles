@@ -1,8 +1,3 @@
-# Voxtype Configuration
-#
-# The hotkeys are owned by Hyprland so Voxtype can run without direct evdev
-# hotkey handling. The state file is required by `voxtype record` and status
-# integrations.
 state_file = "auto"
 engine = "parakeet"
 
@@ -15,15 +10,12 @@ sample_rate = 16000
 max_duration_secs = 60
 pause_media = true
 
-[whisper]
-# Omarchy's lightweight English default. Run `voxtype setup model` to choose a
-# larger model; large-v3-turbo is a good fit for this machine's 12 GB GPU.
-model = "base.en"
+[parakeet]
+model = "parakeet-tdt-0.6b-v3"
 language = "en"
 translate = false
 
 [output]
-# wtype inserts the transcription directly into the focused Wayland app.
 mode = "type"
 fallback_to_clipboard = true
 type_delay_ms = 1
@@ -32,8 +24,3 @@ type_delay_ms = 1
 on_recording_start = false
 on_recording_stop = false
 on_transcription = false
-
-[osd]
-# GDK enumerates the portrait display first, while the OSD appears on DP-1.
-# This keeps its waveform in the same lower-screen band used by SwayOSD.
-top_margin = 0.6
