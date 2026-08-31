@@ -2,9 +2,9 @@
   "version": 2,
   "bar": {
     "outputs": [
-      "*"
+      "DP-1"
     ],
-    "height": 32,
+    "height": 36,
     "marginTop": 6,
     "marginHorizontal": 5,
     "systemMetrics": "separate",
@@ -20,18 +20,18 @@
       ],
       "right": [
         "updates",
+        "status",
         "system",
         "audio",
         "bluetooth",
         "notifications",
         "quickSettings",
         "tray",
-        "power",
-        "status"
+        "power"
       ],
       "hidden": [
-        "network",
-        "keyboardLayout"
+        "keyboardLayout",
+        "network"
       ]
     }
   },
@@ -58,6 +58,6 @@
   },
   "clipboard": {
     "enabled": true,
-    "maxEntries": 25
+    "maxEntries": 10
   }
 }
