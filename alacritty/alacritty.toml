@@ -2,12 +2,12 @@
 SHLVL = "0"
 
 [font]
-size = 13
+size = 14
 builtin_box_drawing = true
-normal = { family = "AdwaitaMono Nerd Font Mono", style = "Regular" }
-bold = { family = "AdwaitaMono Nerd Font Mono", style = "Bold" }
-italic = { family = "AdwaitaMono Nerd Font Mono", style = "Italic" }
-bold_italic = { family = "AdwaitaMono Nerd Font Mono", style = "Bold Italic" }
+normal = { family = "IosevkaTerm NFM", style = "Medium" }
+bold = { family = "IosevkaTerm NFM", style = "Heavy" }
+italic = { family = "IosevkaTerm NFM", style = "Italic" }
+bold_italic = { family = "IosevkaTerm NFM", style = "Bold Italic" }
 
 [window]
 opacity = 0.95
