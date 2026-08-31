@@ -24,3 +24,6 @@ type_delay_ms = 1
 on_recording_start = false
 on_recording_stop = false
 on_transcription = false
+
+[osd]
+top_margin = 0.6

@@ -53,8 +53,8 @@
     "reduced": false
   },
   "font": {
-    "family": "Adwaita Sans",
-    "monoFamily": "Iosevka Nerd Font Propo"
+    "family": "GeistMono NF Medium",
+    "monoFamily": "GeistMono Nerd Font Propo"
   },
   "clipboard": {
     "enabled": true,
