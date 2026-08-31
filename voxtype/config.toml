@@ -4,6 +4,7 @@
 # hotkey handling. The state file is required by `voxtype record` and status
 # integrations.
 state_file = "auto"
+engine = "parakeet"
 
 [hotkey]
 enabled = false
