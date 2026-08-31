@@ -23,14 +23,13 @@ readonly -a PACMAN_PACKAGES=(
   playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman-compose podman-docker postgresql-libs qt6-wayland ufw tmux python qt6ct
   quickshell ripgrep rsync rtkit signal-desktop snap-pac snapper slurp socat sqlite starship trash-cli power-profiles-daemon adwaita-fonts udisks2
   udiskie ttf-adwaitamono-nerd unzip uv uwsm wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils xdg-user-dirs
-  system-config-printer xdg-desktop-portal-hyprland zip xorg-xwayland zip zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern tesseract
+  system-config-printer xdg-desktop-portal-hyprland zip xorg-xwayland zip zbar zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern tesseract
   celluloid tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli otf-latinmodern-math
 )
 
 readonly -a AUR_PACKAGES=(
-  darkly-bin fastmail zen-browser-twilight-bin elephant-bin elephant-calc-bin elephant-clipboard-bin
-  elephant-desktopapplications-bin elephant-runner-bin elephant-symbols-bin tensaku-bin limine-tool
-  limine-snapper-sync localsend tmux-sessionizer-bin walker-bin zsh-antidote cliamp-bin voxtype-bin
+  darkly-bin fastmail zen-browser-twilight-bin tensaku-bin limine-tool
+  limine-snapper-sync localsend tmux-sessionizer-bin zsh-antidote cliamp-bin voxtype-bin
 )
 
 log() { printf '[ok] %s\n' "$*"; }
@@ -776,7 +775,6 @@ configure_dotfiles() {
   link_path "$SCRIPT_DIR/voxtype" "$config_home/voxtype"
   link_path "$SCRIPT_DIR/xdg-desktop-portal" "$config_home/xdg-desktop-portal"
   link_path "$SCRIPT_DIR/starship/starship.toml" "$config_home/starship.toml"
-  link_path "$SCRIPT_DIR/walker" "$config_home/walker"
   link_path "$SCRIPT_DIR/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link_path "$SCRIPT_DIR/containers/storage.conf" "$config_home/containers/storage.conf"
 
@@ -1081,8 +1079,8 @@ main() {
 
   run_step "reload user services" run_cmd systemctl --user daemon-reload
   run_step "configure local PostgreSQL" configure_local_postgres
-  for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
-    home-backup.timer monitor-setup.service monitor-watch.service walker.service \
+  for unit in hypridle.service hyprsunset.service mitishell.service \
+    home-backup.timer monitor-setup.service monitor-watch.service \
     udiskie.service hyprpaper.service hyprpolkitagent.service \
     pipewire-pulse.socket pipewire.socket podman.socket \
     wireplumber.service; do

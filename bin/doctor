@@ -604,9 +604,6 @@ check_snapper() {
 }
 
 check_system() {
-  local walker_config="${XDG_CONFIG_HOME:-$HOME/.config}/walker/config.toml"
-  local walker_theme="${XDG_CONFIG_HOME:-$HOME/.config}/walker/themes/cinder-grove/style.css"
-
   check_quickshell_version
   check_mitishell_install
   check_mise_node
@@ -652,25 +649,10 @@ check_system() {
   check_enabled "hyprlock-suspend@$(id -u).service"
   check_user_enabled podman.socket
   check_local_postgres
-  check_user_enabled elephant.service
   check_user_enabled monitor-setup.service
   check_user_enabled monitor-watch.service
-  check_user_enabled walker.service
   check_user_enabled hyprsunset.service
   check_user_enabled mitishell.service
-
-  if [[ -r $walker_theme ]] && grep -Fq '#E17A3F' "$walker_theme"; then
-    pass 'Walker Cinder Grove theme installed'
-  else
-    fail 'Walker Cinder Grove theme missing'
-  fi
-
-  if grep -Eq '^[[:space:]]*theme[[:space:]]*=[[:space:]]*"cinder-grove"' \
-    "$walker_config" 2>/dev/null; then
-    pass 'Walker Cinder Grove theme selected'
-  else
-    fail 'Walker Cinder Grove theme not selected'
-  fi
 
   if grep -Eq '^hosts:.*[[:space:]]mdns(_minimal)?([[:space:]]|$)' /etc/nsswitch.conf; then
     pass 'mDNS hostname resolution configured'
@@ -725,30 +707,13 @@ check_session() {
     fail 'hyprlock.service missing'
   fi
 
-  for unit in elephant.service hypridle.service hyprsunset.service mitishell.service \
+  for unit in hypridle.service hyprsunset.service mitishell.service \
     udiskie.service hyprpaper.service hyprpolkitagent.service \
     pipewire.service pipewire-pulse.service wireplumber.service \
     xdg-desktop-portal.service xdg-desktop-portal-hyprland.service \
-    walker.service monitor-watch.service; do
+    monitor-watch.service; do
     check_user_active "$unit"
   done
-
-  providers=$(elephant listproviders 2>/dev/null || true)
-  if grep -qx 'desktopapplications' <<<"$providers" \
-    && grep -qx 'clipboard' <<<"$providers" \
-    && grep -qx 'calc' <<<"$providers" \
-    && grep -qx 'runner' <<<"$providers" \
-    && grep -qx 'symbols' <<<"$providers"; then
-    pass 'Elephant launcher providers available'
-  else
-    fail 'Elephant launcher providers unavailable'
-  fi
-
-  if [[ -S ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/walker/walker.sock ]]; then
-    pass 'Walker IPC socket available'
-  else
-    fail 'Walker IPC socket unavailable'
-  fi
 
   if mitishell ping >/dev/null 2>&1; then
     pass 'Mitishell IPC responds'
