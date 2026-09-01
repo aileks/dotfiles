@@ -4,10 +4,10 @@ SHLVL = "0"
 [font]
 size = 13
 builtin_box_drawing = true
-normal = { family = "GeistMono NFM", style = "Medium" }
-bold = { family = "GeistMono NFM", style = "Bold" }
-italic = { family = "GeistMono NFM", style = "Italic" }
-bold_italic = { family = "GeistMono NFM", style = "Bold Italic" }
+normal = { family = "IosevkaTerm NF", style = "Medium" }
+bold = { family = "IosevkaTerm NF", style = "Bold" }
+italic = { family = "IosevkaTerm NF", style = "Italic" }
+bold_italic = { family = "IosevkaTerm NF", style = "Bold Italic" }
 
 [window]
 opacity = 0.95
