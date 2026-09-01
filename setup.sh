@@ -15,16 +15,16 @@ TEMP_DIR=""
 declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
-  7zip adwaita-cursors amd-ucode alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups cuda cudnn curl ddcutil dconf duckdb eza
-  egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf git gnome-disk-utility gnome-keyring go lua mise
-  gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper
-  hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kitty kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db mesa-utils
+  7zip adwaita-cursors adwaita-fonts amd-ucode alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups cuda cudnn curl ddcutil
+  dconf duckdb eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf git gnome-disk-utility gnome-keyring
+  go lua mise gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock
+  hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kitty kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db
   nautilus neovim networkmanager nss-mdns openssh pacman-contrib noto-fonts papers noto-fonts-cjk podman noto-fonts-emoji pipewire papirus-icon-theme
   playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman-compose podman-docker postgresql-libs qt6-wayland ufw tmux python qt6ct
   quickshell ripgrep rsync rtkit signal-desktop snap-pac snapper slurp socat sqlite starship trash-cli power-profiles-daemon udiskie ttf-iosevka-nerd
   ttc-iosevka ttf-iosevkaterm-nerd unzip uv uwsm wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils xdg-user-dirs
   system-config-printer xdg-desktop-portal-hyprland zip xorg-xwayland zip zbar zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern tesseract
-  celluloid tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli otf-latinmodern-math
+  celluloid tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli otf-latinmodern-math mesa-utils
 )
 
 readonly -a AUR_PACKAGES=(
@@ -844,8 +844,8 @@ configure_gsettings() {
   gsettings set "$schema" icon-theme Papirus-Dark || return
   gsettings set "$schema" cursor-theme Adwaita || return
   gsettings set "$schema" cursor-size 24 || return
-  gsettings set "$schema" font-name 'Iosevka Nerd Font Propo 11' || return
-  gsettings set "$schema" monospace-font-name 'IosevkaTerm Nerd Font Mono 11' || return
+  gsettings set "$schema" font-name 'Adwaita Sans 11' || return
+  gsettings set "$schema" monospace-font-name 'Iosevka NFM 11' || return
   gsettings set "$schema" font-antialiasing rgba || return
   gsettings set "$schema" font-hinting slight || return
   gsettings set "$schema" font-rgba-order rgb || return
