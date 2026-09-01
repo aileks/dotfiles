@@ -376,8 +376,8 @@ check_appearance() {
     "icon-theme|'Papirus-Dark'"
     "cursor-theme|'Adwaita'"
     "cursor-size|24"
-    "font-name|'Adwaita Sans 11'"
-    "monospace-font-name|'IosevkaTerm NFM 11'"
+    "font-name|'Maple Mono 11'"
+    "monospace-font-name|'Maple Mono NF 11'"
     "font-antialiasing|'rgba'"
     "font-hinting|'slight'"
     "font-rgba-order|'rgb'"
@@ -507,7 +507,7 @@ check_nvidia_modeset() {
     fi
   elif [[ -e $parameter ]] && nvidia_drm_active; then
     pass 'Nvidia DRM modesetting active'
-  elif ((!booted_graphics)); then
+  elif ((! booted_graphics)); then
     warn 'Nvidia module loads after reboot'
   elif [[ -e $parameter ]]; then
     warn 'Nvidia DRM modesetting value requires root and could not be verified'
@@ -526,7 +526,7 @@ check_nvidia_fbdev() {
     fi
   elif [[ -e $parameter ]] && grep -q 'nvidia-drmdrmfb' /proc/fb 2>/dev/null; then
     pass 'Nvidia framebuffer active'
-  elif ((!booted_graphics)); then
+  elif ((! booted_graphics)); then
     warn 'Nvidia framebuffer loads after reboot'
   elif [[ -e $parameter ]]; then
     warn 'Nvidia framebuffer value requires root and could not be verified'
@@ -548,7 +548,7 @@ check_nvidia_suspend() {
     else
       fail 'Nvidia suspend memory preservation disabled'
     fi
-  elif ((!booted_graphics)); then
+  elif ((! booted_graphics)); then
     warn 'Nvidia suspend parameters load after reboot'
   else
     fail 'Nvidia suspend parameters unavailable'
