@@ -4,7 +4,7 @@
     "outputs": [
       "DP-1"
     ],
-    "height": 36,
+    "height": 34,
     "marginTop": 6,
     "marginHorizontal": 5,
     "systemMetrics": "separate",
@@ -53,8 +53,10 @@
     "reduced": false
   },
   "font": {
-    "family": "Iosevka Medium Extended",
-    "monoFamily": "Iosevka Nerd Font Propo"
+    "family": "Maple Mono Medium",
+    "monoFamily": "Maple Mono NF",
+    "size": 15,
+    "monoSize": 15
   },
   "clipboard": {
     "enabled": true,
