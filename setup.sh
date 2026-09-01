@@ -15,10 +15,10 @@ TEMP_DIR=""
 declare -a FAILURES=()
 
 readonly -a PACMAN_PACKAGES=(
-  7zip adwaita-cursors amd-ucode alacritty alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups cuda cudnn curl ddcutil dconf duckdb
+  7zip adwaita-cursors amd-ucode alsa-utils avahi base-devel bat bitwarden jq bluez bluez-utils btop cava cups cuda cudnn curl ddcutil dconf duckdb
   eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf git gnome-disk-utility gnome-keyring go lua
   gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock hyprpaper
-  hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db mesa-utils mise
+  hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kitty kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db mesa-utils mise
   nautilus neovim networkmanager nss-mdns openssh pacman-contrib noto-fonts papers noto-fonts-cjk podman noto-fonts-emoji pipewire papirus-icon-theme
   playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman-compose podman-docker postgresql-libs qt6-wayland ufw tmux python qt6ct
   quickshell ripgrep rsync rtkit signal-desktop snap-pac snapper slurp socat sqlite starship trash-cli power-profiles-daemon adwaita-fonts udisks2
@@ -758,7 +758,7 @@ configure_dotfiles() {
 
   link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
   link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
-  link_path "$SCRIPT_DIR/alacritty" "$config_home/alacritty"
+  link_path "$SCRIPT_DIR/kitty" "$config_home/kitty"
   link_path "$SCRIPT_DIR/bat" "$config_home/bat"
   link_path "$SCRIPT_DIR/btop" "$config_home/btop"
   link_path "$SCRIPT_DIR/cava" "$config_home/cava"
@@ -944,7 +944,7 @@ configure_default_apps() {
   ((DRY_RUN)) && return 0
 
   browser=$(desktop_id zen.desktop zen-browser.desktop || true)
-  terminal=$(desktop_id Alacritty.desktop alacritty.desktop || true)
+  terminal=$(desktop_id kitty.desktop || true)
   editor=$(desktop_id org.gnome.gedit.desktop gedit.desktop || true)
   image_viewer=$(desktop_id imv.desktop || true)
   mail_client=$(desktop_id fastmail.desktop || true)

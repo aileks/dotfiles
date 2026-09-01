@@ -18,7 +18,7 @@ bind("SUPER + SHIFT + Space", hl.dsp.window.float(), "Toggle floating")
 bind("SUPER + P", hl.dsp.window.pseudo(), "Toggle pseudotile")
 
 bind("SUPER + Space", hl.dsp.exec_cmd("mitishell launcher"), "Application launcher")
-bind("SUPER + Return", hl.dsp.exec_cmd(app .. "alacritty"), "Terminal")
+bind("SUPER + Return", hl.dsp.exec_cmd(app .. "kitty"), "Terminal")
 bind("SUPER + W", hl.dsp.exec_cmd(app .. "zen-browser-twilight" .. syncobj), "Browser")
 bind("SUPER + E", hl.dsp.exec_cmd(app .. "nautilus --new-window"), "Files")
 bind("SUPER + S", hl.dsp.exec_cmd(app .. "signal-desktop" .. syncobj), "Signal")

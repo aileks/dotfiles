@@ -62,7 +62,7 @@ hl.config({
 		focus_on_activate = false,
 		animate_manual_resizes = true,
 		enable_swallow = true,
-		swallow_regex = "^(Alacritty)$",
+		swallow_regex = "^(kitty)$",
 		allow_session_lock_restore = true,
 	},
 	binds = {
