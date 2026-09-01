@@ -806,10 +806,10 @@ configure_voxtype() {
   fi
 
   # Omarchy's integration downloads the configured model, selects the GPU
-  # backend, and enables the package-owned user service. ONNX engines use CUDA
-  # and cuDNN; Whisper uses Vulkan. The service drop-in pins Vulkan to Nvidia.
+  # backend, and enables the package-owned user service. Pin selection to Nvidia
+  # because auto-detection prefers the AMD iGPU on this dual-GPU machine.
   run_cmd voxtype setup --download --no-post-install || return
-  run_sudo voxtype setup gpu --enable || return
+  run_sudo env VOXTYPE_VULKAN_DEVICE=nvidia voxtype setup gpu --enable || return
   run_cmd systemctl --user daemon-reload || return
 
   if ((DRY_RUN)); then
