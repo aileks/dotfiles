@@ -21,8 +21,8 @@ readonly -a PACMAN_PACKAGES=(
   hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kitty kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db mesa-utils mise
   nautilus neovim networkmanager nss-mdns openssh pacman-contrib noto-fonts papers noto-fonts-cjk podman noto-fonts-emoji pipewire papirus-icon-theme
   playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman-compose podman-docker postgresql-libs qt6-wayland ufw tmux python qt6ct
-  quickshell ripgrep rsync rtkit signal-desktop snap-pac snapper slurp socat sqlite starship trash-cli power-profiles-daemon adwaita-fonts udisks2
-  udiskie ttf-adwaitamono-nerd unzip uv uwsm wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils xdg-user-dirs
+  quickshell ripgrep rsync rtkit signal-desktop snap-pac snapper slurp socat sqlite starship trash-cli power-profiles-daemon udisks2
+  udiskie ttf-iosevka-nerd ttf-iosevkaterm-nerd unzip uv uwsm wev wget wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils xdg-user-dirs
   system-config-printer xdg-desktop-portal-hyprland zip xorg-xwayland zip zbar zoxide zsh vulkan-icd-loader vulkan-tools wtype otf-latin-modern tesseract
   celluloid tesseract-data-eng frameworkintegration qalculate-gtk tree-sitter-cli otf-latinmodern-math
 )
@@ -844,8 +844,8 @@ configure_gsettings() {
   gsettings set "$schema" icon-theme Papirus-Dark || return
   gsettings set "$schema" cursor-theme Adwaita || return
   gsettings set "$schema" cursor-size 24 || return
-  gsettings set "$schema" font-name 'Adwaita Sans 11' || return
-  gsettings set "$schema" monospace-font-name 'AdwaitaMono Nerd Font Propo 11' || return
+  gsettings set "$schema" font-name 'Iosevka Nerd Font Propo 11' || return
+  gsettings set "$schema" monospace-font-name 'IosevkaTerm Nerd Font Mono 11' || return
   gsettings set "$schema" font-antialiasing rgba || return
   gsettings set "$schema" font-hinting slight || return
   gsettings set "$schema" font-rgba-order rgb || return
@@ -859,7 +859,7 @@ install_gtk_settings() {
   gtk3_settings='[Settings]
 gtk-theme-name=Cinder-Grove-Dark
 gtk-icon-theme-name=Papirus-Dark
-gtk-font-name=Adwaita Sans 11
+gtk-font-name=Iosevka Nerd Font Propo 11
 gtk-cursor-theme-name=Adwaita
 gtk-cursor-theme-size=24
 gtk-xft-antialias=1
@@ -871,7 +871,7 @@ gtk-application-prefer-dark-theme=1
   gtk4_settings='[Settings]
 gtk-theme-name=Cinder-Grove-Dark
 gtk-icon-theme-name=Papirus-Dark
-gtk-font-name=Adwaita Sans 11
+gtk-font-name=Iosevka Nerd Font Propo 11
 gtk-cursor-theme-name=Adwaita
 gtk-cursor-theme-size=24
 '

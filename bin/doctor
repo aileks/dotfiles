@@ -376,8 +376,8 @@ check_appearance() {
     "icon-theme|'Papirus-Dark'"
     "cursor-theme|'Adwaita'"
     "cursor-size|24"
-    "font-name|'Adwaita Sans 11'"
-    "monospace-font-name|'AdwaitaMono Nerd Font Propo 11'"
+    "font-name|'Iosevka Nerd Font Propo 11'"
+    "monospace-font-name|'IosevkaTerm Nerd Font Mono 11'"
     "font-antialiasing|'rgba'"
     "font-hinting|'slight'"
     "font-rgba-order|'rgb'"
@@ -420,12 +420,12 @@ check_appearance() {
 check_fontconfig() {
   local family match pattern properties
   local -a matches=(
-    'sans-serif|Adwaita Sans'
-    'serif|Noto Serif'
-    'monospace|AdwaitaMono Nerd Font'
-    ':family=system-ui|Adwaita Sans'
-    ':family=ui-serif|Noto Serif'
-    ':family=ui-monospace|AdwaitaMono Nerd Font Propo'
+    'sans-serif|Iosevka Nerd Font Propo'
+    'serif|Iosevka Nerd Font Propo'
+    'monospace|IosevkaTerm Nerd Font Mono'
+    ':family=system-ui|Iosevka Nerd Font Propo'
+    ':family=ui-serif|Iosevka Nerd Font Propo'
+    ':family=ui-monospace|IosevkaTerm Nerd Font Mono'
     'emoji|Noto Color Emoji'
     'math|Latin Modern Math'
     ':lang=ar|Noto Naskh Arabic'
