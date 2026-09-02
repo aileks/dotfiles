@@ -11,7 +11,7 @@ max_duration_secs = 60
 pause_media = true
 
 [parakeet]
-model = "parakeet-tdt-0.6b-v3"
+model = "parakeet-tdt-0.6b-v3-int8"
 language = "en"
 translate = false
 
