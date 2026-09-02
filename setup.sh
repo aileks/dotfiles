@@ -19,7 +19,7 @@ readonly -a PACMAN_PACKAGES=(
   dconf duckdb eza egl-wayland fastfetch fd ffmpeg ffmpegthumbnailer file-roller fontconfig fuse-overlayfs fwupd fzf git gnome-disk-utility gnome-keyring
   go lua mise gpu-screen-recorder grim gst-plugin-pipewire gvfs gvfs-afc gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-smb hunspell-en_us hypridle hyprland hyprlock
   hyprpaper hyprpicker hyprpolkitagent hyprsunset hyprshutdown imv kitty kvantum lazygit less libnotify inotify-tools libva-utils linux-firmware man-db
-  nautilus neovim networkmanager nss-mdns openssh pacman-contrib noto-fonts papers noto-fonts-cjk podman noto-fonts-emoji pipewire papirus-icon-theme
+  nautilus neovim networkmanager nss-mdns openrgb openssh pacman-contrib noto-fonts papers noto-fonts-cjk podman noto-fonts-emoji pipewire papirus-icon-theme
   playerctl nwg-look pipewire-alsa pipewire-pulse polkit qt5-wayland podman-compose podman-docker postgresql-libs qt6-wayland ufw tmux python qt6ct
   quickshell ripgrep rsync rtkit signal-desktop snap-pac snapper slurp socat sqlite starship trash-cli power-profiles-daemon udiskie unzip uv uwsm
   wireplumber wl-clipboard xdg-desktop-portal xdg-desktop-portal-gtk xdg-utils xdg-user-dirs system-config-printer xdg-desktop-portal-hyprland zip
@@ -240,6 +240,22 @@ ensure_root_file() {
     return 0
   fi
   sudo install -D -o root -g root -m 0644 "$tmp" "$path"
+}
+
+ensure_root_copy() {
+  local source="$1" path="$2"
+  [[ -f $source ]] || {
+    warn "missing source file: $source"
+    return 1
+  }
+  if ((DRY_RUN)); then
+    info "copy $source to $path"
+    return 0
+  fi
+  if sudo test -f "$path" && sudo cmp --silent "$source" "$path"; then
+    return 0
+  fi
+  sudo install -D -o root -g root -m 0644 "$source" "$path"
 }
 
 ensure_user_file() {
@@ -738,6 +754,16 @@ configure_suspend_workaround() {
   run_sudo systemctl enable "$unit"
 }
 
+configure_openrgb() {
+  ensure_root_copy "$SCRIPT_DIR/openrgb/No RGB.orp" \
+    "/etc/openrgb/No RGB.orp" || return
+  ensure_root_file /etc/systemd/system/openrgb.service.d/profile.conf \
+    "$(<"$SCRIPT_DIR/systemd/system/openrgb.service.d/profile.conf")"$'\n' || return
+  run_sudo systemctl daemon-reload || return
+  run_sudo systemctl enable openrgb.service || return
+  run_sudo systemctl restart openrgb.service
+}
+
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   local unit source
@@ -1011,6 +1037,7 @@ main() {
   if ! id -nG "$USER" | tr ' ' '\n' | grep -qx input; then
     run_step "add $USER to input group" run_sudo usermod -aG input "$USER"
   fi
+  run_step "configure OpenRGB boot profile" configure_openrgb
   run_step "configure suspend lock workaround" configure_suspend_workaround
   for unit in NetworkManager.service avahi-daemon.service bluetooth.service cups.service \
     power-profiles-daemon.service systemd-timesyncd.service; do
