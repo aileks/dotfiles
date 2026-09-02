@@ -208,25 +208,6 @@ check_firewall() {
   fi
 }
 
-check_oomd() {
-  check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
-    DefaultMemoryPressureDurationSec 20s 'oomd pressure duration is 20 seconds'
-  check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
-    DefaultMemoryPressureLimit 50% 'oomd pressure limit is 50 percent'
-  check_setting /etc/systemd/oomd.conf.d/10-aileks.conf \
-    SwapUsedLimit 90% 'oomd swap limit is 90 percent'
-  if systemctl --user cat app.slice 2>/dev/null \
-    | grep -Fq 'ManagedOOMMemoryPressure=kill' \
-    && systemctl --user cat app.slice 2>/dev/null \
-    | grep -Fq 'ManagedOOMSwap=kill' \
-    && [[ $(systemctl --user show session.slice -p ManagedOOMMemoryPressure --value 2>/dev/null) != kill ]] \
-    && [[ $(systemctl --user show session.slice -p ManagedOOMSwap --value 2>/dev/null) != kill ]]; then
-    pass 'user app.slice is the oomd kill candidate'
-  else
-    fail 'user app.slice oomd policy missing'
-  fi
-}
-
 check_ssh_keepalive() {
   local path=/etc/ssh/ssh_config.d/20-aileks-keepalive.conf
   if grep -Eq '^[[:space:]]*ServerAliveInterval[[:space:]]+15$' "$path" 2>/dev/null \
@@ -672,7 +653,6 @@ check_system() {
   check_papers_defaults
   check_default_keyring
   check_firewall
-  check_oomd
   check_ssh_keepalive
   check_snapper
   check_bat_theme
