@@ -58,7 +58,7 @@ run_step() {
 prompt_step() {
   local label="$1" answer=""
   shift
-  if ((! DRY_RUN)) && [[ -r /dev/tty && -w /dev/tty ]]; then
+  if ((!DRY_RUN)) && [[ -r /dev/tty && -w /dev/tty ]]; then
     printf '[ask] %s? [Y/n] ' "$label" >&2
     IFS= read -r answer </dev/tty || answer=""
   fi
@@ -766,7 +766,8 @@ configure_openrgb() {
 
 configure_dotfiles() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local unit source
+  local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local legacy_unit unit source
   info "linking configuration files..."
 
   link_path "$SCRIPT_DIR/kitty" "$config_home/kitty"
@@ -795,14 +796,18 @@ configure_dotfiles() {
     link_path "$source" "$config_home/containers/systemd/$(basename "$source")"
   done
 
-  run_cmd mkdir -p "$config_home/systemd/user" || return
+  run_cmd mkdir -p "$config_home/systemd/user" "$data_home/systemd/user" || return
   link_path "$SCRIPT_DIR/systemd/user/app.slice.d/10-oomd.conf" \
     "$config_home/systemd/user/app.slice.d/10-oomd.conf"
   link_path "$SCRIPT_DIR/systemd/user/voxtype.service.d/10-nvidia.conf" \
     "$config_home/systemd/user/voxtype.service.d/10-nvidia.conf"
   for source in "$SCRIPT_DIR"/systemd/user/*.service "$SCRIPT_DIR"/systemd/user/*.timer; do
     unit=$(basename "$source")
-    link_path "$source" "$config_home/systemd/user/$unit"
+    link_path "$source" "$data_home/systemd/user/$unit"
+    legacy_unit="$config_home/systemd/user/$unit"
+    if [[ -L $legacy_unit && $(readlink -f "$legacy_unit") == "$source" ]]; then
+      run_cmd rm "$legacy_unit" || return
+    fi
   done
 
   for source in "$SCRIPT_DIR"/bin/*; do
@@ -811,6 +816,7 @@ configure_dotfiles() {
 }
 
 configure_voxtype() {
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   if ((DRY_RUN == 0)) && ! command -v voxtype >/dev/null; then
     warn 'voxtype is not installed'
     return 1
@@ -821,6 +827,7 @@ configure_voxtype() {
   # because auto-detection prefers the AMD iGPU on this dual-GPU machine.
   run_cmd voxtype setup --download --no-post-install || return
   run_sudo env VOXTYPE_VULKAN_DEVICE=nvidia voxtype setup gpu --enable || return
+  run_cmd rm -f "$config_home/systemd/user/voxtype.service.d/gpu.conf" || return
   run_cmd systemctl --user daemon-reload || return
 
   if ((DRY_RUN)); then
