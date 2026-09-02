@@ -842,39 +842,13 @@ configure_gsettings() {
   gsettings set "$schema" icon-theme Papirus-Dark || return
   gsettings set "$schema" cursor-theme Adwaita || return
   gsettings set "$schema" cursor-size 24 || return
-  gsettings set "$schema" font-name 'Maple Mono 11' || return
+  gsettings set "$schema" font-name 'Adwaita Mono 11' || return
   gsettings set "$schema" monospace-font-name 'Maple Mono NF 11' || return
   gsettings set "$schema" font-antialiasing rgba || return
   gsettings set "$schema" font-hinting slight || return
   gsettings set "$schema" font-rgba-order rgb || return
   gsettings set "$schema" clock-format 24h || return
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
-}
-
-install_gtk_settings() {
-  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local gtk3_settings gtk4_settings
-  gtk3_settings='[Settings]
-gtk-theme-name=Cinder-Grove-Dark
-gtk-icon-theme-name=Papirus-Dark
-gtk-font-name=Maple Mono 11
-gtk-cursor-theme-name=Adwaita
-gtk-cursor-theme-size=24
-gtk-xft-antialias=1
-gtk-xft-hinting=1
-gtk-xft-hintstyle=hintslight
-gtk-xft-rgba=rgb
-gtk-application-prefer-dark-theme=1
-'
-  gtk4_settings='[Settings]
-gtk-theme-name=Cinder-Grove-Dark
-gtk-icon-theme-name=Papirus-Dark
-gtk-font-name=Maple Mono 11
-gtk-cursor-theme-name=Adwaita
-gtk-cursor-theme-size=24
-'
-  ensure_user_file "$config_home/gtk-3.0/settings.ini" "$gtk3_settings" || return
-  ensure_user_file "$config_home/gtk-4.0/settings.ini" "$gtk4_settings"
 }
 
 install_gtk_theme() {
@@ -1086,7 +1060,6 @@ main() {
   done
   prompt_step "install Cinder Grove GTK theme" install_gtk_theme
   run_step "configure desktop appearance" configure_gsettings
-  run_step "install GTK settings" install_gtk_settings
   prompt_step "install Cinder Grove Papirus folders" install_papirus_folders
   run_step "configure default applications" configure_default_apps
   run_step "configure Node.js LTS with mise" install_node_lts

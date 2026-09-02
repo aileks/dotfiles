@@ -357,7 +357,7 @@ check_appearance() {
     "icon-theme|'Papirus-Dark'"
     "cursor-theme|'Adwaita'"
     "cursor-size|24"
-    "font-name|'Maple Mono 11'"
+    "font-name|'Adwaita Sans 11'"
     "monospace-font-name|'Maple Mono NF 11'"
     "font-antialiasing|'rgba'"
     "font-hinting|'slight'"
@@ -401,15 +401,13 @@ check_appearance() {
 check_fontconfig() {
   local family match pattern properties
   local -a matches=(
-    'sans-serif|Maple Mono'
+    'sans-serif|Adwaita Sans'
     'serif|Noto Serif'
     'monospace|Maple Mono NF'
-    ':family=system-ui|Maple Mono'
-    ':family=ui-sans-serif|Maple Mono'
+    ':family=system-ui|Adwaita Sans'
+    ':family=ui-sans-serif|Adwaita Sans'
     ':family=ui-serif|Noto Serif'
     ':family=ui-monospace|Maple Mono NF'
-    ':family=-apple-system|Maple Mono'
-    ':family=BlinkMacSystemFont|Maple Mono'
     'emoji|Noto Color Emoji'
     'math|Latin Modern Math'
     ':lang=ar|Noto Naskh Arabic'

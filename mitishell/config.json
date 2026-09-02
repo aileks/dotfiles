@@ -55,11 +55,11 @@
   "font": {
     "family": "Maple Mono Medium",
     "monoFamily": "Maple Mono NF",
-    "size": 15,
+    "size": 14,
     "monoSize": 15
   },
   "clipboard": {
     "enabled": true,
-    "maxEntries": 15
+    "maxEntries": 20
   }
 }
