@@ -756,8 +756,6 @@ configure_dotfiles() {
   local unit source
   info "linking configuration files..."
 
-  link_path "$SCRIPT_DIR/git/.gitconfig" "$HOME/.gitconfig"
-  link_path "$SCRIPT_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$SCRIPT_DIR/kitty" "$config_home/kitty"
   link_path "$SCRIPT_DIR/bat" "$config_home/bat"
   link_path "$SCRIPT_DIR/btop" "$config_home/btop"
