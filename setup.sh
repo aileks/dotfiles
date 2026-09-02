@@ -552,19 +552,6 @@ configure_firewall() {
   run_sudo systemctl enable ufw.service
 }
 
-configure_oomd() {
-  local path=/etc/systemd/oomd.conf.d/10-aileks.conf
-  local content='[OOM]
-DefaultMemoryPressureDurationSec=20s
-DefaultMemoryPressureLimit=50%
-SwapUsedLimit=90%
-'
-  backup_root_file "$path" oomd.conf || return
-  ensure_root_file "$path" "$content" || return
-  run_sudo systemctl daemon-reload || return
-  run_sudo systemctl enable systemd-oomd.service
-}
-
 snapper_config_exists() {
   local config="$1"
   if ((DRY_RUN)); then
@@ -842,10 +829,10 @@ configure_gsettings() {
   gsettings set "$schema" icon-theme Papirus-Dark || return
   gsettings set "$schema" cursor-theme Adwaita || return
   gsettings set "$schema" cursor-size 24 || return
-  gsettings set "$schema" font-name 'Adwaita Mono 11' || return
+  gsettings set "$schema" font-name 'Adwaita Sans 11' || return
   gsettings set "$schema" monospace-font-name 'Maple Mono NF 11' || return
   gsettings set "$schema" font-antialiasing rgba || return
-  gsettings set "$schema" font-hinting slight || return
+  gsettings set "$schema" font-hinting full || return
   gsettings set "$schema" font-rgba-order rgb || return
   gsettings set "$schema" clock-format 24h || return
   gsettings set org.gnome.desktop.wm.preferences button-layout ''
@@ -1009,7 +996,6 @@ main() {
   run_step "configure mDNS" configure_mdns
   run_step "configure SSH keepalives" configure_ssh_keepalive
   run_step "configure UFW" configure_firewall
-  run_step "configure systemd-oomd" configure_oomd
   run_step "configure Snapper and Limine" configure_snapper
 
   run_step "configure tty1 autologin" configure_autologin
