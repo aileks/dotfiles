@@ -420,12 +420,15 @@ check_appearance() {
 check_fontconfig() {
   local family match pattern properties
   local -a matches=(
-    'sans-serif|Iosevka Nerd Font Propo'
-    'serif|Iosevka Nerd Font Propo'
-    'monospace|IosevkaTerm Nerd Font Mono'
-    ':family=system-ui|Iosevka Nerd Font Propo'
-    ':family=ui-serif|Iosevka Nerd Font Propo'
-    ':family=ui-monospace|IosevkaTerm Nerd Font Mono'
+    'sans-serif|Maple Mono'
+    'serif|Noto Serif'
+    'monospace|Maple Mono NF'
+    ':family=system-ui|Maple Mono'
+    ':family=ui-sans-serif|Maple Mono'
+    ':family=ui-serif|Noto Serif'
+    ':family=ui-monospace|Maple Mono NF'
+    ':family=-apple-system|Maple Mono'
+    ':family=BlinkMacSystemFont|Maple Mono'
     'emoji|Noto Color Emoji'
     'math|Latin Modern Math'
     ':lang=ar|Noto Naskh Arabic'
