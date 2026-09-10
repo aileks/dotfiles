@@ -54,6 +54,7 @@ base_packages=(
   sys-auth/nss-mdns
   net-print/cups
   net-wireless/bluez
+  net-wireless/blueman
   app-shells/zsh
   app-portage/gentoolkit
   app-eselect/eselect-repository
@@ -108,7 +109,7 @@ desktop_packages=(
   gui-apps/swayidle
   gui-apps/swaybg
   gui-apps/wlopm
-  x11-misc/dunst
+  gui-apps/mako
   x11-misc/gammastep
   media-sound/playerctl
   media-sound/wiremix
@@ -302,7 +303,7 @@ link() {
 link_dotfiles() {
   local name desktop script target
 
-  for name in bat btop cava dunst fastfetch fontconfig nvim qt6ct zathura \
+  for name in bat btop cava fastfetch fontconfig mako nvim qt6ct zathura \
     mango swaylock waybar wezterm yazi \
     xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"

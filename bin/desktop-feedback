@@ -11,10 +11,8 @@ case $kind in
       printf 'usage: desktop-feedback status <summary>\n' >&2
       exit 2
     }
-    dunstify \
+    notify-send \
       --app-name desktop-feedback \
-      --stack-tag desktop-feedback \
-      --transient \
       --expire-time 1800 \
       "$*"
     ;;
@@ -25,10 +23,8 @@ case $kind in
       printf 'usage: desktop-feedback progress <0-100> <summary>\n' >&2
       exit 2
     fi
-    dunstify \
+    notify-send \
       --app-name desktop-feedback \
-      --stack-tag desktop-feedback \
-      --transient \
       --expire-time 1800 \
       --hint "int:value:$value" \
       "$*"

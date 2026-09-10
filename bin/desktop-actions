@@ -2,13 +2,13 @@
 
 set -Eeuo pipefail
 
-choice=$(printf '%s\n' 'OCR' 'Scan QR' 'Reminders' 'Notification History' \
+choice=$(printf '%s\n' 'OCR' 'Scan QR' 'Reminders' 'Restore Notifications' \
   'Network Settings' 'Quick Calculate' | wmenu -i -p actions) || exit 0
 case "$choice" in
   'OCR') exec region-ocr ;;
   'Scan QR') exec qr-scan ;;
   'Reminders') exec reminder ;;
-  'Notification History') exec notification-history ;;
+  'Restore Notifications') exec makoctl restore ;;
   'Network Settings') exec wezterm start --always-new-process -- nmtui ;;
   'Quick Calculate') exec calculate ;;
 esac

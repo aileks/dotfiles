@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if ! pause_level=$(dunstctl get-pause-level 2>/dev/null); then
+if ! modes=$(makoctl mode 2>/dev/null); then
   jq -cn '{text: "󰂛", class: "unavailable", tooltip: "Notifications unavailable"}'
   exit 0
 fi
@@ -8,16 +8,12 @@ fi
 icon=""
 state="active"
 dnd="off"
-if ((pause_level > 0)); then
+if grep -qx dnd <<<"$modes"; then
   icon=""
   state="paused"
   dnd="on"
 fi
 
-waiting=$(dunstctl count waiting 2>/dev/null || printf '?')
-history=$(dunstctl count history 2>/dev/null || printf '?')
 jq -cn --arg text "$icon" --arg class "$state" \
-  --arg tooltip "Do not disturb: $dnd
-Waiting: $waiting
-History: $history" \
+  --arg tooltip "Do not disturb: $dnd" \
   '{text: $text, class: $class, tooltip: $tooltip}'

@@ -1,0 +1,40 @@
+font=Iosevka Nerd Font 12
+background-color=#131210
+text-color=#BBB3A9
+border-size=2
+border-color=#58534C
+width=380
+height=120
+margin=5
+padding=10
+anchor=top-right
+icon-location=left
+icon-path=/usr/share/icons/Papirus-Dark
+max-icon-size=32
+default-timeout=5000
+group-by=app-name,summary
+format=<b>%s</b>\n%b
+progress-color=over #E17A3F
+
+[urgency=low]
+border-color=#58534C
+default-timeout=4000
+
+[urgency=critical]
+text-color=#DDD5CA
+border-color=#B34A45
+default-timeout=0
+
+[mode=dnd]
+invisible=1
+
+# Listed after [mode=dnd] so desktop feedback overrides DND invisibility.
+[app-name=desktop-feedback]
+invisible=0
+format=<b>%s</b>
+icons=0
+default-timeout=2000
+
+[app-name=reminder]
+markup=0
+default-timeout=0
