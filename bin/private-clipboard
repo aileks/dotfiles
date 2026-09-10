@@ -1,120 +1,43 @@
 #!/usr/bin/env bash
-
-set -Eeuo pipefail
-
-# shellcheck source=config/session/processes.sh
-source "${XDG_CONFIG_HOME:-$HOME/.config}/session/processes.sh"
-directory=$RUNTIME_DIR/private-clipboard
-mkdir -p "$directory"
-
-restore() {
-  rm -f "$directory/payload"
-  if [[ -f $directory/restore-history ]]; then
-    rm -f "$directory/restore-history"
-    if session_is_live; then
-      start_session_process cliphist wl-paste --type text --watch cliphist -max-items 50 -max-dedupe-search 50 store
-    fi
+set -euo pipefail
+umask 077
+[[ ${1:-} == put && $# == 1 ]] || {
+  echo 'Usage: private-clipboard put' >&2
+  exit 2
+}
+exec 9>"${XDG_RUNTIME_DIR:?}/private-clipboard.lock"
+flock -n 9 || {
+  desktop-feedback status 'Private clipboard is in use'
+  exit 1
+}
+payload=$(mktemp "$XDG_RUNTIME_DIR/private-clipboard.XXXXXXXX")
+owner=
+ready=false
+cleanup() {
+  rm -f -- "$payload"
+  if ! "$ready" && [[ -n $owner ]]; then
+    kill "$owner" 2>/dev/null || true
+    wait "$owner" 2>/dev/null || true
   fi
 }
-
-case ${1:-} in
-  put)
-    exec 9>"$XDG_RUNTIME_DIR/private-clipboard.lock"
-    flock -n 9 || {
-      desktop-feedback status 'Private clipboard is in use'
-      exit 1
-    }
-    if record_is_live "$RUNTIME_DIR/private-clipboard.pid"; then
-      desktop-feedback status 'Private clipboard is in use; wait 60 seconds'
-      exit 1
-    fi
-    session_is_live || exit 1
-    restore
-    handed_off=false
-    worker_started=false
-    input_pid=
-    # shellcheck disable=SC2329 # Invoked by the EXIT trap.
-    cleanup_put() {
-      trap - EXIT
-      trap '' TERM INT HUP
-      if [[ -n $input_pid ]]; then
-        kill "$input_pid" 2>/dev/null || true
-        wait "$input_pid" 2>/dev/null || true
-      fi
-      if ! "$handed_off"; then
-        "$worker_started" && stop_session_process private-clipboard
-        restore
-      fi
-    }
-    trap cleanup_put EXIT
-    trap 'exit 130' INT
-    trap 'exit 143' TERM HUP
-    cat <&0 >"$directory/payload" &
-    input_pid=$!
-    wait "$input_pid"
-    input_pid=
-    [[ -s $directory/payload ]] || {
-      rm -f "$directory/payload"
-      exit 1
-    }
-    if record_is_live "$RUNTIME_DIR/cliphist.pid"; then
-      touch "$directory/restore-history"
-      stop_session_process cliphist
-    fi
-    rm -f "$directory/ready"
-    start_session_process private-clipboard "$0" serve 9>&-
-    worker_started=true
-    # Let the worker acquire the private clipboard lock.
-    flock -u 9
-    for _ in {1..100}; do
-      if [[ -f $directory/ready ]]; then
-        handed_off=true
-        exit 0
-      fi
-      record_is_live "$RUNTIME_DIR/private-clipboard.pid" || break
-      sleep 0.1
-    done
-    desktop-feedback status 'Private clipboard failed'
-    exit 1
-    ;;
-  serve)
-    exec 9>"$XDG_RUNTIME_DIR/private-clipboard.lock"
-    flock 9
-    owner_pid=
-    cleanup() {
-      trap - EXIT
-      trap '' TERM INT HUP
-      if [[ -n $owner_pid ]]; then
-        kill "$owner_pid" 2>/dev/null || true
-        wait "$owner_pid" 2>/dev/null || true
-      fi
-      rm -f "$directory/ready"
-      restore
-    }
-    trap cleanup EXIT
-    trap 'exit 0' TERM INT HUP
-    wl-copy --foreground --sensitive --type 'text/plain;charset=utf-8' <"$directory/payload" >/dev/null 2>&1 9>&- &
-    owner_pid=$!
-    ready=false
-    for _ in {1..20}; do
-      kill -0 "$owner_pid" 2>/dev/null || break
-      if timeout 0.2 wl-paste --no-newline 2>/dev/null | cmp -s - "$directory/payload"; then
-        ready=true
-        break
-      fi
-      sleep 0.05
-    done
-    rm -f "$directory/payload"
-    "$ready" || exit 1
-    touch "$directory/ready"
-    desktop-feedback status 'Copied privately for 60 seconds' || true
-    for _ in {1..60}; do
-      kill -0 "$owner_pid" 2>/dev/null || break
-      sleep 1
-    done
-    ;;
-  *)
-    echo 'Usage: private-clipboard put' >&2
-    exit 2
-    ;;
-esac
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM HUP
+cat >"$payload"
+[[ -s $payload ]] || exit 1
+timeout 60s wl-copy --foreground --sensitive --type 'text/plain;charset=utf-8' \
+  <"$payload" >/dev/null 2>&1 &
+owner=$!
+for _ in {1..20}; do
+  kill -0 "$owner" 2>/dev/null || break
+  if timeout 0.2s wl-paste --no-newline 2>/dev/null | cmp -s - "$payload"; then
+    ready=true
+    break
+  fi
+  sleep 0.05
+done
+"$ready" || {
+  desktop-feedback status 'Private clipboard failed'
+  exit 1
+}
+desktop-feedback status 'Copied privately for up to 60 seconds' || true

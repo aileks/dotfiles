@@ -9,6 +9,6 @@ case "$choice" in
   'Scan QR') exec qr-scan ;;
   'Reminders') exec reminder ;;
   'Notification History') exec notification-history ;;
-  'Network Settings') exec networkmanager_dmenu ;;
+  'Network Settings') exec wezterm start --always-new-process -- nmtui ;;
   'Quick Calculate') exec calculate ;;
 esac

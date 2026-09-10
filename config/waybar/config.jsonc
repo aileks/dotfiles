@@ -89,6 +89,7 @@
     ],
     "modules-right": [
       "custom/bar-dnd",
+      "network",
       "pulseaudio",
       "group/processor",
       "custom/bar-memory",
@@ -129,6 +130,13 @@
       "icon-size": 16,
       "spacing": 5
     },
-    "width": null
+    "width": null,
+    "network": {
+      "format-wifi": "  {essid}",
+      "format-ethernet": "󰈀  {ifname}",
+      "format-disconnected": "󰖪  offline",
+      "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+      "on-click": "wezterm start --always-new-process -- nmtui"
+    }
   }
 ]

@@ -1,0 +1,10 @@
+[metadata]
+name = "portage"
+description = "Search Gentoo packages and preview versions, USE flags, and installation status"
+requirements = ["eix"]
+
+[source]
+command = "eix --only-names"
+
+[preview]
+command = "eix --color --exact '{}'"

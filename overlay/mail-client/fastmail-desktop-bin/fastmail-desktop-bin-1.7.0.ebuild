@@ -12,7 +12,7 @@ S="${WORKDIR}/squashfs-root"
 
 LICENSE="all-rights-reserved"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="bindist mirror strip"
 
 BDEPEND="sys-fs/squashfs-tools"

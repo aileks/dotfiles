@@ -198,7 +198,7 @@
     "org.gnome.FileRoller.desktop"
   ],
   "application/xhtml+xml": [
-    "qutebrowser"
+    "zen-browser-bin.desktop"
   ],
   "application/xml": [
     "nvim.desktop"
@@ -342,7 +342,7 @@
     "onlyoffice-desktopeditors.desktop"
   ],
   "text/html": [
-    "qutebrowser"
+    "zen-browser-bin.desktop"
   ],
   "text/javascript": [
     "nvim.desktop"
@@ -459,10 +459,10 @@
     "mpv.desktop"
   ],
   "x-scheme-handler/http": [
-    "qutebrowser"
+    "zen-browser-bin.desktop"
   ],
   "x-scheme-handler/https": [
-    "qutebrowser"
+    "zen-browser-bin.desktop"
   ],
   "x-scheme-handler/mailto": [
     "fastmail.desktop"

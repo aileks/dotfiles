@@ -3,3 +3,4 @@ config/zsh/zsh_plugins.zsh
 config/cava/shaders/
 config/cava/themes/
 /result
+.zcode/

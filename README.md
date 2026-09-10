@@ -4,11 +4,12 @@ My Gentoo configuration using [MangoWM](https://github.com/mangowm/mango)
 
 ## Install
 
-Prepare storage and extract a verified desktop OpenRC stage3 manually, then:
+On a booted Gentoo OpenRC system with sudo and networking working:
 
 ```sh
-sudo ./install.sh --root /mnt/gentoo --check-only
-sudo ./install.sh --root /mnt/gentoo
+git clone --recurse-submodules https://github.com/aileks/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install.sh
 ```
 
 ## Keybinds

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-set -eu
-
-exec /usr/local/sbin/update-limine "$1" "$2"

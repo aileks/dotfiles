@@ -1,3 +1,1 @@
-# Enabled by setup-user.sh; home-backup requires the External volume to be mounted.
-* * * * * XDG_RUNTIME_DIR=/run/user/1000 /home/aileks/.local/bin/run-with-session-env /home/aileks/.local/bin/reminder dispatch
-0 9 * * * XDG_RUNTIME_DIR=/run/user/1000 /home/aileks/.local/bin/run-backup-cron
+0 9 * * * PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin" "$HOME/.local/bin/home-backup"
