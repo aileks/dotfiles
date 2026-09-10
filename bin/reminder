@@ -103,12 +103,6 @@ case ${command,,} in
     flock -u 9
     desktop-feedback status "Reminder cancelled"
     ;;
-  watch)
-    while mmsg -g >/dev/null 2>&1; do
-      "$0" dispatch || true
-      sleep 60
-    done
-    ;;
   dispatch)
     flock 9
     read_records
@@ -127,7 +121,7 @@ case ${command,,} in
     done < <(jq -r --argjson now "$now" 'sort_by(.due)[] | select(.due <= $now) | .id' <<<"$records")
     ;;
   *)
-    printf 'usage: reminder [create|list|cancel|dispatch|watch]\n' >&2
+    printf 'usage: reminder [create|list|cancel|dispatch]\n' >&2
     exit 2
     ;;
 esac

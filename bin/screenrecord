@@ -6,10 +6,6 @@ videos_directory=$(xdg-user-dir VIDEOS 2>/dev/null || true)
 directory="${videos_directory:-${XDG_VIDEOS_DIR:-$HOME/Videos}}/Recordings"
 statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/screenrecord.state"
 
-# Serialize the state check and start/stop operation, including region selection.
-exec 9>"$statefile.lock"
-flock -n 9 || exit 1
-
 recording_is_live() {
   local current_start_time process_state executable
   [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] || return 1
@@ -52,12 +48,56 @@ stop_recording() {
   fi
 }
 
+# The menu only reads the state to pick a flow, and the idle inhibitor outlives
+# the start command, so neither takes the state lock.
+if [[ ${1:-} == menu ]]; then
+  if read_state && recording_is_live; then
+    choice=$(printf '%s\n' 'Stop Recording' | wmenu -p record) || exit 0
+    [[ $choice == 'Stop Recording' ]] || exit 0
+    set -- stop
+  else
+    choice=$(printf '%s\n' 'Record Region' 'Record Screen' | wmenu -p record) || exit 0
+    case "$choice" in
+      'Record Region') mode=region ;;
+      'Record Screen') mode=output ;;
+      *) exit 0 ;;
+    esac
+    audio=$(printf '%s\n' 'No Audio' 'Microphone' 'Desktop + Microphone' | wmenu -p audio) || exit 0
+    case "$audio" in
+      'No Audio') audio=none ;;
+      'Microphone') audio=mic ;;
+      'Desktop + Microphone') audio=desktop+mic ;;
+      *) exit 0 ;;
+    esac
+    set -- "$mode" "$audio"
+  fi
+elif [[ ${1:-} == inhibit ]]; then
+  exec elogind-inhibit --what=idle --who=screenrecord --why='Screen recording' \
+    --mode=block "$0" inhibit-watch "${@:2}"
+elif [[ ${1:-} == inhibit-watch ]]; then
+  shift
+  pid=${1:-}
+  start_time=${2:-}
+  [[ $pid =~ ^[0-9]+$ && $start_time =~ ^[0-9]+$ ]] || exit 2
+  recording_is_live || exit 1
+  printf 'READY\n'
+  # swayidle honors logind's idle inhibitor for all of its timeout commands.
+  while recording_is_live; do
+    sleep 1
+  done
+  exit 0
+fi
+
+# Serialize the state check and start/stop operation, including region selection.
+exec 9>"$statefile.lock"
+flock -n 9 || exit 1
+
 mode=${1:-output}
 audio=${2:-none}
 case "$mode" in
   region | output | stop | status) ;;
   *)
-    printf 'usage: screenrecord [region|output] [none|mic|desktop+mic] | stop | status\n' >&2
+    printf 'usage: screenrecord [region|output] [none|mic|desktop+mic] | stop | status | menu\n' >&2
     exit 2
     ;;
 esac
@@ -66,7 +106,7 @@ if [[ $mode == region || $mode == output ]]; then
   case "$audio" in
     none | mic | desktop+mic) ;;
     *)
-      printf 'usage: screenrecord [region|output] [none|mic|desktop+mic] | stop | status\n' >&2
+      printf 'usage: screenrecord [region|output] [none|mic|desktop+mic] | stop | status | menu\n' >&2
       exit 2
       ;;
   esac
@@ -155,7 +195,7 @@ if ! start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null); then
   exit 1
 fi
 
-coproc inhibitor { exec recording-inhibit "$pid" "$start_time" 9>&-; }
+coproc inhibitor { exec "$0" inhibit "$pid" "$start_time" 9>&-; }
 inhibitor_fd=${inhibitor[0]:-}
 inhibitor_pid=${inhibitor_PID:-}
 if [[ -z $inhibitor_fd ]] || ! read -r -t 5 ready <&"$inhibitor_fd" || [[ $ready != READY ]]; then
