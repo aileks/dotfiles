@@ -38,7 +38,6 @@ run() {
 
 base_packages=(
   sys-kernel/installkernel
-  sys-kernel/gentoo-kernel-bin
   sys-kernel/linux-firmware
   sys-boot/limine
   x11-drivers/nvidia-drivers
@@ -95,8 +94,6 @@ desktop_packages=(
   x11-misc/ly
   gui-apps/waybar
   gui-apps/wmenu
-  x11-terms/wezterm-bin
-  www-client/zen-browser-bin
   app-misc/yazi
   app-text/zathura
   app-text/zathura-pdf-mupdf
@@ -160,17 +157,10 @@ desktop_packages=(
   media-fonts/noto-emoji
 )
 app_packages=(
-  net-im/signal-desktop-bin
-  app-office/onlyoffice-bin
-  app-admin/bitwarden-desktop-bin
-  app-admin/bitwarden-cli-bin
   app-misc/openrgb
   media-video/gpu-screen-recorder
-  mail-client/fastmail-desktop-bin
-  net-misc/localsend-bin
   sys-apps/flatpak
   net-vpn/ivpn
-  net-vpn/ivpn-ui-bin
 )
 dev_packages=(
   sys-devel/gcc
@@ -180,10 +170,22 @@ dev_packages=(
   app-editors/neovim
   dev-python/uv
   net-libs/nodejs
-  sys-apps/pnpm-bin
   dev-util/tree-sitter-cli
   dev-lang/zig
   dev-util/github-cli
+)
+binary_packages=(
+  sys-kernel/gentoo-kernel-bin
+  x11-terms/wezterm-bin
+  www-client/zen-browser-bin
+  net-im/signal-desktop-bin
+  app-office/onlyoffice-bin
+  app-admin/bitwarden-desktop-bin
+  app-admin/bitwarden-cli-bin
+  mail-client/fastmail-desktop-bin
+  net-misc/localsend-bin
+  net-vpn/ivpn-ui-bin
+  sys-apps/pnpm-bin
 )
 
 install_system_file() {
@@ -236,11 +238,10 @@ sync_overlays() {
 }
 
 install_packages() {
-  local package
-  for package in "${base_packages[@]}" "${cli_packages[@]}" \
-    "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}"; do
-    run sudo emerge -gvn "$package"
-  done
+  local -a source_packages=("${base_packages[@]}" "${cli_packages[@]}"
+    "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
+  run sudo emerge -vn "${source_packages[@]}"
+  run sudo emerge -gvn "${binary_packages[@]}"
   run sudo eix-update
   run flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
   run flatpak install --user --noninteractive --assumeyes flathub \
