@@ -227,7 +227,7 @@ install_system_config() {
 
 sync_overlays() {
   local overlay
-  run sudo emerge --noreplace --quiet app-eselect/eselect-repository dev-vcs/git
+  run sudo emerge -qn app-eselect/eselect-repository dev-vcs/git
   for overlay in guru gentoo-zh waffle-builds; do
     if [[ ! -f /var/db/repos/$overlay/profiles/repo_name ]]; then
       run sudo emaint sync --repo "$overlay"
@@ -239,7 +239,7 @@ install_packages() {
   local package
   for package in "${base_packages[@]}" "${cli_packages[@]}" \
     "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}"; do
-    run sudo emerge --getbinpkg=y --usepkg=y --quiet "$package"
+    run sudo emerge -gvn "$package"
   done
   run sudo eix-update
   run flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
