@@ -12,6 +12,14 @@ cd ~/.dotfiles
 ./install.sh
 ```
 
+## Layout
+
+- `bin/`: daily-use commands, linked into `~/.local/bin`
+- `config/`: application configs, linked into `~/.config`
+- `etc/`, `rootfs/`, `overlay/`: system files, installed as root-owned copies
+- `etc/portage/`: per-package keywords, USE flags, and licenses
+- package lists live in the arrays at the top of `install.sh`
+
 ## Keybinds
 
 > [!NOTE]  
