@@ -2,6 +2,8 @@ gnome-base/gnome-keyring pam -ssh-agent
 sys-auth/elogind pam policykit
 gui-apps/swayidle elogind
 sys-kernel/installkernel dracut -systemd -systemd-boot
+media-fonts/nerdfonts iosevka iosevkaterm
+x11-libs/libxkbcommon tools
 www-client/qutebrowser adblock pdf
 gui-apps/waybar mpris network pulseaudio tray
 app-crypt/pinentry gtk

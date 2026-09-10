@@ -1,3 +1,3 @@
-# Install after manual backup and restore validation; merge with crontab -e.
+# Enabled by setup-user.sh; home-backup requires the External volume to be mounted.
 * * * * * XDG_RUNTIME_DIR=/run/user/1000 /home/aileks/.local/bin/run-with-session-env /home/aileks/.local/bin/reminder dispatch
 0 9 * * * XDG_RUNTIME_DIR=/run/user/1000 /home/aileks/.local/bin/run-backup-cron

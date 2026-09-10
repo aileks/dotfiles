@@ -1,5 +1,5 @@
 export WEZTERM_HOSTNAME="$(hostname)"
 
-if [[ -r ${XDG_DATA_HOME:-$HOME/.local/share}/nixdots/wezterm-shell-integration.sh ]]; then
-  source "${XDG_DATA_HOME:-$HOME/.local/share}/nixdots/wezterm-shell-integration.sh"
+if [[ -r /etc/profile.d/wezterm.sh ]]; then
+  source /etc/profile.d/wezterm.sh
 fi

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Sourced by Bash session scripts. PID records include Linux start time so a reused PID can never identify an unrelated process after a crash.
 umask 077
 runtime=${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR is required}
@@ -6,12 +7,12 @@ runtime=${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR is required}
   return 1
 }
 
-RUNTIME_DIR=$runtime/nixdots
-STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/nixdots
-[[ ! -L $RUNTIME_DIR ]] || return 1
+RUNTIME_DIR=$runtime/mango-session
+STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/mango-session
+[[ ! -L $RUNTIME_DIR && ! -L $STATE_DIR ]] || return 1
 mkdir -p "$RUNTIME_DIR" "$STATE_DIR"
-[[ -O $RUNTIME_DIR ]] || return 1
-chmod 700 "$RUNTIME_DIR"
+[[ -O $RUNTIME_DIR && -O $STATE_DIR ]] || return 1
+chmod 700 "$RUNTIME_DIR" "$STATE_DIR"
 
 process_start() {
   local pid=$1 record
@@ -45,7 +46,8 @@ start_session_process() (
   session_is_live || exit 1
   record_is_live "$RUNTIME_DIR/$name.pid" && exit 0
   rm -f "$RUNTIME_DIR/$name.pid"
-  setsid session-process supervise "$@" </dev/null >>"$STATE_DIR/$name.log" 2>&1 8>&- 9>&- &
+  [[ ! -L $STATE_DIR/$name.log ]] || exit 1
+  setsid session-process supervise "$@" </dev/null >"$STATE_DIR/$name.log" 2>&1 8>&- 9>&- &
   pid=$!
   started=$(process_start "$pid") || exit 1
   printf '%s %s\n' "$pid" "$started" >"$RUNTIME_DIR/$name.pid"

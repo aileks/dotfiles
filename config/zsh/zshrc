@@ -110,9 +110,11 @@ export _ZO_FZF_OPTS="
 
 # Antidote
 antidote_script="$HOME/.antidote/antidote.zsh"
-source "${antidote_script:A}"
+if [[ -r $antidote_script ]]; then
+  source "${antidote_script:A}"
+  antidote load "${${(%):-%N}:A:h}/zsh_plugins.txt"
+fi
 unset antidote_script
-antidote load "${${(%):-%N}:A:h}/zsh_plugins.txt"
 source "${${(%):-%N}:A:h}/cinder-grove.zsh"
 
 # Evals

@@ -26,7 +26,7 @@ for theme in Papirus Papirus-Dark Papirus-Light; do
 done
 
 # Limit the upstream tool's theme search to the user-owned copies.
-XDG_DATA_DIRS="$data_home" bash "$data_home/nixdots/papirus-folders/papirus-folders-cg" --once --theme Papirus-Dark --color grove
+XDG_DATA_DIRS="$data_home" bash "$data_home/dotfiles/papirus-folders/papirus-folders-cg" --once --theme Papirus-Dark --color grove
 for theme in Papirus Papirus-Dark Papirus-Light; do
   gtk-update-icon-cache -f "$data_home/icons/$theme"
 done

@@ -77,7 +77,7 @@ install_file() {
       echo "Not a regular file: $target" >&2
       exit 1
     }
-    backup=${root%/}/var/backups/nixdots/$stamp/$relative
+    backup=${root%/}/var/backups/dotfiles/$stamp/$relative
     refuse_symlinks "$backup"
     [[ ! -e $backup ]] || {
       echo "Backup already exists: $backup" >&2
@@ -87,7 +87,7 @@ install_file() {
     cp -p -- "$target" "$backup"
   fi
 
-  temporary=$(mktemp "$(dirname -- "$target")/.nixdots.XXXXXXXX")
+  temporary=$(mktemp "$(dirname -- "$target")/.dotfiles.XXXXXXXX")
   command install -o 0 -g 0 -m "$mode" -- "$source" "$temporary"
   sync -f "$temporary"
   mv -T -- "$temporary" "$target"
@@ -111,14 +111,14 @@ for base in etc rootfs; do
     relative=${source#"$repo/$base/"}
     [[ $base == etc ]] && relative=etc/$relative
     mode=644
-    [[ $relative == *.install || /$relative/ == */bin/* ]] && mode=755
+    [[ $relative == *.install || /$relative/ == */bin/* || /$relative/ == */sbin/* ]] && mode=755
     install_file "$source" "$relative" "$mode"
   done < <(find "$repo/$base" -type f -print0 | sort -z)
 done
 
 install_file "$repo/config/wmenu/center.patch" etc/portage/patches/gui-apps/wmenu/center.patch
 
-directive='source /etc/portage/make.conf.nixdots'
+directive='source /etc/portage/make.conf.dotfiles'
 
 if [[ ! -f $make_conf ]] || ! grep -Fxq -- "$directive" "$make_conf"; then
   [[ ! -f $make_conf ]] || cat -- "$make_conf" >"$scratch/make.conf"

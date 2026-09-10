@@ -17,7 +17,7 @@ timestamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
 new_snapshot="$snapshots_directory/$timestamp"
 incomplete_snapshot="$snapshots_directory/.$timestamp.incomplete"
 excludes="$HOME/.config/rsync-home.excludes"
-runtime_directory="${XDG_STATE_HOME:-$HOME/.local/state}/nixdots"
+runtime_directory="${XDG_STATE_HOME:-$HOME/.local/state}/home-backup"
 mkdir -p "$runtime_directory"
 
 notify() {

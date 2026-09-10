@@ -6,6 +6,7 @@ if [[ ${1:-} == supervise ]]; then
   shift
   # setsid gives this supervisor its own process group. Children of launchers
   # (including PipeWire and clipboard watchers) share that group's lifetime.
+  # shellcheck disable=SC2329 # Invoked by the EXIT trap.
   finish() {
     trap - EXIT
     trap '' TERM INT HUP

@@ -1,4 +1,4 @@
-# Probe with emerge -pv --getbinpkg --usepkgonly before installation.
+# Installed with binary packages where compatible; source builds are allowed.
 app-arch/7zip
 app-text/tree
 sys-apps/bat

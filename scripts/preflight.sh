@@ -7,7 +7,7 @@ for cmd in mango mmsg waybar wmenu wezterm wezterm-mux-server yazi qutebrowser \
   swaylock swayidle swaybg wlopm dunst gammastep wl-copy wl-paste cliphist \
   playerctl playerctld nm-applet networkmanager_dmenu udiskie wpctl wiremix \
   grim slurp loginctl elogind-inhibit dbus-run-session dbus-update-activation-environment \
-  gentoo-pipewire-launcher podman pinentry-gnome3 bw keyctl xkbcli; do
+  gentoo-pipewire-launcher podman pinentry-gnome3 bw keyctl xkbcli bemoji fastmail; do
   command -v "$cmd" >/dev/null || {
     echo "MISSING: $cmd"
     failed=1

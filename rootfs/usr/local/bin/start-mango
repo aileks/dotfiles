@@ -22,5 +22,5 @@ export LIBVA_DRIVER_NAME=nvidia NVD_BACKEND=direct __GLX_VENDOR_LIBRARY_NAME=nvi
 export EDITOR=nvim VISUAL=nvim SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export BEMOJI_PICKER_CMD='wmenu -i -p emoji' BEMOJI_CLIP_CMD=wl-copy
 export BEMOJI_DOWNLOAD_LIST=none
-export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export XDG_DATA_DIRS="$HOME/.local/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 exec dbus-run-session -- mango-session "$@"

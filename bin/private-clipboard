@@ -33,6 +33,7 @@ case ${1:-} in
     handed_off=false
     worker_started=false
     input_pid=
+    # shellcheck disable=SC2329 # Invoked by the EXIT trap.
     cleanup_put() {
       trap - EXIT
       trap '' TERM INT HUP

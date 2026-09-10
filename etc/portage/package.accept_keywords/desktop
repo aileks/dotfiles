@@ -1,2 +1,10 @@
-# Record exact version exceptions reported by the synced Portage resolver here.
+# Intentional unstable desktop packages on the stable profile.
+app-misc/yazi ~amd64
+media-sound/wiremix ~amd64
+app-containers/podman-tui ~amd64
+dev-util/sh ~amd64
+x11-misc/ly ~amd64
+mail-client/fastmail-desktop-bin ~amd64
+media-fonts/nerdfonts ~amd64
+sys-boot/limine ~amd64
 =app-misc/anki-25.09.2 ~amd64

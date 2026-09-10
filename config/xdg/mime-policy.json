@@ -465,6 +465,6 @@
     "qutebrowser"
   ],
   "x-scheme-handler/mailto": [
-    "com.fastmail.Fastmail.desktop"
+    "fastmail.desktop"
   ]
 }

@@ -1,4 +1,4 @@
-# Probe with emerge -pv --getbinpkg --usepkgonly before installation.
+# Installed with binary packages where compatible; source builds are allowed.
 sys-kernel/installkernel
 sys-kernel/dracut
 sys-kernel/gentoo-kernel-bin

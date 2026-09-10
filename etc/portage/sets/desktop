@@ -1,5 +1,6 @@
-# Probe with emerge -pv --getbinpkg --usepkgonly before installation.
+# Installed with binary packages where compatible; source builds are allowed.
 =gui-wm/mangowm-0.16.3
+x11-misc/ly
 gui-apps/waybar
 gui-apps/wmenu
 x11-terms/wezterm
@@ -61,10 +62,13 @@ app-text/xmlstarlet
 sys-apps/keyutils
 app-crypt/pinentry
 gnome-base/gnome-keyring
+gnome-base/gsettings-desktop-schemas
+gnome-base/dconf
 gui-apps/qt6ct
 x11-themes/papirus-icon-theme
 x11-themes/adwaita-icon-theme
 media-fonts/adwaita-fonts
+media-fonts/nerdfonts
 media-fonts/noto
 media-fonts/noto-cjk
 media-fonts/noto-emoji

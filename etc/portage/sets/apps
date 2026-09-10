@@ -1,11 +1,11 @@
-# Probe with emerge -pv --getbinpkg --usepkgonly before installation.
+# Installed with binary packages where compatible; source builds are allowed.
 net-im/signal-desktop-bin
 app-office/onlyoffice-bin
 app-admin/bitwarden-desktop-bin
 app-admin/bitwarden-cli-bin
 app-misc/openrgb
 media-video/gpu-screen-recorder
-sys-apps/flatpak
+mail-client/fastmail-desktop-bin
 net-misc/localsend-bin
 app-misc/anki
 net-vpn/ivpn
