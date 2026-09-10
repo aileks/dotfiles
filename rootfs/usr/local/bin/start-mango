@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# Ly passes the packaged desktop command. Other sessions run normally.
+case ${1:-mango} in
+  mango | /usr/bin/mango) ;;
+  *) exec "$@" ;;
+esac
+
+[ "$(id -u)" -ne 0 ] || {
+  echo 'Start Mango as aileks, not root' >&2
+  exit 1
+}
+
+export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin"
+export XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=mango XDG_SESSION_DESKTOP=mango
+export GDK_BACKEND='wayland,x11,*' QT_QPA_PLATFORM='wayland;xcb' SDL_VIDEODRIVER=wayland
+export QT_QPA_PLATFORMTHEME=qt6ct XCURSOR_THEME=Adwaita XCURSOR_SIZE=24
+export XKB_CONFIG_EXTRA_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/xkb"
+export LIBVA_DRIVER_NAME=nvidia NVD_BACKEND=direct __GLX_VENDOR_LIBRARY_NAME=nvidia
+export EDITOR=nvim VISUAL=nvim SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+export BEMOJI_PICKER_CMD='wmenu -i -p emoji' BEMOJI_CLIP_CMD=wl-copy
+export BEMOJI_DOWNLOAD_LIST=none
+export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+exec dbus-run-session -- mango-session "$@"

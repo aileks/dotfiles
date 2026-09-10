@@ -1,0 +1,14 @@
+timeout: 3
+editor_enabled: no
+
+/Gentoo
+    protocol: linux
+    path: boot():/vmlinuz-gentoo
+    module_path: boot():/initramfs-gentoo.img
+    cmdline: root=UUID=<ROOT_UUID> rw resume=UUID=<SWAP_UUID> acpi_enforce_resources=lax nvidia_drm.modeset=1
+
+/Gentoo recovery
+    protocol: linux
+    path: boot():/vmlinuz-<KNOWN_GOOD_VERSION>
+    module_path: boot():/initramfs-<KNOWN_GOOD_VERSION>.img
+    cmdline: root=UUID=<ROOT_UUID> rw resume=UUID=<SWAP_UUID> acpi_enforce_resources=lax nvidia_drm.modeset=1

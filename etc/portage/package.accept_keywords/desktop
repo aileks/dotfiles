@@ -1,0 +1,2 @@
+# Record exact version exceptions reported by the synced Portage resolver here.
+=app-misc/anki-25.09.2 ~amd64

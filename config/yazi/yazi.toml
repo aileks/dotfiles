@@ -1,0 +1,17 @@
+[mgr]
+"linemode" = "size"
+"scrolloff" = 3
+"show_hidden" = true
+"show_symlink" = true
+"sort_by" = "natural"
+"sort_dir_first" = true
+"sort_sensitive" = false
+
+[open]
+"prepend_rules" = [{ "mime" = "application/{xml,*+xml,*+json,toml,yaml,x-yaml,x-shellscript}", "use" = ["edit", "reveal"] }]
+
+[opener]
+"edit" = [{ "block" = true, "desc" = "Neovim", "for" = "unix", "run" = "nvim -- %s" }]
+"open" = [{ "desc" = "Open", "for" = "linux", "orphan" = true, "run" = "xdg-open %s1" }]
+"play" = [{ "desc" = "mpv", "for" = "linux", "orphan" = true, "run" = "mpv -- %s" }]
+"reveal" = [{ "desc" = "Show in PCManFM", "for" = "linux", "orphan" = true, "run" = "pcmanfm %d1" }]

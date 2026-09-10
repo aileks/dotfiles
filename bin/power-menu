@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | wmenu -p power) || exit 0
+case "$choice" in
+  'log out') mmsg dispatch quit ;;
+  'suspend') lock-session && loginctl suspend ;;
+  'reboot') loginctl reboot ;;
+  'shut down') loginctl poweroff ;;
+esac

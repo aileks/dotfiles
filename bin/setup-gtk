@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+schema=org.gnome.desktop.interface
+gsettings set "$schema" gtk-theme Cinder-Grove-Dark
+gsettings set "$schema" icon-theme Papirus-Dark
+gsettings set "$schema" cursor-theme Adwaita
+gsettings set "$schema" cursor-size 24
+gsettings set "$schema" font-name 'Adwaita Sans 11'
+gsettings set "$schema" monospace-font-name 'Iosevka Nerd Font 12'
+gsettings set "$schema" color-scheme prefer-dark
+gsettings set "$schema" clock-format 24h
+gsettings set org.gnome.desktop.wm.preferences button-layout ''

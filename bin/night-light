@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+case ${1:-toggle} in
+  apply)
+    if session-process status night-light; then
+      session-process stop night-light
+      session-process start night-light gammastep -c /dev/null -m wayland -l 0:0 -t 4800:4800 -r
+    fi
+    ;;
+  start) session-process start night-light gammastep -c /dev/null -m wayland -l 0:0 -t 4800:4800 -r ;;
+  stop) session-process stop night-light ;;
+  toggle)
+    if session-process status night-light; then
+      session-process stop night-light
+      desktop-feedback status 'Night light off' || true
+    else
+      session-process start night-light gammastep -c /dev/null -m wayland -l 0:0 -t 4800:4800 -r
+      desktop-feedback status 'Night light on' || true
+    fi
+    ;;
+  *)
+    echo 'Usage: night-light [start|stop|toggle|apply]' >&2
+    exit 2
+    ;;
+esac

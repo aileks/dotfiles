@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Neovim
+Exec=wezterm start --always-new-process -- nvim -- %F
+Type=Application
+Terminal=false
+MimeType=text/plain;

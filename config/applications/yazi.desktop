@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Yazi
+Exec=wezterm start --always-new-process -- yazi %u
+Type=Application
+Terminal=false
+MimeType=inode/directory;

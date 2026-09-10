@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+[[ $UID != 0 ]] || {
+  echo 'Run link-dotfiles as aileks' >&2
+  exit 1
+}
+
+dry_run=false
+case ${1:-} in
+  --dry-run) dry_run=true ;;
+  '') ;;
+  *)
+    echo 'Usage: link-dotfiles [--dry-run]' >&2
+    exit 2
+    ;;
+esac
+
+repo=$(cd -- "$(dirname -- "$(readlink -f "$0")")/.." && pwd)
+config_home=${XDG_CONFIG_HOME:-$HOME/.config}
+data_home=${XDG_DATA_HOME:-$HOME/.local/share}
+stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+
+link() {
+  local source=$1 target=$2 backup
+
+  [[ -e $source ]] || {
+    echo "Missing source: $source" >&2
+    exit 1
+  }
+  [[ -L $target && $(readlink "$target") == "$source" ]] && return
+  printf 'link %s -> %s\n' "$target" "$source"
+  "$dry_run" && return
+  mkdir -p -- "$(dirname "$target")"
+
+  if [[ -e $target || -L $target ]]; then
+    backup=$target.before-gentoo-$stamp
+    [[ ! -e $backup && ! -L $backup ]] || exit 1
+    mv -T -- "$target" "$backup"
+    printf 'backup %s\n' "$backup"
+  fi
+  ln -sfnT -- "$source" "$target"
+}
+
+for name in bat btop cava dunst fastfetch fontconfig gtk-3.0 gtk-4.0 nvim qt6ct zathura \
+  mango session swaylock waybar wezterm yazi \
+  networkmanager-dmenu xdg-desktop-portal; do
+  link "$repo/config/$name" "$config_home/$name"
+done
+
+# Keep these directories writable for installed scripts and browser state.
+for name in config.py bitwarden.py fill.js readeck.py userscripts; do
+  link "$repo/config/qutebrowser/$name" "$config_home/qutebrowser/$name"
+done
+
+link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
+link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
+link "$repo/config/zsh/zshrc" "$HOME/.zshrc"
+link "$repo/config/starship/starship.toml" "$config_home/starship.toml"
+link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
+link "$repo/config/xorg/keymap.xkb" "$config_home/xkb/symbols/aileks"
+link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
+
+for desktop in "$repo/config/applications/"*.desktop; do
+  link "$desktop" "$data_home/applications/${desktop##*/}"
+done
+
+for script in "$repo/bin/"*; do
+  link "$script" "$HOME/.local/bin/${script##*/}"
+done

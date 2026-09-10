@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+exec swayidle -w \
+  timeout 600 'lock-session' \
+  timeout 900 "wlopm --off '*'" resume "wlopm --on '*'" \
+  timeout 1800 'lock-session && loginctl suspend' \
+  lock 'lock-session' \
+  before-sleep 'lock-session' \
+  after-resume "wlopm --on '*'; night-light apply"

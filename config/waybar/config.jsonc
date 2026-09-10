@@ -1,0 +1,134 @@
+[
+  {
+    "clock": {
+      "actions": {
+        "on-scroll-down": "shift_down",
+        "on-scroll-up": "shift_up"
+      },
+      "calendar": {
+        "format": {
+          "today": "<span color='#e17a3f'><b>{}</b></span>"
+        },
+        "mode": "month",
+        "on-scroll": 1
+      },
+      "format": "  {:%a %b %d %H:%M}",
+      "format-alt": "  {:%Y-%m-%d %H:%M}",
+      "tooltip-format": "<tt>{calendar}</tt>"
+    },
+    "cpu": {
+      "format": "  {usage}%",
+      "interval": 5,
+      "on-click": "wezterm start --always-new-process -- btop"
+    },
+    "custom/bar-cpu-temperature": {
+      "exec": "bar-cpu-temperature",
+      "interval": 10,
+      "on-click": "wezterm start --always-new-process -- btop",
+      "return-type": "json"
+    },
+    "custom/bar-dnd": {
+      "exec": "bar-dnd",
+      "exec-on-event": true,
+      "interval": 1,
+      "on-click": "notification-history",
+      "on-click-middle": "dunstctl history-clear",
+      "on-click-right": "dnd-toggle",
+      "return-type": "json"
+    },
+    "custom/bar-gpu": {
+      "exec": "bar-gpu",
+      "format": "󰾲  {}",
+      "interval": 5,
+      "on-click": "wezterm start --always-new-process -- nvtop",
+      "return-type": "json"
+    },
+    "custom/bar-memory": {
+      "exec": "bar-memory",
+      "format": "  {}",
+      "interval": 10,
+      "on-click": "wezterm start --always-new-process -- btop",
+      "return-type": "json"
+    },
+    "custom/mango-window": {
+      "exec": "mmsg watch all-monitors | jq --unbuffered -c '.monitors[] | {text: ((.active_client.title // \"\") | @html)}'\n",
+      "max-length": 65,
+      "restart-interval": 1,
+      "return-type": "json",
+      "tooltip": false
+    },
+    "ext/workspaces": {
+      "all-outputs": false,
+      "format": "{name}",
+      "ignore-hidden": true,
+      "on-click": "activate",
+      "on-click-right": "deactivate"
+    },
+    "group/processor": {
+      "modules": [
+        "cpu",
+        "custom/bar-cpu-temperature"
+      ],
+      "orientation": "horizontal"
+    },
+    "gtk-layer-shell": null,
+    "height": 25,
+    "layer": "top",
+    "margin": null,
+    "margin-bottom": null,
+    "margin-left": null,
+    "margin-right": null,
+    "margin-top": null,
+    "modules": null,
+    "modules-center": [
+      "mpris"
+    ],
+    "modules-left": [
+      "ext/workspaces",
+      "custom/mango-window"
+    ],
+    "modules-right": [
+      "custom/bar-dnd",
+      "pulseaudio",
+      "group/processor",
+      "custom/bar-memory",
+      "custom/bar-gpu",
+      "clock",
+      "tray"
+    ],
+    "mpris": {
+      "dynamic-len": 38,
+      "dynamic-order": [
+        "artist",
+        "title"
+      ],
+      "format": "{status_icon} {dynamic}",
+      "max-length": 40,
+      "player": "playerctld",
+      "status-icons": {
+        "paused": "",
+        "playing": "",
+        "stopped": ""
+      },
+      "title-len": 38,
+      "tooltip-format": "{player} ({status})\n{artist}\n{title}\n{album}"
+    },
+    "name": "main",
+    "position": "top",
+    "pulseaudio": {
+      "format": "  {volume}%",
+      "format-muted": "󰖁  mute",
+      "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+      "on-click-right": "wezterm start --always-new-process -- wiremix",
+      "on-scroll-down": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%-",
+      "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+",
+      "tooltip-format": "{desc}\nVolume: {volume}%"
+    },
+    "spacing": 0,
+    "tray": {
+      "icon-size": 16,
+      "spacing": 5
+    },
+    "width": null
+  }
+]

@@ -1,0 +1,2 @@
+[mgr]
+"prepend_keymap" = [{ "desc" = "Bookmarks and mounted drives", "on" = ["g", "b"], "run" = "shell -- file-locations" }, { "desc" = "Trash selected files", "on" = "D", "run" = "remove" }, { "desc" = "Trash selected files", "on" = "<Delete>", "run" = "remove" }, { "desc" = "Edit selected files", "on" = "e", "run" = "shell --block -- nvim -- %s" }]

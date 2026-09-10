@@ -1,0 +1,98 @@
+[app]
+"overall" = { "fg" = "#BBB3A9" }
+
+[cmp]
+"active" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
+"border" = { "fg" = "#E17A3F" }
+"inactive" = { "fg" = "#BBB3A9" }
+
+[confirm]
+"border" = { "fg" = "#E17A3F" }
+"btn_no" = { "fg" = "#9A938A" }
+"btn_yes" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
+"title" = { "fg" = "#E17A3F" }
+
+[filetype]
+"rules" = [{ "fg" = "#D9A441", "mime" = "**/image/*" }, { "fg" = "#9A788F", "mime" = "**/{audio,video}/*" }, { "fg" = "#B34A45", "mime" = "**/application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}" }, { "fg" = "#58918C", "mime" = "**/application/{pdf,doc,rtf}" }, { "fg" = "#9A938A", "mime" = "vfs/{absent,stale}" }, { "fg" = "#B34A45", "is" = "orphan", "url" = "*" }, { "fg" = "#879B5C", "is" = "exec", "url" = "*" }, { "fg" = "#6785A1", "url" = "*/" }]
+
+[help]
+"action" = { "fg" = "#BBB3A9" }
+"border" = { "fg" = "#E17A3F" }
+"chord" = { "fg" = "#58918C" }
+"hovered" = { "bg" = "#3E3A34", "bold" = true, "fg" = "#DDD5CA" }
+
+[indicator]
+"current" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
+"parent" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
+"preview" = { "underline" = true }
+
+[input]
+"border" = { "fg" = "#E17A3F" }
+"selected" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
+"title" = { "fg" = "#E17A3F" }
+"value" = { "fg" = "#BBB3A9" }
+
+[mgr]
+"border_style" = { "fg" = "#58534C" }
+"count_copied" = { "bg" = "#879B5C", "fg" = "#131210" }
+"count_cut" = { "bg" = "#B34A45", "fg" = "#131210" }
+"count_selected" = { "bg" = "#D9A441", "fg" = "#131210" }
+"cwd" = { "fg" = "#6785A1" }
+"find_keyword" = { "bold" = true, "fg" = "#D9A441" }
+"find_position" = { "bold" = true, "fg" = "#9A788F" }
+"marker_copied" = { "bg" = "#879B5C", "fg" = "#879B5C" }
+"marker_cut" = { "bg" = "#B34A45", "fg" = "#B34A45" }
+"marker_marked" = { "bg" = "#58918C", "fg" = "#58918C" }
+"marker_selected" = { "bg" = "#D9A441", "fg" = "#D9A441" }
+"syntect_theme" = "~/.config/yazi/cinder-grove.tmTheme"
+
+[mode]
+"normal_alt" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
+"normal_main" = { "bg" = "#E17A3F", "bold" = true, "fg" = "#131210" }
+"select_alt" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
+"select_main" = { "bg" = "#9A788F", "bold" = true, "fg" = "#131210" }
+"unset_alt" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
+"unset_main" = { "bg" = "#B34A45", "bold" = true, "fg" = "#131210" }
+
+[notify]
+"title_error" = { "fg" = "#B34A45" }
+"title_info" = { "fg" = "#6785A1" }
+"title_warn" = { "fg" = "#D9A441" }
+
+[pick]
+"active" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
+"border" = { "fg" = "#E17A3F" }
+"inactive" = { "fg" = "#BBB3A9" }
+
+[spot]
+"border" = { "fg" = "#E17A3F" }
+"tbl_cell" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
+"tbl_col" = { "fg" = "#6785A1" }
+"title" = { "fg" = "#E17A3F" }
+
+[status]
+"overall" = { "bg" = "#1B1916", "fg" = "#BBB3A9" }
+"perm_exec" = { "fg" = "#879B5C" }
+"perm_read" = { "fg" = "#D9A441" }
+"perm_sep" = { "fg" = "#58534C" }
+"perm_type" = { "fg" = "#6785A1" }
+"perm_write" = { "fg" = "#B34A45" }
+"progress_error" = { "bg" = "#B34A45", "fg" = "#D9A441" }
+"progress_label" = { "bold" = true, "fg" = "#DDD5CA" }
+"progress_normal" = { "bg" = "#23201C", "fg" = "#879B5C" }
+
+[tabs]
+"active" = { "bg" = "#E17A3F", "bold" = true, "fg" = "#131210" }
+"inactive" = { "bg" = "#1B1916", "fg" = "#9A938A" }
+
+[tasks]
+"border" = { "fg" = "#E17A3F" }
+"hovered" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
+"title" = { "fg" = "#E17A3F" }
+
+[which]
+"border" = { "fg" = "#E17A3F" }
+"cand" = { "fg" = "#58918C" }
+"desc" = { "fg" = "#BBB3A9" }
+"rest" = { "fg" = "#58534C" }
+"separator_style" = { "fg" = "#58534C" }

@@ -1,0 +1,19 @@
+# Probe with emerge -pv --getbinpkg --usepkgonly before installation.
+sys-devel/gcc
+llvm-core/clang
+dev-build/make
+sys-apps/bubblewrap
+dev-build/cmake
+app-editors/neovim
+dev-lang/go
+dev-lang/lua
+dev-lang/python
+dev-python/tldextract
+dev-python/uv
+net-libs/nodejs
+sys-apps/pnpm-bin
+dev-util/tree-sitter-cli
+dev-lang/zig
+dev-db/postgresql
+dev-db/duckdb
+dev-util/github-cli
