@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-geometry=$(slurp -p -b '#00000000' -c '#00000000' -s '#00000000' </dev/null) || exit 0
-# A single pixel at scale 1 ends the PPM image with three RGB bytes.
-pixel=$(grim -s 1 -g "$geometry" -t ppm - | tail -c 3 | od -An -tu1)
+geometry=$(slop -f '%w %h %x %y' </dev/null) || exit 0
+read -r _ _ x y <<<"$geometry"
+pixel=$(maim -g "1x1+$x+$y" - | ffmpeg -loglevel error -i pipe:0 -f rawvideo -pix_fmt rgb24 - 2>/dev/null | od -An -tu1)
 read -r red green blue <<<"$pixel"
 printf -v color '#%02X%02X%02X' "$red" "$green" "$blue"
-wl-copy --type text/plain -- "$color"
+xclip -selection clipboard -in <<<"$color"
 printf '%s\n' "$color"

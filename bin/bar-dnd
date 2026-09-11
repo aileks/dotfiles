@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 
+case ${BLOCK_BUTTON:-} in
+  1) notification-history >/dev/null 2>&1 & ;;
+  2) dunstctl history-clear >/dev/null 2>&1 & ;;
+  3) dnd-toggle >/dev/null 2>&1 & ;;
+esac
+
 if ! pause_level=$(dunstctl get-pause-level 2>/dev/null); then
-  jq -cn '{text: "󰂛", class: "unavailable", tooltip: "Notifications unavailable"}'
+  printf '󰂛\n'
   exit 0
 fi
 
-icon=""
-state="active"
-dnd="off"
 if ((pause_level > 0)); then
-  icon=""
-  state="paused"
-  dnd="on"
+  printf '󰖛\n'
+else
+  printf '󰂛\n'
 fi
-
-waiting=$(dunstctl count waiting 2>/dev/null || printf '?')
-history=$(dunstctl count history 2>/dev/null || printf '?')
-jq -cn --arg text "$icon" --arg class "$state" \
-  --arg tooltip "Do not disturb: $dnd
-Waiting: $waiting
-History: $history" \
-  '{text: $text, class: $class, tooltip: $tooltip}'

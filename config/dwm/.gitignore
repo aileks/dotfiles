@@ -1,0 +1,5 @@
+*.o
+dwm
+drwa.h
+transient
+clean

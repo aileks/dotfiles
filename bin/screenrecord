@@ -27,7 +27,6 @@ read_state() {
 }
 
 stop_recording() {
-  # gpu-screen-recorder finalizes the mp4 on SIGINT
   kill -INT "$pid"
   for _ in {1..50}; do
     recording_is_live || break
@@ -48,21 +47,19 @@ stop_recording() {
   fi
 }
 
-# The menu only reads the state to pick a flow, and the idle inhibitor outlives
-# the start command, so neither takes the state lock.
 if [[ ${1:-} == menu ]]; then
   if read_state && recording_is_live; then
-    choice=$(printf '%s\n' 'Stop Recording' | rofi -dmenu -p Record) || exit 0
+    choice=$(printf '%s\n' 'Stop Recording' | dmenu -p Record) || exit 0
     [[ $choice == 'Stop Recording' ]] || exit 0
     set -- stop
   else
-    choice=$(printf '%s\n' 'Record Region' 'Record Screen' | rofi -dmenu -p Record) || exit 0
+    choice=$(printf '%s\n' 'Record Region' 'Record Screen' | dmenu -p Record) || exit 0
     case "$choice" in
       'Record Region') mode=region ;;
       'Record Screen') mode=output ;;
       *) exit 0 ;;
     esac
-    audio=$(printf '%s\n' 'No Audio' 'Microphone' 'Desktop + Microphone' | rofi -dmenu -p Audio) || exit 0
+    audio=$(printf '%s\n' 'No Audio' 'Microphone' 'Desktop + Microphone' | dmenu -p Audio) || exit 0
     case "$audio" in
       'No Audio') audio=none ;;
       'Microphone') audio=mic ;;
@@ -81,14 +78,13 @@ elif [[ ${1:-} == inhibit-watch ]]; then
   [[ $pid =~ ^[0-9]+$ && $start_time =~ ^[0-9]+$ ]] || exit 2
   recording_is_live || exit 1
   printf 'READY\n'
-  # swayidle honors logind's idle inhibitor for all of its timeout commands.
   while recording_is_live; do
-    sleep 1
+    pkill -USR1 -u "$(id -u)" -x xautolock 2>/dev/null || true
+    sleep 50
   done
   exit 0
 fi
 
-# Serialize the state check and start/stop operation, including region selection.
 exec 9>"$statefile.lock"
 flock -n 9 || exit 1
 
@@ -141,24 +137,35 @@ file="$directory/$(date +%Y-%m-%d_%H-%M-%S-%N).mp4"
 
 case "$mode" in
   output)
-    if ! monitor=$(mmsg get cursorpos | jq -er \
-      '.monitor | select(type == "string" and length > 0)'); then
+    read -r mouse_x mouse_y < <(xdotool getmouselocation --shell | awk -F= '/^X/{x=$2} /^Y/{y=$2} END{print x, y}')
+    if ! monitor=$(xrandr --listmonitors | awk -v x="$mouse_x" -v y="$mouse_y" '
+        /^ *[0-9]+:/ {
+          split($3, d, /[x\/+]/)
+          if (x >= d[5] && x < d[5] + d[1] && y >= d[6] && y < d[6] + d[3]) { print $NF; exit }
+        }'); then
       notify-send -u critical -a Recording "Recording failed" \
         "Could not determine the monitor under the cursor."
       exit 1
     fi
+    [[ -n $monitor ]] || {
+      notify-send -u critical -a Recording "Recording failed" \
+        "Could not determine the monitor under the cursor."
+      exit 1
+    }
     args=(-w "$monitor")
     ;;
   region)
-    selection=$(slurp -f '%x %y %w %h' </dev/null) || exit 0
-    read -r x y width height <<<"$selection"
-    # The recorder captures one monitor, chosen by the region's center.
-    if ! mmsg get all-monitors | jq -e \
-      --argjson x "$x" --argjson y "$y" \
-      --argjson width "$width" --argjson height "$height" \
-      '.monitors | any(.[]; $width > 0 and $height > 0 and
-        $x >= .x and $y >= .y and
-        $x + $width <= .x + .width and $y + $height <= .y + .height)' >/dev/null; then
+    selection=$(slop -f '%w %h %x %y' </dev/null) || exit 0
+    read -r width height x y <<<"$selection"
+    if ! xrandr --listmonitors | awk -v x="$x" -v y="$y" \
+        -v w="$width" -v h="$height" '
+        /^ *[0-9]+:/ {
+          split($3, d, /[x\/+]/)
+          if (w > 0 && h > 0 &&
+              x >= d[5] && x + w <= d[5] + d[1] &&
+              y >= d[6] && y + h <= d[6] + d[3]) { ok = 1 }
+        }
+        END { exit !ok }'; then
       notify-send -u critical -a Recording "Recording failed" \
         "Select a region entirely within one display."
       exit 1

@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+[[ ${BLOCK_BUTTON:-} == 1 ]] && wezterm start --always-new-process -- btop >/dev/null 2>&1 &
+
+read -r _ user nice system idle _ </proc/stat
+busy1=$((user + nice + system))
+total1=$((busy1 + idle))
+sleep 0.25
+read -r _ user nice system idle _ </proc/stat
+busy2=$((user + nice + system))
+total2=$((busy2 + idle))
+usage=0
+if ((total2 > total1)); then
+  usage=$((100 * (busy2 - busy1) / (total2 - total1)))
+fi
+
 temp=""
 for d in /sys/class/hwmon/hwmon*; do
   if [[ "$(cat "$d/name" 2>/dev/null)" == k10temp ]]; then
@@ -14,7 +28,6 @@ for d in /sys/class/hwmon/hwmon*; do
         Tdie) fallback="$input" ;;
       esac
     done
-    # Average the CPU chiplets; older CPUs may only expose Tdie or Tctl.
     if ((${#inputs[@]} == 0)) && [[ -r $fallback ]]; then
       inputs+=("$fallback")
     fi
@@ -25,6 +38,4 @@ for d in /sys/class/hwmon/hwmon*; do
   fi
 done
 
-jq -cn --arg text "${temp:-n/a}${temp:+°C}" \
-  --arg tooltip "CPU temperature: ${temp:-unavailable}${temp:+°C}" \
-  '{text: $text, tooltip: $tooltip}'
+printf '%s%% %s°C\n' "$usage" "${temp:-n/a}"

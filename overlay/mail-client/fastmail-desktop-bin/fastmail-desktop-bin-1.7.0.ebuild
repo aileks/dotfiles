@@ -45,21 +45,20 @@ RDEPEND="
 QA_PREBUILT="opt/fastmail/*"
 
 src_unpack() {
-	# Extract the filesystem without executing the downloaded AppImage runtime.
-	local image="${DISTDIR}/com.fastmail.Fastmail-${PV}.AppImage"
-	# ELF section table ends at byte 188392 in this Manifest-pinned release.
-	unsquashfs -o 188392 "${image}" || die
+  # Extract the filesystem without executing the downloaded AppImage runtime.
+  local image="${DISTDIR}/com.fastmail.Fastmail-${PV}.AppImage"
+  # ELF section table ends at byte 188392 in this Manifest-pinned release.
+  unsquashfs -o 188392 "${image}" || die
 }
 
 src_install() {
-	insinto /opt/fastmail
-	doins -r .
-	fperms 0755 /opt/fastmail/fastmail /opt/fastmail/chrome-sandbox /opt/fastmail/chrome_crashpad_handler
-	# Electron uses unprivileged user namespaces; do not disable its sandbox.
-	dosym /opt/fastmail/fastmail /usr/bin/fastmail
-	sed -e 's|^Exec=.*|Exec=fastmail %U|' -e 's|^Name=.*|Name=Fastmail|' \
-		fastmail.desktop > "${T}/fastmail.desktop" || die
-	domenu "${T}/fastmail.desktop"
-	insinto /usr/share/icons
-	doins -r usr/share/icons/hicolor
+  insinto /opt/fastmail
+  doins -r .
+  fperms 0755 /opt/fastmail/fastmail /opt/fastmail/chrome-sandbox /opt/fastmail/chrome_crashpad_handler
+  dosym /opt/fastmail/fastmail /usr/bin/fastmail
+  sed -e 's|^Exec=.*|Exec=fastmail %U|' -e 's|^Name=.*|Name=Fastmail|' \
+    fastmail.desktop >"${T}/fastmail.desktop" || die
+  domenu "${T}/fastmail.desktop"
+  insinto /usr/share/icons
+  doins -r usr/share/icons/hicolor
 }

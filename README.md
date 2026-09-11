@@ -1,6 +1,6 @@
 # Gentoo dotfiles
 
-My Gentoo configuration using [MangoWM](https://github.com/mangowm/mango)
+My Gentoo configuration using [dwm-flexipatch](https://github.com/bakkeby/dwm-flexipatch)
 
 ## Install
 
@@ -16,7 +16,11 @@ cd ~/.dotfiles
 
 - `bin/`: daily-use commands, linked into `~/.local/bin`
 - `config/`: application configs, linked into `~/.config`
-- `etc/`, `overlay/`, `mango.desktop`: system files, installed as root-owned copies
+- `config/dmenu/`: vendored dmenu with patches pre-applied, built by `install.sh`
+- `config/dwm/`: vendored dwm-flexipatch; patches toggle in `patches.def.h`, config in `config.def.h`
+- `config/dwmblocks-async/`: vendored status bar blocks for dwm
+- `session/`: session entry points and startup scripts, installed to `/usr/local/bin`
+- `etc/`, `overlay/`: system files, installed as root-owned copies
 - `etc/portage/`: per-package keywords, USE flags, and licenses
 - package lists live in the arrays at the top of `install.sh`
 
@@ -29,7 +33,7 @@ cd ~/.dotfiles
 
 | Keys                 | Action                 |
 | -------------------- | ---------------------- |
-| `Mod + Space`        | app launcher (rofi)    |
+| `Mod + Space`        | app launcher (dmenu)  |
 | `Mod + Ctrl + Space` | desktop actions menu   |
 | `Mod + Return`       | WezTerm mux terminal   |
 | `Mod + T`            | WezTerm workspace menu |
@@ -67,43 +71,38 @@ cd ~/.dotfiles
 | `Mod + Shift + N`        | notification history          |
 | `Mod + Ctrl + Shift + N` | notification actions and URLs |
 | `Mod + Ctrl + N`         | toggle night light            |
-| `Mod + Shift + R`        | reload Mango configuration    |
-| `Mod + Shift + Q`        | quit Mango                    |
+| `Mod + Shift + R`        | restart dwm (windows stay)      |
+| `Mod + Shift + Q`        | quit dwm                        |
 
 ### Windows
 
-| Keys                                  | Action                                 |
-| ------------------------------------- | -------------------------------------- |
-| `Mod + Q`                             | close window                           |
-| `Mod + F`                             | toggle fullscreen                      |
-| `Mod + Shift + Space`                 | toggle floating                        |
-| `Mod + J` / `Mod + K`                 | focus next or previous window          |
-| `Mod + Shift + J` / `Mod + Shift + K` | exchange with next or previous window  |
-| `Mod + Shift + Return`                | move window to master                  |
-| `Mod + I` / `Mod + Shift + I`         | add or remove a master slot            |
-| `Mod + Ctrl + J` / `Mod + Ctrl + K`   | increase or decrease window height     |
-| `Mod + H` / `Mod + L`                 | shrink or grow master horizontally     |
-| `Mod + Ctrl + Return`                 | reset focused tiled window proportions |
-| `Mod + Backtick`                      | toggle scratchpad                      |
-| `Mod + Shift + Backtick`              | minimize window                        |
-| `Mod + Ctrl + Backtick`               | restore a minimized window             |
-| `Mod + Left drag`                     | move window                            |
-| `Mod + Right drag`                    | resize window                          |
-| `Mod + Middle click`                  | toggle floating                        |
-| `Mod + Scroll up/down`                | focus previous or next window          |
+| Keys                                  | Action                                |
+| ------------------------------------- | ------------------------------------- |
+| `Mod + Q`                             | close window                          |
+| `Mod + F`                             | toggle fullscreen                     |
+| `Mod + Shift + Space`                 | toggle floating                       |
+| `Mod + J` / `Mod + K`                 | focus next or previous window         |
+| `Mod + Shift + J` / `Mod + Shift + K` | move window within the stack          |
+| `Mod + H` / `Mod + L`                 | shrink or grow the master area        |
+| `Mod + Ctrl + J` / `Mod + Ctrl + K`   | shrink or grow window stack weight    |
+| `Mod + Ctrl + Return`                 | reset window stack weight             |
+| `Mod + I` / `Mod + Shift + I`         | add or remove a master slot           |
+| `Mod + Shift + Return`                | zoom window to master                 |
+| `Mod + B`                             | toggle the bar                        |
+| `Mod + Left drag`                     | move window                           |
+| `Mod + Right drag`                    | resize window                         |
 
 ### Tags and monitors
 
-| Keys                                  | Action                               |
-| ------------------------------------- | ------------------------------------ |
-| `Mod + 1..7`                          | view tag                             |
-| `Mod + Ctrl + 1..7`                   | toggle tag visibility                |
-| `Mod + Shift + 1..7`                  | move window to tag                   |
-| `Mod + Ctrl + Shift + 1..7`           | toggle window membership of tag      |
-| `Mod + Tab`                           | return to previous tag view          |
-| `Mod + ,` / `Mod + .`                 | focus left or right monitor          |
+| Keys                          | Action                          |
+| ----------------------------- | ------------------------------- |
+| `Mod + 1..7`                  | view tag                        |
+| `Mod + Ctrl + 1..7`           | toggle tag visibility           |
+| `Mod + Shift + 1..7`          | move window to tag              |
+| `Mod + Ctrl + Shift + 1..7`   | toggle window membership of tag |
+| `Mod + Tab`                   | return to previous tag view     |
+| `Mod + ,` / `Mod + .`         | focus left or right monitor     |
 | `Mod + Shift + ,` / `Mod + Shift + .` | send window to left or right monitor |
-| `Mod + Ctrl + M`                      | monitor menu                         |
 
 ### Media and brightness
 

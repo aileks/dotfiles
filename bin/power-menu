@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | rofi -dmenu -p Power) || exit 0
+choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | dmenu -p Power) || exit 0
 case "$choice" in
-  'log out') mmsg dispatch quit ;;
+  'log out') loginctl terminate-session "${XDG_SESSION_ID:?}" ;;
   'suspend') lock-session && loginctl suspend ;;
   'reboot') loginctl reboot ;;
   'shut down') loginctl poweroff ;;

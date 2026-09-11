@@ -5,7 +5,7 @@ case ${1:-toggle} in
     if pgrep -u "$UID" -x gammastep >/dev/null; then
       pkill -USR1 -u "$UID" -x gammastep
     else
-      gammastep -c /dev/null -m wayland -l 0:0 -t 4800:4800 -r &
+      gammastep -c /dev/null -m randr -l 0:0 -t 4800:4800 -r &
     fi
     ;;
   *)

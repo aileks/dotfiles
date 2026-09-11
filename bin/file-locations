@@ -26,7 +26,6 @@ decode_file_uri() {
   if [[ $encoded == localhost/* ]]; then encoded=${encoded#localhost}; fi
   [[ $encoded == /* ]] || return 1
 
-  # Decode only URI escapes; never interpret a path as shell syntax.
   while [[ $encoded == *%* ]]; do
     decoded_path+=${encoded%%\%*}
     encoded=${encoded#*%}
@@ -60,7 +59,6 @@ if [[ -r $bookmarks ]]; then
   done <"$bookmarks"
 fi
 
-# USB disks may report removable=false, so inherit hotplug from parent devices.
 while IFS= read -r -d '' label && IFS= read -r -d '' destination; do
   add_location "Drive: $label" "$destination"
 done < <(
@@ -78,7 +76,6 @@ done < <(
     '
 )
 
-# Browse already mounted phones/shares through their GVfs filesystem paths.
 while IFS= read -r -d '' gvfs_root; do
   while IFS= read -r -d '' destination; do
     add_location "Mounted: ${destination##*/}" "$destination"
@@ -89,7 +86,7 @@ done < <(
 )
 
 ((${#labels[@]})) || exit 0
-choice=$(printf '%s\n' "${labels[@]}" | rofi -dmenu -i -l 12 -p Files) || exit 0
+choice=$(printf '%s\n' "${labels[@]}" | dmenu -i -l 12 -p Files) || exit 0
 for index in "${!labels[@]}"; do
   [[ $choice == "${labels[index]}" ]] || continue
   destination=${destinations[index]}

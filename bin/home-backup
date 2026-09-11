@@ -53,7 +53,6 @@ if [[ ! -r $excludes ]]; then
   exit 1
 fi
 
-# Never reuse a snapshot directory: rsync could modify shared hard links.
 if [[ -e $new_snapshot || -L $new_snapshot ]]; then
   printf 'error: snapshot already exists: %s\n' "$new_snapshot" >&2
   exit 1
@@ -85,7 +84,6 @@ rsync "${rsync_options[@]}" "$source_directory" "$incomplete_snapshot/"
 mv -T -- "$incomplete_snapshot" "$new_snapshot"
 ln -sfnT "$new_snapshot" "$latest_link"
 
-# rsync preserves the source directory's mtime, so order by timestamp names.
 mapfile -d '' -t snapshots < <(find "$snapshots_directory" -mindepth 1 -maxdepth 1 \
   -type d -printf '%f\0' | LC_ALL=C sort -zr)
 completed_count=0

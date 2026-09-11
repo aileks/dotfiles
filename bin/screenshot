@@ -18,27 +18,27 @@ file="$directory/$(date +%Y-%m-%d_%H-%M-%S-%N).png"
 
 case "$mode" in
   region)
-    geometry=$(slurp -f '%x,%y %wx%h' </dev/null) || exit 0
-    args=(-g "$geometry")
+    geometry=$(slop -f '%w %h %x %y' </dev/null) || exit 0
+    read -r width height x y <<<"$geometry"
+    args=(-g "${width}x${height}+$x+$y")
     ;;
   window)
-    if ! geometry=$(mmsg get focusing-client | jq -er \
-      'select(.width > 0 and .height > 0) | "\(.x),\(.y) \(.width)x\(.height)"'); then
+    if ! window=$(xdotool getactivewindow 2>/dev/null); then
       notify-send -u critical -a Screenshot 'Screenshot failed' 'No focused window is available.'
       exit 1
     fi
-    args=(-g "$geometry")
+    args=(-i "$window")
     ;;
   full) args=() ;;
 esac
 
-if ! grim "${args[@]}" "$file"; then
+if ! maim "${args[@]}" "$file"; then
   rm -f -- "$file"
   notify-send -u critical -a Screenshot 'Screenshot failed' 'Could not capture the selected area.'
   exit 1
 fi
 
-if ! wl-copy --type image/png <"$file"; then
+if ! xclip -selection clipboard -t image/png -in "$file"; then
   notify-send -u critical -a Screenshot 'Screenshot saved' 'Could not copy the screenshot to the clipboard.'
   exit 1
 fi

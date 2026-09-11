@@ -32,7 +32,7 @@ save_records() {
 }
 
 prompt() {
-  if ! answer=$(rofi -dmenu -i -p "$1" 2>"$temporary/menu-error"); then
+  if ! answer=$(dmenu -i -p "$1" 2>"$temporary/menu-error"); then
     [[ ! -s $temporary/menu-error ]] || desktop-feedback status "Reminder menu failed"
     exit 0
   fi
@@ -110,7 +110,6 @@ case ${command,,} in
     while read -r identifier; do
       paused=$(timeout 5 dunstctl get-pause-level 2>/dev/null) || exit 0
       [[ $paused == 0 ]] || exit 0
-      # A sentinel keeps trailing newlines intact through command substitution.
       message=$(jq -r --arg id "$identifier" '.[] | select(.id == $id) | .message + "\u0001"' <<<"$records")
       message=${message%$'\001'}
       timeout 5 dunstify -a reminder -u normal -t 0 \

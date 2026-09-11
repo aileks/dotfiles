@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
+[[ ${BLOCK_BUTTON:-} == 1 ]] && wezterm start --always-new-process -- nvtop >/dev/null 2>&1 &
+
 if ! stats=$(timeout 3s nvidia-smi --id=0 \
-  --query-gpu=name,utilization.gpu,temperature.gpu,memory.used,memory.total \
+  --query-gpu=utilization.gpu,temperature.gpu \
   --format=csv,noheader,nounits 2>/dev/null); then
-  jq -cn '{text: "n/a", class: "unavailable", tooltip: "GPU statistics unavailable"}'
+  printf 'n/a\n'
   exit 0
 fi
 
-jq -cn --arg stats "$stats" '
-  $stats | split(",") | map(gsub("^\\s+|\\s+$"; "")) |
-  if length == 5 and (.[1:] | all(test("^[0-9]+$"))) then
-    {
-      text: (.[1] + "% " + .[2] + "°C"),
-      tooltip: (.[0] + "\nUtilization: " + .[1] + "%\nTemperature: " + .[2] +
-        "°C\nVRAM: " + .[3] + " / " + .[4] + " MiB")
-    }
-  else
-    {text: "n/a", class: "unavailable", tooltip: "GPU statistics unavailable"}
-  end
-'
+IFS=', ' read -r utilization temperature <<<"$stats"
+[[ $utilization =~ ^[0-9]+$ && $temperature =~ ^[0-9]+$ ]] || {
+  printf 'n/a\n'
+  exit 0
+}
+printf '%s%% %s°C\n' "$utilization" "$temperature"

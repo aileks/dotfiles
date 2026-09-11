@@ -91,11 +91,28 @@ cli_packages=(
   net-misc/curl
 )
 desktop_packages=(
-  gui-wm/mangowm
+  x11-base/xorg-server
+  x11-base/xorg-proto
   x11-misc/ly
-  gui-apps/waybar
-  x11-misc/rofi
   x11-terms/wezterm
+  x11-misc/j4-dmenu-desktop
+  x11-misc/picom
+  x11-misc/xwallpaper
+  x11-misc/i3lock
+  x11-misc/xss-lock
+  x11-misc/xautolock
+  x11-misc/xdotool
+  x11-misc/autorandr
+  x11-apps/setxkbmap
+  x11-apps/xset
+  x11-libs/libX11
+  x11-libs/libXft
+  x11-libs/libXinerama
+  media-libs/fontconfig
+  media-gfx/maim
+  x11-misc/slop
+  x11-misc/xclip
+  x11-misc/clipmenu
   app-misc/yazi
   app-text/zathura
   app-text/zathura-pdf-mupdf
@@ -104,12 +121,6 @@ desktop_packages=(
   media-video/mpv
   mpv-plugin/mpv-mpris
   x11-misc/pcmanfm
-  '>=gui-apps/wl-clipboard-2.3.0'
-  app-misc/cliphist
-  gui-apps/swaylock
-  gui-apps/swayidle
-  gui-apps/swaybg
-  gui-apps/wlopm
   x11-misc/dunst
   x11-misc/gammastep
   media-sound/playerctl
@@ -127,7 +138,6 @@ desktop_packages=(
   x11-misc/xdg-utils
   x11-misc/xdg-user-dirs
   sys-apps/xdg-desktop-portal-gtk
-  gui-libs/xdg-desktop-portal-wlr
   x11-libs/libnotify
   media-video/ffmpeg
   media-video/ffmpegthumbnailer
@@ -141,8 +151,6 @@ desktop_packages=(
   media-gfx/zbar
   app-text/tesseract
   app-dicts/myspell-en
-  gui-apps/grim
-  gui-apps/slurp
   app-text/xmlstarlet
   sys-apps/keyutils
   app-crypt/pinentry
@@ -192,7 +200,6 @@ binary_packages=(
 
 install_system_file() {
   local source=$1 target=$2 mode=${3:-644} parent
-  # Privileged files must be root-owned copies, never links into a user checkout.
   parent=$target
   while [[ $parent != / ]]; do
     [[ ! -L $parent ]] || {
@@ -221,7 +228,17 @@ install_system_config() {
     relative=${source#"$repo/overlay/"}
     install_system_file "$source" "/var/db/repos/dotfiles/$relative"
   done < <(find "$repo/overlay" -type f -print0 | sort -z)
-  install_system_file "$repo/mango.desktop" /usr/share/wayland-sessions/mango.desktop
+  install_system_file "$repo/session/dwm.desktop" /usr/share/xsessions/dwm.desktop
+  install_system_file "$repo/session/mango.desktop" /usr/share/wayland-sessions/mango.desktop
+  install_system_file "$repo/session/start-session" /usr/local/bin/start-session 755
+  install_system_file "$repo/session/start-dwm" /usr/local/bin/start-dwm 755
+  install_system_file "$repo/session/start-mango" /usr/local/bin/start-mango 755
+}
+
+install_xkb_layout() {
+  local xkb_root
+  xkb_root=$(readlink -f /usr/share/X11/xkb)
+  install_system_file "$repo/config/xorg/keymap.xkb" "$xkb_root/symbols/aileks"
 }
 
 sync_overlays() {
@@ -239,6 +256,9 @@ install_packages() {
     "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
   run sudo emerge -vn "${source_packages[@]}"
   run sudo emerge -gvn "${binary_packages[@]}"
+  run sudo make -C "$repo/config/dmenu" clean install
+  run sudo make -C "$repo/config/dwm" clean install
+  run sudo make -C "$repo/config/dwmblocks-async" clean install
   run sudo eix-update
 }
 
@@ -254,7 +274,6 @@ enable_services() {
     done
   fi
 
-  # Ly owns tty2 and NetworkManager owns DHCP; drop the competitors for the next boot.
   for service in display-manager xdm dhcpcd agetty.tty2; do
     for runlevel in boot default; do
       if [[ -L /etc/runlevels/$runlevel/$service ]]; then
@@ -297,7 +316,7 @@ link_dotfiles() {
   local name desktop script target
 
   for name in bat btop cava dunst fastfetch fontconfig nvim qt6ct rofi zathura \
-    mango swaylock waybar wezterm yazi \
+    mango swaylock waybar wezterm yazi picom \
     xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"
   done
@@ -312,7 +331,6 @@ link_dotfiles() {
   link "$repo/config/OpenRGB/No RGB.orp" "$config_home/OpenRGB/No RGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
 
-  # GTK settings are set with gsettings; remove links from older installs.
   for name in gtk-3.0 gtk-4.0; do
     target=$config_home/$name
     if [[ -L $target && $(readlink "$target") == "$repo/config/$name" ]]; then
@@ -407,7 +425,6 @@ install_appearance() {
   }
 
   git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$work/gtk"
-  # The installer prompts for an accent; empty input keeps the default (orange).
   printf '\n' | dbus-run-session -- "$work/gtk/install.sh"
 
   git clone --depth 1 --branch cinder-grove-folders \
@@ -468,7 +485,6 @@ setup_mime() {
   existing=/dev/null
   [[ -f $target ]] && existing=$target
 
-  # Merge only the managed defaults, retaining unrelated entries and sections.
   awk '
     function remaining( key) {
       for (key in defaults)
@@ -564,6 +580,7 @@ run git -C "$repo" submodule update --init --recursive
 install_system_config
 sync_overlays
 install_packages
+install_xkb_layout
 enable_services
 link_dotfiles
 install_user_tools
@@ -586,5 +603,5 @@ install_crontab
 if "$dry_run"; then
   echo 'Dry run complete; no changes made.'
 else
-  echo 'Installation complete. Reboot to start the configured OpenRC services and Mango session.'
+  echo 'Installation complete. Reboot to start the configured OpenRC services and the dwm session.'
 fi

@@ -2,9 +2,16 @@
 
 set -euo pipefail
 
-# Serialize idle, sleep and keybinding requests. swaylock -f returns only once
-# the lock is established, allowing the caller to suspend safely.
 exec 9>"${XDG_RUNTIME_DIR:?}/lock-session.lock"
 flock 9
-pgrep -u "$(id -u)" -x swaylock >/dev/null && exit 0
-swaylock -f 9>&-
+pgrep -u "$(id -u)" -x i3lock >/dev/null && exit 0
+i3lock -c 131210 \
+  --insidecolor=1B1916ff \
+  --ringcolor=D9A441ff \
+  --textcolor=DDD5CAff \
+  --keyhlcolor=879B5Cff \
+  --bshlcolor=E17A3Fff \
+  --linecolor=1B1916ff \
+  --radius 80 \
+  --ringwidth 8 \
+  --show-failed-attempts 9>&-

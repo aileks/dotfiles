@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+for arg; do
+  case $arg in
+    dwm | */dwm) exec /usr/local/bin/start-dwm ;;
+    mango | */mango) exec /usr/local/bin/start-mango ;;
+  esac
+done
+exec "$@"

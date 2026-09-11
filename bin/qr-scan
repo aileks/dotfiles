@@ -2,43 +2,48 @@
 
 set -Eeuo pipefail
 
+if [[ ${1:-} == --expire ]]; then
+  [[ -n ${QR_PAYLOAD:-} ]] || exit 0
+  sleep 60
+  xclip -selection clipboard -in </dev/null 2>/dev/null || true
+  esc=${QR_PAYLOAD//\\/\\\\}
+  for c in . '^' '$' '*' '+' '?' '(' ')' '[' ']' '{' '}' '|'; do
+    esc=${esc//"$c"/"\\$c"}
+  done
+  clipdel -d "^${esc}$" 2>/dev/null || true
+  exit 0
+fi
+
 umask 077
 directory=$(mktemp -d "${XDG_RUNTIME_DIR:?}/qr-scan.XXXXXXXX")
 trap 'rm -rf -- "$directory"' EXIT
 trap 'exit 130' INT TERM HUP
 
-# Offer the payload for up to 60 seconds, marked sensitive so clipboard
-# managers skip it. The orphaned wl-copy survives this script's exit.
 copy_privately() {
-  local owner ready=false
-  timeout 60s wl-copy --foreground --sensitive --type 'text/plain;charset=utf-8' \
-    <"$directory/text" >/dev/null 2>&1 &
-  owner=$!
+  local ready=false
+  xclip -selection clipboard -in "$directory/text" >/dev/null 2>&1 &
   for _ in {1..20}; do
-    kill -0 "$owner" 2>/dev/null || break
-    if timeout 0.2s wl-paste --no-newline 2>/dev/null | cmp -s - "$directory/text"; then
+    if xclip -selection clipboard -o 2>/dev/null | cmp -s - "$directory/text"; then
       ready=true
       break
     fi
     sleep 0.05
   done
   if ! "$ready"; then
-    kill "$owner" 2>/dev/null || true
-    wait "$owner" 2>/dev/null || true
     desktop-feedback status 'Private clipboard failed'
     exit 1
   fi
-  disown "$owner"
+  QR_PAYLOAD=$(cat "$directory/text") setsid "$0" --expire >/dev/null 2>&1 </dev/null &
+  disown
   desktop-feedback status 'Copied privately for up to 60 seconds' || true
 }
 
-if ! geometry=$(slurp -f '%x,%y %wx%h' </dev/null 2>"$directory/error"); then
-  [[ ! -s $directory/error || $(<"$directory/error") == 'selection cancelled' ]] \
-    || desktop-feedback status "Region selection failed"
+if ! geometry=$(slop -f '%w %h %x %y' </dev/null 2>"$directory/error"); then
   exit 0
 fi
+read -r width height x y <<<"$geometry"
 
-if ! grim -g "$geometry" "$directory/image.png" 2>"$directory/error"; then
+if ! maim -g "${width}x${height}+$x+$y" "$directory/image.png" 2>"$directory/error"; then
   desktop-feedback status "QR capture failed"
   exit 1
 fi
@@ -81,7 +86,6 @@ case ${format#format:} in
     ;;
 esac
 
-# Keep bytes in files: Bash variables cannot preserve embedded NUL characters.
 tr -d '\000' <"$directory/text" >"$directory/without-nul"
 if [[ ! -s $directory/text ]] \
   || ! iconv -f UTF-8 -t UTF-8 "$directory/text" >/dev/null 2>&1 \
