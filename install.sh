@@ -95,6 +95,7 @@ desktop_packages=(
   x11-misc/ly
   gui-apps/waybar
   x11-misc/rofi
+  x11-terms/wezterm
   app-misc/yazi
   app-text/zathura
   app-text/zathura-pdf-mupdf
@@ -176,7 +177,6 @@ dev_packages=(
 )
 binary_packages=(
   sys-kernel/gentoo-kernel-bin
-  x11-terms/wezterm-bin
   www-client/zen-browser-bin
   net-im/signal-desktop-bin
   app-office/onlyoffice-bin
