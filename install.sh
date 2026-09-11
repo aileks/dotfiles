@@ -94,7 +94,7 @@ desktop_packages=(
   gui-wm/mangowm
   x11-misc/ly
   gui-apps/waybar
-  gui-apps/wmenu
+  x11-misc/rofi
   app-misc/yazi
   app-text/zathura
   app-text/zathura-pdf-mupdf
@@ -160,7 +160,6 @@ desktop_packages=(
 app_packages=(
   app-misc/openrgb
   media-video/gpu-screen-recorder
-  sys-apps/flatpak
   net-vpn/ivpn
 )
 dev_packages=(
@@ -187,6 +186,8 @@ binary_packages=(
   net-misc/localsend-bin
   net-vpn/ivpn-ui-bin
   sys-apps/pnpm-bin
+  media-sound/easyeffects
+  app-misc/anki
 )
 
 install_system_file() {
@@ -244,9 +245,6 @@ install_packages() {
   run sudo emerge -vn "${source_packages[@]}"
   run sudo emerge -gvn "${binary_packages[@]}"
   run sudo eix-update
-  run flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-  run flatpak install --user --noninteractive --assumeyes flathub \
-    net.ankiweb.Anki com.github.wwmm.easyeffects
 }
 
 enable_services() {
@@ -303,7 +301,7 @@ link() {
 link_dotfiles() {
   local name desktop script target
 
-  for name in bat btop cava fastfetch fontconfig mako nvim qt6ct zathura \
+  for name in bat btop cava fastfetch fontconfig mako nvim qt6ct rofi zathura \
     mango swaylock waybar wezterm yazi \
     xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"

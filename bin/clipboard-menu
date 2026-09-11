@@ -14,7 +14,7 @@ if [[ -z $rows ]]; then
   exit 0
 fi
 
-selected=$(wmenu -i -p clipboard <<<"$rows") || exit 0
+selected=$(rofi -dmenu -i -p Clipboard <<<"$rows") || exit 0
 [[ $selected != *$'\n'* ]] || exit 0
 # Keep clipboard contents out of external command arguments.
 grep -Fxq -f <(printf '%s\n' "$selected") <<<"$rows" || exit 0

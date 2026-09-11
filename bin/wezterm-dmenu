@@ -35,7 +35,7 @@ panes=$(list_panes)
 workspaces=$(jq -r '[.[].workspace] | unique[]' <<<"$panes")
 menu=('Create new workspace…')
 for repository in "${repositories[@]}"; do
-  # wmenu is line-oriented; omit paths that cannot be represented in its menu.
+  # rofi is line-oriented; omit paths that cannot be represented in its menu.
   [[ $repository != *$'\n'* && $repository != *$'\r'* ]] || continue
   menu+=("repo: ~/${repository#"$HOME/"}")
 done
@@ -44,7 +44,7 @@ while IFS= read -r workspace; do
   [[ -n $workspace ]] && menu+=("workspace: $workspace")
 done <<<"$workspaces"
 
-choice=$(printf '%s\n' "${menu[@]}" | wmenu -i -p 'wezterm:') || exit 0
+choice=$(printf '%s\n' "${menu[@]}" | rofi -dmenu -i -p 'WezTerm:') || exit 0
 [[ -n $choice ]] || exit 0
 found=0
 for entry in "${menu[@]}"; do
@@ -56,7 +56,7 @@ done
 directory=''
 can_create=false
 if [[ $choice == 'Create new workspace…' ]]; then
-  workspace=$(wmenu -p 'New workspace name:' </dev/null) || exit 0
+  workspace=$(rofi -dmenu -p 'New workspace name:' </dev/null) || exit 0
   [[ -n ${workspace//[[:space:]]/} ]] || exit 0
   [[ $workspace != *$'\n'* && $workspace != *$'\r'* ]] || exit 0
   directory=$HOME

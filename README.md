@@ -29,7 +29,7 @@ cd ~/.dotfiles
 
 | Keys                 | Action                 |
 | -------------------- | ---------------------- |
-| `Mod + Space`        | wmenu                  |
+| `Mod + Space`        | app launcher (rofi)    |
 | `Mod + Ctrl + Space` | desktop actions menu   |
 | `Mod + Return`       | WezTerm mux terminal   |
 | `Mod + T`            | WezTerm workspace menu |
