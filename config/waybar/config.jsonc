@@ -21,8 +21,8 @@
       "interval": 5,
       "on-click": "wezterm start --always-new-process -- btop"
     },
-    "custom/bar-cpu-temperature": {
-      "exec": "bar-cpu-temperature",
+    "custom/bar-cpu": {
+      "exec": "bar-cpu",
       "interval": 10,
       "on-click": "wezterm start --always-new-process -- btop",
       "return-type": "json"
@@ -67,7 +67,7 @@
     "group/processor": {
       "modules": [
         "cpu",
-        "custom/bar-cpu-temperature"
+        "custom/bar-cpu"
       ],
       "orientation": "horizontal"
     },

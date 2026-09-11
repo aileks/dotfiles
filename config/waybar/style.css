@@ -27,20 +27,29 @@ window#waybar {
   box-shadow: none;
   background: #58534c;
 }
-#custom-mango-window, #mpris, #custom-bar-dnd, #pulseaudio, #cpu,
-#custom-bar-memory, #custom-bar-gpu, #clock, #tray {
+#custom-mango-window,
+#mpris,
+#custom-bar-dnd,
+#pulseaudio,
+#cpu,
+#custom-bar-memory,
+#custom-bar-gpu,
+#clock,
+#tray {
   padding: 0 8px;
 }
 #cpu {
   padding-right: 5px;
 }
-#custom-bar-cpu-temperature {
+#custom-bar-cpu {
   padding-right: 8px;
 }
 #custom-bar-memory {
   color: #6785a1;
 }
-#custom-bar-dnd.paused, #cpu, #custom-bar-cpu-temperature {
+#custom-bar-dnd.paused,
+#cpu,
+#custom-bar-cpu {
   color: #e17a3f;
 }
 #custom-bar-gpu {
@@ -52,7 +61,9 @@ window#waybar {
 #pulseaudio.muted {
   color: #b34a45;
 }
-#mpris.paused, #mpris.stopped, #custom-bar-gpu.unavailable,
+#mpris.paused,
+#mpris.stopped,
+#custom-bar-gpu.unavailable,
 #custom-bar-dnd.unavailable {
   color: #58534c;
 }
