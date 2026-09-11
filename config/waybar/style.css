@@ -39,6 +39,9 @@ window#waybar {
 #tray {
   padding: 0 8px;
 }
+#network {
+  color: #58918c;
+}
 #cpu {
   padding-right: 5px;
 }

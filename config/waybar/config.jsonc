@@ -89,12 +89,12 @@
     ],
     "modules-right": [
       "custom/bar-dnd",
-      "network",
       "pulseaudio",
       "group/processor",
       "custom/bar-memory",
       "custom/bar-gpu",
       "clock",
+      "network",
       "tray"
     ],
     "mpris": {
@@ -133,8 +133,14 @@
     "width": null,
     "network": {
       "format-disconnected": "󰖪  offline",
-      "format-ethernet": "󰈀",
-      "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+      "format-ethernet": "󰈀  Wired",
+      "format-icons": [
+        "󰤯",
+        "󰤟",
+        "󰤢",
+        "󰤥",
+        "󰤨"
+      ],
       "format-wifi": "{icon}  {essid}",
       "interval": 3,
       "on-click": "wezterm start --always-new-process -- nmtui",
