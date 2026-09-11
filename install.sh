@@ -221,12 +221,7 @@ install_system_config() {
     relative=${source#"$repo/overlay/"}
     install_system_file "$source" "/var/db/repos/dotfiles/$relative"
   done < <(find "$repo/overlay" -type f -print0 | sort -z)
-  while IFS= read -r -d '' source; do
-    relative=${source#"$repo/rootfs/"}
-    mode=644
-    [[ ! -x $source ]] || mode=755
-    install_system_file "$source" "/$relative" "$mode"
-  done < <(find "$repo/rootfs" -type f -print0 | sort -z)
+  install_system_file "$repo/mango.desktop" /usr/share/wayland-sessions/mango.desktop
 }
 
 sync_overlays() {
