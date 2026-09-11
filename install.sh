@@ -370,11 +370,24 @@ install_user_tools() {
 
 install_appearance() {
   local work=$work/appearance
-  local theme name
+  local name answer
   if "$dry_run"; then
-    printf 'install Cinder Grove GTK theme and recolored Papirus icons\n'
+    printf 'prompt for Cinder Grove GTK theme and recolored Papirus icons\n'
     return
   fi
+
+  printf 'Install Cinder Grove GTK theme and recolored Papirus icons? [y/N] '
+  if ! IFS= read -r answer; then
+    answer=
+  fi
+  case $answer in
+    y|Y|yes|YES) ;;
+    *)
+      printf 'skipping appearance setup\n'
+      return 0
+      ;;
+  esac
+
   [[ -d /usr/share/icons/Papirus-Dark ]] || {
     echo 'Install Papirus first.' >&2
     return 1
@@ -388,21 +401,14 @@ install_appearance() {
     fi
     mkdir -p -- "$(dirname -- "$target")"
     if [[ -e $target || -L $target ]]; then
-      mv -T -- "$target" "$target.before-appearance-$stamp"
+      mv -T -- "$target" "$target.backup.$stamp"
     fi
     cp -a -- "$source" "$target"
   }
 
   git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$work/gtk"
-  theme=$data_home/themes/Cinder-Grove-Dark
-  replace "$work/gtk/Cinder-Grove-Dark" "$theme"
-  # GTK4 needs the theme CSS and the accent definitions in the user CSS.
-  cat "$theme/gtk-4.0/cinder-grove.css" "$theme/gtk-4.0/accent.css" >"$work/gtk.css"
-  [[ ! -L $config_home/gtk-4.0 ]] || {
-    echo 'Run install.sh to replace the old GTK directory link first.' >&2
-    return 1
-  }
-  replace "$work/gtk.css" "$config_home/gtk-4.0/gtk.css"
+  # The installer prompts for an accent; empty input keeps the default (orange).
+  printf '\n' | dbus-run-session -- "$work/gtk/install.sh"
 
   git clone --depth 1 --branch cinder-grove-folders \
     https://github.com/aileks/papirus-folders.git "$work/folders"
