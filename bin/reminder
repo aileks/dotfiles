@@ -108,11 +108,13 @@ case ${command,,} in
     read_records
     now=$(date +%s)
     while read -r identifier; do
-      timeout 5 makoctl mode 2>/dev/null | grep -qx dnd && exit 0
+      paused=$(timeout 5 dunstctl get-pause-level 2>/dev/null) || exit 0
+      [[ $paused == 0 ]] || exit 0
       # A sentinel keeps trailing newlines intact through command substitution.
       message=$(jq -r --arg id "$identifier" '.[] | select(.id == $id) | .message + "\u0001"' <<<"$records")
       message=${message%$'\001'}
-      timeout 5 notify-send -a reminder -u normal -t 0 \
+      timeout 5 dunstify -a reminder -u normal -t 0 \
+        -h "string:x-dunst-stack-tag:reminder-$identifier" \
         -- Reminder "$message" >/dev/null 2>&1 || exit 0
       records=$(jq -c --arg id "$identifier" 'map(select(.id != $id))' <<<"$records")
       save_records

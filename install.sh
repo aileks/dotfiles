@@ -110,7 +110,7 @@ desktop_packages=(
   gui-apps/swayidle
   gui-apps/swaybg
   gui-apps/wlopm
-  gui-apps/mako
+  x11-misc/dunst
   x11-misc/gammastep
   media-sound/playerctl
   media-sound/wiremix
@@ -301,7 +301,7 @@ link() {
 link_dotfiles() {
   local name desktop script target
 
-  for name in bat btop cava fastfetch fontconfig mako nvim qt6ct rofi zathura \
+  for name in bat btop cava dunst fastfetch fontconfig nvim qt6ct rofi zathura \
     mango swaylock waybar wezterm yazi \
     xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"

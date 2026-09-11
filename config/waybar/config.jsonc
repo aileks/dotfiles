@@ -31,8 +31,8 @@
       "exec": "bar-dnd",
       "exec-on-event": true,
       "interval": 1,
-      "on-click": "makoctl restore",
-      "on-click-middle": "makoctl dismiss -a",
+      "on-click": "notification-history",
+      "on-click-middle": "dunstctl history-clear",
       "on-click-right": "dnd-toggle",
       "return-type": "json"
     },

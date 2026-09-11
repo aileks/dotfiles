@@ -2,19 +2,19 @@
 
 set -Eeuo pipefail
 
-if ! modes=$(makoctl mode 2>/dev/null); then
+if ! pause_level=$(dunstctl get-pause-level); then
   desktop-feedback status "Do not disturb state unavailable" || true
   exit 1
 fi
 
-if grep -qx dnd <<<"$modes"; then
-  if ! makoctl set-mode default; then
+if ((pause_level > 0)); then
+  if ! dunstctl set-pause-level 0; then
     desktop-feedback status "Do not disturb change failed" || true
     exit 1
   fi
   desktop-feedback status "Do not disturb off" || true
 else
-  if ! makoctl set-mode dnd; then
+  if ! dunstctl set-pause-level 90; then
     desktop-feedback status "Do not disturb change failed" || true
     exit 1
   fi

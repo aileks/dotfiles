@@ -63,9 +63,9 @@ cd ~/.dotfiles
 | Keys                     | Action                        |
 | ------------------------ | ----------------------------- |
 | `Mod + Esc`              | lock session                  |
-| `Mod + N`                | toggle do not disturb (mako)  |
-| `Mod + Shift + N`        | restore dismissed             |
-| `Mod + Ctrl + Shift + N` | dismiss all notifications     |
+| `Mod + N`                | toggle do not disturb (dunst) |
+| `Mod + Shift + N`        | notification history          |
+| `Mod + Ctrl + Shift + N` | notification actions and URLs |
 | `Mod + Ctrl + N`         | toggle night light            |
 | `Mod + Shift + R`        | reload Mango configuration    |
 | `Mod + Shift + Q`        | quit Mango                    |
