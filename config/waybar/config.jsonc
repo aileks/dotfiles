@@ -132,11 +132,13 @@
     },
     "width": null,
     "network": {
-      "format-wifi": "  {essid}",
-      "format-ethernet": "󰈀  {ifname}",
       "format-disconnected": "󰖪  offline",
-      "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
-      "on-click": "wezterm start --always-new-process -- nmtui"
+      "format-ethernet": "󰈀",
+      "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+      "format-wifi": "{icon}  {essid}",
+      "interval": 3,
+      "on-click": "wezterm start --always-new-process -- nmtui",
+      "tooltip-format": "󰜷 {bandwidthUpBytes}\n󰇚 {bandwidthDownBytes}"
     }
   }
 ]
