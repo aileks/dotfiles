@@ -6,7 +6,7 @@ set -Eeuo pipefail
 trap 'desktop-feedback status "wezterm: could not open workspace" >&2 || true' ERR
 
 if (($# > 1)) || [[ ${1-} != '' && ${1-} != --select-only ]]; then
-  printf 'Usage: wezterm-dmenu [--select-only]\n' >&2
+  printf 'Usage: wezterm-sessions [--select-only]\n' >&2
   exit 1
 fi
 

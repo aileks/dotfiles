@@ -50,7 +50,7 @@ local function choose_workspace(window, pane)
 end
 
 local function choose_project(window, pane)
-  local ok, stdout = wezterm.run_child_process { 'wezterm-dmenu', '--select-only' }
+  local ok, stdout = wezterm.run_child_process { 'wezterm-sessions', '--select-only' }
   if not ok then
     window:toast_notification('wezterm', 'Could not open workspace picker', nil, 3000)
     return
