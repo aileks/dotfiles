@@ -312,17 +312,18 @@ link_dotfiles() {
   link "$repo/config/OpenRGB/No RGB.orp" "$config_home/OpenRGB/No RGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
 
-  # Theme installers generate GTK CSS, so link only the settings files.
+  # GTK settings are set with gsettings; remove links from older installs.
   for name in gtk-3.0 gtk-4.0; do
     target=$config_home/$name
     if [[ -L $target && $(readlink "$target") == "$repo/config/$name" ]]; then
-      printf 'replace GTK directory link: %s\n' "$target"
-      if ! "$dry_run"; then
-        mv -T -- "$target" "$target.before-gentoo-$stamp"
-        mkdir -p -- "$target"
-      fi
+      printf 'remove GTK directory link: %s\n' "$target"
+      "$dry_run" || rm -- "$target"
     fi
-    link "$repo/config/$name/settings.ini" "$target/settings.ini"
+    target=$target/settings.ini
+    if [[ -L $target && $(readlink "$target") == "$repo/config/$name/settings.ini" ]]; then
+      printf 'remove stale settings link: %s\n' "$target"
+      "$dry_run" || rm -- "$target"
+    fi
   done
 
   for desktop in "$repo/config/applications/"*.desktop; do
