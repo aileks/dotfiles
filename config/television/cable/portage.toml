@@ -1,10 +1,26 @@
 [metadata]
 name = "portage"
-description = "Search Gentoo packages and preview versions, USE flags, and installation status"
-requirements = ["eix"]
+description = "Search Portage packages"
+requirements = ["qsearch"]
 
 [source]
-command = "eix --only-names"
+command = "qsearch --all . --nocolor | sed 's/: /\\t/'"
+display = "{split:\t:0}  {split:\t:1}"
+output = "{split:\t:0}"
 
 [preview]
-command = "eix --color --exact '{}'"
+command = "qsearch --all --nocolor '^{}$'"
+
+[keybindings]
+ctrl-i = "actions:install"
+ctrl-u = "actions:unmerge"
+
+[actions.install]
+description = "Emerge selected package"
+command = "sudo emerge --ask '{}'"
+mode = "execute"
+
+[actions.unmerge]
+description = "Unmerge selected package"
+command = "sudo emerge --ask --depclean '{}'"
+mode = "execute"

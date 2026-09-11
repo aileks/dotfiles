@@ -425,7 +425,7 @@ install_appearance() {
   }
 
   git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$work/gtk"
-  printf '\n' | dbus-run-session -- "$work/gtk/install.sh"
+  printf 'y\n\n' | dbus-run-session -- "$work/gtk/install.sh"
 
   git clone --depth 1 --branch cinder-grove-folders \
     https://github.com/aileks/papirus-folders.git "$work/folders"
