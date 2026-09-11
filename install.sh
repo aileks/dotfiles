@@ -104,7 +104,7 @@ desktop_packages=(
   media-video/mpv
   mpv-plugin/mpv-mpris
   x11-misc/pcmanfm
-  >=gui-apps/wl-clipboard-2.3.0
+  '>=gui-apps/wl-clipboard-2.3.0'
   app-misc/cliphist
   gui-apps/swaylock
   gui-apps/swayidle
