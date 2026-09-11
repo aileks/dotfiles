@@ -285,7 +285,7 @@ link() {
   mkdir -p -- "$(dirname "$target")"
 
   if [[ -e $target || -L $target ]]; then
-    backup=$target.before-gentoo-$stamp
+    backup=$target.backup.$stamp
     [[ ! -e $backup && ! -L $backup ]] || exit 1
     mv -T -- "$target" "$backup"
     printf 'backup %s\n' "$backup"
@@ -497,7 +497,7 @@ setup_mime() {
     rm -- "$work/mimeapps.list.merged"
   else
     if [[ -e $target || -L $target ]]; then
-      backup=$target.before-gentoo-$stamp
+      backup=$target.backup.$stamp
       [[ ! -e $backup && ! -L $backup ]] || {
         echo 'MIME backup already exists' >&2
         return 1
