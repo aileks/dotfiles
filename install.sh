@@ -381,7 +381,7 @@ install_appearance() {
     answer=
   fi
   case $answer in
-    y|Y|yes|YES) ;;
+    y | Y | yes | YES) ;;
     *)
       printf 'skipping appearance setup\n'
       return 0
