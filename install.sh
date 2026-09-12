@@ -576,7 +576,6 @@ if ! "$dry_run"; then
   work=$(mktemp -d)
 fi
 
-run git -C "$repo" submodule update --init --recursive
 install_system_config
 sync_overlays
 install_packages
