@@ -176,6 +176,7 @@ dev_packages=(
   dev-build/make
   sys-apps/bubblewrap
   dev-build/cmake
+  app-editors/emacs
   app-editors/neovim
   dev-python/uv
   net-libs/nodejs
@@ -574,6 +575,7 @@ if ! "$dry_run"; then
   work=$(mktemp -d)
 fi
 
+run git -C "$repo" submodule update --init --recursive
 install_system_config
 sync_overlays
 install_packages
