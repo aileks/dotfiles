@@ -20,7 +20,7 @@ cd ~/.dotfiles
 - `config/dwm/`: vendored dwm-flexipatch; patches toggle in `patches.def.h`, config in `config.def.h`
 - `config/dwmblocks-async/`: vendored status bar blocks for dwm
 - `session/`: session entry points and startup scripts, installed to `/usr/local/bin`
-- `etc/`, `overlay/`: system files, installed as root-owned copies
+- `etc/`: system files, installed as root-owned copies
 - `etc/portage/`: per-package keywords, USE flags, and licenses
 - package lists live in the arrays at the top of `install.sh`
 
@@ -42,7 +42,6 @@ cd ~/.dotfiles
 | `Mod + E`            | file manager           |
 | `Mod + S`            | Signal                 |
 | `Mod + A`            | wiremix                |
-| `Mod + M`            | Fastmail               |
 | `Mod + V`            | clipboard history      |
 | `Mod + ;`            | emoji picker           |
 | `Mod + O`            | color picker           |

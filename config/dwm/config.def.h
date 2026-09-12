@@ -1042,7 +1042,6 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_e,                     spawn,                  SHCMD("wezterm start --always-new-process -- yazi") },
 	{ MODKEY,                       XK_s,                     spawn,                  SHCMD("signal-desktop") },
 	{ MODKEY,                       XK_a,                     spawn,                  SHCMD("wezterm start --always-new-process -- wiremix") },
-	{ MODKEY,                       XK_m,                     spawn,                  SHCMD("fastmail") },
 	{ MODKEY,                       XK_o,                     spawn,                  SHCMD("color-picker") },
 	{ MODKEY,                       XK_v,                     spawn,                  SHCMD("clipboard-menu") },
 	{ MODKEY,                       XK_semicolon,             spawn,                  SHCMD("bemoji -n") },

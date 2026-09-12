@@ -191,7 +191,6 @@ binary_packages=(
   app-office/onlyoffice-bin
   app-admin/bitwarden-desktop-bin
   app-admin/bitwarden-cli-bin
-  mail-client/fastmail-desktop-bin
   net-misc/localsend-bin
   net-vpn/ivpn-ui-bin
   sys-apps/pnpm-bin
@@ -225,10 +224,6 @@ install_system_config() {
     relative=${source#"$repo/"}
     install_system_file "$source" "/$relative"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
-  while IFS= read -r -d '' source; do
-    relative=${source#"$repo/overlay/"}
-    install_system_file "$source" "/var/db/repos/dotfiles/$relative"
-  done < <(find "$repo/overlay" -type f -print0 | sort -z)
   install_system_file "$repo/session/dwm.desktop" /usr/share/xsessions/dwm.desktop
   install_system_file "$repo/session/start-session" /usr/local/bin/start-session 755
   install_system_file "$repo/session/start-dwm" /usr/local/bin/start-dwm 755

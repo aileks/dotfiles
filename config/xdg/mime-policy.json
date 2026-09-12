@@ -463,8 +463,5 @@
   ],
   "x-scheme-handler/https": [
     "zen-browser-bin.desktop"
-  ],
-  "x-scheme-handler/mailto": [
-    "fastmail.desktop"
   ]
 }
