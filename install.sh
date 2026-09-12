@@ -385,6 +385,22 @@ install_user_tools() {
   install -b -m 644 "$work/modernz/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
 }
 
+install_doom() {
+  if "$dry_run"; then
+    printf 'clone doomemacs and sync packages\n'
+    return
+  fi
+  if [[ ! -d $HOME/.emacs.d/.git ]]; then
+    git clone --depth 1 https://github.com/doomemacs/doomemacs.git "$HOME/.emacs.d"
+  fi
+  [[ -f ${XDG_CONFIG_HOME:-$HOME/.config}/doom/init.el ]] || {
+    echo 'Doom config has no init.el yet; skipping doom sync and env.' >&2
+    return 0
+  }
+  "$HOME/.emacs.d/bin/doom" sync
+  "$HOME/.emacs.d/bin/doom" env
+}
+
 install_appearance() {
   local work=$work/appearance
   local name answer
@@ -583,6 +599,7 @@ install_xkb_layout
 enable_services
 link_dotfiles
 install_user_tools
+install_doom
 install_appearance
 run dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Cinder-Grove-Dark
 run dbus-run-session -- gsettings set org.gnome.desktop.interface color-scheme prefer-dark
