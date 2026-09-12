@@ -172,9 +172,9 @@ static void (*bartabmonfns[])(Monitor *) = { NULL /* , customlayoutfn */ };
 #if BAR_PANGO_PATCH
 static const char font[]                 = "monospace 10";
 #else
-static const char *fonts[]               = { "Iosevka Nerd Font Propo:style=Medium:size=11" };
+static const char *fonts[]               = { "Iosevka Nerd Font Propo:style=SemiBold:size=11" };
 #endif // BAR_PANGO_PATCH
-static const char dmenufont[]            = "Iosevka Nerd Font Propo:style=Medium:size=11";
+static const char dmenufont[]            = "Iosevka Nerd Font:style=Medium:size=11";
 
 static char c000000[]                    = "#000000"; // placeholder value
 
@@ -193,7 +193,7 @@ static char titlenormbgcolor[]           = "#131210";
 static char titlenormbordercolor[]       = "#58534C";
 static char titlenormfloatcolor[]        = "#58534C";
 
-static char titleselfgcolor[]            = "#DDD5CA";
+static char titleselfgcolor[]            = "#1B1916";
 static char titleselbgcolor[]            = "#E17A3F";
 static char titleselbordercolor[]        = "#E17A3F";
 static char titleselfloatcolor[]         = "#E17A3F";

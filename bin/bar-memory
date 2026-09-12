@@ -2,4 +2,4 @@
 
 [[ ${BLOCK_BUTTON:-} == 1 ]] && wezterm start --always-new-process -- btop >/dev/null 2>&1 &
 
-free --bytes | awk '/^Mem/ { printf "^c#6785A1^\uEFC5  %.0f%%^d^\n", $3 / $2 * 100 }'
+free --bytes | awk '/^Mem/ { printf "^c#6785A1^ %.0f%%^d^\n", $3 / $2 * 100 }'

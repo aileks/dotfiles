@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-clock_icon=$'\uF017'
 state="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bar-clock-format"
 
 [[ ${BLOCK_BUTTON:-} == 1 ]] && {
@@ -18,4 +17,4 @@ else
   format='%a %d %b %H:%M'
 fi
 
-printf '^c#BBB3A9^%s %s^d^\n' "$clock_icon" "$(date +"$format")"
+printf '^c#BBB3A9^%s %s^d^\n' '' "$(date +"$format")"

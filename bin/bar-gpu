@@ -14,4 +14,4 @@ IFS=', ' read -r utilization temperature <<<"$stats"
   printf '^c#9A788F^\U000F08AE  n/a^d^\n'
   exit 0
 }
-printf '^c#9A788F^\U000F08AE  %s%% %s°C^d^\n' "$utilization" "$temperature"
+printf '^c#9A788F^󰢮 %s%% %s°C^d^\n' "$utilization" "$temperature"

@@ -27,6 +27,7 @@ xset dpms 0 0 900
 pgrep -u "$uid" -x dwmblocks >/dev/null || dwmblocks &
 pgrep -u "$uid" -x bitwarden-app >/dev/null || /opt/Bitwarden/bitwarden &
 pgrep -u "$uid" -x localsend >/dev/null || localsend &
+pgrep -u "$uid" -x openrgb >/dev/null || openrgb --noautoconnect -p NRGB &
 
 mkdir -p "$XDG_RUNTIME_DIR/podman"
 pgrep -u "$uid" -f 'podman system service' >/dev/null || podman system service --time=0 "unix://$XDG_RUNTIME_DIR/podman/podman.sock" &

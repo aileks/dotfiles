@@ -7,12 +7,12 @@ case ${BLOCK_BUTTON:-} in
 esac
 
 if ! pause_level=$(dunstctl get-pause-level 2>/dev/null); then
-  printf '^c#58534C^\U000F009A^d^\n'
+  printf '^c#58534C^󰂜^d^\n'
   exit 0
 fi
 
 if ((pause_level > 0)); then
-  printf '^c#B34A45^\U000F009B^d^\n'
+  printf '^c#B34A45^󰂛^d^\n'
 else
-  printf '^c#879B5C^\U000F009A^d^\n'
+  printf '^c#879B5C^󰂚^d^\n'
 fi
