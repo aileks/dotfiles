@@ -251,8 +251,8 @@ make_prompt() {
   fi
 
   PS1="\[${orange}${bold}\]\W\[${reset}\]"
-  PS1+=" \[${muted}\]• \[${blue}\]\h\[${reset}\]"
   PS1+="${git_segment}"
+  PS1+=" \[${muted}\]• \[${blue}\]\h\[${reset}\]"
   PS1+="${venv_segment}"
   PS1+="${jobs_segment}"
   PS1+="${status_segment}"
