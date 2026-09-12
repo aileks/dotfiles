@@ -17,13 +17,13 @@
 #define TRAILING_DELIMITER 0
 
 // Define blocks for the status feed as X(icon, cmd, interval, signal).
-#define BLOCKS(X)                            \
-    X("", "bar-dnd", 2, 0)                   \
-    X("", "bar-volume", 2, 10)               \
-    X("\uF2DB", "bar-cpu-temperature", 5, 1) \
-    X("\uEFC5", "bar-memory", 5, 2)          \
-    X("\U000F08AE", "bar-gpu", 5, 3)         \
-    X("", "bar-network", 10, 4)              \
-    X("\uF017", "date '+%a %d %b %H:%M'", 5, 0)
+#define BLOCKS(X)                    \
+    X("", "bar-dnd", 2, 0)           \
+    X("", "bar-volume", 2, 10)       \
+    X("", "bar-cpu-temperature", 5, 1) \
+    X("", "bar-memory", 5, 2)        \
+    X("", "bar-gpu", 5, 3)           \
+    X("", "bar-network", 10, 4)      \
+    X("", "bar-clock", 5, 5)
 
 #endif  // CONFIG_H

@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
 case ${BLOCK_BUTTON:-} in
-  1) notification-history >/dev/null 2>&1 & ;;
+  1) dnd-toggle >/dev/null 2>&1 & ;;
   2) dunstctl history-clear >/dev/null 2>&1 & ;;
-  3) dnd-toggle >/dev/null 2>&1 & ;;
+  3) notification-history >/dev/null 2>&1 & ;;
 esac
 
 if ! pause_level=$(dunstctl get-pause-level 2>/dev/null); then
-  printf '󰂛\n'
+  printf '^c#58534C^\uF009B^d^\n'
   exit 0
 fi
 
 if ((pause_level > 0)); then
-  printf '󰖛\n'
+  printf '^c#B34A45^\uF059B^d^\n'
 else
-  printf '󰂛\n'
+  printf '^c#879B5C^\uF009B^d^\n'
 fi

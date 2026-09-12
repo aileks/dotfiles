@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+clock_icon=$'\uF017'
+state="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bar-clock-format"
+
+[[ ${BLOCK_BUTTON:-} == 1 ]] && {
+  if [[ -e $state ]]; then
+    rm -f -- "$state"
+  else
+    touch -- "$state"
+  fi
+  pkill -RTMIN+5 dwmblocks >/dev/null 2>&1 || true
+}
+
+if [[ -e $state ]]; then
+  format='%a %d %b %I:%M %p'
+else
+  format='%a %d %b %H:%M'
+fi
+
+printf '^c#BBB3A9^%s %s^d^\n' "$clock_icon" "$(date +"$format")"

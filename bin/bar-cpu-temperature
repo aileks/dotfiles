@@ -38,4 +38,4 @@ for d in /sys/class/hwmon/hwmon*; do
   fi
 done
 
-printf '%s%% %s°C\n' "$usage" "${temp:-n/a}"
+printf '^c#E17A3F^\uF2DB  %s%% %s°C^d^\n' "$usage" "${temp:-n/a}"

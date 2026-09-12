@@ -3,17 +3,21 @@
 volume_icon=$'\uF028'
 muted_icon=$'\uF0581'
 
-[[ ${BLOCK_BUTTON:-} == 1 ]] && wpctl set-mute '@DEFAULT_AUDIO_SINK@' toggle >/dev/null 2>&1
+case ${BLOCK_BUTTON:-} in
+  1) audio sink mute ;;
+  4) audio sink up ;;
+  5) audio sink down ;;
+esac
 
 volume=$(wpctl get-volume '@DEFAULT_AUDIO_SINK@' 2>/dev/null) || {
-  printf 'n/a\n'
+  printf '^c#58534C^n/a^d^\n'
   exit 0
 }
 
 if [[ $volume == *[MUTED]* ]]; then
-  printf '%s  mute\n' "$muted_icon"
+  printf '^c#B34A45^%s  mute^d^\n' "$muted_icon"
   exit 0
 fi
 
 percent=$(awk '{ printf "%.0f", $2 * 100 }' <<<"$volume")
-printf '%s %s%%\n' "$volume_icon" "$percent"
+printf '^c#58534C^%s %s%%^d^\n' "$volume_icon" "$percent"

@@ -13,34 +13,14 @@ export EDITOR=nvim VISUAL=nvim
 export BEMOJI_PICKER_CMD="dmenu -i -p Emoji" BEMOJI_CLIP_CMD=xclip
 export CM_LAUNCHER=dmenu CM_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/clipmenu"
 
+# setxkbmap only resolves layouts registered in the xkb rules; fall back to
+# loading the symbols file directly.
 setxkbmap aileks || xkbcomp -I"${XDG_CONFIG_HOME:-$HOME/.config}/xkb" \
   "${XDG_CONFIG_HOME:-$HOME/.config}/xkb/symbols/aileks" "${DISPLAY:-:0}"
 
+# Match the mango session: repeat_delay 250 ms, repeat_rate 50 cps.
 xset r rate 250 50
 
-dbus-update-activation-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE &
-gentoo-pipewire-launcher &
-gnome-keyring-daemon --start --components=secrets,pkcs11 &
-/usr/libexec/polkit-gnome-authentication-agent-1 &
-xwallpaper --zoom ~/.local/share/backgrounds/fantasy-woods.jpg &
-picom --config ~/.config/picom/picom.conf &
-dunst &
-playerctld daemon &
-udiskie --tray &
-blueman-applet &
-clipmenud &
-wezterm-mux-server --config-file ~/.config/wezterm/wezterm.lua &
-emacs --daemon &
-xss-lock --transfer-sleep-lock -- lock-session &
-xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock "Locking in 30 seconds"' &
-xautolock -time 30 -locker 'sh -c "lock-session; loginctl suspend"' &
-xset dpms 0 0 900
-mkdir -p "$XDG_RUNTIME_DIR/podman"
-podman system service --time=0 "unix://$XDG_RUNTIME_DIR/podman/podman.sock" &
-(while pgrep -x dwm >/dev/null; do
-  reminder dispatch || true
-  sleep 60
-done) &
-dwmblocks &
-
+# dbus-run-session creates a real bus and keeps it alive until dwm exits;
+# dwm's autostart patch launches the desktop processes after it starts.
 exec dbus-run-session -- dwm

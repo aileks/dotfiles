@@ -5,13 +5,13 @@
 if ! stats=$(timeout 3s nvidia-smi --id=0 \
   --query-gpu=utilization.gpu,temperature.gpu \
   --format=csv,noheader,nounits 2>/dev/null); then
-  printf 'n/a\n'
+  printf '^c#9A788F^\U000F08AE  n/a^d^\n'
   exit 0
 fi
 
 IFS=', ' read -r utilization temperature <<<"$stats"
 [[ $utilization =~ ^[0-9]+$ && $temperature =~ ^[0-9]+$ ]] || {
-  printf 'n/a\n'
+  printf '^c#9A788F^\U000F08AE  n/a^d^\n'
   exit 0
 }
-printf '%s%% %s°C\n' "$utilization" "$temperature"
+printf '^c#9A788F^\U000F08AE  %s%% %s°C^d^\n' "$utilization" "$temperature"
