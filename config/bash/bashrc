@@ -31,6 +31,20 @@ alias vim="nvim"
 alias docker="podman"
 alias ..="echo 'cd ..'; cd .."
 alias hl="rg --passthru"
+alias ga='git add'
+alias gaa='git add --all'
+alias gb='git branch'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gc='git commit --verbose'
+alias gcm='git commit --message'
+alias gd='git diff'
+alias gf='git fetch'
+alias gl='git pull'
+alias gp='git push'
+alias gst='git status'
+alias gss='git status --short'
+alias gsw='git switch'
 
 # Shell Opts
 shopt -s cdspell
@@ -135,6 +149,48 @@ if [[ -r ${XDG_CONFIG_HOME:-$HOME/.config}/wezterm/shell-integration.sh ]]; then
 fi
 
 # Prompt
+git_prompt_segment() {
+  local output line
+  local branch=''
+  local ahead=0
+  local behind=0
+  local dirty=0
+
+  output=$(git status --porcelain=v2 --branch 2>/dev/null) || return
+
+  while IFS= read -r line; do
+    case $line in
+      "# branch.head "*)
+        branch=${line#"# branch.head "}
+        ;;
+
+      "# branch.ab "*)
+        local ab=${line#"# branch.ab "}
+        local a b
+        read -r a b <<<"$ab"
+        ahead=${a#+}
+        behind=${b#-}
+        ;;
+
+      *)
+        if [[ -n $line && $line != \#* && $line != \!* ]]; then
+          dirty=1
+        fi
+        ;;
+    esac
+  done <<<"$output"
+
+  if [[ $branch == "(detached)" ]]; then
+    branch=$(git rev-parse --short HEAD 2>/dev/null)
+  fi
+
+  printf ' %s' "$branch"
+
+  ((ahead > 0)) && printf ' ⇡%d' "$ahead"
+  ((behind > 0)) && printf ' ⇣%d' "$behind"
+  ((dirty)) && printf ' *'
+}
+
 make_prompt() {
   local status=$1
 
@@ -147,22 +203,39 @@ make_prompt() {
   local muted=$'\e[38;2;154;147;138m'
   local red=$'\e[38;2;179;74;69m'
   local cyan=$'\e[38;2;88;145;140m'
+  local green=$'\e[38;2;135;155;92m'
 
   local git_segment=''
   local status_segment=''
-  local branch=''
+  local venv_segment=''
+  local jobs_segment=''
 
-  if branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null); then
-    git_segment=" \[${magenta}\] ${branch}\[${reset}\]"
+  local git_info
+  if git_info=$(git_prompt_segment); then
+    git_segment=" \[${magenta}\]${git_info}\[${reset}\]"
   fi
 
   if ((status != 0)); then
     status_segment=" \[${red}\] ${status}\[${reset}\]"
   fi
 
+  if [[ -n ${VIRTUAL_ENV:-} ]]; then
+    venv_segment=" \[${green}\] ${VIRTUAL_ENV##*/}\[${reset}\]"
+  fi
+
+  local job_count
+  job_count=$(jobs -p | wc -l)
+
+  if ((job_count > 0)); then
+    jobs_segment=" \[${muted}\]󰒋 ${job_count}\[${reset}\]"
+  fi
+
   PS1="\[${orange}${bold}\]\W\[${reset}\]"
   PS1+=" \[${muted}\]• \[${blue}\]\h\[${reset}\]"
-  PS1+="${git_segment}${status_segment}"
+  PS1+="${git_segment}"
+  PS1+="${venv_segment}"
+  PS1+="${jobs_segment}"
+  PS1+="${status_segment}"
   PS1+='\n'
   PS1+="\[${cyan}${bold}\]❯\[${reset}\] "
 }
