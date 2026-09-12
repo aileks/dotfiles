@@ -4,8 +4,6 @@ My Gentoo configuration using [dwm-flexipatch](https://github.com/bakkeby/dwm-fl
 
 ## Install
 
-On a booted Gentoo OpenRC system with sudo and networking working:
-
 ```sh
 git clone --recurse-submodules https://github.com/aileks/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles

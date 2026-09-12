@@ -17,9 +17,9 @@ timestamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
 new_snapshot="$snapshots_directory/$timestamp"
 incomplete_snapshot="$snapshots_directory/.$timestamp.incomplete"
 excludes="${XDG_CONFIG_HOME:-$HOME/.config}/rsync-home.excludes"
-runtime_directory="${XDG_STATE_HOME:-$HOME/.local/state}/home-backup"
-status_file="$runtime_directory/status"
-mkdir -p "$runtime_directory"
+state_directory="${XDG_STATE_HOME:-$HOME/.local/state}/home-backup"
+status_file="$state_directory/status"
+mkdir -p "$state_directory"
 
 write_status() {
   local state=$1 message=${2:-}
@@ -43,7 +43,7 @@ failed() {
 
 trap failed ERR
 
-exec 9>"$runtime_directory/home-backup.lock"
+exec 9>"$state_directory/home-backup.lock"
 if ! flock -n 9; then
   printf 'home-backup is already running\n'
   exit 0

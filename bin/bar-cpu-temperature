@@ -2,13 +2,13 @@
 
 [[ ${BLOCK_BUTTON:-} == 1 ]] && wezterm start --always-new-process -- btop >/dev/null 2>&1 &
 
-read -r _ user nice system idle _ </proc/stat
-busy1=$((user + nice + system))
-total1=$((busy1 + idle))
+read -r _ user nice system idle iowait irq softirq steal _ </proc/stat
+busy1=$((user + nice + system + irq + softirq + steal))
+total1=$((busy1 + idle + iowait))
 sleep 0.25
-read -r _ user nice system idle _ </proc/stat
-busy2=$((user + nice + system))
-total2=$((busy2 + idle))
+read -r _ user nice system idle iowait irq softirq steal _ </proc/stat
+busy2=$((user + nice + system + irq + softirq + steal))
+total2=$((busy2 + idle + iowait))
 usage=0
 if ((total2 > total1)); then
   usage=$((100 * (busy2 - busy1) / (total2 - total1)))

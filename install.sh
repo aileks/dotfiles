@@ -1,33 +1,64 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-repo=$(cd -- "$(dirname -- "$(readlink -f "$0")")" && pwd)
+repo=$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)
 dry_run=false
-case ${1:-} in
-  --dry-run) dry_run=true ;;
-  '') ;;
-  *)
-    echo 'Usage: ./install.sh [--dry-run]' >&2
-    exit 2
-    ;;
-esac
-(($# <= 1)) || exit 2
-
-if ((EUID == 0)); then
-  if [[ -n ${SUDO_USER:-} && $SUDO_USER != root ]]; then
-    exec sudo -H -u "$SUDO_USER" -- "$repo/install.sh" "$@"
-  fi
-  echo 'Run ./install.sh as your desktop user.' >&2
-  exit 1
-fi
-
-export PATH="$HOME/.local/bin:$PATH"
-config_home=${XDG_CONFIG_HOME:-$HOME/.config}
-data_home=${XDG_DATA_HOME:-$HOME/.local/share}
-stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+in_chroot=false
+phase=system
+target_user=
+target_home=
+target_uid=
+target_gid=
+config_home=
+data_home=
+stamp=
 work=
-trap '[[ -z $work ]] || rm -rf -- "$work"' EXIT
-trap 'printf "Installation failed at line %s. Fix the error above and rerun ./install.sh.\n" "$LINENO" >&2' ERR
+cleanup_directory=
+
+fail() {
+  printf '%s\n' "$*" >&2
+  exit 1
+}
+
+parse_arguments() {
+  while (($#)); do
+    case $1 in
+      --dry-run) dry_run=true ;;
+      --chroot) in_chroot=true ;;
+      --user)
+        (($# >= 2)) && [[ -n $2 && $2 != -* ]] || fail '--user requires a username.'
+        target_user=$2
+        shift
+        ;;
+      --user-setup) phase=user ;;
+      --help)
+        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run]'
+        exit 0
+        ;;
+      *) fail "Unknown argument: $1. Use --help for usage." ;;
+    esac
+    shift
+  done
+}
+
+select_user() {
+  local account
+  if [[ -z $target_user ]]; then
+    if ((EUID == 0)); then
+      target_user=${SUDO_USER:-}
+    else
+      target_user=$(id -un)
+    fi
+  fi
+  [[ -n $target_user && $target_user != root ]] || fail 'Root must specify an existing desktop account with --user USER.'
+  account=$(getent passwd "$target_user") || fail "No such account: $target_user"
+  IFS=: read -r target_user _ target_uid target_gid _ target_home _ <<<"$account"
+  [[ $target_uid != 0 && $target_home == /* && -d $target_home ]] || fail 'The desktop account must have an existing home directory and a nonzero UID.'
+  ((EUID == 0 || EUID == target_uid)) || fail 'Only root can configure another user.'
+  [[ $phase != user || $EUID == "$target_uid" ]] || fail 'User setup must run as the desktop account.'
+  config_home=$target_home/.config
+  data_home=$target_home/.local/share
+}
 
 run() {
   printf '+'
@@ -36,10 +67,73 @@ run() {
   "$dry_run" || "$@"
 }
 
+as_user() {
+  runuser -u "$target_user" -- env -i \
+    HOME="$target_home" USER="$target_user" LOGNAME="$target_user" \
+    PATH="$target_home/.local/bin:$target_home/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin" \
+    XDG_CONFIG_HOME="$config_home" XDG_DATA_HOME="$data_home" \
+    LANG="${LANG:-C.UTF-8}" TERM="${TERM:-dumb}" "$@"
+}
+
+check_system_target() {
+  local target=$1 parent=$1
+  while [[ $parent != / ]]; do
+    [[ ! -L $parent ]] || fail "Refusing system symlink: $parent"
+    if [[ $parent != "$target" && -e $parent && ! -d $parent ]]; then
+      fail "Expected a directory at $parent. Preserve its contents in a directory before rerunning."
+    fi
+    parent=$(dirname -- "$parent")
+  done
+  [[ ! -d $target ]] || fail "Expected a file at $target."
+}
+
+check_network_services() {
+  local service
+  for service in /etc/runlevels/{boot,default}/{dhcpcd,net.*,connman,wicd}; do
+    [[ -L $service && ${service##*/} != net.lo ]] || continue
+    fail "Conflicting network service: $service. Prepare NetworkManager and disable this service before rerunning."
+  done
+}
+
+preflight() {
+  local source relative path booted_root
+  [[ -f /etc/gentoo-release && -d /etc/runlevels ]] || fail 'This installer requires Gentoo OpenRC.'
+  [[ $(readlink -f /etc/portage/make.profile) == */profiles/default/linux/amd64/23.0/desktop ]] ||
+    fail 'Prepare the default/linux/amd64/23.0/desktop OpenRC profile before running this installer.'
+  portageq has_version / virtual/dist-kernel || fail 'Install and configure a Gentoo distribution kernel as part of the base installation.'
+  if "$in_chroot"; then
+    for path in /proc /sys /dev; do
+      mountpoint -q "$path" || fail "Mount $path inside the installation chroot first."
+    done
+  else
+    booted_root=$(stat -Lc '%d:%i' /proc/1/root 2>/dev/null || true)
+    if [[ -n $booted_root && $(stat -Lc '%d:%i' /) != "$booted_root" ]]; then
+      fail 'The target is not the booted root. Run with --chroot inside the installed Gentoo system.'
+    fi
+  fi
+  [[ $repo == "$target_home/"* && -d $repo/.git ]] || fail 'Keep a Git checkout inside the desktop user home before running this installer.'
+  [[ $(stat -c %u "$repo") == "$target_uid" ]] || fail "The checkout must belong to $target_user."
+  for source in install.sh session/start-dwm session/start-session session/dwm.desktop config/xdg/mime-policy.json config/cron/crontab; do
+    [[ -r $repo/$source ]] || fail "Missing repository source: $source"
+  done
+  while IFS= read -r -d '' source; do
+    relative=${source#"$repo/"}
+    check_system_target "/$relative"
+  done < <(find "$repo/etc" -type f -print0)
+  for path in /usr/share/xsessions/dwm.desktop /usr/local/bin/start-session /usr/local/bin/start-dwm /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
+    check_system_target "$path"
+  done
+  # Check all link sources before any package or system changes.
+  (dry_run=true; link_dotfiles) >/dev/null
+  if [[ -e $config_home/emacs || -L $config_home/emacs ]]; then
+    [[ -x $config_home/emacs/bin/doom && -d $config_home/emacs/.git ]] || fail "Incomplete or unrelated Emacs installation at $config_home/emacs; preserve it elsewhere before rerunning."
+  fi
+  check_network_services
+  (dry_run=true; ensure_subordinate_ids /etc/subuid; ensure_subordinate_ids /etc/subgid) >/dev/null
+}
+
 base_packages=(
-  sys-kernel/installkernel
   sys-kernel/linux-firmware
-  sys-boot/limine
   x11-drivers/nvidia-drivers
   net-misc/networkmanager
   sys-apps/dbus
@@ -183,9 +277,11 @@ dev_packages=(
   dev-util/tree-sitter-cli
   dev-lang/zig
   dev-util/github-cli
+  dev-util/ruff
+  llvm-core/clang
+  dev-lang/go
 )
 binary_packages=(
-  sys-kernel/gentoo-kernel-bin
   www-client/zen-browser-bin
   net-im/signal-desktop-bin
   app-office/onlyoffice-bin
@@ -194,28 +290,28 @@ binary_packages=(
   net-misc/localsend-bin
   net-vpn/ivpn-ui-bin
   sys-apps/pnpm-bin
+  dev-util/shellcheck-bin
+)
+binhost_packages=(
   media-sound/easyeffects
   app-misc/anki
 )
 
 install_system_file() {
-  local source=$1 target=$2 mode=${3:-644} parent
-  parent=$target
-  while [[ $parent != / ]]; do
-    [[ ! -L $parent ]] || {
-      echo "Refusing system symlink: $parent" >&2
-      exit 1
-    }
-    parent=$(dirname -- "$parent")
-  done
+  local source=$1 target=$2 mode=${3:-644}
+  check_system_target "$target"
   if [[ -f $target ]] && cmp -s -- "$source" "$target"; then
+    if [[ $(stat -c '%u:%g:%a' "$target") != "0:0:$mode" ]]; then
+      run chown root:root -- "$target"
+      run chmod "$mode" -- "$target"
+    fi
     return
   fi
   if [[ -e $target ]]; then
-    run sudo install -d -m 700 -- "/var/backups/dotfiles/$stamp$(dirname -- "$target")"
-    run sudo cp -a -- "$target" "/var/backups/dotfiles/$stamp$target"
+    run install -d -m 700 -- "/var/backups/dotfiles/$stamp$(dirname -- "$target")"
+    run cp -a -- "$target" "/var/backups/dotfiles/$stamp$target"
   fi
-  run sudo install -D -o root -g root -m "$mode" -- "$source" "$target"
+  run install -D -o root -g root -m "$mode" -- "$source" "$target"
 }
 
 install_system_config() {
@@ -236,25 +332,126 @@ install_xkb_layout() {
 }
 
 sync_overlays() {
-  local overlay
-  run sudo emerge -qn app-eselect/eselect-repository dev-vcs/git
-  run sudo emaint sync
+  run emaint sync
 }
 
+emerge_options=(
+  --verbose --noreplace --changed-use --autounmask=n
+  --exclude 'virtual/dist-kernel sys-kernel/gentoo-kernel sys-kernel/gentoo-kernel-bin sys-kernel/installkernel sys-boot/limine'
+)
+
 install_packages() {
+  local package
   local -a source_packages=("${base_packages[@]}" "${cli_packages[@]}"
     "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
-  run sudo emerge -vUn "${source_packages[@]}"
-  run sudo emerge -gvUn "${binary_packages[@]}"
-  run make -C "$repo/config/dmenu" clean all
-  run sudo make -C "$repo/config/dmenu" install
-  run cp -f -- "$repo/config/dwm/config.def.h" "$repo/config/dwm/config.h"
-  run cp -f -- "$repo/config/dwm/patches.def.h" "$repo/config/dwm/patches.h"
-  run make -C "$repo/config/dwm" clean all
-  run sudo make -C "$repo/config/dwm" install
-  run make -C "$repo/config/dwmblocks-async" clean all
-  run sudo make -C "$repo/config/dwmblocks-async" install
-  run sudo eix-update
+  run emerge "${emerge_options[@]}" --pretend --getbinpkg=n --usepkg=n \
+    "${source_packages[@]}" "${binary_packages[@]}" "${binhost_packages[@]}"
+  run emerge "${emerge_options[@]}" --getbinpkg=n --usepkg=n \
+    "${source_packages[@]}" "${binary_packages[@]}"
+  for package in "${binhost_packages[@]}"; do
+    if "$dry_run"; then
+      printf 'try emerge --pretend -gK %s; allow source fallback if unavailable\n' "$package"
+    elif ! emerge --pretend --getbinpkg --usepkgonly --autounmask=n "$package"; then
+      printf 'No compatible binary for %s; allowing a source build.\n' "$package"
+    fi
+    run emerge "${emerge_options[@]}" --getbinpkg=y --usepkg=y "$package"
+  done
+  # User patches do not trigger a rebuild of an already installed package.
+  run emerge --oneshot --autounmask=n --getbinpkg=n --usepkg=n x11-misc/clipmenu
+  run eix-update
+}
+
+build_desktop() {
+  local program source relative mode
+  run install -d -o "$target_uid" -g "$target_gid" -m 700 "$work/build"
+  for program in dmenu dwm dwmblocks-async; do
+    run as_user cp -a -- "$repo/config/$program" "$work/build/$program"
+    if [[ $program == dwm ]]; then
+      run as_user cp -- "$repo/config/dwm/config.def.h" "$work/build/dwm/config.h"
+      run as_user cp -- "$repo/config/dwm/patches.def.h" "$work/build/dwm/patches.h"
+    fi
+    run as_user make -C "$work/build/$program" clean all
+    run as_user make -C "$work/build/$program" DESTDIR="$work/build/stage" install
+  done
+  if "$dry_run"; then
+    printf 'install staged desktop executables and manuals as root-owned files\n'
+    return
+  fi
+  while IFS= read -r -d '' source; do
+    relative=${source#"$work/build/stage/"}
+    [[ $relative != usr/local/share/xsessions/dwm.desktop ]] || continue
+    mode=644
+    [[ $relative != usr/local/bin/* ]] || mode=755
+    install_system_file "$source" "/$relative" "$mode"
+  done < <(find "$work/build/stage" -type f -print0)
+}
+
+ensure_subordinate_ids() {
+  local target=$1 start
+  if [[ -f $target ]] && awk -F: -v user="$target_user" -v uid="$target_uid" \
+    '($1 == user || $1 == uid) && $2 ~ /^[0-9]+$/ && $2 > 0 && $3 ~ /^[0-9]+$/ && $3 >= 65536 { found=1 } END { exit !found }' "$target"; then
+    return
+  fi
+  if [[ -f $target ]] && awk -F: -v user="$target_user" -v uid="$target_uid" \
+    '$1 == user || $1 == uid { found=1 } END { exit !found }' "$target"; then
+    fail "Existing mappings for $target_user in $target need at least 65536 IDs; resolve them before rerunning."
+  fi
+  if "$dry_run"; then
+    printf 'allocate 65536 unused IDs for %s in %s\n' "$target_user" "$target"
+    return
+  fi
+  # Allocate above all existing ranges and real account/group IDs.
+  start=$(awk -F: 'BEGIN { next_id=100000 }
+    FILENAME == ARGV[1] { if ($2 + $3 > next_id) next_id=$2 + $3; next }
+    $3 >= next_id && $3 < 4294967294 { next_id=$3 + 1 }
+    END { printf "%.0f\n", next_id }' "${target}" /etc/passwd /etc/group)
+  ((start + 65536 < 4294967294)) || fail "No subordinate IDs available in $target."
+  cat "$target" >"$work/${target##*/}"
+  printf '%s:%s:65536\n' "$target_user" "$start" >>"$work/${target##*/}"
+  install_system_file "$work/${target##*/}" "$target"
+}
+
+configure_account() {
+  local shell mapping_file
+  shell=$(command -v zsh || true)
+  if "$dry_run"; then
+    printf 'set %s login shell to Zsh and add i2c membership if missing\n' "$target_user"
+  else
+    [[ -n $shell ]] || fail 'Zsh was not installed.'
+    shell=$(readlink -f "$shell")
+    grep -Fxq "$shell" /etc/shells || fail "Zsh is not listed in /etc/shells: $shell"
+    if [[ $(getent passwd "$target_user" | cut -d: -f7) != "$shell" ]]; then
+      run usermod --shell "$shell" "$target_user"
+    fi
+    if [[ " $(id -nG "$target_user") " != *' i2c '* ]]; then
+      run usermod -aG i2c "$target_user"
+    fi
+    for mapping_file in /etc/subuid /etc/subgid; do
+      if [[ ! -e $mapping_file ]]; then
+        run install -m 644 /dev/null "$mapping_file"
+      fi
+    done
+  fi
+  ensure_subordinate_ids /etc/subuid
+  ensure_subordinate_ids /etc/subgid
+}
+
+configure_mdns() {
+  if "$dry_run"; then
+    printf 'enable mDNS lookup in /etc/nsswitch.conf, preserving other lookup rules\n'
+    return
+  fi
+  awk '
+    /^hosts:[[:space:]]/ {
+      found=1
+      if ($0 !~ /(^|[[:space:]])mdns(4|6)?(_minimal)?([[:space:]]|$)/) {
+        if (!sub(/(^|[[:space:]])files([[:space:]]|$)/, " files mdns4_minimal [NOTFOUND=return] ")) exit 1
+      }
+    }
+    { print }
+    END { if (!found) exit 1 }
+  ' /etc/nsswitch.conf >"$work/nsswitch.conf" || fail 'Expected a hosts lookup containing files in /etc/nsswitch.conf.'
+  install_system_file "$work/nsswitch.conf" /etc/nsswitch.conf
 }
 
 enable_services() {
@@ -269,20 +466,23 @@ enable_services() {
     done
   fi
 
-  for service in display-manager xdm dhcpcd agetty.tty2; do
+  check_network_services
+  for service in display-manager xdm agetty.tty2; do
     for runlevel in boot default; do
       if [[ -L /etc/runlevels/$runlevel/$service ]]; then
-        run sudo rc-update del "$service" "$runlevel"
+        run rc-update del "$service" "$runlevel"
       fi
     done
   done
   if [[ -f /etc/inittab ]] && grep -qE '^[^#].*[[:space:]]tty2[[:space:]]' /etc/inittab; then
-    run sudo install -d -m 700 -- "/var/backups/dotfiles/$stamp/etc"
-    run sudo cp -a -- /etc/inittab "/var/backups/dotfiles/$stamp/etc/inittab"
-    run sudo sed -i '/^[^#].*[[:space:]]tty2[[:space:]]/s/^/#/' /etc/inittab
+    run install -d -m 700 -- "/var/backups/dotfiles/$stamp/etc"
+    run cp -a -- /etc/inittab "/var/backups/dotfiles/$stamp/etc/inittab"
+    run sed -i '/^[^#].*[[:space:]]tty2[[:space:]]/s/^/#/' /etc/inittab
   fi
   for service in "${services[@]}"; do
-    run sudo rc-update add "$service" default
+    if [[ ! -L /etc/runlevels/default/$service && ! -L /etc/runlevels/boot/$service ]]; then
+      run rc-update add "$service" default
+    fi
   done
 }
 
@@ -310,13 +510,13 @@ link() {
 link_dotfiles() {
   local name desktop script target
 
-  for name in bat btop cava dunst fastfetch fontconfig doom i3lock-color qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal; do
+  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
   link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
-  link "$repo/config/zsh/zshrc" "$HOME/.zshrc"
+  link "$repo/config/zsh/zshrc" "$target_home/.zshrc"
   link "$repo/config/starship/starship.toml" "$config_home/starship.toml"
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link "$repo/config/xorg/keymap.xkb" "$config_home/xkb/symbols/aileks"
@@ -331,19 +531,20 @@ link_dotfiles() {
   done
 
   for script in "$repo/bin/"*; do
-    link "$script" "$HOME/.local/bin/${script##*/}"
+    link "$script" "$target_home/.local/bin/${script##*/}"
   done
 }
 
 install_user_tools() {
   local work=$work/user-tools
   if "$dry_run"; then
-    printf 'install antidote, bemoji, and ModernZ\n'
+    printf 'install antidote, bemoji, ModernZ, SQLFluff, SQLs, and Prettier\n'
     return
   fi
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
   if [[ ! -e $HOME/.antidote ]]; then
-    git clone --depth 1 https://github.com/mattmc3/antidote.git "$HOME/.antidote"
+    git clone --depth 1 https://github.com/mattmc3/antidote.git "$work/antidote"
+    mv -T -- "$work/antidote" "$HOME/.antidote"
   fi
   [[ -r $HOME/.antidote/antidote.zsh ]] || {
     echo 'Antidote checkout is incomplete: ~/.antidote' >&2
@@ -366,6 +567,10 @@ install_user_tools() {
   mkdir -p "$config_home/mpv/scripts" "$config_home/mpv/fonts"
   install -b -m 644 "$work/modernz/modernz.lua" "$config_home/mpv/scripts/modernz.lua"
   install -b -m 644 "$work/modernz/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
+
+  uv tool install sqlfluff
+  GOBIN="$HOME/.local/bin" go install github.com/sqls-server/sqls@v0.2.48
+  PNPM_HOME="$data_home/pnpm" pnpm add --global prettier
 }
 
 install_doom() {
@@ -375,7 +580,8 @@ install_doom() {
     return
   fi
   if [[ ! -d $emacs_dir ]]; then
-    git clone --depth 1 https://github.com/doomemacs/doomemacs.git "$emacs_dir"
+    git clone --depth 1 https://github.com/doomemacs/doomemacs.git "$work/doom-emacs"
+    mv -T -- "$work/doom-emacs" "$emacs_dir"
     "$emacs_dir/bin/doom" install
     return
   fi
@@ -448,7 +654,7 @@ install_appearance() {
 setup_mime() {
   local directory name
   local -A installed=() resolved=() missing=()
-  local policy mime browser target existing backup temporary
+  local policy mime browser target existing backup
   if "$dry_run"; then
     printf 'set MIME defaults from config/xdg/mime-policy.json\n'
     return
@@ -569,41 +775,87 @@ install_crontab() {
   fi
 }
 
-if ! "$dry_run"; then
-  [[ -f /etc/gentoo-release && -d /etc/runlevels ]] || {
-    echo 'This installer requires a booted Gentoo OpenRC system.' >&2
-    exit 1
-  }
-  sudo -v
-  work=$(mktemp -d)
-fi
+setup_user() {
+  export PATH="$target_home/.local/bin:$data_home/pnpm:$PATH"
+  if ! "$dry_run"; then
+    install -d -m 700 "$work/runtime"
+    export XDG_RUNTIME_DIR="$work/runtime"
+  fi
+  link_dotfiles
+  install_user_tools
+  install_doom
+  install_appearance
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-theme Adwaita
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-size 24
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 11'
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 11'
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface clock-format 24h
+  run dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences button-layout ''
+  run xdg-user-dirs-update
+  setup_mime
+  run fc-cache -f
+  run bat cache --build
+  install_crontab
+}
 
-run git -C "$repo" submodule update --init --recursive
-install_system_config
-sync_overlays
-install_packages
-install_xkb_layout
-link_dotfiles
-install_user_tools
-install_doom
-install_appearance
-run dbus-run-session -- gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-run dbus-run-session -- gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
-run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-theme Adwaita
-run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-size 24
-run dbus-run-session -- gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 11'
-run dbus-run-session -- gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 11'
-run dbus-run-session -- gsettings set org.gnome.desktop.interface clock-format 24h
-run dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences button-layout ''
-run xdg-user-dirs-update
-setup_mime
-run fc-cache -f
-run bat cache --build
-enable_services
-install_crontab
+main() {
+  parse_arguments "$@"
+  select_user
+  if [[ $phase == system ]]; then
+    preflight
+    if ((EUID != 0)) && ! "$dry_run"; then
+      command -v sudo >/dev/null || fail "Run as root with --user $target_user to bootstrap sudo."
+      local -a arguments=(--user "$target_user")
+      "$in_chroot" && arguments+=(--chroot)
+      exec sudo -- "$repo/install.sh" "${arguments[@]}"
+    fi
+  fi
 
-if "$dry_run"; then
-  echo 'Dry run complete; no changes made.'
-else
-  echo 'Installation complete. Reload dwm or reboot.'
+  stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+  umask 077
+  work=/tmp/dotfiles-dry-run
+  if ! "$dry_run"; then
+    work=$(mktemp -d -t dotfiles.XXXXXXXX)
+    cleanup_directory=$work
+    trap 'rm -rf -- "$cleanup_directory"' EXIT
+    trap 'printf "Installation failed at line %s. Fix the error above and rerun the same command.\n" "$LINENO" >&2' ERR
+  fi
+
+  if [[ $phase == user ]]; then
+    setup_user
+    return
+  fi
+
+  run emerge --noreplace --autounmask=n --getbinpkg=n --usepkg=n \
+    dev-vcs/git app-admin/sudo app-eselect/eselect-repository
+  run as_user git -C "$repo" submodule update --init --recursive
+  if ! "$dry_run"; then
+    [[ -r $repo/config/doom/init.el ]] || fail 'The Doom configuration submodule is incomplete.'
+    # Only the user-owned build directory beneath this directory is accessible.
+    chmod 711 "$work"
+  fi
+  install_system_config
+  sync_overlays
+  install_packages
+  build_desktop
+  install_xkb_layout
+  configure_account
+  configure_mdns
+  if "$dry_run"; then
+    setup_user
+  else
+    run as_user "$repo/install.sh" --user "$target_user" --user-setup
+  fi
+  enable_services
+  if "$dry_run"; then
+    echo 'Dry run complete; no changes made.'
+  else
+    echo 'Installation complete. Reboot to activate the services, groups, and desktop session.'
+  fi
+}
+
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+  main "$@"
 fi

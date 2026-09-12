@@ -5,7 +5,13 @@ set -euo pipefail
 choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | dmenu -p Power) || exit 0
 case "$choice" in
   'log out') loginctl terminate-session "${XDG_SESSION_ID:?}" ;;
-  'suspend') lock-session && loginctl suspend ;;
+  'suspend')
+    pgrep -u "$(id -u)" -x xss-lock >/dev/null || {
+      desktop-feedback status 'Cannot suspend: automatic screen locking is not running'
+      exit 1
+    }
+    loginctl suspend
+    ;;
   'reboot') loginctl reboot ;;
   'shut down') loginctl poweroff ;;
 esac
