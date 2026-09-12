@@ -337,13 +337,20 @@ sync_overlays() {
 
 emerge_options=(
   --verbose --noreplace --changed-use --autounmask=n
-  --exclude 'virtual/dist-kernel sys-kernel/gentoo-kernel sys-kernel/gentoo-kernel-bin sys-kernel/installkernel sys-boot/limine'
+  --exclude 'virtual/dist-kernel sys-kernel/gentoo-kernel sys-kernel/gentoo-kernel-bin sys-kernel/installkernel sys-boot/limine dev-qt/qtwebengine'
 )
 
 install_packages() {
   local package
+  local -a qtwebengine_options=(--verbose --oneshot --update --changed-use
+    --autounmask=n --getbinpkg=y --usepkgonly=y --binpkg-respect-use=y)
   local -a source_packages=("${base_packages[@]}" "${cli_packages[@]}"
     "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
+  # Install QtWebEngine only from binaries, then exclude it from source merges.
+  run emerge "${qtwebengine_options[@]}" --pretend dev-qt/qtwebengine:6 ||
+    fail 'Compatible binaries for QtWebEngine and its dependencies are required; source compilation is disabled.'
+  run emerge "${qtwebengine_options[@]}" dev-qt/qtwebengine:6 ||
+    fail 'QtWebEngine binary installation failed; source compilation is disabled.'
   run emerge "${emerge_options[@]}" --pretend --getbinpkg=n --usepkg=n \
     "${source_packages[@]}" "${binary_packages[@]}" "${binhost_packages[@]}"
   run emerge "${emerge_options[@]}" --getbinpkg=n --usepkg=n \
@@ -357,7 +364,7 @@ install_packages() {
     run emerge "${emerge_options[@]}" --getbinpkg=y --usepkg=y "$package"
   done
   # User patches do not trigger a rebuild of an already installed package.
-  run emerge --oneshot --autounmask=n --getbinpkg=n --usepkg=n x11-misc/clipmenu
+  run emerge --oneshot --autounmask=n --getbinpkg=n --usepkg=n --exclude dev-qt/qtwebengine x11-misc/clipmenu
   run eix-update
 }
 
