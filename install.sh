@@ -98,8 +98,8 @@ check_network_services() {
 preflight() {
   local source relative path booted_root
   [[ -f /etc/gentoo-release && -d /etc/runlevels ]] || fail 'This installer requires Gentoo OpenRC.'
-  [[ $(readlink -f /etc/portage/make.profile) == */profiles/default/linux/amd64/23.0/desktop ]] ||
-    fail 'Prepare the default/linux/amd64/23.0/desktop OpenRC profile before running this installer.'
+  [[ $(readlink -f /etc/portage/make.profile) == */profiles/default/linux/amd64/23.0/desktop ]] \
+    || fail 'Prepare the default/linux/amd64/23.0/desktop OpenRC profile before running this installer.'
   portageq has_version / virtual/dist-kernel || fail 'Install and configure a Gentoo distribution kernel as part of the base installation.'
   if "$in_chroot"; then
     for path in /proc /sys /dev; do
@@ -124,12 +124,19 @@ preflight() {
     check_system_target "$path"
   done
   # Check all link sources before any package or system changes.
-  (dry_run=true; link_dotfiles) >/dev/null
+  (
+    dry_run=true
+    link_dotfiles
+  ) >/dev/null
   if [[ -e $config_home/emacs || -L $config_home/emacs ]]; then
     [[ -x $config_home/emacs/bin/doom && -d $config_home/emacs/.git ]] || fail "Incomplete or unrelated Emacs installation at $config_home/emacs; preserve it elsewhere before rerunning."
   fi
   check_network_services
-  (dry_run=true; ensure_subordinate_ids /etc/subuid; ensure_subordinate_ids /etc/subgid) >/dev/null
+  (
+    dry_run=true
+    ensure_subordinate_ids /etc/subuid
+    ensure_subordinate_ids /etc/subgid
+  ) >/dev/null
 }
 
 base_packages=(
@@ -347,10 +354,10 @@ install_packages() {
   local -a source_packages=("${base_packages[@]}" "${cli_packages[@]}"
     "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
   # Install QtWebEngine only from binaries, then exclude it from source merges.
-  run emerge "${qtwebengine_options[@]}" --pretend dev-qt/qtwebengine:6 ||
-    fail 'Compatible binaries for QtWebEngine and its dependencies are required; source compilation is disabled.'
-  run emerge "${qtwebengine_options[@]}" dev-qt/qtwebengine:6 ||
-    fail 'QtWebEngine binary installation failed; source compilation is disabled.'
+  run emerge "${qtwebengine_options[@]}" --pretend dev-qt/qtwebengine:6 \
+    || fail 'Compatible binaries for QtWebEngine and its dependencies are required; source compilation is disabled.'
+  run emerge "${qtwebengine_options[@]}" dev-qt/qtwebengine:6 \
+    || fail 'QtWebEngine binary installation failed; source compilation is disabled.'
   run emerge "${emerge_options[@]}" --pretend --getbinpkg=n --usepkg=n \
     "${source_packages[@]}" "${binary_packages[@]}" "${binhost_packages[@]}"
   run emerge "${emerge_options[@]}" --getbinpkg=n --usepkg=n \

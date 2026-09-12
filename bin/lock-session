@@ -7,7 +7,7 @@ readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID_NUM}"
 readonly LOCK_FILE="$RUNTIME_DIR/i3lock-color.lock"
 
 for cmd in i3lock flock pgrep pkill; do
-    command -v "$cmd" >/dev/null 2>&1 || exit 1
+  command -v "$cmd" >/dev/null 2>&1 || exit 1
 done
 
 [[ -d "$RUNTIME_DIR" && -O "$RUNTIME_DIR" ]] || exit 1
@@ -18,67 +18,67 @@ flock -n 9 || exit 0
 pgrep -u "$UID_NUM" -x i3lock >/dev/null 2>&1 && exit 0
 
 i3lock_opts=(
-    '--color=131210'
-    '--inside-color=1B1916ff'
-    '--insidever-color=23201Cff'
-    '--insidewrong-color=23201Cff'
-    '--ring-color=D9A441ff'
-    '--ringver-color=58918Cff'
-    '--ringwrong-color=B34A45ff'
-    '--line-color=1B1916ff'
-    '--separator-color=58534Cff'
-    '--keyhl-color=879B5Cff'
-    '--bshl-color=E17A3Fff'
-    '--verif-color=DDD5CAff'
-    '--wrong-color=DDD5CAff'
-    '--modif-color=9A788Fff'
-    '--layout-color=6785A1ff'
-    '--time-color=DDD5CAff'
-    '--date-color=ACA49Bff'
-    '--clock'
-    '--indicator'
-    '--time-str=%H:%M'
-    '--date-str=%a, %b %d'
-    '--time-size=28'
-    '--date-size=11'
-    '--verif-size=12'
-    '--wrong-size=12'
-    '--modif-size=11'
-    '--layout-size=11'
-    '--radius=80'
-    '--ring-width=8'
-    '--verif-text=verifying'
-    '--wrong-text=incorrect'
-    '--noinput-text='
-    '--show-failed-attempts'
-    '--ignore-empty-password'
+  '--color=131210'
+  '--inside-color=1B1916ff'
+  '--insidever-color=23201Cff'
+  '--insidewrong-color=23201Cff'
+  '--ring-color=D9A441ff'
+  '--ringver-color=58918Cff'
+  '--ringwrong-color=B34A45ff'
+  '--line-color=1B1916ff'
+  '--separator-color=58534Cff'
+  '--keyhl-color=879B5Cff'
+  '--bshl-color=E17A3Fff'
+  '--verif-color=DDD5CAff'
+  '--wrong-color=DDD5CAff'
+  '--modif-color=9A788Fff'
+  '--layout-color=6785A1ff'
+  '--time-color=DDD5CAff'
+  '--date-color=ACA49Bff'
+  '--clock'
+  '--indicator'
+  '--time-str=%H:%M'
+  '--date-str=%a, %b %d'
+  '--time-size=28'
+  '--date-size=11'
+  '--verif-size=12'
+  '--wrong-size=12'
+  '--modif-size=11'
+  '--layout-size=11'
+  '--radius=80'
+  '--ring-width=8'
+  '--verif-text=verifying'
+  '--wrong-text=incorrect'
+  '--noinput-text='
+  '--show-failed-attempts'
+  '--ignore-empty-password'
 )
 
 sleep_fd="${XSS_SLEEP_LOCK_FD:-}"
 
-if [[ "$sleep_fd" =~ ^[0-9]+$ ]] &&
-   [[ -e "/proc/$$/fd/$sleep_fd" ]]; then
+if [[ "$sleep_fd" =~ ^[0-9]+$ ]] \
+  && [[ -e "/proc/$$/fd/$sleep_fd" ]]; then
 
-    cleanup() {
-        trap - TERM INT HUP
-        pkill -x -u "$UID_NUM" i3lock 2>/dev/null || true
-    }
+  cleanup() {
+    trap - TERM INT HUP
+    pkill -x -u "$UID_NUM" i3lock 2>/dev/null || true
+  }
 
-    trap cleanup TERM INT HUP
+  trap cleanup TERM INT HUP
 
-    i3lock \
-        "${i3lock_opts[@]}" \
-        {XSS_SLEEP_LOCK_FD}<&- \
-        9>&-
+  i3lock \
+    "${i3lock_opts[@]}" \
+    {XSS_SLEEP_LOCK_FD}<&- \
+    9>&-
 
-    exec {XSS_SLEEP_LOCK_FD}<&-
+  exec {XSS_SLEEP_LOCK_FD}<&-
 
-    while pgrep -u "$UID_NUM" -x i3lock >/dev/null 2>&1; do
-        sleep 0.25
-    done
+  while pgrep -u "$UID_NUM" -x i3lock >/dev/null 2>&1; do
+    sleep 0.25
+  done
 else
-    exec i3lock \
-        --nofork \
-        "${i3lock_opts[@]}" \
-        9>&-
+  exec i3lock \
+    --nofork \
+    "${i3lock_opts[@]}" \
+    9>&-
 fi
