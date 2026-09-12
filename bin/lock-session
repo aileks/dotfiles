@@ -3,8 +3,11 @@
 set -euo pipefail
 
 exec 9>"${XDG_RUNTIME_DIR:?}/lock-session.lock"
-flock 9
+flock -n 9 || exit 0
 pgrep -u "$(id -u)" -x i3lock >/dev/null && exit 0
+if [[ -n ${XSS_SLEEP_LOCK_FD:-} ]]; then
+  eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
+fi
 i3lock -c 131210 \
   --insidecolor=1B1916ff \
   --ringcolor=D9A441ff \
@@ -14,4 +17,5 @@ i3lock -c 131210 \
   --linecolor=1B1916ff \
   --radius 80 \
   --ringwidth 8 \
-  --show-failed-attempts 9>&-
+  --show-failed-attempts \
+  --nofork 9>&-

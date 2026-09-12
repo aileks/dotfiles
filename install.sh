@@ -98,7 +98,7 @@ desktop_packages=(
   x11-misc/j4-dmenu-desktop
   x11-misc/picom
   x11-misc/xwallpaper
-  x11-misc/i3lock
+  x11-misc/i3lock-color
   x11-misc/xss-lock
   x11-misc/xautolock
   x11-misc/xdotool
@@ -230,10 +230,8 @@ install_system_config() {
     install_system_file "$source" "/var/db/repos/dotfiles/$relative"
   done < <(find "$repo/overlay" -type f -print0 | sort -z)
   install_system_file "$repo/session/dwm.desktop" /usr/share/xsessions/dwm.desktop
-  install_system_file "$repo/session/mango.desktop" /usr/share/wayland-sessions/mango.desktop
   install_system_file "$repo/session/start-session" /usr/local/bin/start-session 755
   install_system_file "$repo/session/start-dwm" /usr/local/bin/start-dwm 755
-  install_system_file "$repo/session/start-mango" /usr/local/bin/start-mango 755
 }
 
 install_xkb_layout() {
@@ -246,20 +244,21 @@ sync_overlays() {
   local overlay
   run sudo emerge -qn app-eselect/eselect-repository dev-vcs/git
   for overlay in guru gentoo-zh waffle-builds; do
-    if [[ ! -f /var/db/repos/$overlay/profiles/repo_name ]]; then
-      run sudo emaint sync --repo "$overlay"
-    fi
+    run sudo emaint sync --repo "$overlay"
   done
 }
 
 install_packages() {
   local -a source_packages=("${base_packages[@]}" "${cli_packages[@]}"
     "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
-  run sudo emerge -vn "${source_packages[@]}"
-  run sudo emerge -gvn "${binary_packages[@]}"
-  run sudo make -C "$repo/config/dmenu" clean install
-  run sudo make -C "$repo/config/dwm" clean install
-  run sudo make -C "$repo/config/dwmblocks-async" clean install
+  run sudo emerge -vUn "${source_packages[@]}"
+  run sudo emerge -gvUn "${binary_packages[@]}"
+  run make -C "$repo/config/dmenu" clean all
+  run sudo make -C "$repo/config/dmenu" install
+  run make -C "$repo/config/dwm" clean all
+  run sudo make -C "$repo/config/dwm" install
+  run make -C "$repo/config/dwmblocks-async" clean all
+  run sudo make -C "$repo/config/dwmblocks-async" install
   run sudo eix-update
 }
 
@@ -316,7 +315,7 @@ link() {
 link_dotfiles() {
   local name desktop script target
 
-  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct rofi zathura mango swaylock waybar wezterm yazi picom xdg-desktop-portal; do
+  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -331,19 +330,6 @@ link_dotfiles() {
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
   link "$repo/config/dwm/autostart.sh" "$data_home/dwm/autostart.sh"
   link "$repo/config/dwm/autostart_blocking.sh" "$data_home/dwm/autostart_blocking.sh"
-
-  for name in gtk-3.0 gtk-4.0; do
-    target=$config_home/$name
-    if [[ -L $target && $(readlink "$target") == "$repo/config/$name" ]]; then
-      printf 'remove GTK directory link: %s\n' "$target"
-      "$dry_run" || rm -- "$target"
-    fi
-    target=$target/settings.ini
-    if [[ -L $target && $(readlink "$target") == "$repo/config/$name/settings.ini" ]]; then
-      printf 'remove stale settings link: %s\n' "$target"
-      "$dry_run" || rm -- "$target"
-    fi
-  done
 
   for desktop in "$repo/config/applications/"*.desktop; do
     link "$desktop" "$data_home/applications/${desktop##*/}"
@@ -459,6 +445,8 @@ install_appearance() {
     replace "$work/icons/$name" "$data_home/icons/$name"
   done
   replace "$work/papirus-folders-cg" "$HOME/.local/bin/papirus-folders-cg"
+
+  run dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Cinder-Grove-Dark
 }
 
 setup_mime() {
@@ -599,28 +587,27 @@ install_system_config
 sync_overlays
 install_packages
 install_xkb_layout
-enable_services
 link_dotfiles
 install_user_tools
 install_doom
 install_appearance
-run dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Cinder-Grove-Dark
 run dbus-run-session -- gsettings set org.gnome.desktop.interface color-scheme prefer-dark
 run dbus-run-session -- gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
 run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-theme Adwaita
 run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-size 24
 run dbus-run-session -- gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 11'
-run dbus-run-session -- gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 12'
+run dbus-run-session -- gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 11'
 run dbus-run-session -- gsettings set org.gnome.desktop.interface clock-format 24h
 run dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences button-layout ''
 run xdg-user-dirs-update
 setup_mime
 run fc-cache -f
 run bat cache --build
+enable_services
 install_crontab
 
 if "$dry_run"; then
   echo 'Dry run complete; no changes made.'
 else
-  echo 'Installation complete. Reboot to start the configured OpenRC services and the dwm session.'
+  echo 'Installation complete. Reload dwm or reboot.'
 fi

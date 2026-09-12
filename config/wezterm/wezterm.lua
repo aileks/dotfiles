@@ -62,7 +62,6 @@ local settings = {
     "connect",
     "unix"
   },
-  ["enable_wayland"] = false,
   ["font"] = (wezterm.font("IosevkaTerm Nerd Font", { weight = "Regular" })),
   ["font_rules"] = {
     {

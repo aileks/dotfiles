@@ -13,12 +13,12 @@ export EDITOR=nvim VISUAL=nvim
 export BEMOJI_PICKER_CMD="dmenu -i -p Emoji" BEMOJI_CLIP_CMD=xclip
 export CM_LAUNCHER=dmenu CM_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/clipmenu"
 
-# setxkbmap only resolves layouts registered in the xkb rules; fall back to
-# loading the symbols file directly.
-setxkbmap aileks || xkbcomp -I"${XDG_CONFIG_HOME:-$HOME/.config}/xkb" \
-  "${XDG_CONFIG_HOME:-$HOME/.config}/xkb/symbols/aileks" "${DISPLAY:-:0}"
+# setxkbmap resolves layout names through the xkb rules; -symbols loads the
+# symbols file directly and works when the rules lookup fails. If both fail,
+# the session starts with the default layout instead of aborting.
+setxkbmap aileks || setxkbmap -symbols aileks ||
+  printf 'warning: failed to load the aileks keyboard layout\n' >&2
 
-# Match the mango session: repeat_delay 250 ms, repeat_rate 50 cps.
 xset r rate 250 50
 
 # dbus-run-session creates a real bus and keeps it alive until dwm exits;

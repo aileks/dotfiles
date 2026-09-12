@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 volume_icon=$'\uF028'
-muted_icon=$'\uF0581'
+muted_icon=$'\U000F0581'
 
 case ${BLOCK_BUTTON:-} in
   1) audio sink mute ;;
