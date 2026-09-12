@@ -17,4 +17,4 @@ else
   format='%a %d %b %H:%M'
 fi
 
-printf '^c#BBB3A9^%s %s^d^\n' '' "$(date +"$format")"
+printf '^c#DDD5CA^%s %s^d^\n' '' "$(date +"$format")"

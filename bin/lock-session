@@ -5,17 +5,17 @@ set -euo pipefail
 exec 9>"${XDG_RUNTIME_DIR:?}/lock-session.lock"
 flock -n 9 || exit 0
 pgrep -u "$(id -u)" -x i3lock >/dev/null && exit 0
+
+opts=()
+while read -r opt; do
+  [[ -z $opt || $opt == \#* ]] || opts+=("$opt")
+done <"${XDG_CONFIG_HOME:-$HOME/.config}/i3lock-color/config"
+
 if [[ -n ${XSS_SLEEP_LOCK_FD:-} ]]; then
+  trap 'pkill -xu "$(id -u)" i3lock' TERM INT
+  i3lock "${opts[@]}" {XSS_SLEEP_LOCK_FD}>&- 9>&-
   eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
+  while pgrep -u "$(id -u)" -x i3lock >/dev/null; do sleep 0.5; done
+else
+  exec i3lock --nofork "${opts[@]}" 9>&-
 fi
-i3lock -c 131210 \
-  --insidecolor=1B1916ff \
-  --ringcolor=D9A441ff \
-  --textcolor=DDD5CAff \
-  --keyhlcolor=879B5Cff \
-  --bshlcolor=E17A3Fff \
-  --linecolor=1B1916ff \
-  --radius 80 \
-  --ringwidth 8 \
-  --show-failed-attempts \
-  --nofork 9>&-

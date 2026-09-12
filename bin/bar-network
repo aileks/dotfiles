@@ -22,6 +22,6 @@ case $type in
     [[ -n $ssid ]] && printf '^c#58918C^%s %s^d^\n' "$icon" "$ssid" || printf '^c#58918C^%s^d^\n' "$icon"
     ;;
   *)
-    printf '^c#58918C^󰖪 offline^d^\n'
+    printf '^c#58534C^󰖪 offline^d^\n'
     ;;
 esac

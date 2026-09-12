@@ -253,6 +253,8 @@ install_packages() {
   run sudo emerge -gvUn "${binary_packages[@]}"
   run make -C "$repo/config/dmenu" clean all
   run sudo make -C "$repo/config/dmenu" install
+  run cp -f -- "$repo/config/dwm/config.def.h" "$repo/config/dwm/config.h"
+  run cp -f -- "$repo/config/dwm/patches.def.h" "$repo/config/dwm/patches.h"
   run make -C "$repo/config/dwm" clean all
   run sudo make -C "$repo/config/dwm" install
   run make -C "$repo/config/dwmblocks-async" clean all
@@ -313,7 +315,7 @@ link() {
 link_dotfiles() {
   local name desktop script target
 
-  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal; do
+  for name in bat btop cava dunst fastfetch fontconfig doom i3lock-color qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"
   done
 

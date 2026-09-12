@@ -38,4 +38,10 @@ for d in /sys/class/hwmon/hwmon*; do
   fi
 done
 
-printf '^c#E17A3F^ %s%% %s°C^d^\n' "$usage" "${temp:-n/a}"
+if [[ -z $temp ]]; then
+  printf '^c#58534C^ %s%% n/a^d^\n' "$usage"
+elif ((temp >= 85)); then
+  printf '^c#B34A45^ %s%% %s°C^d^\n' "$usage" "$temp"
+else
+  printf '^c#6785A1^ %s%% %s°C^d^\n' "$usage" "$temp"
+fi
