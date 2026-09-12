@@ -243,9 +243,7 @@ install_xkb_layout() {
 sync_overlays() {
   local overlay
   run sudo emerge -qn app-eselect/eselect-repository dev-vcs/git
-  for overlay in guru gentoo-zh waffle-builds; do
-    run sudo emaint sync --repo "$overlay"
-  done
+  run sudo emaint sync
 }
 
 install_packages() {
@@ -383,11 +381,10 @@ install_doom() {
     git clone --depth 1 https://github.com/doomemacs/doomemacs.git "$emacs_dir"
   fi
   [[ -f ${XDG_CONFIG_HOME:-$HOME/.config}/doom/init.el ]] || {
-    echo 'Doom config has no init.el yet; skipping doom sync and env.' >&2
+    echo 'Doom config has no init.el yet; skipping sync.' >&2
     return 0
   }
   "$emacs_dir/bin/doom" sync
-  "$emacs_dir/bin/doom" env
 }
 
 install_appearance() {
