@@ -6,16 +6,16 @@ exec 9>"${XDG_RUNTIME_DIR:?}/lock-session.lock"
 flock -n 9 || exit 0
 pgrep -u "$(id -u)" -x i3lock >/dev/null && exit 0
 
-opts=()
+i3lock_opts=()
 while read -r opt; do
-  [[ -z $opt || $opt == \#* ]] || opts+=("$opt")
+  [[ -z $opt || $opt == \#* ]] || i3lock_opts+=("$opt")
 done <"${XDG_CONFIG_HOME:-$HOME/.config}/i3lock-color/config"
 
 if [[ -n ${XSS_SLEEP_LOCK_FD:-} ]]; then
   trap 'pkill -xu "$(id -u)" i3lock' TERM INT
-  i3lock "${opts[@]}" {XSS_SLEEP_LOCK_FD}>&- 9>&-
+  i3lock "${i3lock_opts[@]}" {XSS_SLEEP_LOCK_FD}>&- 9>&-
   eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
   while pgrep -u "$(id -u)" -x i3lock >/dev/null; do sleep 0.5; done
 else
-  exec i3lock --nofork "${opts[@]}" 9>&-
+  i3lock --nofork "${i3lock_opts[@]}" 9>&-
 fi
