@@ -324,7 +324,7 @@ link_dotfiles() {
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link "$repo/config/xorg/keymap.xkb" "$config_home/xkb/symbols/aileks"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
-  link "$repo/config/OpenRGB/No RGB.orp" "$config_home/OpenRGB/No RGB.orp"
+  link "$repo/config/OpenRGB/NRGB.orp" "$config_home/OpenRGB/NRGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
   link "$repo/config/dwm/autostart.sh" "$data_home/dwm/autostart.sh"
   link "$repo/config/dwm/autostart_blocking.sh" "$data_home/dwm/autostart_blocking.sh"
