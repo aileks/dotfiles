@@ -386,19 +386,20 @@ install_user_tools() {
 }
 
 install_doom() {
+  local emacs_dir=${XDG_CONFIG_HOME:-$HOME/.config}/emacs
   if "$dry_run"; then
     printf 'clone doomemacs and sync packages\n'
     return
   fi
-  if [[ ! -d $HOME/.emacs.d/.git ]]; then
-    git clone --depth 1 https://github.com/doomemacs/doomemacs.git "$HOME/.emacs.d"
+  if [[ ! -d $emacs_dir ]]; then
+    git clone --depth 1 https://github.com/doomemacs/doomemacs.git "$emacs_dir"
   fi
   [[ -f ${XDG_CONFIG_HOME:-$HOME/.config}/doom/init.el ]] || {
     echo 'Doom config has no init.el yet; skipping doom sync and env.' >&2
     return 0
   }
-  "$HOME/.emacs.d/bin/doom" sync
-  "$HOME/.emacs.d/bin/doom" env
+  "$emacs_dir/bin/doom" sync
+  "$emacs_dir/bin/doom" env
 }
 
 install_appearance() {
