@@ -12,8 +12,8 @@ pgrep -x dunst >/dev/null || dunst &
 pgrep -x playerctld >/dev/null || playerctld daemon &
 pgrep -x udiskie >/dev/null || udiskie --tray &
 pgrep -x blueman-applet >/dev/null || blueman-applet &
-pgrep -x clipmenud >/dev/null || clipmenud &
-pgrep -x wezterm-mux-server >/dev/null || wezterm-mux-server --config-file ~/.config/wezterm/wezterm.lua &
+pgrep -f 'clipmenud' >/dev/null || clipmenud &
+pgrep -x wezterm-mux-ser >/dev/null || wezterm-mux-server --config-file ~/.config/wezterm/wezterm.lua &
 pgrep -x emacs >/dev/null || emacs --daemon &
 pgrep -x xss-lock >/dev/null || xss-lock --transfer-sleep-lock -- lock-session &
 pgrep -x xautolock >/dev/null || {
@@ -22,7 +22,7 @@ pgrep -x xautolock >/dev/null || {
 }
 xset dpms 0 0 900
 pgrep -x dwmblocks >/dev/null || dwmblocks &
-pgrep -x bitwarden >/dev/null || /opt/Bitwarden/bitwarden &
+pgrep -x bitwarden-app >/dev/null || /opt/Bitwarden/bitwarden &
 pgrep -x localsend >/dev/null || localsend &
 
 mkdir -p "$XDG_RUNTIME_DIR/podman"

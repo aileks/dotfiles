@@ -34,7 +34,7 @@ static const unsigned int gappih         = 6;  /* horiz inner gap between window
 static const unsigned int gappiv         = 6;  /* vert inner gap between windows */
 static const unsigned int gappoh         = 6;  /* horiz outer gap between windows and screen edge */
 static const unsigned int gappov         = 6;  /* vert outer gap between windows and screen edge */
-static const int smartgaps_fact          = 6;   /* gap factor when there is only one client; 0 = no gaps, 3 = 3x outer gaps */
+static const int smartgaps_fact          = 1;   /* gap factor when there is only one client; 0 = no gaps, 3 = 3x outer gaps */
 #endif // VANITYGAPS_PATCH
 #if AUTOSTART_PATCH
 static const char autostartblocksh[]     = "autostart_blocking.sh";
@@ -530,6 +530,9 @@ static const Rule rules[] = {
 	RULE(.wintype = WTYPE "SPLASH", .isfloating = 1)
 	RULE(.class = "imv", .isfloating = 1)
 	RULE(.class = "Qalculate-gtk", .isfloating = 1)
+	RULE(.class = "[Bb]lueman", .isfloating = 1)
+	RULE(.class = "[Bb]itwarden", .isfloating = 1)
+	RULE(.class = "([Ll]ocal[Ss]end|localsend)", .isfloating = 1)
 	RULE(.class = "polkit-gnome", .isfloating = 1)
 	RULE(.class = "xdg-desktop-portal-gtk", .isfloating = 1)
 	RULE(.class = "nm-connection-editor", .isfloating = 1)
