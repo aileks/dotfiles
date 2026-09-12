@@ -16,7 +16,7 @@ pgrep -u "$uid" -x dunst >/dev/null || dunst &
 pgrep -u "$uid" -x playerctld >/dev/null || playerctld daemon &
 pgrep -u "$uid" -x udiskie >/dev/null || udiskie --tray &
 pgrep -u "$uid" -x blueman-applet >/dev/null || blueman-applet &
-pgrep -u "$uid" -f clipmenud >/dev/null || clipmenud &
+pgrep -u "$uid" -f clipmenud >/dev/null || CM_SELECTIONS=clipboard clipmenud &
 pgrep -u "$uid" -x wezterm-mux-ser >/dev/null || wezterm-mux-server --config-file "$config_home/wezterm/wezterm.lua" &
 pgrep -u "$uid" -x emacs >/dev/null || emacs --daemon &
 pgrep -u "$uid" -x xss-lock >/dev/null || xss-lock --transfer-sleep-lock -- lock-session &
