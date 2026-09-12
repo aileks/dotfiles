@@ -158,7 +158,7 @@ case "$mode" in
     selection=$(slop -f '%w %h %x %y' </dev/null) || exit 0
     read -r width height x y <<<"$selection"
     if ! xrandr --listmonitors | awk -v x="$x" -v y="$y" \
-        -v w="$width" -v h="$height" '
+      -v w="$width" -v h="$height" '
         /^ *[0-9]+:/ {
           split($3, d, /[x\/+]/)
           if (w > 0 && h > 0 &&

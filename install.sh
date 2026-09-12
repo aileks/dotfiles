@@ -315,9 +315,7 @@ link() {
 link_dotfiles() {
   local name desktop script target
 
-  for name in bat btop cava dunst fastfetch fontconfig nvim qt6ct rofi zathura \
-    mango swaylock waybar wezterm yazi picom \
-    xdg-desktop-portal; do
+  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct rofi zathura mango swaylock waybar wezterm yazi picom xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
