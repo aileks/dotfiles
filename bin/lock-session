@@ -1,21 +1,84 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -Eeuo pipefail
 
-exec 9>"${XDG_RUNTIME_DIR:?}/lock-session.lock"
+readonly UID_NUM="$(id -u)"
+readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID_NUM}"
+readonly LOCK_FILE="$RUNTIME_DIR/i3lock-color.lock"
+
+for cmd in i3lock flock pgrep pkill; do
+    command -v "$cmd" >/dev/null 2>&1 || exit 1
+done
+
+[[ -d "$RUNTIME_DIR" && -O "$RUNTIME_DIR" ]] || exit 1
+
+exec 9>"$LOCK_FILE"
 flock -n 9 || exit 0
-pgrep -u "$(id -u)" -x i3lock >/dev/null && exit 0
 
-i3lock_opts=()
-while read -r opt; do
-  [[ -z $opt || $opt == \#* ]] || i3lock_opts+=("$opt")
-done <"${XDG_CONFIG_HOME:-$HOME/.config}/i3lock-color/config"
+pgrep -u "$UID_NUM" -x i3lock >/dev/null 2>&1 && exit 0
 
-if [[ -n ${XSS_SLEEP_LOCK_FD:-} ]]; then
-  trap 'pkill -xu "$(id -u)" i3lock' TERM INT
-  i3lock "${i3lock_opts[@]}" {XSS_SLEEP_LOCK_FD}>&- 9>&-
-  eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
-  while pgrep -u "$(id -u)" -x i3lock >/dev/null; do sleep 0.5; done
+i3lock_opts=(
+    '--color=131210'
+    '--inside-color=1B1916ff'
+    '--insidever-color=23201Cff'
+    '--insidewrong-color=23201Cff'
+    '--ring-color=D9A441ff'
+    '--ringver-color=58918Cff'
+    '--ringwrong-color=B34A45ff'
+    '--line-color=1B1916ff'
+    '--separator-color=58534Cff'
+    '--keyhl-color=879B5Cff'
+    '--bshl-color=E17A3Fff'
+    '--verif-color=DDD5CAff'
+    '--wrong-color=DDD5CAff'
+    '--modif-color=9A788Fff'
+    '--layout-color=6785A1ff'
+    '--time-color=DDD5CAff'
+    '--date-color=ACA49Bff'
+    '--clock'
+    '--indicator'
+    '--time-str=%H:%M'
+    '--date-str=%a, %b %d'
+    '--time-size=28'
+    '--date-size=11'
+    '--verif-size=12'
+    '--wrong-size=12'
+    '--modif-size=11'
+    '--layout-size=11'
+    '--radius=80'
+    '--ring-width=8'
+    '--verif-text=verifying'
+    '--wrong-text=incorrect'
+    '--noinput-text='
+    '--show-failed-attempts'
+    '--ignore-empty-password'
+)
+
+sleep_fd="${XSS_SLEEP_LOCK_FD:-}"
+
+if [[ "$sleep_fd" =~ ^[0-9]+$ ]] &&
+   [[ -e "/proc/$$/fd/$sleep_fd" ]]; then
+
+    cleanup() {
+        trap - TERM INT HUP
+        pkill -x -u "$UID_NUM" i3lock 2>/dev/null || true
+    }
+
+    trap cleanup TERM INT HUP
+
+    i3lock \
+        "${i3lock_opts[@]}" \
+        {XSS_SLEEP_LOCK_FD}<&- \
+        9>&-
+
+    exec {XSS_SLEEP_LOCK_FD}<&-
+
+    while pgrep -u "$UID_NUM" -x i3lock >/dev/null 2>&1; do
+        sleep 0.25
+    done
 else
-  i3lock --nofork "${i3lock_opts[@]}" 9>&-
+    exec i3lock \
+        --nofork \
+        "${i3lock_opts[@]}" \
+        9>&-
 fi
