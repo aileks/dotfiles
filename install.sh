@@ -274,6 +274,7 @@ app_packages=(
 )
 dev_packages=(
   sys-devel/gcc
+  dev-debug/gdb
   dev-build/make
   sys-apps/bubblewrap
   dev-build/cmake
