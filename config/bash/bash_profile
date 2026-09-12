@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# shellcheck source=config/bash/bashrc
+[[ -r ~/.bashrc ]] && source ~/.bashrc

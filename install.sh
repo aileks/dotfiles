@@ -156,7 +156,7 @@ base_packages=(
   net-print/cups
   net-wireless/bluez
   net-wireless/blueman
-  app-shells/zsh
+  app-shells/bash
   app-portage/gentoolkit
   app-eselect/eselect-repository
   app-portage/eix
@@ -428,13 +428,13 @@ ensure_subordinate_ids() {
 
 configure_account() {
   local shell mapping_file
-  shell=$(command -v zsh || true)
+  shell=$(command -v bash || true)
   if "$dry_run"; then
-    printf 'set %s login shell to Zsh and add i2c membership if missing\n' "$target_user"
+    printf 'set %s login shell to Bash and add i2c membership if missing\n' "$target_user"
   else
-    [[ -n $shell ]] || fail 'Zsh was not installed.'
+    [[ -n $shell ]] || fail 'Bash was not installed.'
     shell=$(readlink -f "$shell")
-    grep -Fxq "$shell" /etc/shells || fail "Zsh is not listed in /etc/shells: $shell"
+    grep -Fxq "$shell" /etc/shells || fail "Bash is not listed in /etc/shells: $shell"
     if [[ $(getent passwd "$target_user" | cut -d: -f7) != "$shell" ]]; then
       run usermod --shell "$shell" "$target_user"
     fi
@@ -531,7 +531,8 @@ link_dotfiles() {
 
   link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
-  link "$repo/config/zsh/zshrc" "$target_home/.zshrc"
+  link "$repo/config/bash/bashrc" "$target_home/.bashrc"
+  link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
   link "$repo/config/starship/starship.toml" "$config_home/starship.toml"
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link "$repo/config/xorg/keymap.xkb" "$config_home/xkb/symbols/aileks"
@@ -553,19 +554,10 @@ link_dotfiles() {
 install_user_tools() {
   local work=$work/user-tools
   if "$dry_run"; then
-    printf 'install antidote, bemoji, ModernZ, SQLFluff, SQLs, and Prettier\n'
+    printf 'install bemoji, ModernZ, SQLFluff, SQLs, and Prettier\n'
     return
   fi
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
-  if [[ ! -e $HOME/.antidote ]]; then
-    git clone --depth 1 https://github.com/mattmc3/antidote.git "$work/antidote"
-    mv -T -- "$work/antidote" "$HOME/.antidote"
-  fi
-  [[ -r $HOME/.antidote/antidote.zsh ]] || {
-    echo 'Antidote checkout is incomplete: ~/.antidote' >&2
-    return 1
-  }
-
   git clone --depth 1 https://github.com/marty-oehme/bemoji.git "$work/bemoji"
   install -b -m 755 "$work/bemoji/bemoji" "$HOME/.local/bin/bemoji"
   mkdir -p "$data_home/bemoji"

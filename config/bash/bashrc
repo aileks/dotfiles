@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+
+[[ $- == *i* ]] || return
+
+# Set Env
+export PATH="$HOME/.local/bin:$PATH"
+export GREP_COLOR="1;36"
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+export SUDO_EDITOR="$VISUAL"
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+export MANPAGER='nvim +Man!'
+export DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/podman/podman.sock"
+
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Aliases
+alias ls="eza --color=always --icons --group-directories-first"
+alias la="eza -al --color=always --icons --group-directories-first"
+alias lt="eza -T --color=always --icons --group-directories-first"
+alias rm="trash"
+alias c="clear"
+alias fzf="fzf --style full"
+alias ff="fastfetch"
+alias lg="lazygit"
+alias vim="nvim"
+alias docker="podman"
+alias ..="echo 'cd ..'; cd .."
+alias hl="rg --passthru"
+
+# Shell Opts
+shopt -s cdspell
+shopt -s checkwinsize
+shopt -s extglob
+shopt -s autocd 2>/dev/null || true
+shopt -s dirspell 2>/dev/null || true
+
+# History
+HISTFILE="$HOME/.bash_history"
+HISTSIZE=50000
+HISTFILESIZE=10000
+HISTCONTROL=ignoreboth:erasedups
+
+shopt -s histappend
+shopt -s cmdhist
+shopt -s lithist
+
+# Readline
+set -o emacs
+
+# Completion
+bind 'set completion-ignore-case on'
+bind 'set completion-map-case on'
+bind 'set show-all-if-ambiguous on'
+
+# Yazi
+y() {
+  local cwd_file cwd result
+
+  cwd_file=$(mktemp -t yazi-cwd.XXXXXX) || return
+
+  command yazi "$@" --cwd-file="$cwd_file"
+  result=$?
+
+  cwd=$(<"$cwd_file")
+  command rm -f -- "$cwd_file"
+
+  if [[ -n $cwd && $cwd != "$PWD" ]]; then
+    builtin cd -- "$cwd" || return
+  fi
+
+  return "$result"
+}
+
+# FZF
+export FZF_CTRL_T_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+
+export FZF_ALT_C_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'eza --tree --color=always --icons {}'"
+
+export FZF_DEFAULT_OPTS="
+  --color=fg:#ACA49B
+  --color=fg+:#DDD5CA
+  --color=bg:#131210
+  --color=bg+:#34312d
+  --color=hl:#C87546
+  --color=hl+:#E8A64D
+  --color=info:#ACA49B
+  --color=marker:#C87546
+  --color=prompt:#C87546
+  --color=spinner:#DC8853
+  --color=pointer:#D9A441
+  --color=header:#B34A45
+  --color=border:#ACA49B
+  --color=query:#DDD5CA
+  --color=gutter:#131210
+  --highlight-line
+  --info=inline-right
+  --layout=reverse
+  --pointer='█'
+  --scrollbar='▌'
+  --multi
+  --border=top
+"
+
+export _ZO_FZF_OPTS="
+  $FZF_DEFAULT_OPTS
+  --height=50%
+  --preview 'eza --color=always --icons --group-directories-first {2..}'
+  --preview-window=down,border-top
+  --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
+  --bind 'ctrl-/:change-preview-window(right|hidden|)'
+"
+
+# Shell Integrations
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init bash)"
+fi
+
+if command -v fzf >/dev/null 2>&1; then
+  eval "$(command fzf --bash)"
+fi
+
+if [[ -r ${XDG_CONFIG_HOME:-$HOME/.config}/wezterm/shell-integration.sh ]]; then
+  # shellcheck source=config/wezterm/shell-integration.sh
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/wezterm/shell-integration.sh"
+fi
+
+# Prompt
+make_prompt() {
+  local status=$1
+
+  local reset=$'\e[0m'
+  local bold=$'\e[1m'
+
+  local orange=$'\e[38;2;225;122;63m'
+  local blue=$'\e[38;2;103;133;161m'
+  local magenta=$'\e[38;2;154;120;143m'
+  local muted=$'\e[38;2;154;147;138m'
+  local red=$'\e[38;2;179;74;69m'
+  local cyan=$'\e[38;2;88;145;140m'
+
+  local git_segment=''
+  local status_segment=''
+  local branch=''
+
+  if branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null); then
+    git_segment=" \[${magenta}\] ${branch}\[${reset}\]"
+  fi
+
+  if ((status != 0)); then
+    status_segment=" \[${red}\] ${status}\[${reset}\]"
+  fi
+
+  PS1="\[${orange}${bold}\]\W\[${reset}\]"
+  PS1+=" \[${muted}\]• \[${blue}\]\h\[${reset}\]"
+  PS1+="${git_segment}${status_segment}"
+  PS1+='\n'
+  PS1+="\[${cyan}${bold}\]❯\[${reset}\] "
+}
+
+_prompt_command() {
+  local status=$?
+  history -a
+  history -n
+  make_prompt "$status"
+}
+
+_install_prompt_command() {
+  local -a previous=()
+  local command
+
+  if declare -p PROMPT_COMMAND &>/dev/null; then
+    if [[ $(declare -p PROMPT_COMMAND) == "declare -a"* ]]; then
+      previous=("${PROMPT_COMMAND[@]}")
+    elif [[ -n ${PROMPT_COMMAND:-} ]]; then
+      previous=("$PROMPT_COMMAND")
+    fi
+  fi
+
+  PROMPT_COMMAND=(_prompt_command)
+
+  for command in "${previous[@]}"; do
+    [[ $command == _prompt_command ]] || PROMPT_COMMAND+=("$command")
+  done
+}
+
+_install_prompt_command
+unset -f _install_prompt_command
