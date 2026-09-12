@@ -572,7 +572,7 @@ install_user_tools() {
 
   git clone --depth 1 https://github.com/Samillion/ModernZ.git "$work/modernz"
   mkdir -p "$config_home/mpv/scripts" "$config_home/mpv/fonts"
-  install -b -m 644 "$work/modernz/modernz.lua" "$config_home/mpv/scripts/modernz.lua"
+  install -m 644 "$work/modernz/modernz.lua" "$config_home/mpv/scripts/modernz.lua"
   install -b -m 644 "$work/modernz/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
 
   uv tool install sqlfluff
