@@ -189,6 +189,7 @@ git_prompt_segment() {
   ((ahead > 0)) && printf ' ⇡%d' "$ahead"
   ((behind > 0)) && printf ' ⇣%d' "$behind"
   ((dirty)) && printf ' *'
+  return 0
 }
 
 venv_prompt_name() {
