@@ -191,12 +191,28 @@ git_prompt_segment() {
   ((dirty)) && printf ' *'
 }
 
+venv_prompt_name() {
+  local key value
+
+  [[ -r $VIRTUAL_ENV/pyvenv.cfg ]] || return 1
+
+  while IFS='=' read -r key value; do
+    key=${key//[[:space:]]/}
+
+    if [[ $key == prompt ]]; then
+      value=${value#"${value%%[![:space:]]*}"}
+      value=${value%"${value##*[![:space:]]}"}
+
+      printf '%s' "$value"
+      return
+    fi
+  done < "$VIRTUAL_ENV/pyvenv.cfg"
+}
+
 make_prompt() {
   local status=$1
-
   local reset=$'\e[0m'
   local bold=$'\e[1m'
-
   local orange=$'\e[38;2;225;122;63m'
   local blue=$'\e[38;2;103;133;161m'
   local magenta=$'\e[38;2;154;120;143m'
@@ -204,7 +220,6 @@ make_prompt() {
   local red=$'\e[38;2;179;74;69m'
   local cyan=$'\e[38;2;88;145;140m'
   local green=$'\e[38;2;135;155;92m'
-
   local git_segment=''
   local status_segment=''
   local venv_segment=''
@@ -220,7 +235,11 @@ make_prompt() {
   fi
 
   if [[ -n ${VIRTUAL_ENV:-} ]]; then
-    venv_segment=" \[${green}\] ${VIRTUAL_ENV##*/}\[${reset}\]"
+    local venv_name
+    venv_name=$(venv_prompt_name)
+    [[ -n $venv_name ]] || venv_name=${VIRTUAL_ENV##*/}
+  
+    venv_segment=" \[${green}\] ${venv_name}\[${reset}\]"
   fi
 
   local job_count
