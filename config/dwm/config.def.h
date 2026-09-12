@@ -896,7 +896,7 @@ static const char *xkb_layouts[]  = {
 #if !NODMENU_PATCH
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 #endif // NODMENU_PATCH
-static const char *dmenucmd[] = { "j4-dmenu-desktop", "--dmenu", "dmenu -i -p Apps", "--term", "wezterm", NULL };
+static const char *dmenucmd[] = { "j4-dmenu-desktop", "--no-generic", "--dmenu", "dmenu -i -p Apps", "--term", "wezterm", NULL };
 static const char *termcmd[]  = { "wezterm", "connect", "unix", NULL };
 
 #if BAR_STATUSCMD_PATCH
