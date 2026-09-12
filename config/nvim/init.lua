@@ -53,3 +53,10 @@ hl(0, "Pmenu", { fg = cg.fg, bg = cg.surface })
 hl(0, "PmenuSel", { fg = cg.bg, bg = cg.blue })
 hl(0, "ErrorMsg", { fg = cg.red })
 hl(0, "WarningMsg", { fg = cg.orange })
+hl(0, "Yank", { fg = cg.bg, bg = cg.orange })
+
+vim.api.nvim_create_autocmd("TextYankPost", {
+  callback = function()
+    vim.highlight.on_yank({ higroup = "Yank", timeout = 200 })
+  end,
+})

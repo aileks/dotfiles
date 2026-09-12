@@ -33,9 +33,10 @@ cd ~/.dotfiles
 
 | Keys                 | Action                 |
 | -------------------- | ---------------------- |
-| `Mod + Space`        | app launcher (dmenu)  |
+| `Mod + Space`        | app launcher (dmenu)   |
 | `Mod + Ctrl + Space` | desktop actions menu   |
 | `Mod + Return`       | WezTerm mux terminal   |
+| `Mod + X`            | Emacsclient            |
 | `Mod + T`            | WezTerm workspace menu |
 | `Mod + W`            | browser                |
 | `Mod + E`            | file manager           |

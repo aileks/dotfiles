@@ -1033,6 +1033,7 @@ static const Key keys[] = {
 	#endif // KEYMODES_PATCH
 	{ MODKEY,                       XK_space,      spawn,                  {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return,     spawn,                  {.v = termcmd } },
+	{ MODKEY,                       XK_x,          spawn,                  SHCMD("emacsclient -c -a ''") },
 	{ MODKEY,                       XK_t,          spawn,                  SHCMD("wezterm-sessions") },
 	{ MODKEY,                       XK_w,          spawn,                  SHCMD("zen-browser") },
 	{ MODKEY,                       XK_e,          spawn,                  SHCMD("wezterm start --always-new-process -- yazi") },

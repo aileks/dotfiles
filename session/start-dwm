@@ -30,6 +30,7 @@ udiskie --tray &
 blueman-applet &
 clipmenud &
 wezterm-mux-server --config-file ~/.config/wezterm/wezterm.lua &
+emacs --daemon &
 xss-lock --transfer-sleep-lock -- lock-session &
 xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock "Locking in 30 seconds"' &
 xautolock -time 30 -locker 'sh -c "lock-session; loginctl suspend"' &
