@@ -198,7 +198,6 @@ cli_packages=(
   app-arch/zip
   app-shells/zoxide
   app-shells/starship
-  dev-vcs/gitui
   sys-fs/ncdu
   sys-apps/nvme-cli
   sys-process/btop
