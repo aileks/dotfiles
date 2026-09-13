@@ -1,7 +1,6 @@
 --- a/clipmenud
 +++ b/clipmenud
-@@ -141,6 +141,10 @@
-         # Make sure we're interruptible for the sig_{en,dis}able traps
+@@ -142,5 +142,9 @@
          clipnotify &
          _CM_CLIPNOTIFY_PID="$!"
 -        wait "$_CM_CLIPNOTIFY_PID"
