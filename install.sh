@@ -800,6 +800,9 @@ setup_user() {
   run dbus-run-session -- gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 11'
   run dbus-run-session -- gsettings set org.gnome.desktop.interface clock-format 24h
   run dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences button-layout ''
+  run dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences audible-bell false
+  run dbus-run-session -- gsettings set org.gnome.desktop.sound event-sounds false
+  run dbus-run-session -- gsettings set org.gnome.desktop.sound input-feedback-sounds false
   run xdg-user-dirs-update
   setup_mime
   run fc-cache -f

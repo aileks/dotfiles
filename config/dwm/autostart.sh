@@ -7,6 +7,8 @@ data_home=${XDG_DATA_HOME:-$HOME/.local/share}
 
 dbus-update-activation-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
 
+xset b off
+
 pgrep -u "$uid" -x pipewire >/dev/null || gentoo-pipewire-launcher &
 pgrep -u "$uid" -x gnome-keyring-d >/dev/null || gnome-keyring-daemon --start --components=secrets,pkcs11 &
 pgrep -u "$uid" -f polkit-gnome-authentication >/dev/null || /usr/libexec/polkit-gnome-authentication-agent-1 &
