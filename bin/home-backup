@@ -4,6 +4,13 @@ set -Eeuo pipefail
 
 umask 077
 
+only_if_due=false
+case ${1:-} in
+  '') (($# == 0)) || exit 2 ;;
+  --if-due) (($# == 1)) || exit 2; only_if_due=true ;;
+  *) printf 'usage: home-backup [--if-due]\n' >&2; exit 2 ;;
+esac
+
 user_name="$(id -un)"
 backup_label="${BACKUP_LABEL:-External}"
 backup_mount_base="${BACKUP_MOUNT_BASE:-/run/media/$user_name}"
@@ -19,7 +26,13 @@ incomplete_snapshot="$snapshots_directory/.$timestamp.incomplete"
 excludes="${XDG_CONFIG_HOME:-$HOME/.config}/rsync-home.excludes"
 state_directory="${XDG_STATE_HOME:-$HOME/.local/state}/home-backup"
 status_file="$state_directory/status"
+success_file="$state_directory/last-success"
 mkdir -p "$state_directory"
+
+write_success_time() {
+  printf '%s\n' "$1" >"$success_file.tmp"
+  mv -f -- "$success_file.tmp" "$success_file"
+}
 
 write_status() {
   local state=$1 message=${2:-}
@@ -47,6 +60,30 @@ exec 9>"$state_directory/home-backup.lock"
 if ! flock -n 9; then
   printf 'home-backup is already running\n'
   exit 0
+fi
+
+if "$only_if_due"; then
+  last_success=''
+  if [[ -r $success_file ]]; then
+    last_success=$(<"$success_file")
+  elif [[ -L $latest_link && -d $latest_link ]]; then
+    # stat the link itself: rsync preserves the source directory's mtime.
+    last_success=$(stat -c %Y -- "$latest_link")
+    write_success_time "$last_success"
+  fi
+
+  now=$(date +%s)
+  if [[ $last_success =~ ^[0-9]{1,10}$ ]] &&
+    ((now >= 10#$last_success && now - 10#$last_success < 86400)); then
+    exit 0
+  fi
+
+  schedule_log="$state_directory/scheduled.log"
+  if [[ -f $schedule_log ]] && (( $(stat -c %s -- "$schedule_log") > 1048576 )); then
+    mv -f -- "$schedule_log" "$schedule_log.1"
+  fi
+  exec >>"$schedule_log" 2>&1
+  printf '%s Scheduled backup attempt\n' "$timestamp"
 fi
 
 if ! mountpoint -q "$external_mount"; then
@@ -86,10 +123,13 @@ rsync_options=(
   -aAXH --numeric-ids -x
   --delete-delay --delete-excluded
   --partial-dir=.rsync-partial
-  --info=progress2 --itemize-changes
   --log-file="$logs_directory/$timestamp.log"
   --exclude-from="$excludes"
 )
+
+if ! "$only_if_due"; then
+  rsync_options+=(--info=progress2 --itemize-changes)
+fi
 
 if [[ -n $previous_snapshot && -d $previous_snapshot ]]; then
   rsync_options+=(--link-dest="$previous_snapshot")
@@ -112,4 +152,5 @@ done
 
 printf 'Backup complete: %s\n' "$new_snapshot"
 write_status complete "$timestamp"
+write_success_time "$(date +%s)"
 notify 'Backup complete'
