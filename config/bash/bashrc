@@ -136,7 +136,6 @@ export _ZO_FZF_OPTS="
 "
 
 # Shell Integrations
-# These tools emit Bash code; evaluate only successful initialization output.
 if command -v zoxide >/dev/null 2>&1 && shell_init=$(zoxide init bash); then
   eval "$shell_init"
 fi
