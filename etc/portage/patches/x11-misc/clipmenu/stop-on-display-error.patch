@@ -1,0 +1,14 @@
+--- a/clipmenud
++++ b/clipmenud
+@@ -141,6 +141,10 @@
+         # Make sure we're interruptible for the sig_{en,dis}able traps
+         clipnotify &
+         _CM_CLIPNOTIFY_PID="$!"
+-        wait "$_CM_CLIPNOTIFY_PID"
++        wait "$_CM_CLIPNOTIFY_PID" || {
++            # clipctl signals interrupt wait with a status above 128.
++            # A failed clipnotify must not become a retry loop after logout.
++            (( $? > 128 )) || die 1 'clipnotify failed; stopping clipboard capture'
++        }
+     fi
+     is_startup=0
