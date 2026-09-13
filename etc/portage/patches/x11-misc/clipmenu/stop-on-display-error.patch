@@ -1,6 +1,6 @@
 --- a/clipmenud
 +++ b/clipmenud
-@@ -142,5 +142,9 @@
+@@ -140,4 +140,8 @@
          clipnotify &
          _CM_CLIPNOTIFY_PID="$!"
 -        wait "$_CM_CLIPNOTIFY_PID"
@@ -10,4 +10,3 @@
 +            (( $? > 128 )) || die 1 'clipnotify failed; stopping clipboard capture'
 +        }
      fi
-     is_startup=0
