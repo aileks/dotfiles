@@ -629,7 +629,7 @@ install_user_tools() {
 
   uv tool install sqlfluff
 
-  npm i -g pnpm prettier sql-language-server
+  npm i -g --force pnpm prettier sql-language-server
 }
 
 install_doom() {
