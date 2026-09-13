@@ -1,7 +1,6 @@
 --- a/clipmenud
 +++ b/clipmenud
-@@ -140,4 +140,8 @@
-         clipnotify &
+@@ -141,3 +141,7 @@
          _CM_CLIPNOTIFY_PID="$!"
 -        wait "$_CM_CLIPNOTIFY_PID"
 +        wait "$_CM_CLIPNOTIFY_PID" || {
