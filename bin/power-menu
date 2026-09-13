@@ -4,7 +4,8 @@ set -euo pipefail
 
 choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | dmenu -p Power) || exit 0
 case "$choice" in
-  'log out') loginctl terminate-session "${XDG_SESSION_ID:?}" ;;
+  # Let ly stop Xorg and restore the console after dwm exits.
+  'log out') pkill -TERM -u "$UID" -x dwm ;;
   'suspend')
     pgrep -u "$UID" -x xss-lock >/dev/null || {
       desktop-feedback status 'Cannot suspend: automatic screen locking is not running'
