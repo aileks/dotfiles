@@ -4,6 +4,7 @@
 
 # Set Env
 export PATH="$HOME/.local/bin:$PATH"
+export NPM_CONFIG_PREFIX="$HOME/.local"
 export GREP_COLORS='mt=1;36'
 export EDITOR='nvim'
 export VISUAL="$EDITOR"
@@ -26,7 +27,7 @@ alias rm='trash'
 alias c='clear'
 alias fzf='fzf --style full'
 alias ff='fastfetch'
-alias lg='lazygit'
+alias lg='gitui'
 alias vim='nvim'
 alias docker='podman'
 alias ..="echo 'cd ..'; cd .."

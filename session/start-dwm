@@ -2,6 +2,7 @@
 set -euo pipefail
 
 export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
+export NPM_CONFIG_PREFIX="$HOME/.local"
 export PATH="$HOME/.local/bin:$PNPM_HOME:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export XDG_SESSION_TYPE=x11 XDG_CURRENT_DESKTOP=dwm XDG_SESSION_DESKTOP=dwm
 export XDG_DATA_DIRS="${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_HOME:-$HOME/.local/share}/flatpak/exports/share:/var/lib/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
