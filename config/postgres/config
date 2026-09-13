@@ -1,0 +1,6 @@
+: "${PGDEV_IMAGE:=docker.io/library/postgres:18-bookworm}"
+: "${PGDEV_CONTAINER:=dotfiles-postgres-18}"
+: "${PGDEV_VOLUME:=dotfiles-postgres-18-data}"
+: "${PGDEV_PORT:=5432}"
+: "${PGDEV_USER:=$(id -un)}"
+: "${PGDEV_DATABASE:=$(id -un)}"

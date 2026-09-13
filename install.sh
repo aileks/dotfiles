@@ -583,6 +583,8 @@ link_dotfiles() {
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
   link "$repo/config/starship/starship.toml" "$config_home/starship.toml"
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
+  [[ ! -L $config_home/postgres ]] || fail "Refusing symlinked PostgreSQL configuration directory: $config_home/postgres"
+  link "$repo/config/postgres/config" "$config_home/postgres/config"
   link "$repo/config/xorg/keymap.xkb" "$config_home/xkb/symbols/aileks"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
   link "$repo/config/OpenRGB/NRGB.orp" "$config_home/OpenRGB/NRGB.orp"

@@ -30,6 +30,7 @@ alias ff='fastfetch'
 alias lg='gitui'
 alias vim='nvim'
 alias docker='podman'
+alias psql='pgdev psql'
 alias ..="echo 'cd ..'; cd .."
 alias hl='rg --passthru'
 alias ga='git add'
