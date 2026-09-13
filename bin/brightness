@@ -12,12 +12,12 @@ case ${1:-} in
 esac
 
 if ! "${operation[@]}"; then
-  desktop-feedback status "Brightness change failed" || true
+  desktop-feedback status 'Brightness change failed' || true
   exit 1
 fi
 
 if ! reading=$(ddcutil getvcp 10 --brief); then
-  desktop-feedback status "Brightness state unavailable" || true
+  desktop-feedback status 'Brightness state unavailable' || true
   exit 1
 fi
 

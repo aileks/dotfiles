@@ -3,17 +3,17 @@
 set -Eeuo pipefail
 
 if ! history=$(dunstctl history); then
-  desktop-feedback status "Notification history unavailable"
+  desktop-feedback status 'Notification history unavailable'
   exit 1
 fi
 
 if ! rows=$(jq -r '.data[0][] | "\(.id.data)  \(.appname.data | gsub("[\\r\\n\\t]"; " ")): \(.summary.data | gsub("[\\r\\n\\t]"; " "))"' <<<"$history" 2>/dev/null); then
-  desktop-feedback status "Notification history unavailable"
+  desktop-feedback status 'Notification history unavailable'
   exit 1
 fi
 
 if [[ -z $rows ]]; then
-  desktop-feedback status "No notification history"
+  desktop-feedback status 'No notification history'
   exit 0
 fi
 
@@ -24,5 +24,5 @@ fi
 
 identifier=${selected%% *}
 if ! dunstctl history-pop "$identifier"; then
-  desktop-feedback status "Notification is no longer available"
+  desktop-feedback status 'Notification is no longer available'
 fi

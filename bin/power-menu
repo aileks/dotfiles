@@ -6,7 +6,7 @@ choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | dmenu -p Power
 case "$choice" in
   'log out') loginctl terminate-session "${XDG_SESSION_ID:?}" ;;
   'suspend')
-    pgrep -u "$(id -u)" -x xss-lock >/dev/null || {
+    pgrep -u "$UID" -x xss-lock >/dev/null || {
       desktop-feedback status 'Cannot suspend: automatic screen locking is not running'
       exit 1
     }

@@ -2,8 +2,7 @@
 
 set -Eeuo pipefail
 
-readonly UID_NUM="$(id -u)"
-readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID_NUM}"
+readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
 readonly LOCK_FILE="$RUNTIME_DIR/i3lock-color.lock"
 
 for cmd in i3lock flock pgrep pkill; do
@@ -15,7 +14,7 @@ done
 exec 9>"$LOCK_FILE"
 flock -n 9 || exit 0
 
-pgrep -u "$UID_NUM" -x i3lock >/dev/null 2>&1 && exit 0
+pgrep -u "$UID" -x i3lock >/dev/null 2>&1 && exit 0
 
 i3lock_opts=(
   '--color=131210'
@@ -61,7 +60,7 @@ if [[ "$sleep_fd" =~ ^[0-9]+$ ]] \
 
   cleanup() {
     trap - TERM INT HUP
-    pkill -x -u "$UID_NUM" i3lock 2>/dev/null || true
+    pkill -x -u "$UID" i3lock 2>/dev/null || true
   }
 
   trap cleanup TERM INT HUP
@@ -73,7 +72,7 @@ if [[ "$sleep_fd" =~ ^[0-9]+$ ]] \
 
   exec {XSS_SLEEP_LOCK_FD}<&-
 
-  while pgrep -u "$UID_NUM" -x i3lock >/dev/null 2>&1; do
+  while pgrep -u "$UID" -x i3lock >/dev/null 2>&1; do
     sleep 0.25
   done
 else

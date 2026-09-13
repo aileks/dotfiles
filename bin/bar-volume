@@ -11,7 +11,7 @@ volume=$(wpctl get-volume '@DEFAULT_AUDIO_SINK@' 2>/dev/null) || {
   exit 0
 }
 
-if [[ $volume == *[MUTED]* ]]; then
+if [[ $volume == *'[MUTED]'* ]]; then
   printf '^c#58534C^%s mute^d^\n' ''
   exit 0
 fi

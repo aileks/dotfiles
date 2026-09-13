@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-state="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bar-clock-format"
+state="${XDG_RUNTIME_DIR:-/run/user/$UID}/bar-clock-format"
 
 [[ ${BLOCK_BUTTON:-} == 1 ]] && {
   if [[ -e $state ]]; then
-    rm -f -- "$state"
+    rm -f -- "$state" || exit 1
   else
-    touch -- "$state"
+    touch -- "$state" || exit 1
   fi
   pkill -RTMIN+5 dwmblocks >/dev/null 2>&1 || true
 }
@@ -17,4 +17,5 @@ else
   format='%a %d %b %H:%M'
 fi
 
-printf '^c#DDD5CA^%s %s^d^\n' '' "$(date +"$format")"
+printf -v current_time "%($format)T" -1
+printf '^c#DDD5CA^%s %s^d^\n' '' "$current_time"

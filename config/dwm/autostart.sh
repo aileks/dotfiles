@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -u
 
-uid=$(id -u)
+uid=$UID
 config_home=${XDG_CONFIG_HOME:-$HOME/.config}
 data_home=${XDG_DATA_HOME:-$HOME/.local/share}
+runtime_directory=${XDG_RUNTIME_DIR:-/run/user/$uid}
 
 dbus-update-activation-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
 
@@ -31,8 +32,9 @@ pgrep -u "$uid" -x bitwarden-app >/dev/null || /opt/Bitwarden/bitwarden &
 pgrep -u "$uid" -x localsend >/dev/null || localsend &
 pgrep -u "$uid" -x openrgb >/dev/null || openrgb --noautoconnect -p NRGB &
 
-mkdir -p "$XDG_RUNTIME_DIR/podman"
-pgrep -u "$uid" -f 'podman system service' >/dev/null || podman system service --time=0 "unix://$XDG_RUNTIME_DIR/podman/podman.sock" &
+if mkdir -p "$runtime_directory/podman"; then
+  pgrep -u "$uid" -f 'podman system service' >/dev/null || podman system service --time=0 "unix://$runtime_directory/podman/podman.sock" &
+fi
 
-flock -n "${XDG_RUNTIME_DIR:-/run/user/$uid}/reminder-loop.lock" \
-  sh -c "while pgrep -u $uid -x dwm >/dev/null; do reminder dispatch || true; sleep 60; done" &
+flock -n "$runtime_directory/reminder-loop.lock" \
+  sh -c 'while pgrep -u "$1" -x dwm >/dev/null; do reminder dispatch || true; sleep 60; done' sh "$uid" &

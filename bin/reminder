@@ -33,7 +33,7 @@ save_records() {
 
 prompt() {
   if ! answer=$(dmenu -i -p "$1" 2>"$temporary/menu-error"); then
-    [[ ! -s $temporary/menu-error ]] || desktop-feedback status "Reminder menu failed"
+    [[ ! -s $temporary/menu-error ]] || desktop-feedback status 'Reminder menu failed'
     exit 0
   fi
 }
@@ -50,7 +50,7 @@ case ${command,,} in
     prompt 'Duration (10m, 2h, 1d)' </dev/null
     [[ -n $answer ]] || exit 0
     if [[ ! $answer =~ ^([1-9][0-9]{0,7})([mhd])$ ]]; then
-      desktop-feedback status "Use a whole-number duration such as 10m, 2h, or 1d"
+      desktop-feedback status 'Use a whole-number duration such as 10m, 2h, or 1d'
       exit 1
     fi
     amount=${BASH_REMATCH[1]}
@@ -59,15 +59,17 @@ case ${command,,} in
       h) seconds=$((amount * 3600)) ;;
       d) seconds=$((amount * 86400)) ;;
     esac
-    due=$(($(date +%s) + seconds))
+    printf -v now '%(%s)T' -1
+    due=$((now + seconds))
     if ((due > 253402300799)); then
-      desktop-feedback status "Reminder duration is too long"
+      desktop-feedback status 'Reminder duration is too long'
       exit 1
     fi
     deadline=$(date -d "@$due" '+%Y-%m-%d %H:%M')
     prompt Reminder </dev/null
     [[ $answer =~ [^[:space:]] ]] || exit 0
-    identifier=$(tr -d '-' </proc/sys/kernel/random/uuid)
+    IFS= read -r identifier </proc/sys/kernel/random/uuid
+    identifier=${identifier//-/}
     flock 9
     read_records
     records=$(jq -c --arg id "$identifier" --argjson due "$due" --arg message "$answer" \
@@ -81,7 +83,7 @@ case ${command,,} in
     read_records
     flock -u 9
     if [[ $records == '[]' ]]; then
-      desktop-feedback status "No pending reminders"
+      desktop-feedback status 'No pending reminders'
       exit 0
     fi
     rows=$(jq -r 'sort_by(.due)[] | .id + "  " +
@@ -95,19 +97,19 @@ case ${command,,} in
     read_records
     remaining=$(jq -c --arg id "$identifier" 'map(select(.id != $id))' <<<"$records")
     if [[ $remaining == "$records" ]]; then
-      desktop-feedback status "Reminder already delivered"
+      desktop-feedback status 'Reminder already delivered'
       exit 0
     fi
     records=$remaining
     save_records
     flock -u 9
-    desktop-feedback status "Reminder cancelled"
+    desktop-feedback status 'Reminder cancelled'
     ;;
   dispatch)
     flock 9
     read_records
-    now=$(date +%s)
-    while read -r identifier; do
+    printf -v now '%(%s)T' -1
+    while IFS= read -r identifier; do
       paused=$(timeout 5 dunstctl get-pause-level 2>/dev/null) || exit 0
       [[ $paused == 0 ]] || exit 0
       message=$(jq -r --arg id "$identifier" '.[] | select(.id == $id) | .message + "\u0001"' <<<"$records")

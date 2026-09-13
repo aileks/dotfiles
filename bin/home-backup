@@ -33,7 +33,7 @@ notify() {
 }
 
 failed() {
-  status=$?
+  local status=$?
   write_status failed "exit $status"
   printf 'error: Home Backup failed (exit %s). Log: %s\n' \
     "$status" "$logs_directory/$timestamp.log" >&2
@@ -75,9 +75,9 @@ find "$snapshots_directory" -mindepth 1 -maxdepth 1 -type d -name '.*.incomplete
   -exec rm -rf -- {} +
 mkdir "$incomplete_snapshot"
 write_status started "$timestamp"
-notify "Backup starting..."
+notify 'Backup starting...'
 
-previous_snapshot=""
+previous_snapshot=''
 if [[ -L $latest_link ]]; then
   previous_snapshot=$(readlink -f "$latest_link" || true)
 fi
@@ -104,7 +104,7 @@ mapfile -d '' -t snapshots < <(find "$snapshots_directory" -mindepth 1 -maxdepth
 completed_count=0
 for snapshot in "${snapshots[@]}"; do
   [[ $snapshot =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{6}Z$ ]] || continue
-  completed_count=$((completed_count + 1))
+  ((completed_count += 1))
   if ((completed_count > 30)); then
     rm -rf -- "${snapshots_directory:?}/$snapshot"
   fi
@@ -112,4 +112,4 @@ done
 
 printf 'Backup complete: %s\n' "$new_snapshot"
 write_status complete "$timestamp"
-notify "Backup complete"
+notify 'Backup complete'

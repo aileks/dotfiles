@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 command -v clipmenu >/dev/null || {
-  desktop-feedback status "Clipboard history unavailable"
+  desktop-feedback status 'Clipboard history unavailable'
   exit 1
 }
 exec clipmenu

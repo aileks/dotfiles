@@ -20,29 +20,30 @@ recording_is_live() {
 read_state() {
   [[ -f $statefile ]] || return 1
   {
-    read -r pid
-    read -r start_time
-    read -r file
+    IFS= read -r pid || return 1
+    IFS= read -r start_time || return 1
+    IFS= read -r file || return 1
   } <"$statefile"
 }
 
 stop_recording() {
+  local attempt
   kill -INT "$pid"
-  for _ in {1..50}; do
+  for ((attempt = 0; attempt < 50; attempt++)); do
     recording_is_live || break
     sleep 0.1
   done
   if recording_is_live; then
-    notify-send -u critical -a Recording "Recording did not stop" \
-      "The recorder is still finalizing. Try again before starting another recording."
+    notify-send -u critical -a Recording 'Recording did not stop' \
+      'The recorder is still finalizing. Try again before starting another recording.'
     exit 1
   fi
   rm -f "$statefile"
   if [[ -s $file ]]; then
-    notify-send -a Recording "Recording saved" "$file"
+    notify-send -a Recording 'Recording saved' "$file"
   else
-    notify-send -u critical -a Recording "Recording failed" \
-      "No completed recording was written."
+    notify-send -u critical -a Recording 'Recording failed' \
+      'No completed recording was written.'
     exit 1
   fi
 }
@@ -79,7 +80,7 @@ elif [[ ${1:-} == inhibit-watch ]]; then
   recording_is_live || exit 1
   printf 'READY\n'
   while recording_is_live; do
-    pkill -USR1 -u "$(id -u)" -x xautolock 2>/dev/null || true
+    pkill -USR1 -u "$UID" -x xautolock 2>/dev/null || true
     sleep 50
   done
   exit 0
@@ -127,7 +128,7 @@ fi
 
 if [[ $mode == stop ]]; then
   rm -f "$statefile"
-  notify-send -a Recording "No active recording"
+  notify-send -a Recording 'No active recording'
   exit 0
 fi
 
@@ -143,13 +144,13 @@ case "$mode" in
           split($3, d, /[x\/+]/)
           if (x >= d[5] && x < d[5] + d[1] && y >= d[6] && y < d[6] + d[3]) { print $NF; exit }
         }'); then
-      notify-send -u critical -a Recording "Recording failed" \
-        "Could not determine the monitor under the cursor."
+      notify-send -u critical -a Recording 'Recording failed' \
+        'Could not determine the monitor under the cursor.'
       exit 1
     fi
     [[ -n $monitor ]] || {
-      notify-send -u critical -a Recording "Recording failed" \
-        "Could not determine the monitor under the cursor."
+      notify-send -u critical -a Recording 'Recording failed' \
+        'Could not determine the monitor under the cursor.'
       exit 1
     }
     args=(-w "$monitor")
@@ -166,8 +167,8 @@ case "$mode" in
               y >= d[6] && y + h <= d[6] + d[3]) { ok = 1 }
         }
         END { exit !ok }'; then
-      notify-send -u critical -a Recording "Recording failed" \
-        "Select a region entirely within one display."
+      notify-send -u critical -a Recording 'Recording failed' \
+        'Select a region entirely within one display.'
       exit 1
     fi
     geometry="${width}x${height}+${x}+${y}"
@@ -190,14 +191,14 @@ pid=$!
 sleep 0.2
 if ! kill -0 "$pid" 2>/dev/null; then
   wait "$pid" || status=$?
-  notify-send -u critical -a Recording "Recording failed to start" \
+  notify-send -u critical -a Recording 'Recording failed to start' \
     "gpu-screen-recorder exited with status ${status:-0}."
   exit 1
 fi
 
 if ! start_time=$(awk '{ print $22 }' "/proc/$pid/stat" 2>/dev/null); then
   wait "$pid" || status=$?
-  notify-send -u critical -a Recording "Recording failed to start" \
+  notify-send -u critical -a Recording 'Recording failed to start' \
     "gpu-screen-recorder exited with status ${status:-0}."
   exit 1
 fi
@@ -212,7 +213,7 @@ if [[ -z $inhibitor_fd ]] || ! read -r -t 5 ready <&"$inhibitor_fd" || [[ $ready
   fi
   kill -INT "$pid" 2>/dev/null || true
   wait "$pid" || true
-  notify-send -u critical -a Recording "Recording failed" "Could not prevent automatic locking while recording."
+  notify-send -u critical -a Recording 'Recording failed' 'Could not prevent automatic locking while recording.'
   exit 1
 fi
 
@@ -220,4 +221,4 @@ statefile_tmp="$statefile.tmp.$pid"
 printf '%s\n%s\n%s\n' "$pid" "$start_time" "$file" >"$statefile_tmp"
 mv "$statefile_tmp" "$statefile"
 
-notify-send -a Recording "Recording started" "$file"
+notify-send -a Recording 'Recording started' "$file"

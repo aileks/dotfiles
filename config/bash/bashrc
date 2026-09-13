@@ -5,12 +5,12 @@
 # Set Env
 export PATH="$HOME/.local/bin:$PATH"
 export GREP_COLORS='mt=1;36'
-export EDITOR="nvim"
+export EDITOR='nvim'
 export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export MANPAGER='nvim +Man!'
-export DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/podman/podman.sock"
+export DOCKER_HOST="unix://${XDG_RUNTIME_DIR:-/run/user/$UID}/podman/podman.sock"
 
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
@@ -19,18 +19,18 @@ case ":$PATH:" in
 esac
 
 # Aliases
-alias ls="eza --color=always --icons --group-directories-first"
-alias la="eza -al --color=always --icons --group-directories-first"
-alias lt="eza -T --color=always --icons --group-directories-first"
-alias rm="trash"
-alias c="clear"
-alias fzf="fzf --style full"
-alias ff="fastfetch"
-alias lg="lazygit"
-alias vim="nvim"
-alias docker="podman"
+alias ls='eza --color=always --icons --group-directories-first'
+alias la='eza -al --color=always --icons --group-directories-first'
+alias lt='eza -T --color=always --icons --group-directories-first'
+alias rm='trash'
+alias c='clear'
+alias fzf='fzf --style full'
+alias ff='fastfetch'
+alias lg='lazygit'
+alias vim='nvim'
+alias docker='podman'
 alias ..="echo 'cd ..'; cd .."
-alias hl="rg --passthru"
+alias hl='rg --passthru'
 alias ga='git add'
 alias gaa='git add --all'
 alias gb='git branch'
@@ -135,16 +135,17 @@ export _ZO_FZF_OPTS="
 "
 
 # Shell Integrations
-if command -v zoxide >/dev/null 2>&1; then
-  eval "$(zoxide init bash)"
+# These tools emit Bash code; evaluate only successful initialization output.
+if command -v zoxide >/dev/null 2>&1 && shell_init=$(zoxide init bash); then
+  eval "$shell_init"
 fi
 
-if command -v fzf >/dev/null 2>&1; then
-  eval "$(command fzf --bash)"
+if command -v fzf >/dev/null 2>&1 && shell_init=$(command fzf --bash); then
+  eval "$shell_init"
 fi
+unset shell_init
 
 if [[ -r ${XDG_CONFIG_HOME:-$HOME/.config}/wezterm/shell-integration.sh ]]; then
-  # shellcheck source=config/wezterm/shell-integration.sh
   source "${XDG_CONFIG_HOME:-$HOME/.config}/wezterm/shell-integration.sh"
 fi
 
@@ -160,12 +161,12 @@ git_prompt_segment() {
 
   while IFS= read -r line; do
     case $line in
-      "# branch.head "*)
-        branch=${line#"# branch.head "}
+      '# branch.head '*)
+        branch=${line#'# branch.head '}
         ;;
 
-      "# branch.ab "*)
-        local ab=${line#"# branch.ab "}
+      '# branch.ab '*)
+        local ab=${line#'# branch.ab '}
         local a b
         read -r a b <<<"$ab"
         ahead=${a#+}
@@ -180,8 +181,8 @@ git_prompt_segment() {
     esac
   done <<<"$output"
 
-  if [[ $branch == "(detached)" ]]; then
-    branch=$(git rev-parse --short HEAD 2>/dev/null)
+  if [[ $branch == '(detached)' ]]; then
+    branch=$(git rev-parse --short HEAD 2>/dev/null) || return
   fi
 
   printf ' %s' "$branch"
@@ -207,7 +208,7 @@ venv_prompt_name() {
       printf '%s' "$value"
       return
     fi
-  done < "$VIRTUAL_ENV/pyvenv.cfg"
+  done <"$VIRTUAL_ENV/pyvenv.cfg"
 }
 
 make_prompt() {
@@ -226,9 +227,9 @@ make_prompt() {
   local venv_segment=''
   local jobs_segment=''
 
-  local git_info
-  if git_info=$(git_prompt_segment); then
-    git_segment=" \[${magenta}\]${git_info}\[${reset}\]"
+  # Expand prompt text through variables so its contents cannot become shell code.
+  if _prompt_git_text=$(git_prompt_segment); then
+    git_segment=" \[${magenta}\]"'${_prompt_git_text}'"\[${reset}\]"
   fi
 
   if ((status != 0)); then
@@ -236,11 +237,10 @@ make_prompt() {
   fi
 
   if [[ -n ${VIRTUAL_ENV:-} ]]; then
-    local venv_name
-    venv_name=$(venv_prompt_name)
-    [[ -n $venv_name ]] || venv_name=${VIRTUAL_ENV##*/}
-  
-    venv_segment=" \[${green}\] ${venv_name}\[${reset}\]"
+    _prompt_venv_text=$(venv_prompt_name)
+    [[ -n $_prompt_venv_text ]] || _prompt_venv_text=${VIRTUAL_ENV##*/}
+
+    venv_segment=" \[${green}\] "'${_prompt_venv_text}'"\[${reset}\]"
   fi
 
   local job_count
@@ -272,7 +272,7 @@ _install_prompt_command() {
   local command
 
   if declare -p PROMPT_COMMAND &>/dev/null; then
-    if [[ $(declare -p PROMPT_COMMAND) == "declare -a"* ]]; then
+    if [[ $(declare -p PROMPT_COMMAND) == 'declare -a'* ]]; then
       previous=("${PROMPT_COMMAND[@]}")
     elif [[ -n ${PROMPT_COMMAND:-} ]]; then
       previous=("$PROMPT_COMMAND")

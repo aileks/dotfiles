@@ -19,12 +19,12 @@ case ${1:-} in
         exit 2
         ;;
     esac
-    "${operation[@]}" || fail "Volume change"
+    "${operation[@]}" || fail 'Volume change'
     pkill -RTMIN+10 dwmblocks >/dev/null 2>&1 || true
-    state=$(wpctl get-volume "$target") || fail "Volume state"
+    state=$(wpctl get-volume "$target") || fail 'Volume state'
     value=$(awk -v v="${state#Volume: }" 'BEGIN { printf "%.0f", v * 100 }')
     if [[ $state == *'[MUTED]'* ]]; then
-      desktop-feedback progress "$value" "Volume muted" || true
+      desktop-feedback progress "$value" 'Volume muted' || true
     else
       desktop-feedback progress "$value" "Volume $value%" || true
     fi
@@ -34,12 +34,12 @@ case ${1:-} in
       printf 'usage: audio sink <up|down|mute> | audio mic mute\n' >&2
       exit 2
     }
-    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle || fail "Microphone change"
-    state=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@) || fail "Microphone state"
+    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle || fail 'Microphone change'
+    state=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@) || fail 'Microphone state'
     if [[ $state == *'[MUTED]'* ]]; then
-      desktop-feedback status "Microphone muted" || true
+      desktop-feedback status 'Microphone muted' || true
     else
-      desktop-feedback status "Microphone unmuted" || true
+      desktop-feedback status 'Microphone unmuted' || true
     fi
     ;;
   *)

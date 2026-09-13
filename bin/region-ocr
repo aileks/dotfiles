@@ -14,18 +14,18 @@ read -r width height x y <<<"$geometry"
 
 if ! maim -g "${width}x${height}+$x+$y" "$directory/image.png" 2>"$directory/error" \
   || ! tesseract "$directory/image.png" stdout -l eng >"$directory/text" 2>"$directory/error"; then
-  desktop-feedback status "Text recognition failed"
+  desktop-feedback status 'Text recognition failed'
   exit 1
 fi
 
 if ! grep -q '[^[:space:]]' "$directory/text"; then
-  desktop-feedback status "No text found"
+  desktop-feedback status 'No text found'
   exit 0
 fi
 
 if ! xclip -selection clipboard -in <"$directory/text"; then
-  desktop-feedback status "Could not copy recognized text"
+  desktop-feedback status 'Could not copy recognized text'
   exit 1
 fi
 
-desktop-feedback status "Recognized text copied"
+desktop-feedback status 'Recognized text copied'

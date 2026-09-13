@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-repo=$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)
+# The installer needs the checkout beside its resolved entry point, including through a symlink.
+repo=$(readlink -f -- "${BASH_SOURCE[0]}")
+repo=${repo%/*}
 dry_run=false
 in_chroot=false
 phase=system
@@ -55,7 +57,7 @@ select_user() {
   IFS=: read -r target_user _ target_uid target_gid _ target_home _ <<<"$account"
   [[ $target_uid != 0 && $target_home == /* && -d $target_home ]] || fail 'The desktop account must have an existing home directory and a nonzero UID.'
   ((EUID == 0 || EUID == target_uid)) || fail 'Only root can configure another user.'
-  [[ $phase != user || $EUID == "$target_uid" ]] || fail 'User setup must run as the desktop account.'
+  [[ $phase != user ]] || ((EUID == target_uid)) || fail 'User setup must run as the desktop account.'
   config_home=$target_home/.config
   data_home=$target_home/.local/share
 }
@@ -82,7 +84,8 @@ check_system_target() {
     if [[ $parent != "$target" && -e $parent && ! -d $parent ]]; then
       fail "Expected a directory at $parent. Preserve its contents in a directory before rerunning."
     fi
-    parent=$(dirname -- "$parent")
+    parent=${parent%/*}
+    [[ -n $parent ]] || parent=/
   done
   [[ ! -d $target ]] || fail "Expected a file at $target."
 }
@@ -124,19 +127,13 @@ preflight() {
     check_system_target "$path"
   done
   # Check all link sources before any package or system changes.
-  (
-    dry_run=true
-    link_dotfiles
-  ) >/dev/null
+  dry_run=true link_dotfiles >/dev/null
   if [[ -e $config_home/emacs || -L $config_home/emacs ]]; then
     [[ -x $config_home/emacs/bin/doom && -d $config_home/emacs/.git ]] || fail "Incomplete or unrelated Emacs installation at $config_home/emacs; preserve it elsewhere before rerunning."
   fi
   check_network_services
-  (
-    dry_run=true
-    ensure_subordinate_ids /etc/subuid
-    ensure_subordinate_ids /etc/subgid
-  ) >/dev/null
+  dry_run=true ensure_subordinate_ids /etc/subuid >/dev/null
+  dry_run=true ensure_subordinate_ids /etc/subgid >/dev/null
 }
 
 base_packages=(
@@ -316,14 +313,14 @@ install_system_file() {
     return
   fi
   if [[ -e $target ]]; then
-    run install -d -m 700 -- "/var/backups/dotfiles/$stamp$(dirname -- "$target")"
+    run install -d -m 700 -- "/var/backups/dotfiles/$stamp${target%/*}"
     run cp -a -- "$target" "/var/backups/dotfiles/$stamp$target"
   fi
   run install -D -o root -g root -m "$mode" -- "$source" "$target"
 }
 
 install_system_config() {
-  local source relative mode
+  local source relative
   while IFS= read -r -d '' source; do
     relative=${source#"$repo/"}
     install_system_file "$source" "/$relative"
@@ -427,7 +424,7 @@ ensure_subordinate_ids() {
 }
 
 configure_account() {
-  local shell mapping_file
+  local shell mapping_file account
   shell=$(command -v bash || true)
   if "$dry_run"; then
     printf 'set %s login shell to Bash and add i2c membership if missing\n' "$target_user"
@@ -435,7 +432,8 @@ configure_account() {
     [[ -n $shell ]] || fail 'Bash was not installed.'
     shell=$(readlink -f "$shell")
     grep -Fxq "$shell" /etc/shells || fail "Bash is not listed in /etc/shells: $shell"
-    if [[ $(getent passwd "$target_user" | cut -d: -f7) != "$shell" ]]; then
+    account=$(getent passwd "$target_user") || fail "No such account: $target_user"
+    if [[ ${account##*:} != "$shell" ]]; then
       run usermod --shell "$shell" "$target_user"
     fi
     if [[ " $(id -nG "$target_user") " != *' i2c '* ]]; then
@@ -523,7 +521,7 @@ link() {
 }
 
 link_dotfiles() {
-  local name desktop script target
+  local name desktop script
 
   for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal; do
     link "$repo/config/$name" "$config_home/$name"
@@ -670,6 +668,7 @@ setup_mime() {
   for directory in "$data_home/applications" /usr/local/share/applications /usr/share/applications; do
     [[ -d $directory ]] || continue
     for name in "$directory/"*.desktop; do
+      [[ -f $name ]] || continue
       installed[${name##*/}]=$name
     done
   done

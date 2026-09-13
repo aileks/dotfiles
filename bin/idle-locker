@@ -2,7 +2,7 @@
 
 set -u
 
-lock_pid=$(pgrep -n -u "$(id -u)" -x i3lock 2>/dev/null || true)
+lock_pid=$(pgrep -n -u "$UID" -x i3lock 2>/dev/null || true)
 if [[ -z $lock_pid ]]; then
   lock-session &
   lock_pid=$!
@@ -12,7 +12,7 @@ minutes_locked=0
 while kill -0 "$lock_pid" 2>/dev/null; do
   sleep 60
   kill -0 "$lock_pid" 2>/dev/null || break
-  minutes_locked=$((minutes_locked + 1))
+  ((minutes_locked += 1))
   if ((minutes_locked >= 20)); then
     loginctl suspend
   fi
