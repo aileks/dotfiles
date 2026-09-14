@@ -4,11 +4,10 @@ set -euo pipefail
 
 choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | rofi -dmenu -p Power) || exit 0
 case "$choice" in
-  # Let ly stop Xorg and restore the console after the window manager exits.
-  'log out') pkill -TERM -u "$UID" -x oxwm ;;
+  'log out') pkill -TERM -u "$UID" -x dwl ;;
   'suspend')
-    pgrep -u "$UID" -x xss-lock >/dev/null || {
-      desktop-feedback status 'Cannot suspend: automatic screen locking is not running'
+    lock-session || {
+      desktop-feedback status 'Cannot suspend: screen locking failed'
       exit 1
     }
     loginctl suspend

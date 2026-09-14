@@ -1,1 +1,1 @@
-media-video/mpv nvenc vaapi
+media-video/mpv nvenc vaapi wayland -X -xv

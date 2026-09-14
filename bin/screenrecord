@@ -80,7 +80,6 @@ elif [[ ${1:-} == inhibit-watch ]]; then
   recording_is_live || exit 1
   printf 'READY\n'
   while recording_is_live; do
-    pkill -USR1 -u "$UID" -x xautolock 2>/dev/null || true
     sleep 50
   done
   exit 0
@@ -138,37 +137,32 @@ file="$directory/$(date +%Y-%m-%d_%H-%M-%S-%N).mp4"
 
 case "$mode" in
   output)
-    read -r mouse_x mouse_y < <(xdotool getmouselocation --shell | awk -F= '/^X/{x=$2} /^Y/{y=$2} END{print x, y}')
-    if ! monitor=$(xrandr --listmonitors | awk -v x="$mouse_x" -v y="$mouse_y" '
-        /^ *[0-9]+:/ {
-          split($3, d, /[x\/+]/)
-          if (x >= d[5] && x < d[5] + d[1] && y >= d[6] && y < d[6] + d[3]) { print $NF; exit }
-        }'); then
-      notify-send -u critical -a Recording 'Recording failed' \
-        'Could not determine the monitor under the cursor.'
+    header= monitor=
+    if [[ ${DWL_CAPTURE_CONTEXT:-} != 1 ]] || ! IFS= read -r header ||
+      [[ $header != dwl-capture-v1 ]] || ! IFS= read -r rectangle ||
+      ! IFS= read -r monitor || [[ ! $monitor =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+      desktop-feedback status 'Recording failed: use the dwl recording shortcut'
       exit 1
     fi
-    [[ -n $monitor ]] || {
-      notify-send -u critical -a Recording 'Recording failed' \
-        'Could not determine the monitor under the cursor.'
-      exit 1
-    }
     args=(-w "$monitor")
     ;;
   region)
-    selection=$(slop -f '%w %h %x %y' </dev/null) || exit 0
-    read -r width height x y <<<"$selection"
-    if ! xrandr --listmonitors | awk -v x="$x" -v y="$y" \
-      -v w="$width" -v h="$height" '
-        /^ *[0-9]+:/ {
-          split($3, d, /[x\/+]/)
-          if (w > 0 && h > 0 &&
-              x >= d[5] && x + w <= d[5] + d[1] &&
-              y >= d[6] && y + h <= d[6] + d[3]) { ok = 1 }
-        }
-        END { exit !ok }'; then
-      notify-send -u critical -a Recording 'Recording failed' \
-        'Select a region entirely within one display.'
+    selection=$(slurp -f '%x %y %w %h' </dev/null) || exit 0
+    if [[ ! $selection =~ ^(-?[0-9]{1,5})\ (-?[0-9]{1,5})\ ([1-9][0-9]{0,4})\ ([1-9][0-9]{0,4})$ ]]; then
+      exit 1
+    fi
+    read -r x y width height <<<"$selection"
+    if ! timeout 3 wlr-randr --json | jq -e --argjson x "$x" --argjson y "$y" \
+      --argjson w "$width" --argjson h "$height" '
+        any(.[]; select(.enabled) | . as $output |
+          .modes[] | select(.current) |
+          (if (["90", "270", "flipped-90", "flipped-270"] | index($output.transform))
+           then [.height, .width] else [.width, .height] end) as $size |
+          $x >= $output.position.x and $y >= $output.position.y and
+          $x + $w <= $output.position.x + ($size[0] / $output.scale | round) and
+          $y + $h <= $output.position.y + ($size[1] / $output.scale | round))
+      ' >/dev/null; then
+      desktop-feedback status 'Recording failed: select a region entirely within one display'
       exit 1
     fi
     geometry="${width}x${height}+${x}+${y}"

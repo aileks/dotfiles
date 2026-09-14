@@ -1,83 +1,25 @@
 #!/usr/bin/env bash
-
 set -Eeuo pipefail
 
-readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
-readonly LOCK_FILE="$RUNTIME_DIR/i3lock-color.lock"
+runtime_directory=${XDG_RUNTIME_DIR:?}
+[[ -d $runtime_directory && -O $runtime_directory ]] || exit 1
+umask 077
+exec 9>"$runtime_directory/lock-session.lock"
+flock -w 5 9 || exit 1
 
-for cmd in i3lock flock pgrep pkill; do
-  command -v "$cmd" >/dev/null 2>&1 || exit 1
-done
-
-[[ -d "$RUNTIME_DIR" && -O "$RUNTIME_DIR" ]] || exit 1
-
-exec 9>"$LOCK_FILE"
-flock -n 9 || exit 0
-
-pgrep -u "$UID" -x i3lock >/dev/null 2>&1 && exit 0
-
-i3lock_opts=(
-  '--color=131210'
-  '--inside-color=1B1916ff'
-  '--insidever-color=23201Cff'
-  '--insidewrong-color=23201Cff'
-  '--ring-color=D9A441ff'
-  '--ringver-color=58918Cff'
-  '--ringwrong-color=B34A45ff'
-  '--line-color=1B1916ff'
-  '--separator-color=58534Cff'
-  '--keyhl-color=879B5Cff'
-  '--bshl-color=E17A3Fff'
-  '--verif-color=DDD5CAff'
-  '--wrong-color=DDD5CAff'
-  '--modif-color=9A788Fff'
-  '--layout-color=6785A1ff'
-  '--time-color=DDD5CAff'
-  '--date-color=ACA49Bff'
-  '--clock'
-  '--indicator'
-  '--time-str=%H:%M'
-  '--date-str=%a, %b %d'
-  '--time-size=28'
-  '--date-size=11'
-  '--verif-size=12'
-  '--wrong-size=12'
-  '--modif-size=11'
-  '--layout-size=11'
-  '--radius=80'
-  '--ring-width=8'
-  '--verif-text=verifying'
-  '--wrong-text=incorrect'
-  '--noinput-text='
-  '--show-failed-attempts'
-  '--ignore-empty-password'
-)
-
-sleep_fd="${XSS_SLEEP_LOCK_FD:-}"
-
-if [[ "$sleep_fd" =~ ^[0-9]+$ ]] \
-  && [[ -e "/proc/$$/fd/$sleep_fd" ]]; then
-
-  cleanup() {
-    trap - TERM INT HUP
-    pkill -x -u "$UID" i3lock 2>/dev/null || true
-  }
-
-  trap cleanup TERM INT HUP
-
-  i3lock \
-    "${i3lock_opts[@]}" \
-    {XSS_SLEEP_LOCK_FD}<&- \
-    9>&-
-
-  exec {XSS_SLEEP_LOCK_FD}<&-
-
-  while pgrep -u "$UID" -x i3lock >/dev/null 2>&1; do
-    sleep 0.25
-  done
-else
-  exec i3lock \
-    --nofork \
-    "${i3lock_opts[@]}" \
-    9>&-
+ready_file="$runtime_directory/lock-session.ready"
+if [[ -f $ready_file ]]; then
+  read -r pid start_time <"$ready_file" || true
+  if [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] &&
+    read -r state current_start < <(awk '{ print $3, $22 }' "/proc/$pid/stat" 2>/dev/null) &&
+    [[ $state != Z && $current_start == "$start_time" ]]; then
+    exit 0
+  fi
 fi
+rm -f -- "$ready_file"
+
+# swaylock forks and returns success only after the compositor confirms the lock.
+swaylock --daemonize 9>&- || exit 1
+pid=$(pgrep -n -u "$UID" -x swaylock) || exit 1
+start_time=$(awk '{ print $22 }' "/proc/$pid/stat") || exit 1
+printf '%s %s\n' "$pid" "$start_time" >"$ready_file"

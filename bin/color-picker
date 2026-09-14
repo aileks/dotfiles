@@ -2,10 +2,9 @@
 
 set -euo pipefail
 
-geometry=$(slop -f '%w %h %x %y' </dev/null) || exit 0
-read -r _ _ x y <<<"$geometry"
-pixel=$(maim -g "1x1+$x+$y" - | ffmpeg -loglevel error -i pipe:0 -f rawvideo -pix_fmt rgb24 - 2>/dev/null | od -An -tu1)
+geometry=$(slurp -p </dev/null) || exit 0
+pixel=$(grim -s 1 -g "$geometry" - | ffmpeg -loglevel error -i pipe:0 -f rawvideo -pix_fmt rgb24 - 2>/dev/null | od -An -tu1)
 read -r red green blue <<<"$pixel"
 printf -v color '#%02X%02X%02X' "$red" "$green" "$blue"
-xclip -selection clipboard -in <<<"$color"
+wl-copy <<<"$color"
 printf '%s\n' "$color"

@@ -18,27 +18,32 @@ file="$directory/$(date +%Y-%m-%d_%H-%M-%S-%N).png"
 
 case "$mode" in
   region)
-    geometry=$(slop -f '%w %h %x %y' </dev/null) || exit 0
-    read -r width height x y <<<"$geometry"
-    args=(-g "${width}x${height}+$x+$y")
+    geometry=$(slurp </dev/null) || exit 0
+    args=(-g "$geometry")
     ;;
   window)
-    if ! window=$(xdotool getactivewindow 2>/dev/null); then
-      notify-send -u critical -a Screenshot 'Screenshot failed' 'No focused window is available.'
+    header= geometry=
+    if [[ ${DWL_CAPTURE_CONTEXT:-} == 1 ]] && IFS= read -r header &&
+      [[ $header == dwl-capture-v1 ]] && IFS= read -r rectangle &&
+      [[ $rectangle =~ ^(-?[0-9]{1,5})\ (-?[0-9]{1,5})\ ([1-9][0-9]{0,4})\ ([1-9][0-9]{0,4})$ ]]; then
+      geometry="${BASH_REMATCH[1]},${BASH_REMATCH[2]} ${BASH_REMATCH[3]}x${BASH_REMATCH[4]}"
+    fi
+    if [[ -z $geometry ]]; then
+      desktop-feedback status 'Screenshot failed: use the shortcut with a focused window'
       exit 1
     fi
-    args=(-i "$window")
+    args=(-g "$geometry")
     ;;
   full) args=() ;;
 esac
 
-if ! maim "${args[@]}" "$file"; then
+if ! grim "${args[@]}" "$file"; then
   rm -f -- "$file"
   notify-send -u critical -a Screenshot 'Screenshot failed' 'Could not capture the selected area.'
   exit 1
 fi
 
-if ! xclip -selection clipboard -t image/png -in "$file"; then
+if ! wl-copy --type image/png <"$file"; then
   notify-send -u critical -a Screenshot 'Screenshot saved' 'Could not copy the screenshot to the clipboard.'
   exit 1
 fi

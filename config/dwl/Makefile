@@ -12,17 +12,22 @@ DWLDEVCFLAGS = -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement \
 	-Wfloat-conversion
 
 # CFLAGS / LDFLAGS
-PKGS      = wayland-server xkbcommon libinput $(XLIBS)
+PKGS      = wayland-server xkbcommon libinput pixman-1 fcft dbus-1 $(XLIBS)
 DWLCFLAGS = `$(PKG_CONFIG) --cflags $(PKGS)` $(WLR_INCS) $(DWLCPPFLAGS) $(DWLDEVCFLAGS) $(CFLAGS)
 LDLIBS    = `$(PKG_CONFIG) --libs $(PKGS)` $(WLR_LIBS) -lm $(LIBS)
 
+TRAYOBJS = systray/watcher.o systray/tray.o systray/item.o systray/icon.o systray/menu.o systray/helpers.o
+TRAYDEPS = systray/watcher.h systray/tray.h systray/item.h systray/icon.h systray/menu.h systray/helpers.h
+
 all: dwl
-dwl: dwl.o util.o
-	$(CC) dwl.o util.o $(DWLCFLAGS) $(LDFLAGS) $(LDLIBS) -o $@
-dwl.o: dwl.c client.h config.h config.mk cursor-shape-v1-protocol.h \
+dwl: dwl.o util.o dbus.o $(TRAYOBJS)
+	$(CC) dwl.o util.o dbus.o $(TRAYOBJS) $(DWLCFLAGS) $(LDFLAGS) $(LDLIBS) -o $@
+dwl.o: dwl.c drwl.h status.h dbus.h $(TRAYDEPS) client.h config.h config.mk cursor-shape-v1-protocol.h \
 	pointer-constraints-unstable-v1-protocol.h wlr-layer-shell-unstable-v1-protocol.h \
 	wlr-output-power-management-unstable-v1-protocol.h xdg-shell-protocol.h
 util.o: util.c util.h
+dbus.o: dbus.c dbus.h
+$(TRAYOBJS): $(TRAYDEPS)
 
 # wayland-scanner is a tool which generates C headers and rigging for Wayland
 # protocols, which are specified in XML. wlroots requires you to rig these up
@@ -49,12 +54,12 @@ xdg-shell-protocol.h:
 config.h:
 	cp config.def.h $@
 clean:
-	rm -f dwl *.o *-protocol.h
+	rm -f dwl *.o *-protocol.h systray/*.o
 
 dist: clean
 	mkdir -p dwl-$(VERSION)
-	cp -R LICENSE* Makefile CHANGELOG.md README.md client.h config.def.h \
-		config.mk protocols dwl.1 dwl.c util.c util.h dwl.desktop \
+	cp -R LICENSE* Makefile CHANGELOG.md client.h config.def.h \
+		config.mk protocols dwl.1 dwl.c util.c util.h dwl.desktop drwl.h status.h dbus.c dbus.h systray \
 		dwl-$(VERSION)
 	tar -caf dwl-$(VERSION).tar.gz dwl-$(VERSION)
 	rm -rf dwl-$(VERSION)
@@ -67,12 +72,12 @@ install: dwl
 	mkdir -p $(DESTDIR)$(MANDIR)/man1
 	cp -f dwl.1 $(DESTDIR)$(MANDIR)/man1
 	chmod 644 $(DESTDIR)$(MANDIR)/man1/dwl.1
-	mkdir -p $(DESTDIR)$(DATADIR)/wayland-sessions
-	cp -f dwl.desktop $(DESTDIR)$(DATADIR)/wayland-sessions/dwl.desktop
-	chmod 644 $(DESTDIR)$(DATADIR)/wayland-sessions/dwl.desktop
+	mkdir -p $(DESTDIR)/usr/share/wayland-sessions
+	cp -f dwl.desktop $(DESTDIR)/usr/share/wayland-sessions/dwl.desktop
+	chmod 644 $(DESTDIR)/usr/share/wayland-sessions/dwl.desktop
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/dwl $(DESTDIR)$(MANDIR)/man1/dwl.1 \
-		$(DESTDIR)$(DATADIR)/wayland-sessions/dwl.desktop
+		$(DESTDIR)/usr/share/wayland-sessions/dwl.desktop
 
 .SUFFIXES: .c .o
 .c.o:

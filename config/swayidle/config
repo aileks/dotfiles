@@ -1,0 +1,7 @@
+timeout 570 'desktop-feedback status "Locking in 30 seconds"'
+timeout 600 'lock-session'
+timeout 900 'wlopm --off "*"' resume 'wlopm --on "*"'
+timeout 1800 'lock-session && loginctl suspend'
+before-sleep 'lock-session'
+after-resume 'wlopm --on "*"'
+lock 'lock-session'

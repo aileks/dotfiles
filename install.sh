@@ -128,7 +128,7 @@ preflight() {
   [[ $repo == "$target_home/"* && -d $repo/.git ]] || fail 'Keep a Git checkout inside the desktop user home before running this installer.'
   [[ $(stat -c %u "$repo") == "$target_uid" ]] || fail "The checkout must belong to $target_user."
 
-  for source in install.sh session/start-oxwm session/start-session session/oxwm.desktop config/xdg/mime-policy.json config/cron/crontab; do
+  for source in install.sh session/start-dwl session/start-session config/dwl/dwl.desktop config/dwl/config.def.h config/xdg/mime-policy.json config/cron/crontab; do
     [[ -r $repo/$source ]] || fail "Missing repository source: $source"
   done
 
@@ -137,7 +137,7 @@ preflight() {
     check_system_target "/$relative"
   done < <(find "$repo/etc" -type f -print0)
 
-  for path in /usr/share/xsessions/oxwm.desktop /usr/local/bin/start-session /usr/local/bin/start-oxwm /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
+  for path in /usr/share/wayland-sessions/dwl.desktop /usr/local/bin/start-session /usr/local/bin/start-dwl /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
     check_system_target "$path"
   done
 
@@ -208,29 +208,34 @@ cli_packages=(
 )
 
 desktop_packages=(
-  x11-base/xorg-server
-  x11-base/xorg-proto
+  gui-libs/wlroots:0.19
+  dev-libs/wayland
+  dev-libs/wayland-protocols
+  dev-util/wayland-scanner
+  dev-libs/libinput
+  x11-libs/libxkbcommon
+  x11-misc/xkeyboard-config
+  media-libs/fcft
+  x11-libs/pixman
+  x11-libs/libxcb
+  x11-libs/xcb-util-wm
+  x11-base/xwayland
+  gui-apps/grim
+  gui-apps/slurp
+  gui-apps/wl-clipboard
+  app-misc/cliphist
+  gui-apps/swaylock
+  gui-apps/swayidle
+  gui-apps/wlopm
+  gui-apps/swaybg
+  gui-apps/kanshi
+  gui-apps/wlr-randr
+  gui-libs/xdg-desktop-portal-wlr
+  virtual/pkgconfig
   x11-misc/ly
   x11-terms/wezterm
-  x11-wm/oxwm
   x11-misc/rofi
-  x11-misc/picom
-  x11-misc/xwallpaper
-  x11-misc/i3lock-color
-  x11-misc/xss-lock
-  x11-misc/xautolock
-  x11-misc/xdotool
-  x11-misc/autorandr
-  x11-apps/setxkbmap
-  x11-apps/xset
-  x11-libs/libX11
-  x11-libs/libXft
-  x11-libs/libXinerama
   media-libs/fontconfig
-  media-gfx/maim
-  x11-misc/slop
-  x11-misc/xclip
-  x11-misc/clipmenu
   app-misc/yazi
   app-text/zathura
   app-text/zathura-pdf-mupdf
@@ -353,16 +358,26 @@ install_system_config() {
     install_system_file "$source" "/$relative"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
 
-  install_system_file "$repo/session/oxwm.desktop" /usr/share/xsessions/oxwm.desktop
   install_system_file "$repo/session/start-session" /usr/local/bin/start-session 755
-  install_system_file "$repo/session/start-oxwm" /usr/local/bin/start-oxwm 755
+  install_system_file "$repo/session/start-dwl" /usr/local/bin/start-dwl 755
+}
+
+install_dwl() {
+  run install -d -o "$target_user" -g "$(id -gn "$target_user")" "$work/dwl"
+  run as_user cp -a "$repo/config/dwl/." "$work/dwl/"
+  run as_user cp -f "$work/dwl/config.def.h" "$work/dwl/config.h"
+  run as_user make -C "$work/dwl" clean
+  run as_user make -C "$work/dwl" -j"$(nproc)"
+  install_system_file "$work/dwl/dwl" /usr/local/bin/dwl 755
+  install_system_file "$repo/config/dwl/dwl.1" /usr/local/share/man/man1/dwl.1
+  install_system_file "$repo/config/dwl/dwl.desktop" /usr/share/wayland-sessions/dwl.desktop
 }
 
 install_xkb_layout() {
   local xkb_root
 
   xkb_root=$(readlink -f /usr/share/X11/xkb)
-  install_system_file "$repo/config/xorg/keymap.xkb" "$xkb_root/symbols/aileks"
+  install_system_file "$repo/config/xkb/symbols/aileks" "$xkb_root/symbols/aileks"
 }
 
 emerge_options=(
@@ -396,9 +411,6 @@ install_packages() {
     fi
     run emerge "${emerge_options[@]}" --getbinpkg=y --usepkg=y "$package"
   done
-
-  # User patches do not trigger a rebuild of an already installed package.
-  run emerge --oneshot --autounmask=n --getbinpkg=n --usepkg=n --exclude dev-qt/qtwebengine x11-misc/clipmenu
 
   run eix-update
 }
@@ -543,7 +555,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal oxwm rofi; do
+  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi nvim xdg-desktop-portal dwl rofi swayidle swaylock kanshi; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -555,7 +567,7 @@ link_dotfiles() {
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   [[ ! -L $config_home/postgres ]] || fail "Refusing symlinked PostgreSQL configuration directory: $config_home/postgres"
   link "$repo/config/postgres/config" "$config_home/postgres/config"
-  link "$repo/config/xorg/keymap.xkb" "$config_home/xkb/symbols/aileks"
+  link "$repo/config/xkb/symbols/aileks" "$config_home/xkb/symbols/aileks"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
   link "$repo/config/OpenRGB/NRGB.orp" "$config_home/OpenRGB/NRGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
@@ -894,6 +906,7 @@ main() {
 
   install_system_config
   install_packages
+  install_dwl
   install_xkb_layout
   configure_account
   configure_mdns

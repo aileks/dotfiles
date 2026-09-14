@@ -1,1 +1,1 @@
-app-editors/emacs gui X gtk xft cairo harfbuzz jit json tree-sitter sqlite libxml2 svg png jpeg gif webp source
+app-editors/emacs gui -X gtk -xft cairo harfbuzz jit json tree-sitter sqlite libxml2 svg png jpeg gif webp source

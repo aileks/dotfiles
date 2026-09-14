@@ -4,6 +4,7 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder and wezterm.config_builder() or {}
 
 local settings = {
+  ["enable_wayland"] = true,
   ["default_prog"] = { "/bin/bash", "-l" },
   ["colors"] = {
     ["ansi"] = {

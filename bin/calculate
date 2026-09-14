@@ -15,5 +15,5 @@ fi
 result=$(<"$directory/result")
 selected=$(rofi -dmenu -p 'Enter to copy' <<<"$result") || exit 0
 [[ $selected == "$result" ]] || exit 0
-xclip -selection clipboard -in <"$directory/result"
+wl-copy <"$directory/result"
 desktop-feedback status 'Result copied'
