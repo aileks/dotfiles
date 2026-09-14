@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
 export NPM_CONFIG_PREFIX="$HOME/.local"
-export PATH="$HOME/.local/bin:$PNPM_HOME:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-export XDG_SESSION_TYPE=x11 XDG_CURRENT_DESKTOP=dwm XDG_SESSION_DESKTOP=dwm
-export XDG_DATA_DIRS="${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_HOME:-$HOME/.local/share}/flatpak/exports/share:/var/lib/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export XDG_CURRENT_DESKTOP=dwm XDG_SESSION_DESKTOP=dwm
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export XCURSOR_THEME=Adwaita XCURSOR_SIZE=24
-export __GLX_VENDOR_LIBRARY_NAME=nvidia
-export ELECTRON_OZONE_PLATFORM_HINT=x11
+export LIBVA_DRIVER_NAME=nvidia NVD_BACKEND=direct __GLX_VENDOR_LIBRARY_NAME=nvidia
+export MOZ_ENABLE_WAYLAND=1 MOZE_DISABLE_RDD_SANDBOX=1
 export QT_QPA_PLATFORMTHEME=qt6ct
 export EDITOR=nvim VISUAL=nvim
 export BEMOJI_PICKER_CMD='dmenu -i -p Emoji' BEMOJI_CLIP_CMD=xclip
