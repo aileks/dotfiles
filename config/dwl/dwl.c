@@ -832,7 +832,6 @@ buttonpress(struct wl_listener *listener, void *data)
 	struct wlr_pointer_button_event *event = data;
 	struct wlr_keyboard *keyboard;
 	struct wlr_scene_node *node;
-	struct wlr_scene_buffer *buffer;
 	uint32_t mods;
 	Arg arg = {0};
 	Client *c;
@@ -852,9 +851,9 @@ buttonpress(struct wl_listener *listener, void *data)
 		if (locked)
 			break;
 
-		if (!c && !exclusive_focus &&
-			(node = wlr_scene_node_at(&layers[LyrBottom]->node, cursor->x, cursor->y, NULL, NULL)) &&
-			(buffer = wlr_scene_buffer_from_node(node)) && buffer == selmon->scene_buffer) {
+		if (selmon && !c && !exclusive_focus &&
+			(node = wlr_scene_node_at(&scene->tree.node, cursor->x, cursor->y, NULL, NULL)) &&
+			node == &selmon->scene_buffer->node) {
 			cx = (cursor->x - selmon->m.x) * selmon->wlr_output->scale;
 			for (i = 0; i < LENGTH(tags) && cx >= selmon->tag_end[i]; i++)
 				;
@@ -1379,7 +1378,7 @@ createmon(struct wl_listener *listener, void *data)
 	if (!(m->drw = drwl_create()))
 		die("failed to create drwl context");
 
-	m->scene_buffer = wlr_scene_buffer_create(layers[LyrBottom], NULL);
+	m->scene_buffer = wlr_scene_buffer_create(layers[LyrTop], NULL);
 	m->scene_buffer->point_accepts_input = baracceptsinput;
 	updatebar(m);
 
@@ -3787,7 +3786,8 @@ xytonode(double x, double y, struct wlr_surface **psurface,
 		if (node->type == WLR_SCENE_NODE_BUFFER) {
 			scene_surface = wlr_scene_surface_try_from_buffer(
 					wlr_scene_buffer_from_node(node));
-			if (!scene_surface) continue;
+			/* The bar accepts input without exposing a client surface underneath. */
+			if (!scene_surface) break;
 			surface = scene_surface->surface;
 		}
 		/* Walk the tree to find a node that knows the client */
