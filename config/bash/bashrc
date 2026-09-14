@@ -64,9 +64,6 @@ shopt -s histappend
 shopt -s cmdhist
 shopt -s lithist
 
-# Readline
-set -o emacs
-
 # Completion
 bind 'set completion-ignore-case on'
 bind 'set completion-map-case on'
@@ -93,12 +90,12 @@ y() {
 
 # FZF
 export FZF_CTRL_T_OPTS="
-  --walker-skip .git,node_modules,target
+  --walker-skip .git,.venv,node_modules,target
   --preview 'bat -n --color=always {}'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'"
 
 export FZF_ALT_C_OPTS="
-  --walker-skip .git,node_modules,target
+  --walker-skip .git,.venv,node_modules,target
   --preview 'eza --tree --color=always --icons {}'"
 
 export FZF_DEFAULT_OPTS="
@@ -227,7 +224,6 @@ make_prompt() {
   local venv_segment=''
   local jobs_segment=''
 
-  # Expand prompt text through variables so its contents cannot become shell code.
   if _prompt_git_text=$(git_prompt_segment); then
     git_segment=" \[${magenta}\]"'${_prompt_git_text}'"\[${reset}\]"
   fi
