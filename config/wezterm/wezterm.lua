@@ -96,7 +96,7 @@ local settings = {
     }
   },
   ["use_fancy_tab_bar"] = false,
-  ["window_background_opacity"] = 0.95,
+  ["window_background_opacity"] = 0.97,
   ["window_close_confirmation"] = "NeverPrompt",
   ["window_decorations"] = "NONE"
 }
