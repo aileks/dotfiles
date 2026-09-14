@@ -2,8 +2,16 @@
 
 [[ $- == *i* ]] || return
 
-# Set Env
-export PATH="$HOME/.local/bin:$PATH"
+# Environment
+_path_prepend() {
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1:$PATH" ;;
+  esac
+}
+
+_path_prepend "$HOME/.local/bin"
+
 export NPM_CONFIG_PREFIX="$HOME/.local"
 export GREP_COLORS='mt=1;36'
 export EDITOR='nvim'
@@ -14,10 +22,10 @@ export MANPAGER='nvim +Man!'
 export DOCKER_HOST="unix://${XDG_RUNTIME_DIR:-/run/user/$UID}/podman/podman.sock"
 
 export PNPM_HOME="$HOME/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+_path_prepend "$PNPM_HOME"
+
+export PATH
+unset -f _path_prepend
 
 # Aliases
 alias ls='eza --color=always --icons --group-directories-first'
@@ -48,7 +56,7 @@ alias gst='git status'
 alias gss='git status --short'
 alias gsw='git switch'
 
-# Shell Opts
+# Shell Options
 shopt -s cdspell
 shopt -s checkwinsize
 shopt -s extglob
@@ -58,7 +66,7 @@ shopt -s dirspell 2>/dev/null || true
 # History
 HISTFILE="$HOME/.bash_history"
 HISTSIZE=50000
-HISTFILESIZE=10000
+HISTFILESIZE=50000
 HISTCONTROL=ignoreboth:erasedups
 
 shopt -s histappend
@@ -253,35 +261,19 @@ make_prompt() {
   PS1+="${venv_segment}"
   PS1+="${jobs_segment}"
   PS1+="${status_segment}"
-  PS1+='\n'
-  PS1+="\[${cyan}${bold}\]❯\[${reset}\] "
+  PS1+="\n\[${cyan}${bold}\]❯\[${reset}\] "
 }
 
 _prompt_command() {
   local status=$?
+
   history -a
   history -n
   make_prompt "$status"
+
+  return "$status"
 }
 
-_install_prompt_command() {
-  local -a previous=()
-  local command
-
-  if declare -p PROMPT_COMMAND &>/dev/null; then
-    if [[ $(declare -p PROMPT_COMMAND) == 'declare -a'* ]]; then
-      previous=("${PROMPT_COMMAND[@]}")
-    elif [[ -n ${PROMPT_COMMAND:-} ]]; then
-      previous=("$PROMPT_COMMAND")
-    fi
-  fi
-
-  PROMPT_COMMAND=(_prompt_command)
-
-  for command in "${previous[@]}"; do
-    [[ $command == _prompt_command ]] || PROMPT_COMMAND+=("$command")
-  done
-}
-
-_install_prompt_command
-unset -f _install_prompt_command
+if [[ " ${PROMPT_COMMAND[*]-} " != *' _prompt_command '* ]]; then
+  PROMPT_COMMAND=(_prompt_command "${PROMPT_COMMAND[@]}")
+fi
