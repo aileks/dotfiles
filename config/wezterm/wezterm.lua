@@ -1,9 +1,10 @@
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
+config.enable_wayland = true
 config.font = wezterm.font 'IosevkaTerm Nerd Font'
 config.font_size = 14
-config.scrollback_lines = 10000
+config.scrollback_lines = 5000
 
 config.colors = {
   foreground = '#BBB3A9',
