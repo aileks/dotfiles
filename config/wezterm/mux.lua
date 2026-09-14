@@ -19,8 +19,14 @@ local function workspace_exists(name)
   return false
 end
 
-local function switch_workspace(window, pane, name)
+local function switch_workspace(window, pane, selection)
   attach_domain()
+
+  local name = selection.workspace
+  if not selection.can_create and not workspace_exists(name) then
+    window:toast_notification('wezterm', 'Workspace no longer exists: ' .. name, nil, 3000)
+    return
+  end
 
   local current = mux.get_active_workspace()
   if name == current then
@@ -30,6 +36,7 @@ local function switch_workspace(window, pane, name)
   window:perform_action(act.SwitchToWorkspace {
     name = name,
     spawn = {
+      cwd = selection.cwd,
       domain = { DomainName = domain_name },
     },
   }, pane)
@@ -54,21 +61,23 @@ local function choose_workspace(window, pane)
     choices = choices,
     action = wezterm.action_callback(function(win, active_pane, name)
       if name then
-        switch_workspace(win, active_pane, name)
+        switch_workspace(win, active_pane, { workspace = name })
       end
     end),
   }, pane)
 end
 
-local function create_workspace(window, pane)
-  window:perform_action(act.PromptInputLine {
-    description = 'Workspace name',
-    action = wezterm.action_callback(function(win, active_pane, name)
-      if name and name:match('%S') then
-        switch_workspace(win, active_pane, name)
-      end
-    end),
-  }, pane)
+local function choose_project(window, pane)
+  local ok, stdout = wezterm.run_child_process { 'wezterm-workspaces', '--select-only' }
+  if not ok then
+    window:toast_notification('wezterm', 'Could not open workspace picker', nil, 3000)
+    return
+  end
+  if stdout == '' then
+    return
+  end
+
+  switch_workspace(window, pane, wezterm.json_parse(stdout))
 end
 
 function M.apply_to_config(config)
@@ -89,13 +98,13 @@ function M.apply_to_config(config)
     { key = 'v', mods = 'LEADER', action = act.ActivateCopyMode },
     { key = 's', mods = 'LEADER', action = wezterm.action_callback(choose_workspace) },
     { key = 'w', mods = 'LEADER', action = act.ShowLauncherArgs { flags = 'FUZZY|TABS' } },
-    { key = 'o', mods = 'LEADER', action = wezterm.action_callback(create_workspace) },
+    { key = 'o', mods = 'LEADER', action = wezterm.action_callback(choose_project) },
     {
       key = '^',
       mods = 'LEADER|SHIFT',
       action = wezterm.action_callback(function(window, pane)
         if previous_workspace and workspace_exists(previous_workspace) then
-          switch_workspace(window, pane, previous_workspace)
+          switch_workspace(window, pane, { workspace = previous_workspace })
         end
       end),
     },
