@@ -1705,11 +1705,11 @@ applyappicon(Monitor *m, unsigned int *icons_per_tag, const Client *c)
 {
 	unsigned int i;
 	size_t used;
-	const char *icon;
+	const char *icon, *appicon = c->appicon && c->appicon[0] ? c->appicon : default_appicon;
 	for (i = 0; i < LENGTH(tags); i++) {
 		if (!(c->tags & (1u << i)) || icons_per_tag[i] > truncate_icons_after)
 			continue;
-		icon = icons_per_tag[i] == truncate_icons_after ? "..." : c->appicon;
+		icon = icons_per_tag[i] == truncate_icons_after ? "..." : appicon;
 		used = strlen(m->tag_icons[i]);
 		if (used + strlen(icon) + 2 < sizeof(m->tag_icons[i]))
 			snprintf(m->tag_icons[i] + used, sizeof(m->tag_icons[i]) - used, " %s", icon);
@@ -1720,7 +1720,7 @@ applyappicon(Monitor *m, unsigned int *icons_per_tag, const Client *c)
 void
 drawbar(Monitor *m)
 {
-	int x = 0, w, right, traywidth;
+	int x = 0, w, right, traywidth, statuspad;
 	uint32_t i, occ = 0, urg = 0;
 	unsigned int icons_per_tag[LENGTH(tags)] = {0};
 	Client *c;
@@ -1729,6 +1729,7 @@ drawbar(Monitor *m)
 
 	if (!m->scene_buffer->node.enabled || !(buf = bufmon(m)))
 		return;
+	statuspad = drwl_font_getwidth(m->drw, " ");
 	traywidth = MIN(tray_get_width(m->tray), m->b.width);
 	right = m->tray_start = m->b.width - traywidth;
 	drwl_setscheme(m->drw, colors[SchemeNorm]);
@@ -1738,8 +1739,7 @@ drawbar(Monitor *m)
 	wl_list_for_each(c, &clients, link) {
 		if (c->mon != m)
 			continue;
-		if (c->appicon && c->appicon[0])
-			applyappicon(m, icons_per_tag, c);
+		applyappicon(m, icons_per_tag, c);
 		occ |= c->tags;
 		if (c->isurgent)
 			urg |= c->tags;
@@ -1773,16 +1773,12 @@ drawbar(Monitor *m)
 	for (i = STATUS_BLOCKS; i-- > 0;) {
 		uint32_t scheme[] = {status.blocks[i].color, colors[SchemeNorm][ColBg], 0};
 		w = m == selmon && status.blocks[i].text[0]
-			? MIN(TEXTW(m, status.blocks[i].text), right - x) : 0;
+			? MIN(drwl_font_getwidth(m->drw, status.blocks[i].text) + statuspad, right - x) : 0;
 		m->status_left[i] = right - w;
 		m->status_right[i] = right;
 		if (w > 0) {
 			drwl_setscheme(m->drw, scheme);
-			drwl_text(m->drw, right - w, 0, w, m->b.height, m->lrpad / 2, status.blocks[i].text, 0);
-			if (i > 0) {
-				drwl_setscheme(m->drw, colors[SchemeNorm]);
-				drwl_rect(m->drw, right - w, m->b.height / 4, 1, m->b.height / 2, 1, 0);
-			}
+			drwl_text(m->drw, right - w, 0, w, m->b.height, 0, status.blocks[i].text, 0);
 		}
 		right -= w;
 	}
@@ -2332,7 +2328,7 @@ mapnotify(struct wl_listener *listener, void *data)
 	c->geom.height += 2 * c->bw;
 
 	/* Insert this client into client lists. */
-	wl_list_insert(&clients, &c->link);
+	wl_list_insert(clients.prev, &c->link);
 	wl_list_insert(&fstack, &c->flink);
 
 	/* Set initial monitor, tags, floating status, and focus:

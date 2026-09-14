@@ -36,6 +36,7 @@ static char *tags[] = { "1", "2", "3", "4", "5", "6", "7" };
 static int log_level = WLR_ERROR;
 
 static const unsigned int truncate_icons_after = 3;
+static const char *default_appicon = "";
 
 static const char *const autostart[] = { "/bin/sh", "-c", "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/dwl/autostart.sh\"", NULL, NULL };
 
@@ -48,29 +49,27 @@ static const Rule rules[] = {
 	{ "Emacs", NULL, 0, 0, -1, "" },
 	{ "signal", NULL, 0, 0, -1, "󰭹" },
 	{ "mpv", NULL, 0, 0, -1, "" },
-	{ "imv", NULL, 0, 1, -1, NULL },
-	{ "Qalculate-gtk", NULL, 0, 1, -1, NULL },
-	{ "Blueman", NULL, 0, 1, -1, NULL },
-	{ "blueman", NULL, 0, 1, -1, NULL },
-	{ "Bitwarden", NULL, 0, 1, -1, NULL },
-	{ "bitwarden", NULL, 0, 1, -1, NULL },
-	{ "LocalSend", NULL, 0, 1, -1, NULL },
-	{ "localsend", NULL, 0, 1, -1, NULL },
-	{ "localSend", NULL, 0, 1, -1, NULL },
-	{ "Localsend", NULL, 0, 1, -1, NULL },
-	{ "polkit-gnome", NULL, 0, 1, -1, NULL },
-	{ "Polkit-gnome", NULL, 0, 1, -1, NULL },
+	{ "imv", NULL, 0, 1, -1, "" },
+	{ "Qalculate-gtk", NULL, 0, 1, -1, "" },
+	{ "Blueman", NULL, 0, 1, -1, "" },
+	{ "blueman", NULL, 0, 1, -1, "" },
+	{ "Bitwarden", NULL, 0, 1, -1, "󰌾" },
+	{ "bitwarden", NULL, 0, 1, -1, "󰌾" },
+	{ "LocalSend", NULL, 0, 1, -1, "" },
+	{ "localsend", NULL, 0, 1, -1, "" },
+	{ "localSend", NULL, 0, 1, -1, "" },
+	{ "Localsend", NULL, 0, 1, -1, "" },
+	{ "polkit-gnome", NULL, 0, 1, -1, "󰒃" },
+	{ "Polkit-gnome", NULL, 0, 1, -1, "󰒃" },
 	{ "xdg-desktop-portal-gtk", NULL, 0, 1, -1, NULL },
-	{ "nm-connection-editor", NULL, 0, 1, -1, NULL },
-	{ "Nm-connection-editor", NULL, 0, 1, -1, NULL },
+	{ "nm-connection-editor", NULL, 0, 1, -1, "󰈀" },
+	{ "Nm-connection-editor", NULL, 0, 1, -1, "󰈀" },
 };
 
 /* layout(s) */
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },
-	{ "><>",      NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
 };
 
 /* monitors */
@@ -88,9 +87,7 @@ static const MonitorRule monrules[] = {
 /* keyboard */
 static const struct xkb_rule_names xkb_rules = {
 	/* can specify fields: rules, model, layout, variant, options */
-	/* example:
-	.options = "ctrl:nocaps",
-	*/
+	/* example: .options = "ctrl:nocaps", */
 	.layout = "aileks",
 	.options = NULL,
 };
