@@ -28,7 +28,7 @@ oxwm.gaps.set_smart(false)
 oxwm.gaps.set_inner(4, 4)
 oxwm.gaps.set_outer(4, 4)
 
-oxwm.bar.set_font('Iosevka Nerd Font:size=11')
+oxwm.bar.set_font('Iosevka Nerd Font Propo:size=11')
 oxwm.bar.set_position('top')
 oxwm.bar.set_scheme_normal(colors.text, colors.background, colors.muted)
 oxwm.bar.set_scheme_occupied(colors.bright, colors.background, colors.orange)
@@ -44,6 +44,7 @@ local status_blocks = {
     { 'bar-gpu', 5, colors.purple, 'wezterm start --always-new-process -- nvtop' },
     { 'bar-clock', 1, colors.bright, 'env BLOCK_BUTTON=1 bar-clock' },
 }
+
 local blocks = { oxwm.bar.block.systray({}) }
 for index, block in ipairs(status_blocks) do
     if index > 1 then
