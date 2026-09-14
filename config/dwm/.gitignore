@@ -1,7 +1,0 @@
-*.o
-dwm
-drwa.h
-transient
-clean
-config.h
-patches.h

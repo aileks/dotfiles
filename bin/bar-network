@@ -5,7 +5,7 @@
 type=$(nmcli -t -f TYPE,STATE device status 2>/dev/null | awk -F: '$2 == "connected" { print $1; exit }')
 case $type in
   ethernet)
-    printf '^c#58918C^󰈀 Wired^d^\n'
+    printf '󰈀 Wired\n'
     ;;
   wifi)
     read -r signal ssid < <(nmcli -t -f IN-USE,SIGNAL,SSID dev wifi 2>/dev/null | awk -F: '$1 == "*" { signal = $2; sub(/^[^:]*:[^:]*:/, ""); print signal, $0; exit }')
@@ -19,9 +19,9 @@ case $type in
     elif ((signal < 95)); then
       icon=󰤥
     fi
-    [[ -n $ssid ]] && printf '^c#58918C^%s %s^d^\n' "$icon" "$ssid" || printf '^c#58918C^%s^d^\n' "$icon"
+    [[ -n $ssid ]] && printf '%s %s\n' "$icon" "$ssid" || printf '%s\n' "$icon"
     ;;
   *)
-    printf '^c#58534C^󰖪 offline^d^\n'
+    printf '󰖪 offline\n'
     ;;
 esac

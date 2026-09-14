@@ -6,4 +6,5 @@ command -v clipmenu >/dev/null || {
   desktop-feedback status 'Clipboard history unavailable'
   exit 1
 }
-exec clipmenu
+export CM_LAUNCHER=rofi
+exec clipmenu -i -p Clipboard

@@ -3,7 +3,7 @@ set -euo pipefail
 
 for arg; do
   case $arg in
-    dwm | */dwm) exec /usr/local/bin/start-dwm ;;
+    oxwm | */oxwm) exec /usr/local/bin/start-oxwm ;;
   esac
 done
 exec "$@"

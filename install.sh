@@ -11,7 +11,6 @@ phase=system
 target_user=
 target_home=
 target_uid=
-target_gid=
 config_home=
 data_home=
 stamp=
@@ -58,7 +57,7 @@ select_user() {
 
   [[ -n $target_user && $target_user != root ]] || fail 'Root must specify an existing desktop account with --user USER.'
   account=$(getent passwd "$target_user") || fail "No such account: $target_user"
-  IFS=: read -r target_user _ target_uid target_gid _ target_home _ <<<"$account"
+  IFS=: read -r target_user _ target_uid _ _ target_home _ <<<"$account"
   [[ $target_uid != 0 && $target_home == /* && -d $target_home ]] || fail 'The desktop account must have an existing home directory and a nonzero UID.'
   ((EUID == 0 || EUID == target_uid)) || fail 'Only root can configure another user.'
   [[ $phase != user ]] || ((EUID == target_uid)) || fail 'User setup must run as the desktop account.'
@@ -129,7 +128,7 @@ preflight() {
   [[ $repo == "$target_home/"* && -d $repo/.git ]] || fail 'Keep a Git checkout inside the desktop user home before running this installer.'
   [[ $(stat -c %u "$repo") == "$target_uid" ]] || fail "The checkout must belong to $target_user."
 
-  for source in install.sh session/start-dwm session/start-session session/dwm.desktop config/xdg/mime-policy.json config/cron/crontab; do
+  for source in install.sh session/start-oxwm session/start-session session/oxwm.desktop config/xdg/mime-policy.json config/cron/crontab; do
     [[ -r $repo/$source ]] || fail "Missing repository source: $source"
   done
 
@@ -138,7 +137,7 @@ preflight() {
     check_system_target "/$relative"
   done < <(find "$repo/etc" -type f -print0)
 
-  for path in /usr/share/xsessions/dwm.desktop /usr/local/bin/start-session /usr/local/bin/start-dwm /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
+  for path in /usr/share/xsessions/oxwm.desktop /usr/local/bin/start-session /usr/local/bin/start-oxwm /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
     check_system_target "$path"
   done
 
@@ -213,7 +212,8 @@ desktop_packages=(
   x11-base/xorg-proto
   x11-misc/ly
   x11-terms/wezterm
-  x11-misc/j4-dmenu-desktop
+  x11-wm/oxwm
+  x11-misc/rofi
   x11-misc/picom
   x11-misc/xwallpaper
   x11-misc/i3lock-color
@@ -353,9 +353,9 @@ install_system_config() {
     install_system_file "$source" "/$relative"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
 
-  install_system_file "$repo/session/dwm.desktop" /usr/share/xsessions/dwm.desktop
+  install_system_file "$repo/session/oxwm.desktop" /usr/share/xsessions/oxwm.desktop
   install_system_file "$repo/session/start-session" /usr/local/bin/start-session 755
-  install_system_file "$repo/session/start-dwm" /usr/local/bin/start-dwm 755
+  install_system_file "$repo/session/start-oxwm" /usr/local/bin/start-oxwm 755
 }
 
 install_xkb_layout() {
@@ -401,35 +401,6 @@ install_packages() {
   run emerge --oneshot --autounmask=n --getbinpkg=n --usepkg=n --exclude dev-qt/qtwebengine x11-misc/clipmenu
 
   run eix-update
-}
-
-build_desktop() {
-  local program source relative mode
-
-  run install -d -o "$target_uid" -g "$target_gid" -m 700 "$work/build"
-  for program in dmenu dwm dwmblocks-async; do
-    run as_user cp -a -- "$repo/config/$program" "$work/build/$program"
-    if [[ $program == dwm ]]; then
-      run as_user cp -- "$repo/config/dwm/config.def.h" "$work/build/dwm/config.h"
-      run as_user cp -- "$repo/config/dwm/patches.def.h" "$work/build/dwm/patches.h"
-    fi
-
-    run as_user make -C "$work/build/$program" clean all
-    run as_user make -C "$work/build/$program" DESTDIR="$work/build/stage" install
-  done
-
-  if "$dry_run"; then
-    printf 'install staged desktop executables and manuals as root-owned files\n'
-    return
-  fi
-
-  while IFS= read -r -d '' source; do
-    relative=${source#"$work/build/stage/"}
-    [[ $relative != usr/local/share/xsessions/dwm.desktop ]] || continue
-    mode=644
-    [[ $relative != usr/local/bin/* ]] || mode=755
-    install_system_file "$source" "/$relative" "$mode"
-  done < <(find "$work/build/stage" -type f -print0)
 }
 
 ensure_subordinate_ids() {
@@ -572,7 +543,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal; do
+  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi picom nvim xdg-desktop-portal oxwm rofi; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -588,8 +559,6 @@ link_dotfiles() {
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
   link "$repo/config/OpenRGB/NRGB.orp" "$config_home/OpenRGB/NRGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
-  link "$repo/config/dwm/autostart.sh" "$data_home/dwm/autostart.sh"
-  link "$repo/config/dwm/autostart_blocking.sh" "$data_home/dwm/autostart_blocking.sh"
 
   for desktop in "$repo/config/applications/"*.desktop; do
     link "$desktop" "$data_home/applications/${desktop##*/}"
@@ -925,7 +894,6 @@ main() {
 
   install_system_config
   install_packages
-  build_desktop
   install_xkb_layout
   configure_account
   configure_mdns

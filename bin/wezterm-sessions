@@ -42,7 +42,7 @@ while IFS= read -r workspace; do
   [[ -n $workspace ]] && menu+=("workspace: $workspace")
 done <<<"$workspaces"
 
-choice=$(printf '%s\n' "${menu[@]}" | dmenu -i -p 'WezTerm:') || exit 0
+choice=$(printf '%s\n' "${menu[@]}" | rofi -dmenu -i -p 'WezTerm:') || exit 0
 [[ -n $choice ]] || exit 0
 found=0
 for entry in "${menu[@]}"; do
@@ -54,7 +54,7 @@ done
 directory=''
 can_create=false
 if [[ $choice == 'Create new workspace…' ]]; then
-  workspace=$(dmenu -p 'New workspace name:' </dev/null) || exit 0
+  workspace=$(rofi -dmenu -p 'New workspace name:' </dev/null) || exit 0
   [[ -n ${workspace//[[:space:]]/} ]] || exit 0
   [[ $workspace != *$'\n'* && $workspace != *$'\r'* ]] || exit 0
   directory=$HOME

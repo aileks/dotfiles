@@ -8,7 +8,6 @@ state="${XDG_RUNTIME_DIR:-/run/user/$UID}/bar-clock-format"
   else
     touch -- "$state" || exit 1
   fi
-  pkill -RTMIN+5 dwmblocks >/dev/null 2>&1 || true
 }
 
 if [[ -e $state ]]; then
@@ -18,4 +17,4 @@ else
 fi
 
 printf -v current_time "%($format)T" -1
-printf '^c#DDD5CA^%s %s^d^\n' '' "$current_time"
+printf '%s %s\n' '' "$current_time"

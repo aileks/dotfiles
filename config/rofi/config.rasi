@@ -1,0 +1,70 @@
+configuration {
+    modi: "drun";
+    font: "Iosevka Nerd Font 16";
+    matching: "fuzzy";
+    case-sensitive: false;
+    show-icons: false;
+    drun-display-format: "{name}";
+    display-drun: "Apps";
+    terminal: "wezterm";
+    run-shell-command: "{terminal} start --always-new-process -- {cmd}";
+}
+
+@theme "/dev/null"
+
+* {
+    background: #131210;
+    foreground: #BBB3A9;
+    bright: #DDD5CA;
+    muted: #58534C;
+    blue: #6785A1;
+    background-color: @background;
+    text-color: @foreground;
+}
+
+window {
+    location: center;
+    anchor: center;
+    width: 720px;
+    border: 2px;
+    border-color: @muted;
+    padding: 12px;
+    children: [ mainbox ];
+}
+
+mainbox {
+    spacing: 8px;
+    children: [ inputbar, message, listview ];
+}
+
+inputbar {
+    spacing: 8px;
+    children: [ prompt, entry ];
+}
+
+entry {
+    placeholder: "";
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    fixed-height: false;
+    scrollbar: false;
+}
+
+element {
+    padding: 4px;
+    children: [ element-text ];
+}
+
+element selected.normal {
+    background-color: @blue;
+    text-color: @bright;
+}
+
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+    highlight: bold;
+}

@@ -20,7 +20,6 @@ case ${1:-} in
         ;;
     esac
     "${operation[@]}" || fail 'Volume change'
-    pkill -RTMIN+10 dwmblocks >/dev/null 2>&1 || true
     state=$(wpctl get-volume "$target") || fail 'Volume state'
     value=$(awk -v v="${state#Volume: }" 'BEGIN { printf "%.0f", v * 100 }')
     if [[ $state == *'[MUTED]'* ]]; then

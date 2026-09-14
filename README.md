@@ -1,6 +1,6 @@
 # Gentoo dotfiles
 
-My Gentoo configuration using [dwm-flexipatch](https://github.com/bakkeby/dwm-flexipatch)
+My Gentoo configuration using [oxwm](https://github.com/tonybanters/oxwm) and rofi.
 
 ## Install
 
@@ -14,9 +14,8 @@ cd ~/.dotfiles
 
 - `bin/`: daily-use commands, linked into `~/.local/bin`
 - `config/`: application configs, linked into `~/.config`
-- `config/dmenu/`: vendored dmenu with patches pre-applied, built by `install.sh`
-- `config/dwm/`: vendored dwm-flexipatch; patches toggle in `patches.def.h`, config in `config.def.h`
-- `config/dwmblocks-async/`: vendored status bar blocks for dwm
+- `config/oxwm/`: Lua window manager config and desktop autostart; the built-in bar runs `bin/bar-*`
+- `config/rofi/`: launcher and script menu appearance
 - `session/`: session entry points and startup scripts, installed to `/usr/local/bin`
 - `etc/`: system files, installed as root-owned copies
 - `etc/portage/`: per-package keywords, USE flags, and licenses
@@ -31,7 +30,7 @@ cd ~/.dotfiles
 
 | Keys                 | Action                 |
 | -------------------- | ---------------------- |
-| `Mod + Space`        | app launcher (dmenu)   |
+| `Mod + Space`        | app launcher (rofi)    |
 | `Mod + Ctrl + Space` | desktop actions menu   |
 | `Mod + Return`       | WezTerm mux terminal   |
 | `Mod + X`            | Emacsclient            |
@@ -69,8 +68,8 @@ cd ~/.dotfiles
 | `Mod + Shift + N`        | notification history          |
 | `Mod + Ctrl + Shift + N` | notification actions and URLs |
 | `Mod + Ctrl + N`         | toggle night light            |
-| `Mod + Shift + R`        | restart dwm (windows stay)      |
-| `Mod + Shift + Q`        | quit dwm                        |
+| `Mod + Shift + R`        | reload oxwm configuration      |
+| `Mod + Shift + Q`        | quit oxwm                      |
 
 ### Windows
 
@@ -82,13 +81,15 @@ cd ~/.dotfiles
 | `Mod + J` / `Mod + K`                 | focus next or previous window         |
 | `Mod + Shift + J` / `Mod + Shift + K` | move window within the stack          |
 | `Mod + H` / `Mod + L`                 | shrink or grow the master area        |
-| `Mod + Ctrl + J` / `Mod + Ctrl + K`   | shrink or grow window stack weight    |
-| `Mod + Ctrl + Return`                 | reset window stack weight             |
 | `Mod + I` / `Mod + Shift + I`         | add or remove a master slot           |
-| `Mod + Shift + Return`                | zoom window to master                 |
 | `Mod + B`                             | toggle the bar                        |
 | `Mod + Left drag`                     | move window                           |
 | `Mod + Right drag`                    | resize window                         |
+| `Mod + Shift + T`                     | tiling layout                         |
+| `Mod + Shift + F`                     | floating layout                       |
+| `Mod + Shift + M`                     | monocle layout                        |
+| `Mod + Ctrl + .`                      | cycle layouts forward                 |
+| `Mod + Alt + 0`                       | toggle gaps                           |
 
 ### Tags and monitors
 
@@ -98,7 +99,6 @@ cd ~/.dotfiles
 | `Mod + Ctrl + 1..7`           | toggle tag visibility           |
 | `Mod + Shift + 1..7`          | move window to tag              |
 | `Mod + Ctrl + Shift + 1..7`   | toggle window membership of tag |
-| `Mod + Tab`                   | return to previous tag view     |
 | `Mod + ,` / `Mod + .`         | focus left or right monitor     |
 | `Mod + Shift + ,` / `Mod + Shift + .` | send window to left or right monitor |
 
@@ -107,9 +107,11 @@ cd ~/.dotfiles
 | Keys                         | Action                                |
 | ---------------------------- | ------------------------------------- |
 | `Volume Up / Down / Mute`    | output volume                         |
-| `Mic Mute`                   | microphone mute                       |
 | `Play / Pause / Next / Prev` | media player control (playerctl)      |
 | `Brightness Up / Down`       | external monitor brightness (ddcutil) |
+
+oxwm 0.12 does not recognize the microphone-mute keysym. `audio mic mute`
+remains available from a terminal.
 
 ### WezTerm
 

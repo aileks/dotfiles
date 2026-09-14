@@ -40,9 +40,7 @@ for sensor_directory in /sys/class/hwmon/hwmon*; do
 done
 
 if [[ -z $temp ]]; then
-  printf '^c#58534C^ %s%% n/a^d^\n' "$usage"
-elif ((temp >= 85)); then
-  printf '^c#B34A45^ %s%% %s°C^d^\n' "$usage" "$temp"
+  printf ' %s%% n/a\n' "$usage"
 else
-  printf '^c#6785A1^ %s%% %s°C^d^\n' "$usage" "$temp"
+  printf ' %s%% %s°C\n' "$usage" "$temp"
 fi

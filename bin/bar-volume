@@ -7,14 +7,14 @@ case ${BLOCK_BUTTON:-} in
 esac
 
 volume=$(wpctl get-volume '@DEFAULT_AUDIO_SINK@' 2>/dev/null) || {
-  printf '^c#58534C^n/a^d^\n'
+  printf 'n/a\n'
   exit 0
 }
 
 if [[ $volume == *'[MUTED]'* ]]; then
-  printf '^c#58534C^%s mute^d^\n' ''
+  printf '%s mute\n' ''
   exit 0
 fi
 
 percent=$(awk '{ printf "%.0f", $2 * 100 }' <<<"$volume")
-printf '^c#9A788F^%s %s%%^d^\n' '' "$percent"
+printf '%s %s%%\n' '' "$percent"

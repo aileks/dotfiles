@@ -1,5 +1,5 @@
 [global]
-dmenu = dmenu -i -p Notifications
+dmenu = rofi -dmenu -i -p Notifications
 follow = none
 width = 380
 height = (0, 120)

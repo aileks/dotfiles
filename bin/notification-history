@@ -17,7 +17,7 @@ if [[ -z $rows ]]; then
   exit 0
 fi
 
-selected=$(dmenu -i -p Notifications <<<"$rows") || exit 0
+selected=$(rofi -dmenu -i -p Notifications <<<"$rows") || exit 0
 if ! grep -Fxq -- "$selected" <<<"$rows"; then
   exit 0
 fi

@@ -86,7 +86,7 @@ done < <(
 )
 
 ((${#labels[@]})) || exit 0
-choice=$(printf '%s\n' "${labels[@]}" | dmenu -i -l 12 -p Files) || exit 0
+choice=$(printf '%s\n' "${labels[@]}" | rofi -dmenu -i -l 12 -p Files) || exit 0
 for index in "${!labels[@]}"; do
   [[ $choice == "${labels[index]}" ]] || continue
   destination=${destinations[index]}
