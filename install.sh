@@ -212,10 +212,10 @@ cli_packages=(
 )
 
 desktop_packages=(
-  '=gui-wm/mangowm-0.16.3'
-  '=gui-apps/waybar-0.15.0'
-  '=gui-apps/swayosd-0.3.1'
-  '=gui-apps/hyprpicker-0.4.7'
+  gui-wm/mangowm
+  gui-apps/waybar
+  gui-apps/swayosd
+  gui-apps/hyprpicker
   x11-misc/xkeyboard-config
   x11-base/xwayland
   gui-apps/grim
@@ -281,6 +281,7 @@ desktop_packages=(
   media-fonts/noto
   media-fonts/noto-cjk
   media-fonts/noto-emoji
+  www-client/qutebrowser
 )
 
 app_packages=(
