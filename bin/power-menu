@@ -4,10 +4,10 @@ set -euo pipefail
 
 choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | rofi -dmenu -p Power) || exit 0
 case "$choice" in
-  'log out') pkill -TERM -u "$UID" -x dwl ;;
+  'log out') mmsg dispatch quit ;;
   'suspend')
     lock-session || {
-      desktop-feedback status 'Cannot suspend: screen locking failed'
+      notify-send -u critical 'Cannot suspend: screen locking failed' || true
       exit 1
     }
     loginctl suspend

@@ -130,7 +130,7 @@ preflight() {
   [[ $repo == "$target_home/"* && -d $repo/.git ]] || fail 'Keep a Git checkout inside the desktop user home before running this installer.'
   [[ $(stat -c %u "$repo") == "$target_uid" ]] || fail "The checkout must belong to $target_user."
 
-  for source in install.sh session/start-dwl config/dwl/dwl.desktop config/dwl/config.def.h config/xdg/mimeapps.list config/cron/crontab; do
+  for source in install.sh session/mango.desktop config/mango/config.conf config/xdg/mimeapps.list config/cron/crontab; do
     [[ -r $repo/$source ]] || fail "Missing repository source: $source"
   done
 
@@ -139,8 +139,8 @@ preflight() {
     check_system_target "/$relative"
   done < <(find "$repo/etc" -type f -print0)
 
-  for path in /usr/share/wayland-sessions/dwl.desktop /usr/local/bin/start-session /usr/local/bin/start-dwl \
-    /usr/local/share/qt6ct/colors/cinder-grove.conf /var/lib/dotfiles/dwl-build \
+  for path in /usr/share/wayland-sessions/mango.desktop \
+    /usr/local/share/qt6ct/colors/cinder-grove.conf \
     /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
     check_system_target "$path"
   done
@@ -212,20 +212,11 @@ cli_packages=(
 )
 
 desktop_packages=(
-  gui-libs/wlroots:0.19
-  dev-libs/wayland
-  dev-libs/wayland-protocols
-  dev-util/wayland-scanner
-  dev-libs/libinput
-  x11-libs/libxkbcommon
+  '=gui-wm/mangowm-0.16.3'
+  '=gui-apps/waybar-0.15.0'
+  '=gui-apps/swayosd-0.3.1'
+  '=gui-apps/hyprpicker-0.4.7'
   x11-misc/xkeyboard-config
-  media-libs/fcft
-  x11-libs/gtk+:3
-  x11-libs/gdk-pixbuf:2
-  gnome-base/librsvg:2
-  x11-libs/pixman
-  x11-libs/libxcb
-  x11-libs/xcb-util-wm
   x11-base/xwayland
   gui-apps/grim
   gui-apps/slurp
@@ -235,7 +226,6 @@ desktop_packages=(
   gui-apps/swayidle
   gui-apps/wlopm
   gui-apps/swaybg
-  gui-apps/kanshi
   gui-apps/wlr-randr
   gui-libs/xdg-desktop-portal-wlr
   virtual/pkgconfig
@@ -252,14 +242,12 @@ desktop_packages=(
   mpv-plugin/mpv-mpris
   x11-misc/pcmanfm
   x11-misc/dunst
-  x11-misc/gammastep
   media-sound/playerctl
   media-sound/wiremix
   media-video/pipewire
   media-video/wireplumber
   media-sound/cava
   sci-calculators/qalculate-gtk
-  sci-libs/libqalculate
   app-arch/file-roller
   sys-apps/gnome-disk-utility
   media-gfx/imv
@@ -278,10 +266,8 @@ desktop_packages=(
   x11-apps/mesa-progs
   dev-util/vulkan-tools
   sys-process/nvtop
-  media-gfx/zbar
   app-text/tesseract
   app-dicts/myspell-en
-  app-text/xmlstarlet
   sys-apps/keyutils
   app-crypt/pinentry
   gnome-base/gnome-keyring
@@ -365,7 +351,6 @@ install_system_config() {
     install_system_file "$source" "/$relative"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
 
-  install_system_file "$repo/session/start-dwl" /usr/local/bin/start-dwl 755
   install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
   if [[ -f /etc/ly/config.ini ]] && grep -Eq '^[[:space:]]*login_cmd[[:space:]]*=[[:space:]]*/usr/local/bin/start-session[[:space:]]*$' /etc/ly/config.ini; then
     if "$dry_run"; then
@@ -375,41 +360,11 @@ install_system_config() {
       install_system_file "$work/ly-config.ini" /etc/ly/config.ini
     fi
   fi
-  if [[ -f /usr/local/bin/start-session ]] &&
-    { [[ ! -f /etc/ly/config.ini ]] || ! grep -Fq /usr/local/bin/start-session /etc/ly/config.ini; } &&
-    [[ $(sha256sum /usr/local/bin/start-session) == '97397258445f28100461e198114894368578c32f18eeb7b08faf827b0b30a529 '* ]]; then
+  if [[ -f /usr/local/bin/start-session ]] \
+    && { [[ ! -f /etc/ly/config.ini ]] || ! grep -Fq /usr/local/bin/start-session /etc/ly/config.ini; } \
+    && [[ $(sha256sum /usr/local/bin/start-session) == '97397258445f28100461e198114894368578c32f18eeb7b08faf827b0b30a529 '* ]]; then
     run unlink /usr/local/bin/start-session
   fi
-}
-
-install_dwl() {
-  local fingerprint previous='' binary_hash='' manifest=/var/lib/dotfiles/dwl-build
-  check_system_target "$manifest"
-  if "$dry_run"; then
-    printf 'build dwl if its source, toolchain, or installed binary changed\n'
-  else
-    fingerprint=$({
-      find "$repo/config/dwl" -type f \( -name '*.c' -o -name '*.h' -o -name '*.mk' -o -name Makefile -o -name '*.xml' \) \
-        ! -path '*/patches/*' ! -name config.h ! -name '*-protocol.h' ! -name '*-protocol.c' -print0 \
-        | sort -z | xargs -0 sha256sum
-      cc --version
-      pkg-config --modversion wlroots-0.19 wayland-server wayland-protocols xkbcommon libinput pixman-1 fcft dbus-1 gtk+-3.0 xcb xcb-icccm
-      printf '%s\n' "${CFLAGS:-}" "${CPPFLAGS:-}" "${LDFLAGS:-}"
-    } | sha256sum)
-    [[ ! -f $manifest ]] || IFS= read -r previous <"$manifest"
-    [[ ! -f /usr/local/bin/dwl ]] || binary_hash=$(sha256sum /usr/local/bin/dwl)
-    if [[ $previous != "$fingerprint $binary_hash" || ! -x /usr/local/bin/dwl ]]; then
-      run install -d -o "$target_user" -g "$(id -gn "$target_user")" "$work/dwl"
-      run as_user rsync -a --exclude=/dwl --exclude='*.o' --exclude='*-protocol.[ch]' \
-        --exclude=/config.h --exclude=/patches/ "$repo/config/dwl/" "$work/dwl/"
-      run as_user make -C "$work/dwl" -j"$(nproc)"
-      install_system_file "$work/dwl/dwl" /usr/local/bin/dwl 755
-      printf '%s %s\n' "$fingerprint" "$(sha256sum /usr/local/bin/dwl)" >"$work/dwl-build"
-      install_system_file "$work/dwl-build" "$manifest"
-    fi
-  fi
-  install_system_file "$repo/config/dwl/dwl.1" /usr/local/share/man/man1/dwl.1
-  install_system_file "$repo/config/dwl/dwl.desktop" /usr/share/wayland-sessions/dwl.desktop
 }
 
 emerge_options=(
@@ -593,7 +548,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock kanshi gammastep; do
+  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock mango waybar; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -609,13 +564,6 @@ link_dotfiles() {
     fi
     run install -m 644 "$repo/config/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"
   fi
-
-  if [[ -L $config_home/dwl ]]; then
-    [[ $(readlink -f "$config_home/dwl") == "$repo/config/dwl" ]] || fail 'Unexpected dwl configuration symlink.'
-    run unlink "$config_home/dwl"
-  fi
-  link "$repo/config/dwl/autostart.sh" "$config_home/dwl/autostart.sh"
-  link "$repo/config/dwl/status.conf" "$config_home/dwl/status.conf"
 
   link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
@@ -923,9 +871,12 @@ setup_user() {
   else
     local theme_hash cache_directory
     cache_directory=$(bat --cache-dir)
-    theme_hash=$({ find -L "$config_home/bat" -type f -print0 | sort -z | xargs -0 sha256sum; bat --version; } | sha256sum)
-    if [[ ! -f $cache_directory/dotfiles-themes || ! -f $cache_directory/themes.bin ]] ||
-      [[ $(<"$cache_directory/dotfiles-themes") != "$theme_hash" ]]; then
+    theme_hash=$({
+      find -L "$config_home/bat" -type f -print0 | sort -z | xargs -0 sha256sum
+      bat --version
+    } | sha256sum)
+    if [[ ! -f $cache_directory/dotfiles-themes || ! -f $cache_directory/themes.bin ]] \
+      || [[ $(<"$cache_directory/dotfiles-themes") != "$theme_hash" ]]; then
       run bat cache --build
       printf '%s\n' "$theme_hash" >"$cache_directory/dotfiles-themes"
     fi
@@ -980,7 +931,8 @@ main() {
 
   install_system_config
   install_packages
-  install_dwl
+  install_system_file "$repo/session/mango.desktop" /usr/share/wayland-sessions/mango.desktop
+  run as_user mango -c "$repo/config/mango/config.conf" -p
   configure_account
   configure_mdns
 

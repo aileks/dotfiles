@@ -37,17 +37,3 @@ background = "#131210"
 foreground = "#DDD5CA"
 frame_color = "#B34A45"
 timeout = 0
-
-[desktop-feedback]
-appname = desktop-feedback
-format = "<b>%s</b>"
-icon_position = off
-highlight = "#E17A3F"
-timeout = 2
-history_ignore = yes
-override_pause_level = 100
-
-[reminder]
-appname = reminder
-markup = no
-timeout = 0

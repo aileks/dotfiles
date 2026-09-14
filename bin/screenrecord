@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 set -Eeuo pipefail
+umask 077
 
 videos_directory=$(xdg-user-dir VIDEOS 2>/dev/null || true)
 directory="${videos_directory:-${XDG_VIDEOS_DIR:-$HOME/Videos}}/Recordings"
-statefile="${XDG_RUNTIME_DIR:-/run/user/$UID}/screenrecord.state"
+instance=${MANGO_INSTANCE_SIGNATURE:?Run screenrecord inside the Mango session}
+statefile="${XDG_RUNTIME_DIR:?}/screenrecord-${instance##*/}.state"
 
 recording_is_live() {
   local current_start_time process_state executable
@@ -137,11 +139,11 @@ file="$directory/$(date +%Y-%m-%d_%H-%M-%S-%N).mp4"
 
 case "$mode" in
   output)
-    header= monitor=
-    if [[ ${DWL_CAPTURE_CONTEXT:-} != 1 ]] || ! IFS= read -r header \
-      || [[ $header != dwl-capture-v1 ]] || ! IFS= read -r rectangle \
-      || ! IFS= read -r monitor || [[ ! $monitor =~ ^[a-zA-Z0-9_.-]+$ ]]; then
-      desktop-feedback status 'Recording failed: use the dwl recording shortcut'
+    if ! monitor=$(timeout 3 mmsg get all-monitors | jq -er '
+      [.monitors[] | select(.active == true)] | select(length == 1) |
+      .[0].name | select(type == "string" and test("^[a-zA-Z0-9_.-]+$"))
+    '); then
+      notify-send -u critical 'Recording failed' 'No active Mango output available.' || true
       exit 1
     fi
     args=(-w "$monitor")
@@ -162,7 +164,7 @@ case "$mode" in
           $x + $w <= $output.position.x + ($size[0] / $output.scale | round) and
           $y + $h <= $output.position.y + ($size[1] / $output.scale | round))
       ' >/dev/null; then
-      desktop-feedback status 'Recording failed: select a region entirely within one display'
+      notify-send -u critical 'Recording failed' 'Select a region entirely within one display.' || true
       exit 1
     fi
     geometry="${width}x${height}+${x}+${y}"

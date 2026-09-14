@@ -1,0 +1,3 @@
+gui-wm/mangowm X -asan
+gui-apps/waybar mpris network pulseaudio tray -systemd
+media-video/pipewire sound-server

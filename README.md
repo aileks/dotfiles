@@ -1,6 +1,6 @@
 # Gentoo dotfiles
 
-My Gentoo OpenRC configuration using dwl, Wayland, and rofi.
+My Gentoo configs for [MangoWM](https://mangowm.github.io/).
 
 ## Install
 
@@ -73,19 +73,16 @@ Rootless container storage, including the disposable pgdev database, is excluded
 | Keys                 | Action                 |
 | -------------------- | ---------------------- |
 | `Mod + Space`        | app launcher (rofi)    |
-| `Mod + Ctrl + Space` | desktop actions menu   |
 | `Mod + Return`       | WezTerm mux terminal   |
 | `Mod + X`            | Emacsclient            |
-| `Mod + T`            | WezTerm workspace menu |
 | `Mod + W`            | browser                |
 | `Mod + E`            | file manager           |
 | `Mod + S`            | Signal                 |
 | `Mod + A`            | wiremix                |
 | `Mod + V`            | clipboard history      |
 | `Mod + ;`            | emoji picker           |
-| `Mod + O`            | color picker           |
-| `Mod + =`            | quick calculate        |
-| `Mod + Ctrl + R`     | reminders menu         |
+| `Mod + O`            | color picker (hyprpicker) |
+| `Mod + =`            | Qalculate GTK          |
 | `Mod + Shift + P`    | power menu             |
 
 ### Capture
@@ -96,7 +93,6 @@ Rootless container storage, including the disposable pgdev database, is excluded
 | `Ctrl + Print`        | screenshot focused window  |
 | `Shift + Print`       | screenshot full screen     |
 | `Mod + Shift + O`     | OCR scan + copy            |
-| `Mod + Ctrl + O`      | QR code scan + copy        |
 | `Mod + R`             | recording menu             |
 | `Mod + Print`         | record screen region       |
 | `Mod + Shift + Print` | record the focused monitor |
@@ -107,15 +103,13 @@ Rootless container storage, including the disposable pgdev database, is excluded
 | ------------------------ | ----------------------------- |
 | `Mod + Esc`              | lock session                  |
 | `Mod + N`                | toggle do not disturb (dunst) |
-| `Mod + Shift + N`        | notification history          |
 | `Mod + Ctrl + Shift + N` | notification actions and URLs |
-| `Mod + Ctrl + N`         | toggle night light            |
-| `Mod + Shift + R`        | restart dwl and session children |
-| `Mod + Shift + Q`        | quit dwl                       |
+| `Mod + Shift + R`        | reload Mango configuration     |
+| `Mod + Shift + Q`        | quit Mango                     |
 
 ### Windows
 
-Tiling is the only layout. Individual windows can still float.
+Tags use master-and-stack tiling. Individual windows can still float.
 
 | Keys                                  | Action                                |
 | ------------------------------------- | ------------------------------------- |
@@ -126,8 +120,10 @@ Tiling is the only layout. Individual windows can still float.
 | `Mod + Shift + J` / `Mod + Shift + K` | move window within the stack          |
 | `Mod + H` / `Mod + L`                 | shrink or grow the master area        |
 | `Mod + I` / `Mod + Shift + I`         | add or remove a master slot           |
-| `Mod + B`                             | toggle the bar                        |
+| `Mod + Ctrl + Return`                 | swap focused window with master       |
+| `Mod + B`                             | toggle Waybar                         |
 | `Mod + Left drag`                     | move window                           |
+| `Mod + Middle click`                  | toggle floating                       |
 | `Mod + Right drag`                    | resize window                         |
 | `Mod + Alt + 0`                       | toggle gaps                           |
 
@@ -146,22 +142,30 @@ Tiling is the only layout. Individual windows can still float.
 
 | Keys                         | Action                                |
 | ---------------------------- | ------------------------------------- |
-| `Volume Up / Down / Mute`    | output volume                         |
+| `Volume Up / Down`           | volume ±5 percentage points, capped at 100% |
+| `Volume Mute`                | toggle output mute                    |
+| `Microphone Mute`            | toggle microphone mute                |
 | `Play / Pause / Next / Prev` | media player control (playerctl)      |
 | `Brightness Up / Down`       | external monitor brightness (ddcutil) |
 
-`audio mic mute` is available from a terminal. No microphone key is bound.
-
 ### Status bar
 
-The DND indicator toggles do not disturb on left-click and opens notification
-history on right-click. Scrolling over volume adjusts it. The clock updates on
-minute boundaries and switches time format on left-click. Click results appear
-on the next status update, within about a second after the command finishes.
+| Control | Action |
+| ------- | ------ |
+| Tag left-click / right-click | view tag / toggle tag visibility |
+| Media left-click / middle-click / right-click | play or pause / previous / next |
+| CPU, temperature, or memory click | open btop |
+| Network click | open nmtui |
+| Volume left-click | open wiremix |
+| Volume right-click / middle-click | toggle output mute / microphone mute |
+| Volume scroll | adjust volume by 5 percentage points, capped at 100% |
+| Clock left-click | switch between 24-hour and 12-hour formats |
 
 ### WezTerm
 
 `Leader` is `Ctrl + Space`
+
+Workspace selection is inside WezTerm. `Mod + T` is no longer bound.
 
 | Keys                    | Action                                    |
 | ----------------------- | ----------------------------------------- |
@@ -174,7 +178,7 @@ on the next status update, within about a second after the command finishes.
 | `Leader`, `v`           | enter copy mode                           |
 | `Leader`, `s`           | choose an existing workspace              |
 | `Leader`, `w`           | fuzzy tab picker                          |
-| `Leader`, `o`           | project/workspace menu                    |
+| `Leader`, `o`           | enter a workspace name to create or switch |
 | `Leader`, `^`           | return to previous workspace              |
 | `Leader`, `d`           | detach from the current domain            |
 | `Alt + h/j/k/l`         | focus left/down/up/right pane             |

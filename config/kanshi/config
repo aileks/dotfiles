@@ -1,7 +1,0 @@
-profile desktop {
-    output "* LG ULTRAGEAR *" enable mode 2560x1440@200Hz position 0,0 scale 1 adaptive_sync off
-    ...output "*" enable mode preferred scale 1 adaptive_sync off
-}
-profile fallback {
-    ...output "*" enable mode preferred scale 1 adaptive_sync off
-}

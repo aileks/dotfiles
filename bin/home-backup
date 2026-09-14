@@ -48,7 +48,8 @@ write_status() {
 }
 
 notify() {
-  desktop-feedback status "Home Backup: $*" >/dev/null 2>&1 || true
+  [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]] || return 0
+  notify-send -a 'Home Backup' "Home Backup: $*" >/dev/null 2>&1 || true
 }
 
 failed() {

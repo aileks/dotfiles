@@ -10,21 +10,22 @@ trap 'exit 130' INT TERM HUP
 if ! geometry=$(slurp </dev/null 2>/dev/null); then
   exit 0
 fi
+[[ -n $geometry ]] || exit 0
 
 if ! grim -g "$geometry" "$directory/image.png" 2>/dev/null \
   || ! tesseract "$directory/image.png" stdout -l eng >"$directory/text" 2>/dev/null; then
-  desktop-feedback status 'Text recognition failed'
+  notify-send -u critical 'Text recognition failed' || true
   exit 1
 fi
 
 if ! grep -q '[^[:space:]]' "$directory/text"; then
-  desktop-feedback status 'No text found'
+  notify-send 'No text found' || true
   exit 0
 fi
 
 if ! wl-copy <"$directory/text"; then
-  desktop-feedback status 'Could not copy recognized text'
+  notify-send -u critical 'Could not copy recognized text' || true
   exit 1
 fi
 
-desktop-feedback status 'Recognized text copied'
+notify-send 'Recognized text copied' || true
