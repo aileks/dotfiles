@@ -84,9 +84,9 @@ tray_update(Tray *tray)
 		int slot_y_end = canvas_height;
 		int slot_y_width = slot_y_end - slot_y_start;
 
-		if (item->icon) {
+		if (item->named_icon || item->icon) {
 			/* Real icon */
-			img = item->icon->img;
+			img = item->named_icon ? item->named_icon->img : item->icon->img;
 			if (resize_image(img, icon_size, icon_size) < 0)
 				goto fail;
 			pixman_image_composite32(PIXMAN_OP_OVER, img, NULL,

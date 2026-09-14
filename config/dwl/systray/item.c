@@ -281,12 +281,82 @@ fail:
 		dbus_pending_call_unref(pending);
 }
 
+static void
+named_icon_ready_handler(DBusPendingCall *pending, void *data)
+{
+	Item *item = data;
+	DBusMessage *reply = dbus_pending_call_steal_reply(pending);
+	DBusMessageIter iter, entries, entry, value;
+	const char *key, *text, *name = "", *search_path = "";
+	Icon *icon;
+
+	item->named_icon_pending = NULL;
+	if (!reply || dbus_message_get_type(reply) == DBUS_MESSAGE_TYPE_ERROR ||
+			!dbus_message_has_signature(reply, "a{sv}"))
+		goto done;
+	dbus_message_iter_init(reply, &iter);
+	dbus_message_iter_recurse(&iter, &entries);
+	while (dbus_message_iter_get_arg_type(&entries) == DBUS_TYPE_DICT_ENTRY) {
+		dbus_message_iter_recurse(&entries, &entry);
+		dbus_message_iter_get_basic(&entry, &key);
+		dbus_message_iter_next(&entry);
+		dbus_message_iter_recurse(&entry, &value);
+		if (dbus_message_iter_get_arg_type(&value) == DBUS_TYPE_STRING) {
+			dbus_message_iter_get_basic(&value, &text);
+			if (strcmp(key, "IconName") == 0)
+				name = text;
+			else if (strcmp(key, "IconThemePath") == 0)
+				search_path = text;
+		}
+		dbus_message_iter_next(&entries);
+	}
+	icon = create_named_icon(name, search_path, item->watcher->icon_theme);
+	if (item->named_icon)
+		destroyicon(item->named_icon);
+	item->named_icon = icon;
+	watcher_update_trays(item->watcher);
+done:
+	if (reply)
+		dbus_message_unref(reply);
+	dbus_pending_call_unref(pending);
+}
+
+static void
+request_named_icon(Item *item)
+{
+	const char *interface = SNI_IFACE;
+	DBusMessage *msg;
+	DBusPendingCall *pending = NULL;
+
+	if (item->named_icon_pending) {
+		dbus_pending_call_cancel(item->named_icon_pending);
+		dbus_pending_call_unref(item->named_icon_pending);
+		item->named_icon_pending = NULL;
+	}
+	msg = dbus_message_new_method_call(item->busname, item->busobj,
+		DBUS_INTERFACE_PROPERTIES, "GetAll");
+	if (!msg)
+		return;
+	if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &interface, DBUS_TYPE_INVALID) ||
+			!dbus_connection_send_with_reply(item->watcher->conn, msg, &pending, 3000) || !pending)
+		goto done;
+	item->named_icon_pending = pending;
+	if (!dbus_pending_call_set_notify(pending, named_icon_ready_handler, item, NULL)) {
+		item->named_icon_pending = NULL;
+		dbus_pending_call_cancel(pending);
+		dbus_pending_call_unref(pending);
+	}
+done:
+	dbus_message_unref(msg);
+}
+
 static DBusHandlerResult
 handle_newicon(Item *item, DBusConnection *conn, DBusMessage *msg)
 {
 	const char *sender = dbus_message_get_sender(msg);
 
 	if (sender && strcmp(sender, item->busname) == 0) {
+		request_named_icon(item);
 		request_property(conn, item->busname, item->busobj,
 		                 "IconPixmap", SNI_IFACE, pixmap_ready_handler,
 		                 item);
@@ -346,6 +416,7 @@ createitem(const char *busname, const char *busobj, Watcher *watcher)
 	if (!dbus_connection_add_filter(conn, filter_bus, item, NULL))
 		goto fail;
 	dbus_bus_add_match(conn, match_rule, NULL);
+	request_named_icon(item);
 
 	return item;
 
@@ -370,6 +441,12 @@ destroyitem(Item *item)
 	}
 	if (item->icon)
 		destroyicon(item->icon);
+	if (item->named_icon_pending) {
+		dbus_pending_call_cancel(item->named_icon_pending);
+		dbus_pending_call_unref(item->named_icon_pending);
+	}
+	if (item->named_icon)
+		destroyicon(item->named_icon);
 	free(item->menu_busobj);
 	free(item->busname);
 	free(item->busobj);

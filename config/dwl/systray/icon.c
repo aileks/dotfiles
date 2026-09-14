@@ -1,6 +1,7 @@
 #include "icon.h"
 
 #include <fcft/fcft.h>
+#include <gtk/gtk.h>
 #include <pixman.h>
 
 #include <ctype.h>
@@ -93,6 +94,58 @@ fail:
 	free(buf_pixman);
 	free(icon);
 	return NULL;
+}
+
+Icon *
+create_named_icon(const char *name, const char *search_path, const char *theme_name)
+{
+	GtkIconTheme *theme;
+	GdkPixbuf *pixbuf;
+	const uint8_t *pixels, *pixel;
+	uint8_t *argb;
+	Icon *icon = NULL;
+	int width, height, stride, channels, x, y, offset;
+
+	if (!name || !*name)
+		return NULL;
+	if (g_path_is_absolute(name)) {
+		pixbuf = gdk_pixbuf_new_from_file_at_scale(name, 64, 64, TRUE, NULL);
+	} else {
+		/* A standalone icon theme needs no display connection or GTK event loop. */
+		theme = gtk_icon_theme_new();
+		gtk_icon_theme_set_custom_theme(theme, theme_name);
+		if (search_path && g_path_is_absolute(search_path))
+			gtk_icon_theme_prepend_search_path(theme, search_path);
+		pixbuf = gtk_icon_theme_load_icon(theme, name, 64, GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
+		g_object_unref(theme);
+	}
+	if (!pixbuf)
+		return NULL;
+
+	width = gdk_pixbuf_get_width(pixbuf);
+	height = gdk_pixbuf_get_height(pixbuf);
+	channels = gdk_pixbuf_get_n_channels(pixbuf);
+	stride = gdk_pixbuf_get_rowstride(pixbuf);
+	if (width <= 0 || height <= 0 || width > 512 || height > 512 ||
+			(channels != 3 && channels != 4))
+		goto done;
+	argb = malloc((size_t)width * height * 4);
+	if (!argb)
+		goto done;
+	pixels = gdk_pixbuf_read_pixels(pixbuf);
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < width; x++) {
+			pixel = pixels + y * stride + x * channels;
+			offset = (y * width + x) * 4;
+			argb[offset] = channels == 4 ? pixel[3] : 255;
+			memcpy(argb + offset + 1, pixel, 3);
+		}
+	}
+	icon = createicon(argb, width, height, width * height * 4);
+	free(argb);
+done:
+	g_object_unref(pixbuf);
+	return icon;
 }
 
 void

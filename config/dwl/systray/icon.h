@@ -18,6 +18,7 @@ typedef struct {
 } Icon;
 
 Icon *createicon (const uint8_t *buf, int width, int height, int size);
+Icon *create_named_icon (const char *name, const char *search_path, const char *theme_name);
 FallbackIcon *createfallbackicon (const char *appname, int fgcolor,
                                   struct fcft_font *font);
 void destroyicon (Icon *icon);

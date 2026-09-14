@@ -26,6 +26,8 @@ typedef struct Item {
 	char *menu_busobj;
 	char *appid;
 	Icon *icon;
+	Icon *named_icon;
+	DBusPendingCall *named_icon_pending;
 	FallbackIcon *fallback_icon;
 
 	Watcher *watcher;

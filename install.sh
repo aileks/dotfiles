@@ -216,6 +216,9 @@ desktop_packages=(
   x11-libs/libxkbcommon
   x11-misc/xkeyboard-config
   media-libs/fcft
+  x11-libs/gtk+:3
+  x11-libs/gdk-pixbuf:2
+  gnome-base/librsvg:2
   x11-libs/pixman
   x11-libs/libxcb
   x11-libs/xcb-util-wm

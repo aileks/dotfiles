@@ -3177,7 +3177,7 @@ setup(void)
 	 * Xcursor themes to source cursor images from and makes sure that cursor
 	 * images are available at all scale factors on the screen (necessary for
 	 * HiDPI support). Scaled cursors will be loaded with each output. */
-	cursor_mgr = wlr_xcursor_manager_create(NULL, 24);
+	cursor_mgr = wlr_xcursor_manager_create(getenv("XCURSOR_THEME"), 24);
 	setenv("XCURSOR_SIZE", "24", 1);
 
 	/*
@@ -3238,6 +3238,7 @@ setup(void)
 	bus_source = startbus(bus_conn, event_loop);
 	if (!bus_source)
 		die("Failed to start listening to bus events");
+	watcher.icon_theme = icon_theme;
 	if (showsystray)
 		watcher_start(&watcher, bus_conn, event_loop);
 

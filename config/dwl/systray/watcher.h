@@ -22,6 +22,7 @@ typedef struct {
 	struct wl_list trays;
 	struct wl_event_loop *loop;
 	DBusConnection *conn;
+	const char *icon_theme;
 	int running;
 } Watcher;
 
