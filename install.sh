@@ -179,6 +179,11 @@ base_packages=(
   app-portage/gentoolkit
   app-eselect/eselect-repository
   app-portage/eix
+  media-libs/gst-plugins-base
+  media-libs/gst-plugins-good
+  media-libs/gst-plugins-bad
+  media-libs/gst-plugins-ugly
+  media-plugins/gst-plugins-libav
 )
 
 cli_packages=(
