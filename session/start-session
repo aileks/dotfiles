@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-for arg; do
-  case $arg in
-    dwl | */dwl) exec /usr/local/bin/start-dwl ;;
-  esac
-done
-exec "$@"

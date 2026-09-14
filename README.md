@@ -1,6 +1,6 @@
 # Gentoo dotfiles
 
-My Gentoo configuration using [oxwm](https://github.com/tonybanters/oxwm) and rofi.
+My Gentoo OpenRC configuration using dwl, Wayland, and rofi.
 
 ## Install
 
@@ -10,16 +10,58 @@ cd ~/.dotfiles
 ./install.sh
 ```
 
+Run from a checkout inside the desktop user's home. The installer requests sudo
+for system setup. When running as root, pass `--user USER`. Use `--dry-run` to
+inspect planned changes, or `--chroot` when preparing an installation in a chroot.
+Missing user tools are installed at the versions pinned in `install.sh`. Pass
+`--update-tools` to apply those versions to existing installations. Ordinary
+reruns preserve installed user tools and skip unchanged dwl builds and caches.
+
+Select dwl in Ly. The desktop entry runs `/usr/local/bin/start-dwl`, which owns
+the D-Bus session, parallel status workers, compositor restart, and cleanup.
+`config/dwl/autostart.sh` starts and stops the session's desktop processes.
+
+## Rebuild and restart
+
+Bindings and bar rendering are compiled into dwl. After editing its sources,
+rebuild and install from the checkout:
+
+```sh
+sudo make -C config/dwl install
+```
+
+This requires the build dependencies installed by `install.sh`, including
+wlroots 0.19. The standalone Makefile installs the compositor and desktop entry.
+Use the root installer for a complete session, including `start-dwl` and user
+configuration links.
+
+`Mod + Shift + R` restarts the compositor and its session children. It disconnects
+Wayland applications, so save work first. This is required for compiled changes.
+Autostart and status configuration changes also take effect on session restart.
+Native application configs take effect when their applications reload them.
+
 ## Layout
 
 - `bin/`: daily-use commands, linked into `~/.local/bin`
 - `config/`: application configs, linked into `~/.config`
-- `config/oxwm/`: Lua window manager config and desktop autostart; the built-in bar runs `bin/bar-*`
+- `config/dwl/`: patched compositor sources and compiled `config.def.h`. Only `autostart.sh` and `status.conf` are linked into `~/.config/dwl`
+- `config/dwl/patches/`: historical patch provenance, not installer build inputs. The checked-in C sources are authoritative
+- `bin/bar-*`: status commands called by `start-dwl` workers, with click actions dispatched by the compositor
 - `config/rofi/`: launcher and script menu appearance
 - `session/`: session entry points and startup scripts, installed to `/usr/local/bin`
 - `etc/`: system files, installed as root-owned copies
 - `etc/portage/`: per-package keywords, USE flags, and licenses
 - package lists live in the arrays at the top of `install.sh`
+
+MIME defaults live in `config/xdg/mimeapps.list`. The installer merges its managed
+defaults into the user's file while preserving other associations. The Qt palette
+is installed at `/usr/local/share/qt6ct/colors/cinder-grove.conf` for every user.
+Qt settings are installed as a writable copy so preferences-window geometry
+does not get written back into the checkout.
+
+`home-backup` keeps 30 completed snapshots and removes logs older than 30 days
+after a successful backup. Interrupted snapshots are discarded on the next run.
+Rootless container storage, including the disposable pgdev database, is excluded.
 
 ## Keybinds
 
@@ -68,10 +110,12 @@ cd ~/.dotfiles
 | `Mod + Shift + N`        | notification history          |
 | `Mod + Ctrl + Shift + N` | notification actions and URLs |
 | `Mod + Ctrl + N`         | toggle night light            |
-| `Mod + Shift + R`        | reload oxwm configuration      |
-| `Mod + Shift + Q`        | quit oxwm                      |
+| `Mod + Shift + R`        | restart dwl and session children |
+| `Mod + Shift + Q`        | quit dwl                       |
 
 ### Windows
+
+Tiling is the only layout. Individual windows can still float.
 
 | Keys                                  | Action                                |
 | ------------------------------------- | ------------------------------------- |
@@ -85,10 +129,6 @@ cd ~/.dotfiles
 | `Mod + B`                             | toggle the bar                        |
 | `Mod + Left drag`                     | move window                           |
 | `Mod + Right drag`                    | resize window                         |
-| `Mod + Shift + T`                     | tiling layout                         |
-| `Mod + Shift + F`                     | floating layout                       |
-| `Mod + Shift + M`                     | monocle layout                        |
-| `Mod + Ctrl + .`                      | cycle layouts forward                 |
 | `Mod + Alt + 0`                       | toggle gaps                           |
 
 ### Tags and monitors
@@ -110,8 +150,14 @@ cd ~/.dotfiles
 | `Play / Pause / Next / Prev` | media player control (playerctl)      |
 | `Brightness Up / Down`       | external monitor brightness (ddcutil) |
 
-oxwm 0.12 does not recognize the microphone-mute keysym. `audio mic mute`
-remains available from a terminal.
+`audio mic mute` is available from a terminal. No microphone key is bound.
+
+### Status bar
+
+The DND indicator toggles do not disturb on left-click and opens notification
+history on right-click. Scrolling over volume adjusts it. The clock updates on
+minute boundaries and switches time format on left-click. Click results appear
+on the next status update, within about a second after the command finishes.
 
 ### WezTerm
 

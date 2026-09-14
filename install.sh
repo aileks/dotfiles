@@ -6,6 +6,7 @@ repo=$(readlink -f -- "${BASH_SOURCE[0]}")
 repo=${repo%/*}
 
 dry_run=false
+update_tools=false
 in_chroot=false
 phase=system
 target_user=
@@ -26,6 +27,7 @@ parse_arguments() {
   while (($#)); do
     case $1 in
       --dry-run) dry_run=true ;;
+      --update-tools) update_tools=true ;;
       --chroot) in_chroot=true ;;
       --user)
         (($# >= 2)) && [[ -n $2 && $2 != -* ]] || fail '--user requires a username.'
@@ -34,7 +36,7 @@ parse_arguments() {
         ;;
       --user-setup) phase=user ;;
       --help)
-        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run]'
+        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run] [--update-tools]'
         exit 0
         ;;
       *) fail "Unknown argument: $1. Use --help for usage." ;;
@@ -128,7 +130,7 @@ preflight() {
   [[ $repo == "$target_home/"* && -d $repo/.git ]] || fail 'Keep a Git checkout inside the desktop user home before running this installer.'
   [[ $(stat -c %u "$repo") == "$target_uid" ]] || fail "The checkout must belong to $target_user."
 
-  for source in install.sh session/start-dwl session/start-session config/dwl/dwl.desktop config/dwl/config.def.h config/xdg/mime-policy.json config/cron/crontab; do
+  for source in install.sh session/start-dwl config/dwl/dwl.desktop config/dwl/config.def.h config/xdg/mimeapps.list config/cron/crontab; do
     [[ -r $repo/$source ]] || fail "Missing repository source: $source"
   done
 
@@ -137,7 +139,9 @@ preflight() {
     check_system_target "/$relative"
   done < <(find "$repo/etc" -type f -print0)
 
-  for path in /usr/share/wayland-sessions/dwl.desktop /usr/local/bin/start-session /usr/local/bin/start-dwl /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
+  for path in /usr/share/wayland-sessions/dwl.desktop /usr/local/bin/start-session /usr/local/bin/start-dwl \
+    /usr/local/share/qt6ct/colors/cinder-grove.conf /var/lib/dotfiles/dwl-build \
+    /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
     check_system_target "$path"
   done
 
@@ -194,9 +198,9 @@ cli_packages=(
   app-misc/trash-cli
   app-arch/unzip
   net-misc/wget
+  net-misc/rsync
   app-arch/zip
   app-shells/zoxide
-  app-shells/starship
   sys-fs/ncdu
   sys-apps/nvme-cli
   sys-process/btop
@@ -361,26 +365,51 @@ install_system_config() {
     install_system_file "$source" "/$relative"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
 
-  install_system_file "$repo/session/start-session" /usr/local/bin/start-session 755
   install_system_file "$repo/session/start-dwl" /usr/local/bin/start-dwl 755
+  install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
+  if [[ -f /etc/ly/config.ini ]] && grep -Eq '^[[:space:]]*login_cmd[[:space:]]*=[[:space:]]*/usr/local/bin/start-session[[:space:]]*$' /etc/ly/config.ini; then
+    if "$dry_run"; then
+      printf 'remove obsolete Ly login_cmd override\n'
+    else
+      sed '\|^[[:space:]]*login_cmd[[:space:]]*=[[:space:]]*/usr/local/bin/start-session[[:space:]]*$|d' /etc/ly/config.ini >"$work/ly-config.ini"
+      install_system_file "$work/ly-config.ini" /etc/ly/config.ini
+    fi
+  fi
+  if [[ -f /usr/local/bin/start-session ]] &&
+    { [[ ! -f /etc/ly/config.ini ]] || ! grep -Fq /usr/local/bin/start-session /etc/ly/config.ini; } &&
+    [[ $(sha256sum /usr/local/bin/start-session) == '97397258445f28100461e198114894368578c32f18eeb7b08faf827b0b30a529 '* ]]; then
+    run unlink /usr/local/bin/start-session
+  fi
 }
 
 install_dwl() {
-  run install -d -o "$target_user" -g "$(id -gn "$target_user")" "$work/dwl"
-  run as_user cp -a "$repo/config/dwl/." "$work/dwl/"
-  run as_user cp -f "$work/dwl/config.def.h" "$work/dwl/config.h"
-  run as_user make -C "$work/dwl" clean
-  run as_user make -C "$work/dwl" -j"$(nproc)"
-  install_system_file "$work/dwl/dwl" /usr/local/bin/dwl 755
+  local fingerprint previous='' binary_hash='' manifest=/var/lib/dotfiles/dwl-build
+  check_system_target "$manifest"
+  if "$dry_run"; then
+    printf 'build dwl if its source, toolchain, or installed binary changed\n'
+  else
+    fingerprint=$({
+      find "$repo/config/dwl" -type f \( -name '*.c' -o -name '*.h' -o -name '*.mk' -o -name Makefile -o -name '*.xml' \) \
+        ! -path '*/patches/*' ! -name config.h ! -name '*-protocol.h' ! -name '*-protocol.c' -print0 \
+        | sort -z | xargs -0 sha256sum
+      cc --version
+      pkg-config --modversion wlroots-0.19 wayland-server wayland-protocols xkbcommon libinput pixman-1 fcft dbus-1 gtk+-3.0 xcb xcb-icccm
+      printf '%s\n' "${CFLAGS:-}" "${CPPFLAGS:-}" "${LDFLAGS:-}"
+    } | sha256sum)
+    [[ ! -f $manifest ]] || IFS= read -r previous <"$manifest"
+    [[ ! -f /usr/local/bin/dwl ]] || binary_hash=$(sha256sum /usr/local/bin/dwl)
+    if [[ $previous != "$fingerprint $binary_hash" || ! -x /usr/local/bin/dwl ]]; then
+      run install -d -o "$target_user" -g "$(id -gn "$target_user")" "$work/dwl"
+      run as_user rsync -a --exclude=/dwl --exclude='*.o' --exclude='*-protocol.[ch]' \
+        --exclude=/config.h --exclude=/patches/ "$repo/config/dwl/" "$work/dwl/"
+      run as_user make -C "$work/dwl" -j"$(nproc)"
+      install_system_file "$work/dwl/dwl" /usr/local/bin/dwl 755
+      printf '%s %s\n' "$fingerprint" "$(sha256sum /usr/local/bin/dwl)" >"$work/dwl-build"
+      install_system_file "$work/dwl-build" "$manifest"
+    fi
+  fi
   install_system_file "$repo/config/dwl/dwl.1" /usr/local/share/man/man1/dwl.1
   install_system_file "$repo/config/dwl/dwl.desktop" /usr/share/wayland-sessions/dwl.desktop
-}
-
-install_xkb_layout() {
-  local xkb_root
-
-  xkb_root=$(readlink -f /usr/share/X11/xkb)
-  install_system_file "$repo/config/xkb/symbols/aileks" "$xkb_root/symbols/aileks"
 }
 
 emerge_options=(
@@ -389,11 +418,17 @@ emerge_options=(
 )
 
 install_packages() {
-  local package
+  local package repository location
   local -a qtwebengine_options=(--verbose --oneshot --update --changed-use
     --autounmask=n --getbinpkg=y --usepkgonly=y --binpkg-respect-use=y)
   local -a source_packages=("${base_packages[@]}" "${cli_packages[@]}"
     "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
+
+  while read -r repository location; do
+    if [[ ! -s $location/profiles/repo_name ]]; then
+      run emaint sync -r "$repository"
+    fi
+  done < <(awk '/^\[/ { name=substr($0, 2, length($0)-2) } /^location = / { print name, $3 }' "$repo/etc/portage/repos.conf/desktop.conf")
 
   # Install QtWebEngine only from binaries, then exclude it from source merges.
   run emerge "${qtwebengine_options[@]}" --pretend dev-qt/qtwebengine:6 \
@@ -558,15 +593,37 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom qt6ct zathura wezterm yazi nvim xdg-desktop-portal dwl rofi swayidle swaylock kanshi; do
+  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock kanshi gammastep; do
     link "$repo/config/$name" "$config_home/$name"
   done
+
+  if [[ -L $config_home/qt6ct ]]; then
+    [[ $(readlink -f "$config_home/qt6ct") == "$repo/config/qt6ct" ]] || fail 'Unexpected qt6ct configuration symlink.'
+    run unlink "$config_home/qt6ct"
+  fi
+  link "$repo/config/qt6ct/colors" "$config_home/qt6ct/colors"
+  if ! cmp -s "$repo/config/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"; then
+    if [[ -e $config_home/qt6ct/qt6ct.conf || -L $config_home/qt6ct/qt6ct.conf ]]; then
+      [[ ! -e $config_home/qt6ct/qt6ct.conf.backup.$stamp ]] || fail 'Qt configuration backup already exists.'
+      run mv -T "$config_home/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf.backup.$stamp"
+    fi
+    run install -m 644 "$repo/config/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"
+  fi
+
+  if [[ -L $config_home/dwl ]]; then
+    [[ $(readlink -f "$config_home/dwl") == "$repo/config/dwl" ]] || fail 'Unexpected dwl configuration symlink.'
+    run unlink "$config_home/dwl"
+  fi
+  link "$repo/config/dwl/autostart.sh" "$config_home/dwl/autostart.sh"
+  link "$repo/config/dwl/status.conf" "$config_home/dwl/status.conf"
 
   link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
   link "$repo/config/bash/bashrc" "$target_home/.bashrc"
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
-  link "$repo/config/starship/starship.toml" "$config_home/starship.toml"
+  if [[ -L $config_home/starship.toml && $(readlink "$config_home/starship.toml") == "$repo/config/starship/starship.toml" ]]; then
+    run unlink "$config_home/starship.toml"
+  fi
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   [[ ! -L $config_home/postgres ]] || fail "Refusing symlinked PostgreSQL configuration directory: $config_home/postgres"
   link "$repo/config/postgres/config" "$config_home/postgres/config"
@@ -586,16 +643,19 @@ link_dotfiles() {
 
 install_user_tools() {
   local work=$work/user-tools
+  local package name
 
   if "$dry_run"; then
-    printf 'install bemoji, ModernZ, SQLFluff, pnpm, Prettier, and sql-language-server\n'
+    printf 'install missing pinned user tools (update existing tools: %s)\n' "$update_tools"
     return
   fi
 
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
 
-  git clone --depth 1 https://github.com/marty-oehme/bemoji.git "$work/bemoji"
-  install -b -m 755 "$work/bemoji/bemoji" "$HOME/.local/bin/bemoji"
+  if "$update_tools" || [[ ! -x $HOME/.local/bin/bemoji ]]; then
+    curl --fail --location https://raw.githubusercontent.com/marty-oehme/bemoji/791c7748cf0236f691b1874e79ebe434469c20a9/bemoji --output "$work/bemoji"
+    install -b -m 755 "$work/bemoji" "$HOME/.local/bin/bemoji"
+  fi
 
   mkdir -p "$data_home/bemoji"
   if [[ ! -s $data_home/bemoji/emojis.txt ]]; then
@@ -607,14 +667,24 @@ install_user_tools() {
     install -m 644 "$work/emojis.txt" "$data_home/bemoji/emojis.txt"
   fi
 
-  git clone --depth 1 https://github.com/Samillion/ModernZ.git "$work/modernz"
-  mkdir -p "$config_home/mpv/scripts" "$config_home/mpv/fonts"
-  install -m 644 "$work/modernz/modernz.lua" "$config_home/mpv/scripts/modernz.lua"
-  install -b -m 644 "$work/modernz/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
+  if "$update_tools" || [[ ! -f $config_home/mpv/scripts/modernz.lua || ! -f $config_home/mpv/fonts/modernz-icons.ttf ]]; then
+    mkdir -p "$config_home/mpv/scripts" "$config_home/mpv/fonts"
+    for name in modernz.lua modernz-icons.ttf; do
+      curl --fail --location "https://raw.githubusercontent.com/Samillion/ModernZ/579897e8c974c380caa5017dc7b27a69123c1333/$name" --output "$work/$name"
+    done
+    install -b -m 644 "$work/modernz.lua" "$config_home/mpv/scripts/modernz.lua"
+    install -b -m 644 "$work/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
+  fi
 
-  uv tool install sqlfluff
+  if "$update_tools" || [[ ! -x $HOME/.local/bin/sqlfluff ]]; then
+    uv tool install --reinstall sqlfluff==4.3.0
+  fi
 
-  npm i -g --force pnpm prettier sql-language-server
+  for package in pnpm@12.4.1 prettier@3.9.6 sql-language-server@1.7.1; do
+    if "$update_tools" || [[ ! -d $NPM_CONFIG_PREFIX/lib/node_modules/${package%@*} ]]; then
+      npm install -g "$package"
+    fi
+  done
 }
 
 install_doom() {
@@ -704,44 +774,27 @@ install_appearance() {
 }
 
 setup_mime() {
-  local directory name
-  local -A installed=() resolved=() missing=()
-  local policy mime browser target existing backup
+  local directory mime names name browser='' target existing backup found
+  local -a desktop_ids
 
   if "$dry_run"; then
-    printf 'set MIME defaults from config/xdg/mime-policy.json\n'
+    printf 'merge defaults from config/xdg/mimeapps.list and preserve unmanaged associations\n'
     return
   fi
 
-  for directory in "$data_home/applications" /usr/local/share/applications /usr/share/applications; do
-    [[ -d $directory ]] || continue
-    for name in "$directory/"*.desktop; do
-      [[ -f $name ]] || continue
-      installed[${name##*/}]=$name
+  while IFS='=' read -r mime names; do
+    [[ $mime != '[Default Applications]' && -n $mime ]] || continue
+    IFS=';' read -ra desktop_ids <<<"$names"
+    for name in "${desktop_ids[@]}"; do
+      found=false
+      for directory in "$data_home/applications" /usr/local/share/applications /usr/share/applications; do
+        [[ ! -f $directory/$name ]] || found=true
+      done
+      "$found" || fail "Missing desktop entry: $name"
     done
-  done
-
-  browser=zen-browser-bin.desktop
-  [[ -v installed[$browser] ]] || {
-    echo "Missing desktop entry: $browser" >&2
-    return 1
-  }
-
-  policy=$(jq -er 'to_entries[] | [.key, .value[0]] | @tsv' "$repo/config/xdg/mime-policy.json")
-  while IFS=$'\t' read -r mime name; do
-    [[ -v installed[$name] ]] || missing[$name]=1
-    resolved[$mime]=$name
-  done <<<"$policy"
-
-  if ((${#missing[@]})); then
-    echo 'Install or resolve these desktop IDs first:' >&2
-    printf '  %s\n' "${!missing[@]}" | sort >&2
-    return 1
-  fi
-
-  for mime in "${!resolved[@]}"; do
-    printf '%s=%s;\n' "$mime" "${resolved[$mime]}"
-  done | sort >"$work/mime-defaults"
+    [[ $mime != x-scheme-handler/https ]] || browser=${desktop_ids[0]}
+  done <"$repo/config/xdg/mimeapps.list"
+  [[ -n $browser ]] || fail 'MIME policy must select an HTTPS browser.'
 
   target=$config_home/mimeapps.list
   existing=/dev/null
@@ -753,6 +806,7 @@ setup_mime() {
         if (!written[key]++) print key "=" defaults[key]
     }
     FILENAME == ARGV[1] {
+      if ($0 ~ /^[#;\[]/ || !index($0, "=")) next
       key = substr($0, 1, index($0, "=") - 1)
       defaults[key] = substr($0, index($0, "=") + 1)
       next
@@ -775,7 +829,7 @@ setup_mime() {
       if (!found) print "\n[Default Applications]"
       remaining()
     }
-  ' "$work/mime-defaults" "$existing" >"$work/mimeapps.list.merged"
+  ' "$repo/config/xdg/mimeapps.list" "$existing" >"$work/mimeapps.list.merged"
   chmod 600 "$work/mimeapps.list.merged"
 
   if [[ -f $target ]] && cmp -s "$work/mimeapps.list.merged" "$target"; then
@@ -846,23 +900,36 @@ setup_user() {
   install_doom
   install_appearance
 
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-theme Adwaita
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface cursor-size 24
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 11'
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 11'
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface clock-format 24h
-  run dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences button-layout ''
-  run dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences audible-bell false
-  run dbus-run-session -- gsettings set org.gnome.desktop.sound event-sounds false
-  run dbus-run-session -- gsettings set org.gnome.desktop.sound input-feedback-sounds false
+  run dbus-run-session -- bash -e -c "
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+    gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
+    gsettings set org.gnome.desktop.interface cursor-theme Adwaita
+    gsettings set org.gnome.desktop.interface cursor-size 24
+    gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 11'
+    gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 11'
+    gsettings set org.gnome.desktop.interface clock-format 24h
+    gsettings set org.gnome.desktop.wm.preferences button-layout ''
+    gsettings set org.gnome.desktop.wm.preferences audible-bell false
+    gsettings set org.gnome.desktop.sound event-sounds false
+    gsettings set org.gnome.desktop.sound input-feedback-sounds false
+  "
 
   run xdg-user-dirs-update
   setup_mime
 
-  run fc-cache -f
-  run bat cache --build
+  run fc-cache
+  if "$dry_run"; then
+    printf 'rebuild bat cache if its themes or bat version changed\n'
+  else
+    local theme_hash cache_directory
+    cache_directory=$(bat --cache-dir)
+    theme_hash=$({ find -L "$config_home/bat" -type f -print0 | sort -z | xargs -0 sha256sum; bat --version; } | sha256sum)
+    if [[ ! -f $cache_directory/dotfiles-themes || ! -f $cache_directory/themes.bin ]] ||
+      [[ $(<"$cache_directory/dotfiles-themes") != "$theme_hash" ]]; then
+      run bat cache --build
+      printf '%s\n' "$theme_hash" >"$cache_directory/dotfiles-themes"
+    fi
+  fi
 
   install_crontab
 }
@@ -870,6 +937,10 @@ setup_user() {
 main() {
   parse_arguments "$@"
   select_user
+  local -a tool_options=()
+  if "$update_tools"; then
+    tool_options+=(--update-tools)
+  fi
 
   if [[ $phase == system ]]; then
     preflight
@@ -877,7 +948,7 @@ main() {
       command -v sudo >/dev/null || fail "Run as root with --user $target_user to bootstrap sudo."
       local -a arguments=(--user "$target_user")
       "$in_chroot" && arguments+=(--chroot)
-      exec sudo -- "$repo/install.sh" "${arguments[@]}"
+      exec sudo -- "$repo/install.sh" "${arguments[@]}" "${tool_options[@]}"
     fi
   fi
 
@@ -910,14 +981,13 @@ main() {
   install_system_config
   install_packages
   install_dwl
-  install_xkb_layout
   configure_account
   configure_mdns
 
   if "$dry_run"; then
     setup_user
   else
-    run as_user "$repo/install.sh" --user "$target_user" --user-setup
+    run as_user "$repo/install.sh" --user "$target_user" --user-setup "${tool_options[@]}"
   fi
 
   enable_services

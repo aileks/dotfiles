@@ -22,7 +22,8 @@ list_panes() {
   fi
 }
 
-repositories=("$HOME/.dotfiles")
+script=$(readlink -f -- "${BASH_SOURCE[0]}")
+repositories=("${script%/bin/*}")
 for root in "$HOME/Documents" "$HOME/Projects"; do
   [[ -d $root ]] || continue
   while IFS= read -r -d '' git_path; do

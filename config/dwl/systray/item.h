@@ -22,12 +22,14 @@
 typedef struct Item {
 	struct wl_list icons;
 	char *busname;
+	char *busowner;
 	char *busobj;
 	char *menu_busobj;
 	char *appid;
 	Icon *icon;
 	Icon *named_icon;
 	DBusPendingCall *named_icon_pending;
+	DBusPendingCall *pixmap_pending, *id_pending, *menu_pending;
 	FallbackIcon *fallback_icon;
 
 	Watcher *watcher;
@@ -39,7 +41,7 @@ typedef struct Item {
 	struct wl_list link;
 } Item;
 
-Item *createitem (const char *busname, const char *busobj, Watcher *watcher);
+Item *createitem (const char *busname, const char *busobj, const char *busowner, Watcher *watcher);
 void destroyitem (Item *item);
 
 void item_activate (Item *item);

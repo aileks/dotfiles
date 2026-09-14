@@ -5,7 +5,7 @@
                         ((hex >> 8) & 0xFF) / 255.0f, \
                         (hex & 0xFF) / 255.0f }
 /* appearance */
-static const int smartgaps = 0, monoclegaps = 1;
+static const int smartgaps = 0;
 static const unsigned int gappih = 4, gappiv = 4, gappoh = 4, gappov = 4;
 static const int sloppyfocus               = 1;  /* focus follows mouse */
 static const int bypass_surface_visibility = 0;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
@@ -17,17 +17,12 @@ static const int showbar                   = 1; /* 0 means no bar */
 static const int topbar                    = 1; /* 0 means bottom bar */
 static const char *fonts[]                 = {"Iosevka Nerd Font Propo:size=12"};
 static const float rootcolor[]             = COLOR(0x131210ff);
-/* This conforms to the xdg-protocol. Set the alpha to zero to restore the old behavior */
-static const float fullscreen_bg[]         = {0.0f, 0.0f, 0.0f, 1.0f}; /* You can also use glsl colors */
 static uint32_t colors[][3]                = {
 	/*               fg          bg          border    */
 	[SchemeNorm] = { 0xbbb3a9ff, 0x131210ff, 0x58534cff },
 	[SchemeSel]  = { 0xe17a3fff, 0x131210ff, 0xe17a3fff },
 	[SchemeUrg]  = { 0xddd5caff, 0xb34a45ff, 0xb34a45ff },
 };
-
-enum { LAYOUT };
-static const char *modes_labels[] = { "layout: [t]ile [f]loat [m]onocle [Esc]cancel" };
 
 /* tagging */
 static char *tags[] = { "1", "2", "3", "4", "5", "6", "7" };
@@ -66,21 +61,15 @@ static const Rule rules[] = {
 	{ "Nm-connection-editor", NULL, 0, 1, -1, "󰈀" },
 };
 
-/* layout(s) */
-static const Layout layouts[] = {
-	/* symbol     arrange function */
-	{ "[]=",      tile },
-};
-
 /* monitors */
 /* (x=-1, y=-1) is reserved as an "autoconfigure" monitor position indicator
  * WARNING: negative values other than (-1, -1) cause problems with Xwayland clients due to
  * https://gitlab.freedesktop.org/xorg/xserver/-/issues/899 */
 static const MonitorRule monrules[] = {
-   /* name        mfact  nmaster scale layout       rotate/reflect                x    y
+   /* name        mfact  nmaster scale rotate/reflect                x    y
     * example of a HiDPI laptop monitor:
-    { "eDP-1",    0.5f,  1,      2,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }, */
-	{ NULL,       0.50f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+    { "eDP-1",    0.5f,  1,      2,    WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }, */
+	{ NULL,       0.50f, 1,      1,    WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
 	/* default monitor rule: can be changed but cannot be eliminated; at least one monitor rule must exist */
 };
 
@@ -138,7 +127,7 @@ LIBINPUT_CONFIG_TAP_MAP_LMR -- 1/2/3 finger tap maps to left/middle/right
 */
 static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TAP_MAP_LRM;
 
-/* Super, matching the oxwm bindings. */
+/* Super */
 #define MODKEY WLR_MODIFIER_LOGO
 
 #define TAGKEYS(KEY,SKEY,TAG) \
@@ -147,49 +136,48 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 	{ MODKEY|WLR_MODIFIER_SHIFT, SKEY,           tag,             {.ui = 1 << TAG} }, \
 	{ MODKEY|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT,SKEY,toggletag, {.ui = 1 << TAG} }
 
-/* helper for spawning shell commands in the pre dwm-5.0 fashion */
-#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+#define CMD(...) { .v = (const char *[]){ __VA_ARGS__, NULL } }
 
-static const char *dmenucmd[] = { "rofi", "-dmenu", "-i", "-p", "Tray", NULL };
+static const char *dmenucmd[] = { "rofi", "-dmenu", "-i", "-no-custom", "-format", "i", "-p", "Tray", NULL };
 
 static const Key keys[] = {
-	{ MODKEY, XKB_KEY_Return, spawn, SHCMD("wezterm connect unix") },
-	{ MODKEY, XKB_KEY_space, spawn, SHCMD("rofi -show drun") },
-	{ MODKEY, XKB_KEY_x, spawn, SHCMD("emacsclient -c -a ''") },
-	{ MODKEY, XKB_KEY_t, spawn, SHCMD("wezterm-sessions") },
-	{ MODKEY, XKB_KEY_w, spawn, SHCMD("zen-browser") },
-	{ MODKEY, XKB_KEY_e, spawn, SHCMD("wezterm start --always-new-process -- yazi") },
-	{ MODKEY, XKB_KEY_s, spawn, SHCMD("signal-desktop") },
-	{ MODKEY, XKB_KEY_a, spawn, SHCMD("wezterm start --always-new-process -- wiremix") },
-	{ MODKEY, XKB_KEY_o, spawn, SHCMD("color-picker") },
-	{ MODKEY, XKB_KEY_v, spawn, SHCMD("clipboard-menu") },
-	{ MODKEY, XKB_KEY_semicolon, spawn, SHCMD("bemoji -n") },
-	{ MODKEY, XKB_KEY_Escape, spawn, SHCMD("lock-session") },
-	{ MODKEY, XKB_KEY_n, spawn, SHCMD("dnd-toggle") },
-	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_n, spawn, SHCMD("night-light") },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_p, spawn, SHCMD("power-menu") },
-	{ MODKEY, XKB_KEY_r, spawninfo, SHCMD("screenrecord menu") },
-	{ 0, XKB_KEY_Print, spawninfo, SHCMD("screenshot region") },
-	{ WLR_MODIFIER_CTRL, XKB_KEY_Print, spawninfo, SHCMD("screenshot window") },
-	{ WLR_MODIFIER_SHIFT, XKB_KEY_Print, spawninfo, SHCMD("screenshot full") },
-	{ MODKEY, XKB_KEY_Print, spawninfo, SHCMD("screenrecord region") },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Print, spawninfo, SHCMD("screenrecord output") },
-	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_space, spawn, SHCMD("desktop-actions") },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_o, spawn, SHCMD("region-ocr") },
-	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_o, spawn, SHCMD("qr-scan") },
-	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_r, spawn, SHCMD("reminder") },
-	{ MODKEY, XKB_KEY_equal, spawn, SHCMD("calculate") },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_n, spawn, SHCMD("notification-history") },
-	{ MODKEY|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT, XKB_KEY_n, spawn, SHCMD("dunstctl context") },
-	{ 0, XKB_KEY_XF86AudioPlay, spawn, SHCMD("playerctl play-pause") },
-	{ 0, XKB_KEY_XF86AudioPause, spawn, SHCMD("playerctl play-pause") },
-	{ 0, XKB_KEY_XF86AudioNext, spawn, SHCMD("playerctl next") },
-	{ 0, XKB_KEY_XF86AudioPrev, spawn, SHCMD("playerctl previous") },
-	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("audio sink up") },
-	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("audio sink down") },
-	{ 0, XKB_KEY_XF86AudioMute, spawn, SHCMD("audio sink mute") },
-	{ 0, XKB_KEY_XF86MonBrightnessUp, spawn, SHCMD("brightness up") },
-	{ 0, XKB_KEY_XF86MonBrightnessDown, spawn, SHCMD("brightness down") },
+	{ MODKEY, XKB_KEY_Return, spawn, CMD("wezterm", "connect", "unix") },
+	{ MODKEY, XKB_KEY_space, spawn, CMD("rofi", "-show", "drun") },
+	{ MODKEY, XKB_KEY_x, spawn, CMD("emacsclient", "-c", "-a", "") },
+	{ MODKEY, XKB_KEY_t, spawn, CMD("wezterm-sessions") },
+	{ MODKEY, XKB_KEY_w, spawn, CMD("zen-browser") },
+	{ MODKEY, XKB_KEY_e, spawn, CMD("wezterm", "start", "--always-new-process", "--", "yazi") },
+	{ MODKEY, XKB_KEY_s, spawn, CMD("signal-desktop") },
+	{ MODKEY, XKB_KEY_a, spawn, CMD("wezterm", "start", "--always-new-process", "--", "wiremix") },
+	{ MODKEY, XKB_KEY_o, spawn, CMD("color-picker") },
+	{ MODKEY, XKB_KEY_v, spawn, CMD("clipboard-menu") },
+	{ MODKEY, XKB_KEY_semicolon, spawn, CMD("bemoji", "-n") },
+	{ MODKEY, XKB_KEY_Escape, spawn, CMD("lock-session") },
+	{ MODKEY, XKB_KEY_n, spawn, CMD("dnd-toggle") },
+	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_n, spawn, CMD("night-light") },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_p, spawn, CMD("power-menu") },
+	{ MODKEY, XKB_KEY_r, spawninfo, CMD("screenrecord", "menu") },
+	{ 0, XKB_KEY_Print, spawninfo, CMD("screenshot", "region") },
+	{ WLR_MODIFIER_CTRL, XKB_KEY_Print, spawninfo, CMD("screenshot", "window") },
+	{ WLR_MODIFIER_SHIFT, XKB_KEY_Print, spawninfo, CMD("screenshot", "full") },
+	{ MODKEY, XKB_KEY_Print, spawninfo, CMD("screenrecord", "region") },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Print, spawninfo, CMD("screenrecord", "output") },
+	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_space, spawn, CMD("desktop-actions") },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_o, spawn, CMD("region-ocr") },
+	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_o, spawn, CMD("qr-scan") },
+	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_r, spawn, CMD("reminder") },
+	{ MODKEY, XKB_KEY_equal, spawn, CMD("calculate") },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_n, spawn, CMD("notification-history") },
+	{ MODKEY|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT, XKB_KEY_n, spawn, CMD("dunstctl", "context") },
+	{ 0, XKB_KEY_XF86AudioPlay, spawn, CMD("playerctl", "play-pause") },
+	{ 0, XKB_KEY_XF86AudioPause, spawn, CMD("playerctl", "play-pause") },
+	{ 0, XKB_KEY_XF86AudioNext, spawn, CMD("playerctl", "next") },
+	{ 0, XKB_KEY_XF86AudioPrev, spawn, CMD("playerctl", "previous") },
+	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, CMD("audio", "sink", "up") },
+	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, CMD("audio", "sink", "down") },
+	{ 0, XKB_KEY_XF86AudioMute, spawn, CMD("audio", "sink", "mute") },
+	{ 0, XKB_KEY_XF86MonBrightnessUp, spawn, CMD("brightness", "up") },
+	{ 0, XKB_KEY_XF86MonBrightnessDown, spawn, CMD("brightness", "down") },
 	{ MODKEY, XKB_KEY_q, killclient, {0} },
 	{ MODKEY, XKB_KEY_f, togglefullscreen, {0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_space, togglefloating, {0} },
@@ -208,11 +196,6 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_q, quit, {0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_r, quit, {.i = 1} },
 	{ MODKEY, XKB_KEY_b, togglebar, {0} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_t, setlayout, {.v = &layouts[0]} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_f, setlayout, {.v = &layouts[1]} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_m, setlayout, {.v = &layouts[2]} },
-	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_period, nextlayout, {0} },
-	{ MODKEY|WLR_MODIFIER_CTRL, XKB_KEY_m, entermode, {.i = LAYOUT} },
 	{ MODKEY|WLR_MODIFIER_ALT, XKB_KEY_0, togglegaps, {0} },
 	TAGKEYS(XKB_KEY_1, XKB_KEY_exclam, 0),
 	TAGKEYS(XKB_KEY_2, XKB_KEY_at, 1),
@@ -225,20 +208,7 @@ static const Key keys[] = {
 	CHVT(1), CHVT(2), CHVT(3), CHVT(4), CHVT(5), CHVT(6), CHVT(7), CHVT(8), CHVT(9), CHVT(10), CHVT(11), CHVT(12),
 };
 
-static const Modekey modekeys[] = {
-	{ LAYOUT, { 0, XKB_KEY_t, setlayout, {.v = &layouts[0]} } },
-	{ LAYOUT, { 0, XKB_KEY_t, entermode, {.i = NORMAL} } },
-	{ LAYOUT, { 0, XKB_KEY_f, setlayout, {.v = &layouts[1]} } },
-	{ LAYOUT, { 0, XKB_KEY_f, entermode, {.i = NORMAL} } },
-	{ LAYOUT, { 0, XKB_KEY_m, setlayout, {.v = &layouts[2]} } },
-	{ LAYOUT, { 0, XKB_KEY_m, entermode, {.i = NORMAL} } },
-	{ LAYOUT, { 0, XKB_KEY_Escape, entermode, {.i = NORMAL} } },
-	{ LAYOUT, { MODKEY, XKB_KEY_Escape, spawn, SHCMD("lock-session") } },
-};
-
 static const Button buttons[] = {
-	{ ClkLtSymbol, 0,      BTN_LEFT,   setlayout,      {.v = &layouts[0]} },
-	{ ClkLtSymbol, 0,      BTN_RIGHT,  setlayout,      {.v = &layouts[2]} },
 	{ ClkTitle,    0,      BTN_MIDDLE, zoom,           {0} },
 	{ ClkClient,   MODKEY, BTN_LEFT,   moveresize,     {.ui = CurMove} },
 	{ ClkClient,   MODKEY, BTN_MIDDLE, togglefloating, {0} },

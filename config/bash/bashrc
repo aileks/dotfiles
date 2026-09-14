@@ -37,7 +37,6 @@ alias fzf='fzf --style full'
 alias ff='fastfetch'
 alias vim='nvim'
 alias docker='podman'
-alias psql='pgdev psql'
 alias ..="echo 'cd ..'; cd .."
 alias hl='rg --passthru'
 alias ga='git add'

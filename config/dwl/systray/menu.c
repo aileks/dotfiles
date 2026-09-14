@@ -45,6 +45,8 @@ typedef struct {
 	Menu *menu;
 	pid_t menu_pid;
 	int fd;
+	char selection[BUFSIZE];
+	size_t used;
 } MenuShowContext;
 
 static int extract_menu (DBusMessageIter *av, struct wl_array *menu);
@@ -76,6 +78,8 @@ submenus_destroy_recursive(struct wl_array *layout_node)
 static void
 menu_destroy(Menu *menu)
 {
+	if (!menu)
+		return;
 	submenus_destroy_recursive(&menu->layout);
 	wl_array_release(&menu->layout);
 	free(menu->busname);
@@ -86,13 +90,15 @@ menu_destroy(Menu *menu)
 static void
 menu_show_ctx_finalize(MenuShowContext *ctx, int error)
 {
+	if (!ctx)
+		return;
 	if (ctx->fd_source)
 		wl_event_source_remove(ctx->fd_source);
 
 	if (ctx->fd >= 0)
 		close(ctx->fd);
 
-	if (ctx->menu_pid >= 0) {
+	if (ctx->menu_pid > 0) {
 		if (waitpid(ctx->menu_pid, NULL, WNOHANG) == 0)
 			kill(ctx->menu_pid, SIGTERM);
 	}
@@ -122,7 +128,7 @@ send_clicked(const char *busname, const char *busobj, int itemid,
 	DBusMessageIter sub = DBUS_MESSAGE_ITER_INIT_CLOSED;
 	const char *data = "";
 	const char *eventid = "clicked";
-	time_t timestamp;
+	dbus_uint32_t timestamp;
 
 	timestamp = time(NULL);
 
@@ -158,24 +164,26 @@ fail:
 }
 
 static void
-menuitem_selected(const char *label, struct wl_array *m, Menu *menu)
+menuitem_selected(const char *selection, struct wl_array *m, Menu *menu)
 {
 	MenuItem *mi;
+	char *end;
+	unsigned long index;
 
-	wl_array_for_each(mi, m) {
-		if (strcmp(mi->label, label) == 0) {
-			if (mi->has_submenu) {
-				real_show_menu(menu, &mi->submenu);
-
-			} else {
-				send_clicked(menu->busname, menu->busobj,
-				             mi->id, menu->conn);
-				menu_destroy(menu);
-			}
-
+	errno = 0;
+	index = strtoul(selection, &end, 10);
+	if (*selection < '0' || *selection > '9' || *end || errno ||
+			index >= m->size / sizeof(MenuItem))
+		goto done;
+	mi = (MenuItem *)m->data + index;
+	if (mi->has_submenu) {
+		if (real_show_menu(menu, &mi->submenu) == 0)
 			return;
-		}
+	} else {
+		send_clicked(menu->busname, menu->busobj, mi->id, menu->conn);
 	}
+done:
+	menu_destroy(menu);
 }
 
 static int
@@ -183,18 +191,30 @@ read_pipe(int fd, uint32_t mask, void *data)
 {
 	MenuShowContext *ctx = data;
 
-	char buf[BUFSIZE];
 	ssize_t bytes_read;
+	char *newline;
 
-	bytes_read = read(fd, buf, BUFSIZE);
-	/* 0 == Got EOF, menu program closed without writing to stdout */
-	if (bytes_read <= 0)
+	bytes_read = read(fd, ctx->selection + ctx->used,
+	                  sizeof(ctx->selection) - ctx->used - 1);
+	if (bytes_read < 0 && (errno == EINTR || errno == EAGAIN))
+		return 0;
+	if (bytes_read < 0)
 		goto fail;
-
-	buf[bytes_read] = '\0';
-	remove_newline(buf);
-
-	menuitem_selected(buf, ctx->layout_node, ctx->menu);
+	if (memchr(ctx->selection + ctx->used, '\0', (size_t)bytes_read))
+		goto fail;
+	ctx->used += (size_t)bytes_read;
+	ctx->selection[ctx->used] = '\0';
+	newline = strchr(ctx->selection, '\n');
+	if (newline) {
+		if (newline[1])
+			goto fail;
+		*newline = '\0';
+	} else if (ctx->used == sizeof(ctx->selection) - 1) {
+		goto fail;
+	} else if (bytes_read > 0) {
+		return 0;
+	}
+	menuitem_selected(ctx->selection, ctx->layout_node, ctx->menu);
 	menu_show_ctx_finalize(ctx, 0);
 	return 0;
 
@@ -268,9 +288,15 @@ real_show_menu(Menu *menu, struct wl_array *layout_node)
 {
 	MenuShowContext *ctx = NULL;
 	char buf[BUFSIZE];
-	int to_pipe[2], from_pipe[2];
-	pid_t pid;
+	int to_pipe[2] = {-1, -1}, from_pipe[2] = {-1, -1};
+	pid_t pid = -1;
+	size_t written = 0, length;
+	ssize_t count;
 
+	/* Takes ownership only on success. Callers retain Menu on failure. */
+	if (write_dmenu_buf(buf, layout_node) < 0)
+		return -1;
+	length = strlen(buf);
 	if (pipe(to_pipe) < 0 || pipe(from_pipe) < 0)
 		goto fail;
 
@@ -278,8 +304,9 @@ real_show_menu(Menu *menu, struct wl_array *layout_node)
 	if (pid < 0) {
 		goto fail;
 	} else if (pid == 0) {
-		dup2(to_pipe[0], STDIN_FILENO);
-		dup2(from_pipe[1], STDOUT_FILENO);
+		if (dup2(to_pipe[0], STDIN_FILENO) < 0 ||
+				dup2(from_pipe[1], STDOUT_FILENO) < 0)
+			_exit(EXIT_FAILURE);
 
 		close(to_pipe[0]);
 		close(to_pipe[1]);
@@ -288,7 +315,7 @@ real_show_menu(Menu *menu, struct wl_array *layout_node)
 
 		if (execvp(menu->menucmd[0], (char *const *)menu->menucmd)) {
 			perror("Error spawning menu program");
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 	}
 
@@ -296,10 +323,15 @@ real_show_menu(Menu *menu, struct wl_array *layout_node)
 	                       menu);
 	if (!ctx)
 		goto fail;
+	from_pipe[0] = -1; /* ctx now owns the read descriptor. */
 
-	if (write_dmenu_buf(buf, layout_node) < 0 ||
-	    write(to_pipe[1], buf, strlen(buf)) < 0) {
-		goto fail;
+	while (written < length) {
+		count = write(to_pipe[1], buf + written, length - written);
+		if (count < 0 && errno == EINTR)
+			continue;
+		if (count <= 0)
+			goto fail;
+		written += (size_t)count;
 	}
 
 	close(to_pipe[0]);
@@ -308,20 +340,26 @@ real_show_menu(Menu *menu, struct wl_array *layout_node)
 	return 0;
 
 fail:
-	close(to_pipe[0]);
-	close(to_pipe[1]);
-	close(from_pipe[1]);
-	menu_show_ctx_finalize(ctx, 1);
+	for (int i = 0; i < 2; i++) {
+		if (to_pipe[i] >= 0)
+			close(to_pipe[i]);
+		if (from_pipe[i] >= 0)
+			close(from_pipe[i]);
+	}
+	if (!ctx && pid > 0)
+		kill(pid, SIGTERM);
+	menu_show_ctx_finalize(ctx, 0);
 	return -1;
 }
 
-static void
+static int
 createmenuitem(MenuItem *mi, dbus_int32_t id, const char *label,
                int toggle_state, int has_submenu)
 {
-	char *tok;
-	char temp[LABEL_MAX];
+	size_t used;
 
+	if (strlen(label) + 9 > sizeof(mi->label))
+		return 1;
 	if (toggle_state == 0)
 		strcpy(mi->label, "☐ ");
 	else if (toggle_state == 1)
@@ -330,11 +368,12 @@ createmenuitem(MenuItem *mi, dbus_int32_t id, const char *label,
 		strcpy(mi->label, "  ");
 
 	/* Remove "mnemonics" (underscores which mark keyboard shortcuts) */
-	strcpy(temp, label);
-	tok = strtok(temp, "_");
-	do {
-		strcat(mi->label, tok);
-	} while ((tok = strtok(NULL, "_")));
+	used = strlen(mi->label);
+	for (; *label; label++) {
+		if (*label != '_')
+			mi->label[used++] = (*label == '\n' || *label == '\r') ? ' ' : *label;
+	}
+	mi->label[used] = '\0';
 
 	if (has_submenu) {
 		mi->has_submenu = 1;
@@ -342,6 +381,7 @@ createmenuitem(MenuItem *mi, dbus_int32_t id, const char *label,
 	}
 
 	mi->id = id;
+	return 0;
 }
 
 /**
@@ -438,22 +478,9 @@ read_dict(DBusMessageIter *dict, dbus_int32_t itemid, MenuItem *mi,
 	if (!label || !visible || !enabled)
 		return 1;
 
-	/*
-	 * 4 characters for checkmark and submenu indicator,
-	 * 1 for nul terminator
-	 */
-	if (strlen(label) + 5 > LABEL_MAX) {
-		fprintf(stderr, "Too long menu entry label: %s! Skipping...\n",
-		        label);
-		return 1;
-	}
-
 	if (toggle_type && strcmp(toggle_type, "checkmark") == 0)
-		createmenuitem(mi, itemid, label, toggle_state, *has_submenu);
-	else
-		createmenuitem(mi, itemid, label, -1, *has_submenu);
-
-	return 0;
+		return createmenuitem(mi, itemid, label, toggle_state, *has_submenu);
+	return createmenuitem(mi, itemid, label, -1, *has_submenu);
 
 fail:
 	fprintf(stderr, "Error parsing menu data\n");
@@ -499,8 +526,10 @@ extract_menuitem(DBusMessageIter *strct, MenuItem *mi)
 
 	} else if (r == 0 && has_submenu) {
 		dbus_message_iter_next(&val);
-		if (dbus_message_iter_get_arg_type(&val) != DBUS_TYPE_ARRAY)
+		if (dbus_message_iter_get_arg_type(&val) != DBUS_TYPE_ARRAY) {
+			r = -1;
 			goto fail;
+		}
 		r = extract_menu(&val, &mi->submenu);
 		if (r < 0)
 			goto fail;
@@ -520,6 +549,8 @@ extract_menu(DBusMessageIter *av, struct wl_array *layout_node)
 	int r;
 
 	dbus_message_iter_recurse(av, &variant);
+	if (dbus_message_iter_get_arg_type(&variant) == DBUS_TYPE_INVALID)
+		return 0;
 	if (dbus_message_iter_get_arg_type(&variant) != DBUS_TYPE_VARIANT) {
 		r = -1;
 		goto fail;
@@ -553,6 +584,8 @@ extract_menu(DBusMessageIter *av, struct wl_array *layout_node)
 		}
 		/* r > 0: no action was performed on mi */
 	} while (dbus_message_iter_next(&variant));
+	/* Drop the unused slot allocated for the next visible entry. */
+	layout_node->size -= sizeof(MenuItem);
 
 	return 0;
 
@@ -664,7 +697,7 @@ request_layout(Menu *menu)
 	}
 
 	if (!dbus_connection_send_with_reply(menu->conn, msg, &pending, -1) ||
-	    !dbus_pending_call_set_notify(pending, layout_ready, menu, NULL)) {
+	    !pending || !dbus_pending_call_set_notify(pending, layout_ready, menu, NULL)) {
 		r = -ENOMEM;
 		goto fail;
 	}
@@ -680,7 +713,6 @@ fail:
 	dbus_message_iter_abandon_container_if_open(&iter, &strings);
 	if (msg)
 		dbus_message_unref(msg);
-	menu_destroy(menu);
 	return r;
 }
 
@@ -720,6 +752,8 @@ menu_show(DBusConnection *conn, struct wl_event_loop *loop, const char *busname,
 	char *busname_dup = NULL, *busobj_dup = NULL;
 	dbus_int32_t parentid = 0;
 
+	if (!busname || !busobj || !*busobj)
+		return;
 	menu = calloc(1, sizeof(Menu));
 	busname_dup = strdup(busname);
 	busobj_dup = strdup(busobj);
@@ -740,7 +774,7 @@ menu_show(DBusConnection *conn, struct wl_event_loop *loop, const char *busname,
 	if (!dbus_message_append_args(msg, DBUS_TYPE_INT32, &parentid,
 	                              DBUS_TYPE_INVALID) ||
 	    !dbus_connection_send_with_reply(menu->conn, msg, &pending, -1) ||
-	    !dbus_pending_call_set_notify(pending, about_to_show_handle, menu,
+	    !pending || !dbus_pending_call_set_notify(pending, about_to_show_handle, menu,
 	                                  NULL)) {
 		goto fail;
 	}
@@ -749,9 +783,13 @@ menu_show(DBusConnection *conn, struct wl_event_loop *loop, const char *busname,
 	return;
 
 fail:
-	if (pending)
+	if (pending) {
+		dbus_pending_call_cancel(pending);
 		dbus_pending_call_unref(pending);
+	}
 	if (msg)
 		dbus_message_unref(msg);
 	free(menu);
+	free(busname_dup);
+	free(busobj_dup);
 }

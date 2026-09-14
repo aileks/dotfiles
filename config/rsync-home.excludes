@@ -6,7 +6,6 @@
 /.xsession-errors.old
 /.zcompdump*
 /*.sock
-/.bitwarden-ssh-agent.sock
 /.Xauthority-c
 /.ICEauthority-c
 /.mozilla/firefox/*/cache2/
@@ -32,7 +31,6 @@
 /.cargo/git/
 /go/pkg/mod/
 /go/pkg/sumdb/
-/.cache/go-build/
 **/__pycache__/
 **/*.pyc
 **/*.pyo
@@ -44,13 +42,12 @@
 **/.venv/
 **/venv/
 **/node_modules/
+# Rootless containers and the local pgdev database are disposable.
 /.local/share/containers/
 /.docker/buildx/cache/
 /.compose-cache/
 /.nix-defexpr/
-/.cache/nix/
 /.pki/
 /.local/share/pki/
 /.local/share/Steam/steamapps/
 /.steam/steam/steamapps/
-

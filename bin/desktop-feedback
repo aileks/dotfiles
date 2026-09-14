@@ -4,6 +4,7 @@ set -Eeuo pipefail
 
 kind=${1:-}
 (($# == 0)) || shift
+options=(--app-name desktop-feedback --hint string:x-dunst-stack-tag:desktop-feedback --expire-time 1800)
 
 case $kind in
   status)
@@ -11,11 +12,6 @@ case $kind in
       printf 'usage: desktop-feedback status <summary>\n' >&2
       exit 2
     }
-    dunstify \
-      --app-name desktop-feedback \
-      --hint string:x-dunst-stack-tag:desktop-feedback \
-      --expire-time 1800 \
-      "$*"
     ;;
   progress)
     value=${1:-}
@@ -25,15 +21,11 @@ case $kind in
       exit 2
     fi
     value=$((10#${BASH_REMATCH[1]}))
-    dunstify \
-      --app-name desktop-feedback \
-      --hint string:x-dunst-stack-tag:desktop-feedback \
-      --expire-time 1800 \
-      --hint "int:value:$value" \
-      "$*"
+    options+=(--hint "int:value:$value")
     ;;
   *)
     printf 'usage: desktop-feedback <status|progress> ...\n' >&2
     exit 2
     ;;
 esac
+exec dunstify "${options[@]}" "$*"

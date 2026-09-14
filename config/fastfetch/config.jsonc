@@ -59,11 +59,6 @@
       "key": " wm",
       "keyColor": "yellow",
     },
-    // {
-    //   "type": "terminal",
-    //   "key": " term",
-    //   "keyColor": "yellow",
-    // },
     {
       "type": "custom",
       "format": "\u001b[90m┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈",

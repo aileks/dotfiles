@@ -64,7 +64,10 @@ createicon(const uint8_t *buf, int width, int height, int size)
 	uint32_t *buf_pixman = NULL;
 	uint8_t *buf_orig = NULL;
 
-	n_pixels = size / 4;
+	if (!buf || width <= 0 || height <= 0 || width > 512 || height > 512 ||
+			size != width * height * 4)
+		return NULL;
+	n_pixels = width * height;
 
 	icon = calloc(1, sizeof(Icon));
 	buf_orig = malloc(size);

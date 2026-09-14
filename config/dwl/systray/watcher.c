@@ -112,7 +112,7 @@ handle_nameowner_changed(Watcher *watcher, DBusConnection *conn,
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
-	if (*new_owner != '\0' || *name == '\0')
+	if (*old_owner == '\0' || *name == '\0')
 		return DBUS_HANDLER_RESULT_HANDLED;
 
 	item = item_name_to_ptr(watcher, name);
@@ -159,20 +159,14 @@ respond_register_item(Watcher *watcher, DBusConnection *conn, DBusMessage *msg)
 		registree_name = sender;
 		busobj = param;
 		break;
-	case ':':
+	default:
 		registree_name = param;
 		busobj = SNI_OPATH;
 		break;
-	default:
-		reply = dbus_message_new_error_printf(msg,
-		                                      DBUS_ERROR_INVALID_ARGS,
-		                                      "Bad argument: \"%s\"",
-		                                      param);
-		goto send;
 	}
 
-	if (*registree_name != ':' ||
-	    !dbus_validate_bus_name(registree_name, NULL)) {
+	if (!dbus_validate_bus_name(registree_name, NULL) ||
+	    !dbus_validate_path(busobj, NULL)) {
 		reply = dbus_message_new_error_printf(msg,
 		                                      DBUS_ERROR_INVALID_ARGS,
 		                                      "Invalid busname %s",
@@ -188,7 +182,10 @@ respond_register_item(Watcher *watcher, DBusConnection *conn, DBusMessage *msg)
 		goto send;
 	}
 
-	item = createitem(registree_name, busobj, watcher);
+	item = createitem(registree_name, busobj,
+		*registree_name == ':' ? registree_name : sender, watcher);
+	if (!item)
+		return DBUS_HANDLER_RESULT_NEED_MEMORY;
 	wl_list_insert(&watcher->items, &item->link);
 	watcher_update_trays(watcher);
 
@@ -347,7 +344,7 @@ respond_get_prop(Watcher *watcher, DBusConnection *conn, DBusMessage *msg)
 	} else {
 		dbus_message_unref(reply);
 		reply = dbus_message_new_error_printf(
-			reply, DBUS_ERROR_UNKNOWN_PROPERTY,
+			msg, DBUS_ERROR_UNKNOWN_PROPERTY,
 			"Property \"%s\" does not exist", prop);
 	}
 

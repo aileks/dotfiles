@@ -7,6 +7,6 @@ typedef void (*PropHandler)(DBusPendingCall *pcall, void *data);
 
 int request_property (DBusConnection *conn, const char *busname,
                       const char *busobj, const char *prop, const char *iface,
-                      PropHandler handler, void *data);
+                      PropHandler handler, void *data, DBusPendingCall **owned);
 
 #endif /* HELPERS_H */

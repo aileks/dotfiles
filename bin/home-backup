@@ -127,8 +127,6 @@ fi
 
 rsync_options=(
   -aAXH --numeric-ids -x
-  --delete-delay --delete-excluded
-  --partial-dir=.rsync-partial
   --log-file="$logs_directory/$timestamp.log"
   --exclude-from="$excludes"
 )
@@ -155,6 +153,8 @@ for snapshot in "${snapshots[@]}"; do
     rm -rf -- "${snapshots_directory:?}/$snapshot"
   fi
 done
+
+find "$logs_directory" -maxdepth 1 -type f -name '????-??-??T??????Z.log' -mtime +30 -delete
 
 printf 'Backup complete: %s\n' "$new_snapshot"
 write_status complete "$timestamp"

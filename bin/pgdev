@@ -12,9 +12,11 @@ note() { printf 'pgdev: %s\n' "$*" >&2; }
 ((EUID != 0)) || fail 'Run as the desktop user, never root or sudo podman.'
 repo=$(dirname -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")")
 config_dir=${XDG_CONFIG_HOME:-$HOME/.config}/postgres
-source "$repo/config/postgres/config"
-# These are user-owned Bash configuration files, not credentials.
-[[ ! -f $config_dir/config ]] || source "$config_dir/config"
+if [[ -f $config_dir/config ]]; then
+  source "$config_dir/config"
+else
+  source "$repo/config/postgres/config"
+fi
 [[ ! -f $config_dir/config.local ]] || source "$config_dir/config.local"
 
 [[ $PGDEV_IMAGE =~ ^docker.io/library/postgres:([0-9]+)-alpine(@sha256:[a-f0-9]{64})?$ ]] || fail 'Use a major-pinned official postgres alpine image.'
@@ -56,13 +58,19 @@ owned() {
   [[ $(podman_local "$kind" inspect --format "$format" "$resource") == "$PGDEV_CONTAINER" ]] || fail "Unrelated $kind name collision: $resource"
 }
 check_volume() {
+  local labels resource_owner volume_schema
   exists volume "$PGDEV_VOLUME" || fail 'Volume is absent; run pgdev init explicitly.'
-  owned volume "$PGDEV_VOLUME"
-  [[ $(podman_local volume inspect --format '{{index .Labels "io.aileks.pgdev.schema"}}' "$PGDEV_VOLUME") == "$schema" ]] || fail 'Volume initialization settings differ. Keep its original major/user/database; use a new volume for a migration.'
+  labels=$(podman_local volume inspect --format '{{index .Labels "io.aileks.pgdev"}} {{index .Labels "io.aileks.pgdev.schema"}}' "$PGDEV_VOLUME") || fail 'Could not inspect volume.'
+  read -r resource_owner volume_schema <<<"$labels"
+  [[ $resource_owner == "$PGDEV_CONTAINER" ]] || fail "Unrelated volume name collision: $PGDEV_VOLUME"
+  [[ $volume_schema == "$schema" ]] || fail 'Volume initialization settings differ. Keep its original major/user/database; use a new volume for a migration.'
 }
 check_container() {
-  owned container "$PGDEV_CONTAINER"
-  [[ $(podman_local container inspect --format '{{index .Config.Labels "io.aileks.pgdev.settings"}}' "$PGDEV_CONTAINER") == "$settings" ]] || fail 'Container settings changed. Stop and explicitly remove only the owned container before recreating it.'
+  local labels resource_owner container_settings
+  labels=$(podman_local container inspect --format '{{index .Config.Labels "io.aileks.pgdev"}} {{index .Config.Labels "io.aileks.pgdev.settings"}}' "$PGDEV_CONTAINER") || fail 'Could not inspect container.'
+  read -r resource_owner container_settings <<<"$labels"
+  [[ $resource_owner == "$PGDEV_CONTAINER" ]] || fail "Unrelated container name collision: $PGDEV_CONTAINER"
+  [[ $container_settings == "$settings" ]] || fail 'Container settings changed. Stop and explicitly remove only the owned container before recreating it.'
 }
 private_dir() {
   local directory=$1 resolved

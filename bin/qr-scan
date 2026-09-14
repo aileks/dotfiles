@@ -7,18 +7,18 @@ directory=$(mktemp -d "${XDG_RUNTIME_DIR:?}/qr-scan.XXXXXXXX")
 trap 'rm -rf -- "$directory"' EXIT
 trap 'exit 130' INT TERM HUP
 
-if ! geometry=$(slurp </dev/null 2>"$directory/error"); then
+if ! geometry=$(slurp </dev/null 2>/dev/null); then
   exit 0
 fi
 
-if ! grim -g "$geometry" "$directory/image.png" 2>"$directory/error"; then
+if ! grim -g "$geometry" "$directory/image.png" 2>/dev/null; then
   desktop-feedback status 'QR capture failed'
   exit 1
 fi
 
 status=0
 zbarimg --quiet --xml -Sdisable -Sqrcode.enable "$directory/image.png" \
-  >"$directory/codes.xml" 2>"$directory/error" || status=$?
+  >"$directory/codes.xml" 2>/dev/null || status=$?
 if ((status == 4)); then
   desktop-feedback status 'No QR code found'
   exit 0

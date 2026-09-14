@@ -5,9 +5,9 @@ set -Eeuo pipefail
 umask 077
 directory="${XDG_STATE_HOME:-$HOME/.local/state}/reminders"
 state="$directory/pending.json"
-temporary=$(mktemp -d "${XDG_RUNTIME_DIR:?}/reminder.XXXXXXXX")
+temporary=
 pending=
-trap 'rm -rf -- "$temporary"; [[ -z $pending ]] || rm -f -- "$pending"' EXIT
+trap '[[ -z $temporary ]] || rm -rf -- "$temporary"; [[ -z $pending ]] || rm -f -- "$pending"' EXIT
 trap 'exit 130' INT TERM HUP
 trap 'desktop-feedback status "Reminder operation failed; check input and state directory"; exit 1' ERR
 mkdir -p "$directory"
@@ -32,6 +32,7 @@ save_records() {
 }
 
 prompt() {
+  [[ -n $temporary ]] || temporary=$(mktemp -d "${XDG_RUNTIME_DIR:?}/reminder.XXXXXXXX")
   if ! answer=$(rofi -dmenu -i -p "$1" 2>"$temporary/menu-error"); then
     [[ ! -s $temporary/menu-error ]] || desktop-feedback status 'Reminder menu failed'
     exit 0

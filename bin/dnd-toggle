@@ -8,15 +8,14 @@ if ! pause_level=$(dunstctl get-pause-level); then
 fi
 
 if ((pause_level > 0)); then
-  if ! dunstctl set-pause-level 0; then
-    desktop-feedback status 'Do not disturb change failed' || true
-    exit 1
-  fi
-  desktop-feedback status 'Do not disturb off' || true
+  level=0
+  state=off
 else
-  if ! dunstctl set-pause-level 90; then
-    desktop-feedback status 'Do not disturb change failed' || true
-    exit 1
-  fi
-  desktop-feedback status 'Do not disturb on' || true
+  level=90
+  state=on
 fi
+if ! dunstctl set-pause-level "$level"; then
+  desktop-feedback status 'Do not disturb change failed' || true
+  exit 1
+fi
+desktop-feedback status "Do not disturb $state" || true

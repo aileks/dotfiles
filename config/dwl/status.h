@@ -43,8 +43,14 @@ status_parse(Status *status)
 		if (end)
 			field = end + 1;
 	}
-	memcpy(status->blocks, next, sizeof(next));
-	return 1;
+	for (i = 0; i < STATUS_BLOCKS; i++) {
+		if (status->blocks[i].color != next[i].color ||
+				strcmp(status->blocks[i].text, next[i].text) != 0) {
+			memcpy(status->blocks, next, sizeof(next));
+			return 1;
+		}
+	}
+	return 0;
 }
 
 static int

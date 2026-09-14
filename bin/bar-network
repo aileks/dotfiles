@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-[[ ${BLOCK_BUTTON:-} == 1 ]] && wezterm start --always-new-process -- nmtui >/dev/null 2>&1 &
+if [[ ${BLOCK_BUTTON:-} == 1 ]]; then
+  wezterm start --always-new-process -- nmtui >/dev/null 2>&1 &
+fi
 
 type=$(nmcli -t -f TYPE,STATE device status 2>/dev/null | awk -F: '$2 == "connected" { print $1; exit }')
 case $type in

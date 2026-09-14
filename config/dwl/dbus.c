@@ -17,8 +17,10 @@ close_pipe(void *data)
 {
 	int *pipefd = data;
 
-	close(pipefd[0]);
-	close(pipefd[1]);
+	if (pipefd[0] >= 0)
+		close(pipefd[0]);
+	if (pipefd[1] >= 0)
+		close(pipefd[1]);
 	free(pipefd);
 }
 
@@ -78,10 +80,7 @@ dwl_dbus_add_watch(DBusWatch *watch, void *data)
 	struct wl_event_source *watch_source;
 	uint32_t mask = 0, flags;
 
-	if (!dbus_watch_get_enabled(watch))
-		return TRUE;
-
-	flags = dbus_watch_get_flags(watch);
+	flags = dbus_watch_get_enabled(watch) ? dbus_watch_get_flags(watch) : 0;
 	if (flags & DBUS_WATCH_READABLE)
 		mask |= WL_EVENT_READABLE;
 	if (flags & DBUS_WATCH_WRITABLE)
@@ -90,6 +89,8 @@ dwl_dbus_add_watch(DBusWatch *watch, void *data)
 	fd = dbus_watch_get_unix_fd(watch);
 	watch_source = wl_event_loop_add_fd(loop, fd, mask,
 	                                    dwl_dbus_watch_handle, watch);
+	if (!watch_source)
+		return FALSE;
 
 	dbus_watch_set_data(watch, watch_source, NULL);
 
@@ -103,6 +104,22 @@ dwl_dbus_remove_watch(DBusWatch *watch, void *data)
 
 	if (watch_source)
 		wl_event_source_remove(watch_source);
+	dbus_watch_set_data(watch, NULL, NULL);
+}
+
+static void
+dwl_dbus_toggle_watch(DBusWatch *watch, void *data)
+{
+	struct wl_event_source *source = dbus_watch_get_data(watch);
+	unsigned int flags = dbus_watch_get_enabled(watch) ? dbus_watch_get_flags(watch) : 0;
+	uint32_t mask = 0;
+
+	if (flags & DBUS_WATCH_READABLE)
+		mask |= WL_EVENT_READABLE;
+	if (flags & DBUS_WATCH_WRITABLE)
+		mask |= WL_EVENT_WRITABLE;
+	if (source && wl_event_source_fd_update(source, mask) < 0)
+		die("Could not update D-Bus watch");
 }
 
 static int
@@ -110,8 +127,15 @@ dwl_dbus_timeout_handle(void *data)
 {
 	DBusTimeout *timeout = data;
 
-	if (dbus_timeout_get_enabled(timeout))
+	if (dbus_timeout_get_enabled(timeout)) {
+		struct wl_event_source *source = dbus_timeout_get_data(timeout);
+		int interval = dbus_timeout_get_interval(timeout);
+
+		/* Handling the timeout can remove and free it. Rearm before dispatch. */
+		if (wl_event_source_timer_update(source, interval > 0 ? interval : 1) < 0)
+			die("Could not rearm D-Bus timeout");
 		dbus_timeout_handle(timeout);
+	}
 
 	return 0;
 }
@@ -124,13 +148,16 @@ dwl_dbus_add_timeout(DBusTimeout *timeout, void *data)
 	int r, interval;
 	struct wl_event_source *timeout_source;
 
-	if (!dbus_timeout_get_enabled(timeout))
-		return TRUE;
-
 	interval = dbus_timeout_get_interval(timeout);
+	if (interval <= 0)
+		interval = 1;
+	if (!dbus_timeout_get_enabled(timeout))
+		interval = 0;
 
 	timeout_source =
 		wl_event_loop_add_timer(loop, dwl_dbus_timeout_handle, timeout);
+	if (!timeout_source)
+		return FALSE;
 
 	r = wl_event_source_timer_update(timeout_source, interval);
 	if (r < 0) {
@@ -154,6 +181,21 @@ dwl_dbus_remove_timeout(DBusTimeout *timeout, void *data)
 		wl_event_source_timer_update(timeout_source, 0);
 		wl_event_source_remove(timeout_source);
 	}
+	dbus_timeout_set_data(timeout, NULL, NULL);
+}
+
+static void
+dwl_dbus_toggle_timeout(DBusTimeout *timeout, void *data)
+{
+	struct wl_event_source *source = dbus_timeout_get_data(timeout);
+	int interval = dbus_timeout_get_interval(timeout);
+
+	if (interval <= 0)
+		interval = 1;
+	if (!dbus_timeout_get_enabled(timeout))
+		interval = 0;
+	if (source && wl_event_source_timer_update(source, interval) < 0)
+		die("Could not update D-Bus timeout");
 }
 
 static void
@@ -176,9 +218,11 @@ startbus(DBusConnection *conn, struct wl_event_loop *loop)
 {
 	int *pipefd;
 	int pending = 1, flags;
+	int owns_pipe = 0;
 	struct wl_event_source *bus_source = NULL;
 
 	pipefd = ecalloc(2, sizeof(int));
+	pipefd[0] = pipefd[1] = -1;
 
 	/*
 	 * Libdbus forbids calling dbus_connection_dispatch from the
@@ -204,14 +248,15 @@ startbus(DBusConnection *conn, struct wl_event_loop *loop)
 	dbus_connection_set_dispatch_status_function(conn,
 	                                             dwl_dbus_dispatch_status,
 	                                             pipefd, close_pipe);
+	owns_pipe = 1;
 	if (!dbus_connection_set_watch_functions(conn, dwl_dbus_add_watch,
-	                                         dwl_dbus_remove_watch, NULL,
+	                                         dwl_dbus_remove_watch, dwl_dbus_toggle_watch,
 	                                         loop, NULL)) {
 		goto fail;
 	}
 	if (!dbus_connection_set_timeout_functions(conn, dwl_dbus_add_timeout,
 	                                           dwl_dbus_remove_timeout,
-	                                           NULL, loop, NULL)) {
+	                                           dwl_dbus_toggle_timeout, loop, NULL)) {
 		goto fail;
 	}
 	if (dbus_connection_get_dispatch_status(conn) != DBUS_DISPATCH_COMPLETE)
@@ -227,6 +272,8 @@ fail:
 	                                      NULL);
 	dbus_connection_set_watch_functions(conn, NULL, NULL, NULL, NULL, NULL);
 	dbus_connection_set_dispatch_status_function(conn, NULL, NULL, NULL);
+	if (!owns_pipe)
+		close_pipe(pipefd);
 
 	return NULL;
 }
@@ -234,7 +281,8 @@ fail:
 void
 stopbus(DBusConnection *conn, struct wl_event_source *bus_source)
 {
-	wl_event_source_remove(bus_source);
+	if (bus_source)
+		wl_event_source_remove(bus_source);
 	dbus_connection_set_watch_functions(conn, NULL, NULL, NULL, NULL, NULL);
 	dbus_connection_set_timeout_functions(conn, NULL, NULL, NULL, NULL,
 	                                      NULL);
