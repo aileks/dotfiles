@@ -14,7 +14,7 @@ source "$repo/config/postgres/config"
 [[ ! -f $config_dir/config ]] || source "$config_dir/config"
 [[ ! -f $config_dir/config.local ]] || source "$config_dir/config.local"
 
-[[ $PGDEV_IMAGE =~ ^docker.io/library/postgres:([0-9]+)-bookworm(@sha256:[a-f0-9]{64})?$ ]] || fail 'Use a major-pinned official postgres bookworm image.'
+[[ $PGDEV_IMAGE =~ ^docker.io/library/postgres:([0-9]+)-alpine(@sha256:[a-f0-9]{64})?$ ]] || fail 'Use a major-pinned official postgres alpine image.'
 major=${BASH_REMATCH[1]}
 ((major >= 18)) || fail 'This helper uses the PostgreSQL 18+ volume layout.'
 for name in "$PGDEV_CONTAINER" "$PGDEV_VOLUME"; do
