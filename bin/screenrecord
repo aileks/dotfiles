@@ -138,9 +138,9 @@ file="$directory/$(date +%Y-%m-%d_%H-%M-%S-%N).mp4"
 case "$mode" in
   output)
     header= monitor=
-    if [[ ${DWL_CAPTURE_CONTEXT:-} != 1 ]] || ! IFS= read -r header ||
-      [[ $header != dwl-capture-v1 ]] || ! IFS= read -r rectangle ||
-      ! IFS= read -r monitor || [[ ! $monitor =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+    if [[ ${DWL_CAPTURE_CONTEXT:-} != 1 ]] || ! IFS= read -r header \
+      || [[ $header != dwl-capture-v1 ]] || ! IFS= read -r rectangle \
+      || ! IFS= read -r monitor || [[ ! $monitor =~ ^[a-zA-Z0-9_.-]+$ ]]; then
       desktop-feedback status 'Recording failed: use the dwl recording shortcut'
       exit 1
     fi

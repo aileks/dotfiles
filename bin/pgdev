@@ -3,7 +3,10 @@ set +x
 set -Eeuo pipefail
 umask 077
 
-fail() { printf 'pgdev: %s\n' "$*" >&2; exit 1; }
+fail() {
+  printf 'pgdev: %s\n' "$*" >&2
+  exit 1
+}
 note() { printf 'pgdev: %s\n' "$*" >&2; }
 
 ((EUID != 0)) || fail 'Run as the desktop user, never root or sudo podman.'
@@ -93,7 +96,7 @@ preflight() {
 }
 load_image() {
   if [[ -f $state/image ]]; then
-    read -r image < "$state/image"
+    read -r image <"$state/image"
   else
     image=$(podman_local image inspect --format '{{.Id}}' "$PGDEV_IMAGE") || fail 'Image absent; run pgdev init or explicitly pull the configured image.'
   fi
@@ -156,16 +159,19 @@ initialize() {
     podman_local pull "$PGDEV_IMAGE" >&2
   fi
   if [[ ! -f $state/image || $pull == --pull ]]; then
-    podman_local image inspect --format '{{.Id}}' "$PGDEV_IMAGE" > "$state/image.tmp"
+    podman_local image inspect --format '{{.Id}}' "$PGDEV_IMAGE" >"$state/image.tmp"
     mv -- "$state/image.tmp" "$state/image"
   fi
   load_image
-  podman_local image inspect --format '{{.Digest}}' "$image" > "$state/digest"
+  podman_local image inspect --format '{{.Digest}}' "$image" >"$state/digest"
   note "Image digest: $(cat "$state/digest")"
   podman_local run --rm --pull=never --image-volume=ignore --network=bridge --log-driver=k8s-file --label "$owner=$PGDEV_CONTAINER" --entrypoint=true "$image" || fail 'Rootless runtime/network check failed; no isolation settings have been disabled.'
   if [[ ! -e $state/password ]]; then
     # Hex has no pgpass delimiters; the password never leaves files/stdin.
-    (set -o noclobber; od -An -N32 -tx1 /dev/urandom | tr -d ' \n' > "$state/password")
+    (
+      set -o noclobber
+      od -An -N32 -tx1 /dev/urandom | tr -d ' \n' >"$state/password"
+    )
   fi
   private_file "$state/password"
   [[ -s $state/password ]] || fail 'Empty password file; recover credentials before continuing.'
@@ -174,7 +180,7 @@ initialize() {
   fi
   password=$(<"$state/password")
   [[ $password =~ ^[a-f0-9]{64}$ ]] || fail 'Expected the original generated password file.'
-  printf '127.0.0.1:%s:*:%s:%s\n' "$PGDEV_PORT" "$PGDEV_USER" "$password" > "$state/pgpass.tmp"
+  printf '127.0.0.1:%s:*:%s:%s\n' "$PGDEV_PORT" "$PGDEV_USER" "$password" >"$state/pgpass.tmp"
   unset password
   mv -- "$state/pgpass.tmp" "$state/pgpass"
   if ! exists volume "$PGDEV_VOLUME"; then
@@ -219,21 +225,31 @@ start() {
   fail 'Readiness timed out after 60 seconds; inspect pgdev logs.'
 }
 status() {
-  if ! exists container "$PGDEV_CONTAINER"; then note absent; return; fi
+  if ! exists container "$PGDEV_CONTAINER"; then
+    note absent
+    return
+  fi
   check_container
   local running exit_code started
   read -r running exit_code started < <(podman_local inspect --format '{{.State.Running}} {{.State.ExitCode}} {{.State.StartedAt}}' "$PGDEV_CONTAINER")
   [[ ! -f $state/digest ]] || note "Recorded digest: $(cat "$state/digest")"
   if [[ $running != true ]]; then
-    if ((exit_code == 0)); then note stopped; else note failed; return 1; fi
+    if ((exit_code == 0)); then note stopped; else
+      note failed
+      return 1
+    fi
   else
     load_image
     if local_client pg_isready "$PGDEV_DATABASE" -t 2 </dev/null >/dev/null 2>&1; then
-      if query_ready 2>/dev/null; then note ready; else note failed; return 1; fi
-    elif (( $(date +%s) - $(date -d "$started" +%s) < 60 )); then
+      if query_ready 2>/dev/null; then note ready; else
+        note failed
+        return 1
+      fi
+    elif (($(date +%s) - $(date -d "$started" +%s) < 60)); then
       note starting
     else
-      note failed; return 1
+      note failed
+      return 1
     fi
   fi
 }
@@ -247,7 +263,7 @@ dump() (
   temporary=$(mktemp "$state_root/backups/.dump.XXXXXXXX")
   trap 'rm -f -- "$temporary"' EXIT
   destination=$state_root/backups/$database-$(date -u +%Y%m%dT%H%M%SZ)-${temporary##*.}.dump
-  local_client pg_dump "$database" -w -Fc > "$temporary"
+  local_client pg_dump "$database" -w -Fc >"$temporary"
   mv -- "$temporary" "$destination"
   printf '%s\n' "$destination"
 )
@@ -258,12 +274,12 @@ restore() {
   check_volume
   credentials
   load_image
-  local_client pg_restore "$PGDEV_DATABASE" --list < "$archive" >/dev/null
+  local_client pg_restore "$PGDEV_DATABASE" --list <"$archive" >/dev/null
   # CREATE DATABASE refuses any existing target, including an empty database.
   local_client psql "$PGDEV_DATABASE" -X -w -v ON_ERROR_STOP=1 -v "target=$database" >&2 <<'SQL'
 SELECT format('CREATE DATABASE %I', :'target') \gexec
 SQL
-  local_client pg_restore "$database" -w --exit-on-error --single-transaction --dbname="$database" < "$archive"
+  local_client pg_restore "$database" -w --exit-on-error --single-transaction --dbname="$database" <"$archive"
   note "Restored into $database. Verify it before using or deleting any other database."
 }
 
@@ -274,17 +290,26 @@ else
   shift || true
 fi
 case $command in
-  help|--help|-h) printf 'Usage: pgdev {init [--pull]|start|stop|status|logs [OPTIONS]|psql [ARGS]|dump DB|restore TARGET_DB FILE}\n'; exit ;;
+  help | --help | -h)
+    printf 'Usage: pgdev {init [--pull]|start|stop|status|logs [OPTIONS]|psql [ARGS]|dump DB|restore TARGET_DB FILE}\n'
+    exit
+    ;;
   init) (($# <= 1)) || fail 'Usage: pgdev init [--pull]' ;;
-  start|stop|status) (($# == 0)) || fail "Usage: pgdev $command" ;;
+  start | stop | status) (($# == 0)) || fail "Usage: pgdev $command" ;;
   dump) (($# == 1)) || fail 'Usage: pgdev dump DB' ;;
   restore) (($# == 2)) || fail 'Usage: pgdev restore TARGET_DB FILE' ;;
-  logs|psql) ;;
+  logs | psql) ;;
   *) fail "Unknown command: $command" ;;
 esac
 command -v podman >/dev/null || fail 'Podman is not installed.'
-if [[ $command == psql ]]; then load_image; client psql "$@"; fi
-if [[ $command == status ]]; then status; exit; fi
+if [[ $command == psql ]]; then
+  load_image
+  client psql "$@"
+fi
+if [[ $command == status ]]; then
+  status
+  exit
+fi
 # Serialize lifecycle and backup operations for this instance, not SQL sessions.
 private_dir "$state_root"
 private_dir "$state"
@@ -297,12 +322,14 @@ case $command in
     if exists container "$PGDEV_CONTAINER"; then
       owned container "$PGDEV_CONTAINER"
       podman_local stop --time 30 "$PGDEV_CONTAINER" >&2
-    else note absent; fi ;;
+    else note absent; fi
+    ;;
   logs)
     exists container "$PGDEV_CONTAINER" || fail 'Container absent.'
     owned container "$PGDEV_CONTAINER"
     flock -u 9
-    exec "${podman[@]}" logs "$@" "$PGDEV_CONTAINER" ;;
+    exec "${podman[@]}" logs "$@" "$PGDEV_CONTAINER"
+    ;;
   dump) dump "$@" ;;
   restore) restore "$@" ;;
 esac

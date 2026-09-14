@@ -23,9 +23,9 @@ case "$mode" in
     ;;
   window)
     header= geometry=
-    if [[ ${DWL_CAPTURE_CONTEXT:-} == 1 ]] && IFS= read -r header &&
-      [[ $header == dwl-capture-v1 ]] && IFS= read -r rectangle &&
-      [[ $rectangle =~ ^(-?[0-9]{1,5})\ (-?[0-9]{1,5})\ ([1-9][0-9]{0,4})\ ([1-9][0-9]{0,4})$ ]]; then
+    if [[ ${DWL_CAPTURE_CONTEXT:-} == 1 ]] && IFS= read -r header \
+      && [[ $header == dwl-capture-v1 ]] && IFS= read -r rectangle \
+      && [[ $rectangle =~ ^(-?[0-9]{1,5})\ (-?[0-9]{1,5})\ ([1-9][0-9]{0,4})\ ([1-9][0-9]{0,4})$ ]]; then
       geometry="${BASH_REMATCH[1]},${BASH_REMATCH[2]} ${BASH_REMATCH[3]}x${BASH_REMATCH[4]}"
     fi
     if [[ -z $geometry ]]; then

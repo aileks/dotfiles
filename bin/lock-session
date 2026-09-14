@@ -10,9 +10,9 @@ flock -w 5 9 || exit 1
 ready_file="$runtime_directory/lock-session.ready"
 if [[ -f $ready_file ]]; then
   read -r pid start_time <"$ready_file" || true
-  if [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] &&
-    read -r state current_start < <(awk '{ print $3, $22 }' "/proc/$pid/stat" 2>/dev/null) &&
-    [[ $state != Z && $current_start == "$start_time" ]]; then
+  if [[ ${pid:-} =~ ^[0-9]+$ && ${start_time:-} =~ ^[0-9]+$ ]] \
+    && read -r state current_start < <(awk '{ print $3, $22 }' "/proc/$pid/stat" 2>/dev/null) \
+    && [[ $state != Z && $current_start == "$start_time" ]]; then
     exit 0
   fi
 fi
