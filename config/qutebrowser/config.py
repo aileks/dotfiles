@@ -59,7 +59,5 @@ c.editor.command = ["emacsclient", "-c", "--alternate-editor=", "{file}"]
 config.bind(",p", "spawn --userscript qute-bitwarden --auto-lock 31536000")
 config.bind("M", "hint links spawn --detach mpv {hint-url}")
 config.bind("tD", "config-cycle colors.webpage.darkmode.enabled true false")
-config.bind("[b", "tab-prev")
-config.bind("]b", "tab-next")
 
 config.load_autoconfig(True)
