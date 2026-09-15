@@ -10,6 +10,7 @@ _path_prepend() {
   esac
 }
 
+_path_prepend "$HOME/.config/emacs/bin"
 _path_prepend "$HOME/.local/bin"
 
 export NPM_CONFIG_PREFIX="$HOME/.local"
@@ -21,8 +22,8 @@ export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export MANPAGER='nvim +Man!'
 export DOCKER_HOST="unix://${XDG_RUNTIME_DIR:-/run/user/$UID}/podman/podman.sock"
 export PGPASSFILE="$HOME/.local/state/postgres/postgres-18/pgpass"
-
 export PNPM_HOME="$HOME/.local/share/pnpm"
+
 _path_prepend "$PNPM_HOME"
 
 export PATH
