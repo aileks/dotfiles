@@ -1,10 +1,11 @@
 c.fonts.default_family = "Iosevka Nerd Font"
-c.fonts.default_size = "11pt"
+c.fonts.default_size = "12pt"
 c.fonts.web.family.standard = "Adwaita Sans"
 c.fonts.web.family.fixed = "Iosevka Nerd Font Mono"
 c.fonts.web.size.default = 16
 c.scrolling.smooth = True
 c.tabs.show = "multiple"
+c.statusbar.show = "in-mode"
 c.tabs.position = "top"
 c.tabs.background = True
 c.tabs.select_on_remove = "prev"
@@ -14,8 +15,8 @@ c.content.plugins = True
 c.url.start_pages = ["https://duckduckgo.com"]
 c.url.default_page = "https://duckduckgo.com"
 c.colors.webpage.preferred_color_scheme = "dark"
-c.colors.webpage.darkmode.enabled = True
-c.colors.webpage.darkmode.policy.images = 'never'
+# c.colors.webpage.darkmode.enabled = True
+# c.colors.webpage.darkmode.policy.images = 'never'
 
 c.qt.args = [
     "enable-features=VaapiVideoDecodeLinuxGL",
