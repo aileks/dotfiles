@@ -287,6 +287,8 @@ desktop_packages=(
   media-fonts/noto-cjk
   media-fonts/noto-emoji
   www-client/qutebrowser
+  dev-python/tldextract
+  dev-python/pyperclip
 )
 
 app_packages=(
@@ -554,7 +556,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock mango waybar; do
+  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock mango waybar qutebrowser; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
