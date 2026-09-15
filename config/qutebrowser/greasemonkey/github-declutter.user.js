@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        github-declutter
+// @name        GitHub Declutter
 // @description Hide Copilot UI clutter and the dashboard news sidebar on github.com.
 // @match       https://github.com/*
 // @run-at      document-start

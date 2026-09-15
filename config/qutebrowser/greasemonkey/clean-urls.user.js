@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        clean-urls
+// @name        CleanURLs
 // @description Strip common tracking parameters from URLs.
 // @match       *://*/*
 // @run-at      document-start
