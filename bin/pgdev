@@ -10,6 +10,7 @@ fail() {
 note() { printf 'pgdev: %s\n' "$*" >&2; }
 
 ((EUID != 0)) || fail 'Run as the desktop user, never root or sudo podman.'
+
 repo=$(dirname -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")")
 config_dir=${XDG_CONFIG_HOME:-$HOME/.config}/postgres
 if [[ -f $config_dir/config ]]; then
@@ -22,23 +23,28 @@ fi
 [[ $PGDEV_IMAGE =~ ^docker.io/library/postgres:([0-9]+)-alpine(@sha256:[a-f0-9]{64})?$ ]] || fail 'Use a major-pinned official postgres alpine image.'
 major=${BASH_REMATCH[1]}
 ((major >= 18)) || fail 'This helper uses the PostgreSQL 18+ volume layout.'
+
 for name in "$PGDEV_CONTAINER" "$PGDEV_VOLUME"; do
   [[ $name =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]] || fail 'Invalid container or volume name.'
 done
+
 [[ $PGDEV_PORT =~ ^[0-9]{1,5}$ ]] || fail 'Port must be between 1024 and 65535.'
 PGDEV_PORT=$((10#$PGDEV_PORT))
 ((PGDEV_PORT >= 1024 && PGDEV_PORT <= 65535)) || fail 'Port must be between 1024 and 65535.'
+
 identifier() {
   [[ $1 =~ ^[a-zA-Z_][a-zA-Z0-9_-]{0,62}$ ]] || fail 'Use a database/role name of 1-63 letters, digits, underscores or hyphens, starting with a letter or underscore.'
 }
 identifier "$PGDEV_USER"
 identifier "$PGDEV_DATABASE"
+
 state_root=${XDG_STATE_HOME:-$HOME/.local/state}/postgres
 state=$state_root/$PGDEV_CONTAINER
 secret=$PGDEV_CONTAINER-password
 owner=io.aileks.pgdev
 schema=$major:$PGDEV_USER:$PGDEV_DATABASE
 settings=$schema:$PGDEV_VOLUME:$PGDEV_PORT
+
 podman=(podman --remote=false --cgroup-manager=cgroupfs --events-backend=file)
 
 # Keep conmon and rootless networking processes from inheriting our lock.
@@ -50,6 +56,7 @@ exists() {
   ((result < 2)) || fail "Podman could not check $1 $2."
   return "$result"
 }
+
 owned() {
   local kind=$1 resource=$2 format
   format="{{index .Labels \"$owner\"}}"
@@ -57,6 +64,7 @@ owned() {
   [[ $kind != secret ]] || format="{{index .Spec.Labels \"$owner\"}}"
   [[ $(podman_local "$kind" inspect --format "$format" "$resource") == "$PGDEV_CONTAINER" ]] || fail "Unrelated $kind name collision: $resource"
 }
+
 check_volume() {
   local labels resource_owner volume_schema
   exists volume "$PGDEV_VOLUME" || fail 'Volume is absent; run pgdev init explicitly.'
@@ -65,6 +73,7 @@ check_volume() {
   [[ $resource_owner == "$PGDEV_CONTAINER" ]] || fail "Unrelated volume name collision: $PGDEV_VOLUME"
   [[ $volume_schema == "$schema" ]] || fail 'Volume initialization settings differ. Keep its original major/user/database; use a new volume for a migration.'
 }
+
 check_container() {
   local labels resource_owner container_settings
   labels=$(podman_local container inspect --format '{{index .Config.Labels "io.aileks.pgdev"}} {{index .Config.Labels "io.aileks.pgdev.settings"}}' "$PGDEV_CONTAINER") || fail 'Could not inspect container.'
@@ -72,6 +81,7 @@ check_container() {
   [[ $resource_owner == "$PGDEV_CONTAINER" ]] || fail "Unrelated container name collision: $PGDEV_CONTAINER"
   [[ $container_settings == "$settings" ]] || fail 'Container settings changed. Stop and explicitly remove only the owned container before recreating it.'
 }
+
 private_dir() {
   local directory=$1 resolved
   resolved=$(realpath -m -- "$directory")
@@ -83,12 +93,14 @@ private_dir() {
     mkdir -p -- "$directory"
   fi
 }
+
 private_file() {
   [[ -f $1 && ! -L $1 && -O $1 && $(stat -c %a -- "$1") == 600 ]] || fail "Expected an owned mode 0600 file: $1"
   local parent
   parent=$(dirname -- "$1")
   [[ -O $parent && $(stat -c %a -- "$parent") == 700 ]] || fail "Password file needs a private mode 0700 parent: $parent"
 }
+
 preflight() {
   local mapping name runtime
   name=$(id -un)
@@ -102,6 +114,7 @@ preflight() {
   podman_local unshare sh -c 'for f in /proc/self/uid_map /proc/self/gid_map; do awk "\$1 > 0 && \$3 >= 65536 {ok=1} END {exit !ok}" "$f" || exit; done' || fail 'Podman subordinate-ID mappings are unavailable; check newuidmap/newgidmap and restart the login session after account setup.'
   command -v pasta >/dev/null || command -v slirp4netns >/dev/null || fail 'Rootless networking requires pasta or slirp4netns.'
 }
+
 load_image() {
   if [[ -f $state/image ]]; then
     read -r image <"$state/image"
@@ -110,6 +123,7 @@ load_image() {
   fi
   podman_local image exists "$image" || fail 'Recorded image is missing; run pgdev init --pull after removing the stopped container.'
 }
+
 # Only the general client forwards caller connection settings. Local maintenance
 # uses a separate environment and a password file scoped to loopback/port/user.
 client() {
@@ -127,6 +141,7 @@ client() {
   exec "${podman[@]}" run --rm -i --pull=never --image-volume=ignore --network=host --log-driver=none \
     --label "$owner=$PGDEV_CONTAINER" --entrypoint="$program" "${options[@]}" "$image" "$@"
 }
+
 local_client() {
   local program=$1 database=$2
   shift 2
@@ -139,12 +154,14 @@ local_client() {
     --env "PGUSER=$PGDEV_USER" --env "PGDATABASE=$database" --env PGCONNECT_TIMEOUT=3 \
     "$image" "$@"
 }
+
 credentials() {
   private_file "$state/password"
   private_file "$state/pgpass"
   exists secret "$secret" || fail 'Secret missing. Recover the original credentials; pgdev init can reimport the existing password file.'
   owned secret "$secret"
 }
+
 initialize() {
   preflight
   local pull=${1:-} password
@@ -196,9 +213,11 @@ initialize() {
   fi
   note 'Initialized. Run pgdev start explicitly; initialization does not start the server.'
 }
+
 query_ready() {
   local_client psql "$PGDEV_DATABASE" -X -w -At -v ON_ERROR_STOP=1 -c 'SELECT 1' </dev/null >/dev/null
 }
+
 start() {
   check_volume
   credentials
@@ -232,6 +251,7 @@ start() {
   done
   fail 'Readiness timed out after 60 seconds; inspect pgdev logs.'
 }
+
 status() {
   if ! exists container "$PGDEV_CONTAINER"; then
     note absent
@@ -261,6 +281,7 @@ status() {
     fi
   fi
 }
+
 dump() (
   local database=$1 temporary destination
   identifier "$database"
@@ -275,6 +296,7 @@ dump() (
   mv -- "$temporary" "$destination"
   printf '%s\n' "$destination"
 )
+
 restore() {
   local database=$1 archive=$2
   identifier "$database"
@@ -297,6 +319,7 @@ else
   command=${1:-help}
   shift || true
 fi
+
 case $command in
   help | --help | -h)
     printf 'Usage: pgdev {init [--pull]|start|stop|status|logs [OPTIONS]|psql [ARGS]|dump DB|restore TARGET_DB FILE}\n'
@@ -309,15 +332,18 @@ case $command in
   logs | psql) ;;
   *) fail "Unknown command: $command" ;;
 esac
+
 command -v podman >/dev/null || fail 'Podman is not installed.'
 if [[ $command == psql ]]; then
   load_image
   client psql "$@"
 fi
+
 if [[ $command == status ]]; then
   status
   exit
 fi
+
 # Serialize lifecycle and backup operations for this instance, not SQL sessions.
 private_dir "$state_root"
 private_dir "$state"
