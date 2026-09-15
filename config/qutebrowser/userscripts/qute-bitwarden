@@ -255,9 +255,9 @@ def main(arguments):
     if not selection:
         return ExitCodes.SUCCESS
 
-    username = selection['login']['username']
-    password = selection['login']['password']
-    totp = selection['login']['totp']
+    username = selection['login'].get('username')
+    password = selection['login'].get('password')
+    totp = selection['login'].get('totp')
 
     if arguments.username_only:
         fake_key_raw(username)

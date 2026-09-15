@@ -1,5 +1,3 @@
-config.load_autoconfig(False)
-
 c.fonts.default_family = "Iosevka Nerd Font"
 c.fonts.default_size = "11pt"
 c.fonts.web.family.standard = "Adwaita Sans"
@@ -16,6 +14,8 @@ c.content.plugins = True
 c.url.start_pages = ["https://duckduckgo.com"]
 c.url.default_page = "https://duckduckgo.com"
 c.colors.webpage.preferred_color_scheme = "dark"
+c.colors.webpage.darkmode.enabled = True
+c.colors.webpage.darkmode.policy.images = 'never'
 
 c.qt.args = [
     "enable-features=VaapiVideoDecodeLinuxGL",
@@ -55,8 +55,10 @@ c.downloads.remove_finished = 5000
 c.content.autoplay = False
 c.editor.command = ["emacsclient", "-c", "--alternate-editor=", "{file}"]
 
-config.bind(",p", "spawn --userscript qute-bitwarden")
+config.bind(",p", "spawn --userscript qute-bitwarden --auto-lock 31536000")
 config.bind("M", "hint links spawn --detach mpv {hint-url}")
 config.bind("tD", "config-cycle colors.webpage.darkmode.enabled true false")
 config.bind("[b", "tab-prev")
 config.bind("]b", "tab-next")
+
+config.load_autoconfig(True)

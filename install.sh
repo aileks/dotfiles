@@ -575,6 +575,7 @@ link_dotfiles() {
 
   link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
+  link "$repo/config/qutebrowser/userscripts" "$data_home/qutebrowser/userscripts"
   link "$repo/config/bash/bashrc" "$target_home/.bashrc"
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
   if [[ -L $config_home/starship.toml && $(readlink "$config_home/starship.toml") == "$repo/config/starship/starship.toml" ]]; then
