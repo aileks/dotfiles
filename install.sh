@@ -35,11 +35,8 @@ parse_arguments() {
         shift
         ;;
       --user-setup) phase=user ;;
-      --system-config) phase=system-config ;;
       --help)
-        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run] [--update-tools] [--system-config]'
-        echo '  --system-config  install only the root-owned copies under etc/ (plus the'
-        echo '                    Qt palette) and exit; no emerges, no user phase.'
+        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run] [--update-tools]'
         exit 0
         ;;
       *) fail "Unknown argument: $1. Use --help for usage." ;;
@@ -346,11 +343,32 @@ install_system_file() {
 
 install_system_config() {
   local source relative
+  local manifest=/var/lib/dotfiles/etc-manifest
 
   while IFS= read -r -d '' source; do
     relative=${source#"$repo/"}
     install_system_file "$source" "/$relative"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
+
+  # Remove live files a previous run laid down whose repo counterpart has
+  # since been deleted. Only manifest-tracked paths are considered, so
+  # hand-maintained files under /etc are never pruned.
+  if [[ -r $manifest ]]; then
+    while IFS= read -r relative; do
+      [[ -e /etc/$relative || -L /etc/$relative ]] || continue
+      [[ -e $repo/etc/$relative ]] && continue
+      run install -d -m 700 -- "/var/backups/dotfiles/$stamp/removed/etc/${relative%/*}"
+      run cp -a -- "/etc/$relative" "/var/backups/dotfiles/$stamp/removed/etc/$relative"
+      run rm -f -- "/etc/$relative"
+    done < "$manifest"
+  fi
+
+  if "$dry_run"; then
+    printf 'update %s\n' "$manifest"
+  else
+    run install -d -m 755 -- /var/lib/dotfiles
+    find "$repo/etc" -type f -printf '%P\n' | LC_ALL=C sort >"$manifest"
+  fi
 
   install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
   if [[ -f /etc/ly/config.ini ]] && grep -Eq '^[[:space:]]*login_cmd[[:space:]]*=[[:space:]]*/usr/local/bin/start-session[[:space:]]*$' /etc/ly/config.ini; then
@@ -864,13 +882,12 @@ main() {
     tool_options+=(--update-tools)
   fi
 
-  if [[ $phase == system || $phase == system-config ]]; then
+  if [[ $phase == system ]]; then
     preflight
     if ((EUID != 0)) && ! "$dry_run"; then
       command -v sudo >/dev/null || fail "Run as root with --user $target_user to bootstrap sudo."
       local -a arguments=(--user "$target_user")
       "$in_chroot" && arguments+=(--chroot)
-      [[ $phase == system-config ]] && arguments+=(--system-config)
       exec sudo -- "$repo/install.sh" "${arguments[@]}" "${tool_options[@]}"
     fi
   fi
@@ -888,12 +905,6 @@ main() {
 
   if [[ $phase == user ]]; then
     setup_user
-    return
-  fi
-
-  if [[ $phase == system-config ]]; then
-    install_system_config
-    echo 'System configuration installed.'
     return
   fi
 
