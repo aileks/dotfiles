@@ -23,7 +23,7 @@ gui-libs/xdg-desktop-portal-wlr elogind -systemd
 x11-libs/libxkbcommon X
 
 # audio
-media-video/pipewire dbus elogind pipewire-alsa sound-server
+media-video/pipewire dbus elogind pipewire-alsa sound-server bluetooth
 media-video/wireplumber elogind
 media-sound/easyeffects -doc
 
