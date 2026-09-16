@@ -35,8 +35,11 @@ parse_arguments() {
         shift
         ;;
       --user-setup) phase=user ;;
+      --system-config) phase=system-config ;;
       --help)
-        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run] [--update-tools]'
+        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run] [--update-tools] [--system-config]'
+        echo '  --system-config  install only the root-owned copies under etc/ (plus the'
+        echo '                    Qt palette) and exit; no emerges, no user phase.'
         exit 0
         ;;
       *) fail "Unknown argument: $1. Use --help for usage." ;;
@@ -531,7 +534,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock swayosd mango waybar qutebrowser; do
+  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock swayosd mango waybar; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -861,12 +864,13 @@ main() {
     tool_options+=(--update-tools)
   fi
 
-  if [[ $phase == system ]]; then
+  if [[ $phase == system || $phase == system-config ]]; then
     preflight
     if ((EUID != 0)) && ! "$dry_run"; then
       command -v sudo >/dev/null || fail "Run as root with --user $target_user to bootstrap sudo."
       local -a arguments=(--user "$target_user")
       "$in_chroot" && arguments+=(--chroot)
+      [[ $phase == system-config ]] && arguments+=(--system-config)
       exec sudo -- "$repo/install.sh" "${arguments[@]}" "${tool_options[@]}"
     fi
   fi
@@ -884,6 +888,12 @@ main() {
 
   if [[ $phase == user ]]; then
     setup_user
+    return
+  fi
+
+  if [[ $phase == system-config ]]; then
+    install_system_config
+    echo 'System configuration installed.'
     return
   fi
 
