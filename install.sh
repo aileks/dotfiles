@@ -112,8 +112,6 @@ preflight() {
   local source relative path booted_root
 
   [[ -f /etc/gentoo-release && -d /etc/runlevels ]] || fail 'This installer requires Gentoo OpenRC.'
-  [[ $(readlink -f /etc/portage/make.profile) == */profiles/default/linux/amd64/23.0/desktop ]] \
-    || fail 'Prepare the default/linux/amd64/23.0/desktop OpenRC profile before running this installer.'
   portageq has_version / virtual/dist-kernel || fail 'Install and configure a Gentoo distribution kernel as part of the base installation.'
 
   if "$in_chroot"; then
@@ -158,7 +156,8 @@ preflight() {
   dry_run=true ensure_subordinate_ids /etc/subgid >/dev/null
 }
 
-base_packages=(
+packages=(
+  # base system
   sys-kernel/linux-firmware
   x11-drivers/nvidia-drivers
   net-misc/networkmanager
@@ -184,9 +183,8 @@ base_packages=(
   media-libs/gst-plugins-bad
   media-libs/gst-plugins-ugly
   media-plugins/gst-plugins-libav
-)
 
-cli_packages=(
+  # command line
   app-arch/7zip
   app-text/tree
   sys-apps/bat
@@ -214,9 +212,8 @@ cli_packages=(
   app-containers/podman-compose
   app-containers/podman-tui
   net-misc/curl
-)
 
-desktop_packages=(
+  # desktop
   gui-wm/mangowm
   gui-apps/waybar
   gui-apps/swayosd
@@ -288,15 +285,15 @@ desktop_packages=(
   media-fonts/noto-emoji
   dev-python/tldextract
   dev-python/pyperclip
-)
+  media-sound/easyeffects
+  app-misc/anki
 
-app_packages=(
+  # applications
   app-misc/openrgb
   media-video/gpu-screen-recorder
   net-vpn/ivpn
-)
 
-dev_packages=(
+  # development
   sys-devel/gcc
   dev-debug/gdb
   dev-build/make
@@ -311,9 +308,8 @@ dev_packages=(
   dev-util/github-cli
   dev-util/ruff
   llvm-core/clang
-)
 
-binary_packages=(
+  # third-party binaries
   www-client/zen-browser-bin
   net-im/signal-desktop-bin
   app-office/onlyoffice-bin
@@ -322,11 +318,6 @@ binary_packages=(
   net-misc/localsend-bin
   net-vpn/ivpn-ui-bin
   dev-util/shellcheck-bin
-)
-
-binhost_packages=(
-  media-sound/easyeffects
-  app-misc/anki
 )
 
 install_system_file() {
@@ -376,15 +367,12 @@ install_system_config() {
 
 emerge_options=(
   --verbose --noreplace --changed-use --autounmask=n
-  --exclude 'virtual/dist-kernel sys-kernel/gentoo-kernel sys-kernel/gentoo-kernel-bin sys-kernel/installkernel sys-boot/limine dev-qt/qtwebengine'
 )
 
 install_packages() {
-  local package repository location
+  local repository location
   local -a qtwebengine_options=(--verbose --oneshot --update --changed-use
     --autounmask=n --getbinpkg=y --usepkgonly=y --binpkg-respect-use=y)
-  local -a source_packages=("${base_packages[@]}" "${cli_packages[@]}"
-    "${desktop_packages[@]}" "${app_packages[@]}" "${dev_packages[@]}")
 
   while read -r repository location; do
     if [[ ! -s $location/profiles/repo_name ]]; then
@@ -397,19 +385,8 @@ install_packages() {
   run emerge "${qtwebengine_options[@]}" dev-qt/qtwebengine:6 \
     || fail 'QtWebEngine binary installation failed; source compilation is disabled.'
 
-  run emerge "${emerge_options[@]}" --pretend --getbinpkg=n --usepkg=n \
-    "${source_packages[@]}" "${binary_packages[@]}" "${binhost_packages[@]}"
-  run emerge "${emerge_options[@]}" --getbinpkg=n --usepkg=n \
-    "${source_packages[@]}" "${binary_packages[@]}"
-
-  for package in "${binhost_packages[@]}"; do
-    if "$dry_run"; then
-      printf 'try emerge --pretend -gK %s; allow source fallback if unavailable\n' "$package"
-    elif ! emerge --pretend --getbinpkg --usepkgonly --autounmask=n "$package"; then
-      printf 'No compatible binary for %s; allowing a source build.\n' "$package"
-    fi
-    run emerge "${emerge_options[@]}" --getbinpkg=y --usepkg=y "$package"
-  done
+  run emerge "${emerge_options[@]}" --pretend --getbinpkg=y --usepkg=y "${packages[@]}"
+  run emerge "${emerge_options[@]}" --getbinpkg=y --usepkg=y "${packages[@]}"
 
   run eix-update
 }

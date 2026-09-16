@@ -1,1 +1,2 @@
-media-video/pipewire pipewire-alsa
+media-video/pipewire dbus elogind pipewire-alsa
+media-video/wireplumber elogind
