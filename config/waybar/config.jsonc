@@ -36,7 +36,7 @@
     "exec": "cpu-temp",
     "return-type": "json",
     "interval": 3,
-    "format": " {}",
+    "format": " {}",
     "on-click": "wezterm start --always-new-process -- btop"
   },
   "memory": {

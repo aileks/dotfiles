@@ -51,3 +51,4 @@
 /.local/share/pki/
 /.local/share/Steam/steamapps/
 /.steam/steam/steamapps/
+/.config/emacs/.local/straight/
