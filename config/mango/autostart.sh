@@ -47,6 +47,7 @@ start udiskie --tray
 start blueman-applet
 start wl-paste --watch cliphist store
 start swayidle -w -C "$config_home/swayidle/config"
+start "$config_home/mango/scripts/float-zen-popups"
 
 mkdir -p "$runtime_directory/podman"
 pgrep -u "$UID" -f 'podman system service' >/dev/null || start podman system service --time=0 "unix://$runtime_directory/podman/podman.sock"
