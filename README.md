@@ -1,4 +1,4 @@
-# Gentoo dotfiles
+# dotfiles
 
 My Gentoo configs for [MangoWM](https://mangowm.github.io/).
 
@@ -9,59 +9,6 @@ git clone --recurse-submodules https://github.com/aileks/dotfiles.git ~/.dotfile
 cd ~/.dotfiles
 ./install.sh
 ```
-
-Run from a checkout inside the desktop user's home. The installer requests sudo
-for system setup. When running as root, pass `--user USER`. Use `--dry-run` to
-inspect planned changes, or `--chroot` when preparing an installation in a chroot.
-Missing user tools are installed at the versions pinned in `install.sh`. Pass
-`--update-tools` to apply those versions to existing installations. Ordinary
-reruns preserve installed user tools and skip unchanged dwl builds and caches.
-
-Select dwl in Ly. The desktop entry runs `/usr/local/bin/start-dwl`, which owns
-the D-Bus session, parallel status workers, compositor restart, and cleanup.
-`config/dwl/autostart.sh` starts and stops the session's desktop processes.
-
-## Rebuild and restart
-
-Bindings and bar rendering are compiled into dwl. After editing its sources,
-rebuild and install from the checkout:
-
-```sh
-sudo make -C config/dwl install
-```
-
-This requires the build dependencies installed by `install.sh`, including
-wlroots 0.19. The standalone Makefile installs the compositor and desktop entry.
-Use the root installer for a complete session, including `start-dwl` and user
-configuration links.
-
-`Mod + Shift + R` restarts the compositor and its session children. It disconnects
-Wayland applications, so save work first. This is required for compiled changes.
-Autostart and status configuration changes also take effect on session restart.
-Native application configs take effect when their applications reload them.
-
-## Layout
-
-- `bin/`: daily-use commands, linked into `~/.local/bin`
-- `config/`: application configs, linked into `~/.config`
-- `config/dwl/`: patched compositor sources and compiled `config.def.h`. Only `autostart.sh` and `status.conf` are linked into `~/.config/dwl`
-- `config/dwl/patches/`: historical patch provenance, not installer build inputs. The checked-in C sources are authoritative
-- `bin/bar-*`: status commands called by `start-dwl` workers, with click actions dispatched by the compositor
-- `config/rofi/`: launcher and script menu appearance
-- `session/`: session entry points and startup scripts, installed to `/usr/local/bin`
-- `etc/`: system files, installed as root-owned copies
-- `etc/portage/`: per-package keywords, USE flags, and licenses
-- package lists live in the arrays at the top of `install.sh`
-
-MIME defaults live in `config/xdg/mimeapps.list`. The installer merges its managed
-defaults into the user's file while preserving other associations. The Qt palette
-is installed at `/usr/local/share/qt6ct/colors/cinder-grove.conf` for every user.
-Qt settings are installed as a writable copy so preferences-window geometry
-does not get written back into the checkout.
-
-`home-backup` keeps 30 completed snapshots and removes logs older than 30 days
-after a successful backup. Interrupted snapshots are discarded on the next run.
-Rootless container storage, including the disposable pgdev database, is excluded.
 
 ## Keybinds
 
