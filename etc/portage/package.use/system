@@ -1,0 +1,65 @@
+# qt
+dev-qt/qtbase:6 dbus gui opengl sql sqlite ssl udev wayland widgets vulkan
+dev-qt/qtdeclarative:6 opengl svg vulkan
+dev-qt/qttools:6 qml opengl
+dev-qt/qtwebchannel:6 qml
+dev-qt/qtwebengine:6 bindist opengl qml vulkan
+dev-python/pyqt6 qml quick webchannel
+
+# gtk
+x11-libs/gtk+:3 wayland
+dev-cpp/gtkmm:3.0 X wayland
+dev-cpp/cairomm X
+x11-libs/pango X introspection
+media-libs/freetype harfbuzz png
+
+# session
+gui-wm/mangowm X -asan
+gui-apps/waybar mpris network pulseaudio tray -systemd
+gui-libs/wlroots:0.19 X libinput drm session lcms vulkan -x11-backend
+sys-auth/seatd elogind -systemd
+gui-apps/swaybg gdk-pixbuf
+gui-apps/swayidle elogind -systemd
+gui-libs/xdg-desktop-portal-wlr elogind -systemd
+x11-libs/libxkbcommon X wayland
+x11-misc/rofi wayland
+x11-misc/dunst wayland
+x11-terms/wezterm wayland
+
+# audio
+media-video/pipewire dbus elogind pipewire-alsa sound-server
+media-video/wireplumber elogind
+media-sound/easyeffects -doc
+
+# media
+media-libs/mesa wayland
+x11-apps/mesa-progs wayland gles2
+media-video/ffmpeg alsa cairo jpegxl lcms lame opengl opus sdl svg vaapi vorbis vulkan vpx webp x264 x265
+media-video/mpv lcms nvenc pipewire vaapi wayland
+media-libs/libjxl gif jpeg
+app-text/djvu jpeg tiff xml
+media-gfx/imv wayland
+media-libs/libsdl2 gles2 pipewire wayland
+
+# nvidia
+x11-drivers/nvidia-drivers dist-kernel
+app-misc/ddcutil user-permissions video_cards_nvidia
+
+# emacs
+app-editors/emacs cairo dynamic-loading gif gui gtk harfbuzz imagemagick jit jpeg libxml2 png source sqlite svg tree-sitter webp -X
+sys-devel/gcc jit
+
+# gnome
+gnome-base/gvfs elogind policykit udisks udev
+sys-fs/udisks elogind
+sys-auth/pambase elogind
+dev-libs/libdbusmenu gtk gtk3
+sci-libs/libqalculate icu
+
+# misc
+net-libs/nodejs npm
+sys-libs/zlib minizip
+sys-libs/ncurses gpm
+app-text/xmlto text
+x11-libs/libXfont2 truetype
+media-fonts/nerdfonts -* iosevka iosevkaterm

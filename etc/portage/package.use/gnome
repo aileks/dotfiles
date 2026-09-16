@@ -1,5 +1,0 @@
-gnome-base/gvfs elogind policykit udisks udev
-sys-fs/udisks elogind
-sys-auth/pambase elogind
-dev-libs/libdbusmenu gtk gtk3
-sci-libs/libqalculate icu

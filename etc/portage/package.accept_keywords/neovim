@@ -1,3 +1,0 @@
-app-editors/neovim ~amd64
-dev-lua/luv ~amd64
-dev-libs/tree-sitter-markdown-inline ~amd64

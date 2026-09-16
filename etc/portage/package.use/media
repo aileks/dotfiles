@@ -1,7 +1,0 @@
-media-libs/mesa wayland
-x11-apps/mesa-progs wayland gles2
-media-video/ffmpeg alsa cairo jpegxl lcms lame opengl opus sdl svg vaapi vorbis vulkan vpx webp x264 x265
-media-video/mpv lcms nvenc pipewire vaapi wayland
-media-libs/libjxl gif jpeg
-app-text/djvu jpeg tiff xml
-media-gfx/imv wayland

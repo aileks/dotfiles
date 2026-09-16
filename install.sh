@@ -286,7 +286,6 @@ packages=(
   dev-python/tldextract
   dev-python/pyperclip
   media-sound/easyeffects
-  app-misc/anki
 
   # applications
   app-misc/openrgb
@@ -366,13 +365,11 @@ install_system_config() {
 }
 
 emerge_options=(
-  --verbose --noreplace --changed-use --autounmask=n
+  -vnU --autounmask=n
 )
 
 install_packages() {
   local repository location
-  local -a qtwebengine_options=(--verbose --oneshot --update --changed-use
-    --autounmask=n --getbinpkg=y --usepkgonly=y --binpkg-respect-use=y)
 
   while read -r repository location; do
     if [[ ! -s $location/profiles/repo_name ]]; then
@@ -380,12 +377,7 @@ install_packages() {
     fi
   done < <(awk '/^\[/ { name=substr($0, 2, length($0)-2) } /^location = / { print name, $3 }' "$repo/etc/portage/repos.conf/desktop.conf")
 
-  run emerge "${qtwebengine_options[@]}" --pretend dev-qt/qtwebengine:6 \
-    || fail 'Compatible binaries for QtWebEngine and its dependencies are required; source compilation is disabled.'
-  run emerge "${qtwebengine_options[@]}" dev-qt/qtwebengine:6 \
-    || fail 'QtWebEngine binary installation failed; source compilation is disabled.'
-
-  run emerge "${emerge_options[@]}" --pretend --getbinpkg=y --usepkg=y "${packages[@]}"
+  run emerge "${emerge_options[@]}" -p --getbinpkg=y --usepkg=y "${packages[@]}"
   run emerge "${emerge_options[@]}" --getbinpkg=y --usepkg=y "${packages[@]}"
 
   run eix-update
@@ -433,7 +425,7 @@ configure_account() {
     grep -Fxq "$shell" /etc/shells || fail "Bash is not listed in /etc/shells: $shell"
     account=$(getent passwd "$target_user") || fail "No such account: $target_user"
     if [[ ${account##*:} != "$shell" ]]; then
-      run usermod --shell "$shell" "$target_user"
+      run usermod -s "$shell" "$target_user"
     fi
 
     if [[ " $(id -nG "$target_user") " != *' i2c '* ]]; then
@@ -569,14 +561,14 @@ install_user_tools() {
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
 
   if "$update_tools" || [[ ! -x $HOME/.local/bin/bemoji ]]; then
-    curl --fail --location https://raw.githubusercontent.com/marty-oehme/bemoji/791c7748cf0236f691b1874e79ebe434469c20a9/bemoji --output "$work/bemoji"
+    curl -fL https://raw.githubusercontent.com/marty-oehme/bemoji/791c7748cf0236f691b1874e79ebe434469c20a9/bemoji -o "$work/bemoji"
     install -b -m 755 "$work/bemoji" "$HOME/.local/bin/bemoji"
   fi
 
   mkdir -p "$data_home/bemoji"
   if [[ ! -s $data_home/bemoji/emojis.txt ]]; then
-    curl --fail --location https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt \
-      --output "$work/emoji-test.txt"
+    curl -fL https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt \
+      -o "$work/emoji-test.txt"
     sed -n 's/^.*; fully-qualified.*# \([^[:space:]]*\) [^[:space:]]* \(.*$\)/\1 \2/p' \
       "$work/emoji-test.txt" >"$work/emojis.txt"
     [[ -s $work/emojis.txt ]]
@@ -586,7 +578,7 @@ install_user_tools() {
   if "$update_tools" || [[ ! -f $config_home/mpv/scripts/modernz.lua || ! -f $config_home/mpv/fonts/modernz-icons.ttf ]]; then
     mkdir -p "$config_home/mpv/scripts" "$config_home/mpv/fonts"
     for name in modernz.lua modernz-icons.ttf; do
-      curl --fail --location "https://raw.githubusercontent.com/Samillion/ModernZ/579897e8c974c380caa5017dc7b27a69123c1333/$name" --output "$work/$name"
+      curl -fL "https://raw.githubusercontent.com/Samillion/ModernZ/579897e8c974c380caa5017dc7b27a69123c1333/$name" -o "$work/$name"
     done
     install -b -m 644 "$work/modernz.lua" "$config_home/mpv/scripts/modernz.lua"
     install -b -m 644 "$work/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
@@ -669,7 +661,7 @@ install_appearance() {
   git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$work/gtk"
   printf 'y\n\n' | dbus-run-session -- "$work/gtk/install.sh"
 
-  git clone --depth 1 --branch cinder-grove-folders \
+  git clone --depth 1 -b cinder-grove-folders \
     https://github.com/aileks/papirus-folders.git "$work/folders"
   mkdir -p "$work/icons" "$HOME/.local/bin"
   install -m 755 "$work/folders/papirus-folders-cg" "$work/papirus-folders-cg"
@@ -887,7 +879,7 @@ main() {
     return
   fi
 
-  run emerge --noreplace --autounmask=n --getbinpkg=n --usepkg=n \
+  run emerge -n --autounmask=n --getbinpkg=n --usepkg=n \
     dev-vcs/git app-admin/sudo app-eselect/eselect-repository
 
   run as_user git -C "$repo" submodule update --init --recursive

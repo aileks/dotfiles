@@ -1,5 +1,0 @@
-x11-libs/gtk+:3 wayland
-dev-cpp/gtkmm:3.0 X wayland
-dev-cpp/cairomm X
-x11-libs/pango introspection
-media-libs/freetype harfbuzz png
