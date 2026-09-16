@@ -1,1 +1,1 @@
-dev-cpp/gtkmm:3 wayland
+dev-cpp/gtkmm:3.0 X wayland

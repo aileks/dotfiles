@@ -1,1 +1,1 @@
-media-video/mpv nvenc vaapi wayland -X -xv
+media-video/mpv lcms nvenc pipewire vaapi wayland
