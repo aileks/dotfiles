@@ -58,15 +58,15 @@ tooltip label {
     color: #6785a1;
 }
 
-#temperature {
+#custom-cpu-temp {
     color: #879b5c;
 }
 
-#temperature.warning {
+#custom-cpu-temp.warning {
     color: #d9a441;
 }
 
-#temperature.critical {
+#custom-cpu-temp.critical {
     color: #b34a45;
 }
 
@@ -91,6 +91,6 @@ tooltip label {
 #memory,
 #pulseaudio,
 #network,
-#temperature {
+#custom-cpu-temp {
     padding: 0 4px;
 }

@@ -6,7 +6,7 @@
   "on-sigusr1": "toggle",
   "modules-left": ["ext/workspaces"],
   "modules-center": ["mpris"],
-  "modules-right": ["pulseaudio", "cpu", "memory", "temperature", "network", "clock", "tray"],
+  "modules-right": ["pulseaudio", "cpu", "memory", "custom/cpu-temp", "network", "clock", "tray"],
   "ext/workspaces": {
     "format": "{name}",
     "all-outputs": false,
@@ -32,14 +32,11 @@
     "interval": 3,
     "on-click": "wezterm start --always-new-process -- btop"
   },
-  "temperature": {
-    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
-    "input-filename": "temp1_input",
-    "format": " {temperatureC}°C",
-    "warning-threshold": 66,
-    "critical-threshold": 90,
-    "tooltip-format": "CPU Tctl: {temperatureC}°C",
+  "custom/cpu-temp": {
+    "exec": "cpu-temp",
+    "return-type": "json",
     "interval": 3,
+    "format": " {}",
     "on-click": "wezterm start --always-new-process -- btop"
   },
   "memory": {

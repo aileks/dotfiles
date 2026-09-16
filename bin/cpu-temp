@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+hwmon=/sys/devices/pci0000:00/0000:00:18.3/hwmon
+[[ -d $hwmon ]] || exit 0
+
+millidegrees=0
+for label in "$hwmon"/hwmon*/temp*_label; do
+	[[ $(<"$label") == Tccd* ]] || continue
+	value=$(<"${label%_label}_input")
+	if (( value > millidegrees )); then
+		millidegrees=$value
+	fi
+done
+if (( millidegrees == 0 )); then
+	millidegrees=$(<"$hwmon"/hwmon*/temp1_input)
+fi
+
+celsius=$(( millidegrees / 1000 ))
+class=""
+if (( celsius >= 90 )); then
+	class="critical"
+elif (( celsius >= 66 )); then
+	class="warning"
+fi
+printf '{"text": "%d°C", "tooltip": "CPU die temp: %d°C", "class": "%s"}\n' "$celsius" "$celsius" "$class"
