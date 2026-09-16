@@ -1,0 +1,6 @@
+dev-qt/qtbase:6 dbus gui opengl sql sqlite ssl udev wayland widgets vulkan
+dev-qt/qtdeclarative:6 opengl svg vulkan
+dev-qt/qttools:6 qml opengl
+dev-qt/qtwebchannel:6 qml
+dev-qt/qtwebengine:6 bindist opengl qml vulkan
+dev-python/pyqt6 qml quick webchannel

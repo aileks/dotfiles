@@ -1,0 +1,3 @@
+media-video/pipewire dbus elogind pipewire-alsa sound-server
+media-video/wireplumber elogind
+media-sound/easyeffects -doc

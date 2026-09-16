@@ -1,0 +1,6 @@
+net-libs/nodejs npm
+sys-libs/zlib minizip
+sys-libs/ncurses gpm
+app-text/xmlto text
+x11-libs/libXfont2 truetype
+media-fonts/nerdfonts -* iosevka iosevkaterm

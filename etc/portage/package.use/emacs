@@ -1,1 +1,2 @@
 app-editors/emacs cairo dynamic-loading gif gui gtk harfbuzz imagemagick jit jpeg libxml2 png source sqlite svg tree-sitter webp -X
+sys-devel/gcc jit
