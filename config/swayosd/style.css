@@ -1,36 +1,45 @@
 /* Based on the swayosd 0.3.1 default style; square corners and a border in the
    Cinder Grove border gray (same as mango bordercolor). */
 window#osd {
-  border-radius: 0;
-  border: 2px solid #58534c;
-  background: alpha(@theme_bg_color, 0.8); }
-  window#osd #container {
-    margin: 16px; }
-  window#osd image,
-  window#osd label {
-    color: @theme_fg_color; }
-  window#osd progressbar:disabled,
-  window#osd image:disabled {
-    opacity: 0.5; }
-  window#osd progressbar,
-  window#osd segmentedprogress {
+    border-radius: 0;
+    border: 2px solid #9a788f;
+    background: alpha(@theme_bg_color, 0.8);
+}
+window#osd #container {
+    margin: 16px;
+}
+window#osd image,
+window#osd label {
+    color: @theme_fg_color;
+}
+window#osd progressbar:disabled,
+window#osd image:disabled {
+    opacity: 0.5;
+}
+window#osd progressbar,
+window#osd segmentedprogress {
     min-height: 6px;
     border-radius: 0;
     background: transparent;
-    border: none; }
-  window#osd trough,
-  window#osd segment {
+    border: none;
+}
+window#osd trough,
+window#osd segment {
     min-height: inherit;
     border-radius: inherit;
     border: none;
-    background: alpha(@theme_fg_color, 0.5); }
-  window#osd progress,
-  window#osd segment.active {
+    background: alpha(@theme_fg_color, 0.5);
+}
+window#osd progress,
+window#osd segment.active {
     min-height: inherit;
     border-radius: inherit;
     border: none;
-    background: @theme_fg_color; }
-  window#osd segment {
-    margin-left: 8px; }
-    window#osd segment:first-child {
-      margin-left: 0; }
+    background: @theme_fg_color;
+}
+window#osd segment {
+    margin-left: 8px;
+}
+window#osd segment:first-child {
+    margin-left: 0;
+}

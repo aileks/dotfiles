@@ -568,7 +568,7 @@ link_dotfiles() {
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link "$repo/config/postgres/config" "$config_home/postgres/config"
-  link "$repo/config/xkb/symbols/aileks" "$config_home/xkb/symbols/aileks"
+  link "$repo/config/xkb/symbols/custom" "$config_home/xkb/symbols/custom"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
   link "$repo/config/OpenRGB/NRGB.orp" "$config_home/OpenRGB/NRGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
