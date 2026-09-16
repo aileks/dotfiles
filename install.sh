@@ -560,19 +560,8 @@ link_dotfiles() {
     link "$repo/config/$name" "$config_home/$name"
   done
 
-  if [[ -L $config_home/qt6ct ]]; then
-    [[ $(readlink -f "$config_home/qt6ct") == "$repo/config/qt6ct" ]] || fail 'Unexpected qt6ct configuration symlink.'
-    run unlink "$config_home/qt6ct"
-  fi
   link "$repo/config/qt6ct/colors" "$config_home/qt6ct/colors"
-  if ! cmp -s "$repo/config/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"; then
-    if [[ -e $config_home/qt6ct/qt6ct.conf || -L $config_home/qt6ct/qt6ct.conf ]]; then
-      [[ ! -e $config_home/qt6ct/qt6ct.conf.backup.$stamp ]] || fail 'Qt configuration backup already exists.'
-      run mv -T "$config_home/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf.backup.$stamp"
-    fi
-    run install -m 644 "$repo/config/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"
-  fi
-
+  link "$repo/config/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"
   link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
   link "$repo/config/qutebrowser/userscripts" "$data_home/qutebrowser/userscripts"
