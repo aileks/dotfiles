@@ -556,7 +556,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock mango waybar qutebrowser; do
+  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock swayosd mango waybar qutebrowser; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -564,14 +564,9 @@ link_dotfiles() {
   link "$repo/config/qt6ct/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"
   link "$repo/config/mpv/mpv.conf" "$config_home/mpv/mpv.conf"
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
-  link "$repo/config/qutebrowser/userscripts" "$data_home/qutebrowser/userscripts"
   link "$repo/config/bash/bashrc" "$target_home/.bashrc"
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
-  if [[ -L $config_home/starship.toml && $(readlink "$config_home/starship.toml") == "$repo/config/starship/starship.toml" ]]; then
-    run unlink "$config_home/starship.toml"
-  fi
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
-  [[ ! -L $config_home/postgres ]] || fail "Refusing symlinked PostgreSQL configuration directory: $config_home/postgres"
   link "$repo/config/postgres/config" "$config_home/postgres/config"
   link "$repo/config/xkb/symbols/aileks" "$config_home/xkb/symbols/aileks"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
