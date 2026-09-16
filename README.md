@@ -28,7 +28,7 @@ cd ~/.dotfiles
 | `Mod + A`            | wiremix                |
 | `Mod + V`            | clipboard history      |
 | `Mod + ;`            | emoji picker           |
-| `Mod + O`            | color picker (hyprpicker) |
+| `Mod + O`            | color picker           |
 | `Mod + =`            | Qalculate GTK          |
 | `Mod + Shift + P`    | power menu             |
 

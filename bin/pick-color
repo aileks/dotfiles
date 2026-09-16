@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+umask 077
+
+if ! pixel=$(grim -g "$(slurp -p)" -t ppm - 2>/dev/null); then
+  exit 0
+fi
+
+hex=#$(tail -c 3 <<<"$pixel" | od -An -tx1 | tr -d ' \n')
+if ! wl-copy "$hex"; then
+  notify-send -u critical 'Could not copy color' || true
+  exit 1
+fi
+
+notify-send "Copied $hex" || true

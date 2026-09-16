@@ -217,7 +217,6 @@ packages=(
   gui-wm/mangowm
   gui-apps/waybar
   gui-apps/swayosd
-  gui-apps/hyprpicker
   x11-misc/xkeyboard-config
   x11-base/xwayland
   gui-apps/grim
