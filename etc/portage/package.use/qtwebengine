@@ -1,1 +1,1 @@
-dev-qt/qtwebengine -bindist vaapi screencast geolocation jumbo-build alsa pulseaudio
+dev-qt/qtwebengine bindist

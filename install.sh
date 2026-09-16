@@ -286,7 +286,6 @@ desktop_packages=(
   media-fonts/noto
   media-fonts/noto-cjk
   media-fonts/noto-emoji
-  www-client/qutebrowser
   dev-python/tldextract
   dev-python/pyperclip
 )
@@ -393,7 +392,6 @@ install_packages() {
     fi
   done < <(awk '/^\[/ { name=substr($0, 2, length($0)-2) } /^location = / { print name, $3 }' "$repo/etc/portage/repos.conf/desktop.conf")
 
-  # Install QtWebEngine only from binaries, then exclude it from source merges.
   run emerge "${qtwebengine_options[@]}" --pretend dev-qt/qtwebengine:6 \
     || fail 'Compatible binaries for QtWebEngine and its dependencies are required; source compilation is disabled.'
   run emerge "${qtwebengine_options[@]}" dev-qt/qtwebengine:6 \
