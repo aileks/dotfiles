@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+
 set -u
 exec </dev/null
 
@@ -53,7 +53,7 @@ pgrep -u "$UID" -f 'podman system service' >/dev/null || start podman system ser
 pgrep -u "$UID" -x pipewire >/dev/null || start gentoo-pipewire-launcher
 pgrep -u "$UID" -x gnome-keyring-d >/dev/null || start gnome-keyring-daemon --foreground --components=secrets,pkcs11
 pgrep -u "$UID" -x wezterm-mux-ser >/dev/null || start wezterm-mux-server --config-file "$config_home/wezterm/wezterm.lua"
-pgrep -u "$UID" -x emacs >/dev/null || start emacs --fg-daemon
+pgrep -u "$UID" -x emacs >/dev/null || start emacs --daemon
 pgrep -u "$UID" -x bitwarden-app >/dev/null || start /opt/Bitwarden/bitwarden
 pgrep -u "$UID" -x localsend >/dev/null || start localsend
 pgrep -u "$UID" -x openrgb >/dev/null || start openrgb --noautoconnect -p NRGB
