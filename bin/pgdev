@@ -170,7 +170,7 @@ initialize() {
     mv -- "$state/image.tmp" "$state/image"
   fi
   load_image
-  docker_local image inspect --format '{{.Digest}}' "$image" >"$state/digest"
+  docker_local image inspect --format '{{index .RepoDigests 0}}' "$image" >"$state/digest" || fail 'Image has no repository digest; pull it explicitly.'
   note "Image digest: $(cat "$state/digest")"
   docker_local run --rm --pull=never --network=bridge --log-driver=none --label "$owner=$PGDEV_CONTAINER" --entrypoint=true "$image" || fail 'Runtime/network check failed.'
   if [[ ! -e $state/password ]]; then
