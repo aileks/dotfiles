@@ -103,7 +103,7 @@ oxwm.border.set_focused_color(colors.orange)
 oxwm.border.set_unfocused_color(colors.muted)
 
 oxwm.gaps.set_enabled(true)
-oxwm.gaps.set_inner(12, 12)
+oxwm.gaps.set_inner(6, 6)
 oxwm.gaps.set_outer(12, 12)
 
 oxwm.bar.set_font("Iosevka Nerd Font Propo:style=Medium:size=10")

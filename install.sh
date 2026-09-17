@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
+
 set -Eeuo pipefail
 
-# The installer needs the checkout beside its resolved entry point, including through a symlink.
 repo=$(readlink -f -- "${BASH_SOURCE[0]}")
 repo=${repo%/*}
 
@@ -29,7 +29,7 @@ select_user() {
     target_user=$(id -un)
   fi
 
-  [[ -n $target_user && $target_user != root ]] || fail 'Run through sudo from the desktop account.'
+  [[ -n $target_user && $target_user != root ]] || fail 'Run script as root or with sudo/doas.'
   account=$(getent passwd "$target_user") || fail "No such account: $target_user"
   IFS=: read -r target_user _ target_uid _ _ target_home _ <<<"$account"
   [[ $target_uid != 0 && $target_home == /* && -d $target_home ]] || fail 'The desktop account must have an existing home directory and a nonzero UID.'
@@ -119,7 +119,7 @@ packages=(
   sys-apps/usbutils
   sys-auth/elogind
   net-misc/openssh
-  app-admin/sudo
+  app-admin/doas
   sys-process/cronie
   gnome-base/gvfs
   net-dns/avahi
@@ -753,7 +753,7 @@ main() {
   [[ ${1:-} == --dry-run ]] && dry_run=true
 
   if [[ ${DOTFILES_USER_SETUP:-} != 1 ]] && ((EUID != 0)) && ! "$dry_run"; then
-    exec sudo -- "$repo/install.sh"
+    exec doas -- "$repo/install.sh"
   fi
 
   select_user
@@ -777,9 +777,6 @@ main() {
     setup_user
     return
   fi
-
-  run emerge -n --autounmask=n --getbinpkg=n --usepkg=n \
-    dev-vcs/git app-admin/sudo app-eselect/eselect-repository
 
   run as_user git -C "$repo" submodule update --init --recursive
 

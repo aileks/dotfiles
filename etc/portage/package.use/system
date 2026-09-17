@@ -10,3 +10,4 @@ dev-libs/libdbusmenu gtk3
 net-libs/gnutls pkcs11 tools
 sys-kernel/installkernel dracut
 media-video/ffmpeg nvenc lv2 opencl openh264 pulseaudio vaapi x265
+app-admin/doas pam persist
