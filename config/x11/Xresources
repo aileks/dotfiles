@@ -1,7 +1,8 @@
+Xcursor.theme: Adwaita
+Xcursor.size: 24
 *.foreground: #BBB3A9
 *.background: #131210
 *.cursorColor: #DDD5CA
-
 *.color0:  #58534C
 *.color1:  #B34A45
 *.color2:  #879B5C
@@ -19,50 +20,3 @@
 *.color14: #58918C
 *.color15: #DDD5CA
 
-Xcursor.theme: Adwaita
-Xcursor.size: 24
-
-URxvt.iso14755: false
-URxvt.font: xft:IosevkaTerm Nerd Font:size=14
-URxvt.boldFont: xft:IosevkaTerm Nerd Font:bold:size=14
-URxvt.italicFont: xft:IosevkaTerm Nerd Font:italic:size=14
-URxvt.boldItalicFont: xft:IosevkaTerm Nerd Font:bold:italic:size=14
-URxvt.internalBorder: 8
-URxvt.scrollBar: false
-URxvt.saveLines: 5000
-URxvt*geometry: 80x240+0+0
-URxvt.secondaryScroll: true
-URxvt.secondaryWheel: true
-URxvt.scrollTtyOutput: false
-URxvt.scrollTtyKeypress: true
-URxvt.cursorBlink: false
-URxvt.cursorUnderline: false
-URxvt.visualBell: false
-URxvt.urgentOnBell: true
-URxvt.pointerColor: #DDD5CA
-URxvt.pointerColor2: #131210
-URxvt.foreground: #BBB3A9
-URxvt.background: #131210
-URxvt.cursorColor: #DDD5CA
-URxvt.color0: #131210
-URxvt.color1: #B34A45
-URxvt.color2: #879B5C
-URxvt.color3: #D9A441
-URxvt.color4: #6785A1
-URxvt.color5: #9A788F
-URxvt.color6: #58918C
-URxvt.color7: #ACA49B
-URxvt.color8: #58534C
-URxvt.color9: #B34A45
-URxvt.color10: #879B5C
-URxvt.color11: #D9A441
-URxvt.color12: #6785A1
-URxvt.color13: #9A788F
-URxvt.color14: #58918C
-URxvt.color15: #DDD5CA
-URxvt.perl-ext-common: default,matcher,selection-to-clipboard,searchable-scrollback
-URxvt.url-launcher: xdg-open
-URxvt.matcher.button: 1
-URxvt.keysym.Shift-Control-F: perl:searchable-scrollback:start
-URxvt.keysym.Shift-Control-C: eval:selection_to_clipboard
-URxvt.keysym.Shift-Control-V: eval:paste_clipboard

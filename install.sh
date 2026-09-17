@@ -171,7 +171,6 @@ packages=(
   x11-wm/oxwm
   x11-base/xorg-server
   x11-misc/ly
-  x11-terms/rxvt-unicode
   x11-misc/rofi
   media-gfx/maim
   x11-misc/xclip
