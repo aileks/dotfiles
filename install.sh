@@ -286,14 +286,12 @@ packages=(
   media-fonts/noto-emoji
   dev-python/tldextract
   dev-python/pyperclip
-  media-sound/easyeffects
 
   # applications
   app-misc/openrgb
   media-video/gpu-screen-recorder
 
   # development
-  llvm-core/lld
   llvm-core/clang
   sys-devel/gcc
   dev-debug/gdb
@@ -309,7 +307,7 @@ packages=(
   dev-python/uv
   net-libs/nodejs
   dev-util/tree-sitter-cli
-  dev-lang/zig
+  dev-lang/zig-bin
   dev-util/github-cli
   dev-util/ruff
   dev-util/ccache
@@ -322,7 +320,6 @@ packages=(
   app-admin/bitwarden-desktop-bin
   app-admin/bitwarden-cli-bin
   net-misc/localsend-bin
-  dev-util/shellcheck-bin
 )
 
 install_system_file() {
@@ -853,10 +850,8 @@ main() {
     return
   fi
 
-  # lld bootstrap hack: lld cannot link its own first build, so a bare stage3
-  # chroot needs -fuse-ld=lld commented out in make.conf until this merge lands.
   run emerge -n --autounmask=n --getbinpkg=n --usepkg=n \
-    llvm-core/lld dev-vcs/git app-admin/sudo app-eselect/eselect-repository
+    dev-vcs/git app-admin/sudo app-eselect/eselect-repository
 
   run as_user git -C "$repo" submodule update --init --recursive
 

@@ -18,7 +18,7 @@ SRC_URI="https://codeload.github.com/tonybanters/oxwm/tar.gz/refs/tags/v${PV} ->
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 RDEPEND="
 	x11-libs/libX11
