@@ -3,16 +3,7 @@
 [[ $- == *i* ]] || return
 
 # Environment
-_path_prepend() {
-  case ":$PATH:" in
-    *":$1:"*) ;;
-    *) PATH="$1:$PATH" ;;
-  esac
-}
-
-_path_prepend "$HOME/.config/emacs/bin"
-_path_prepend "$HOME/.local/bin"
-
+export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$PATH"
 export NPM_CONFIG_PREFIX="$HOME/.local"
 export GREP_COLORS='mt=1;36'
 export EDITOR='nvim'
@@ -21,13 +12,6 @@ export SUDO_EDITOR="$VISUAL"
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export MANPAGER='nvim +Man!'
 export PGPASSFILE="$HOME/.local/state/postgres/postgres-18/pgpass"
-export PNPM_HOME="$HOME/.local/share/pnpm"
-export GOPATH="$HOME/.local/share/go" GOBIN="$HOME/.local/bin"
-
-_path_prepend "$PNPM_HOME"
-
-export PATH
-unset -f _path_prepend
 
 # Aliases
 alias ls='eza --color=always --icons --group-directories-first'
