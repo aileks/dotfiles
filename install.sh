@@ -25,11 +25,12 @@ select_user() {
 
   if ((EUID == 0)); then
     target_user=${SUDO_USER:-}
+    [[ -n $target_user ]] || target_user=$(stat -c %U -- "$repo")
   else
     target_user=$(id -un)
   fi
 
-  [[ -n $target_user && $target_user != root ]] || fail 'Run script as root or through doas.'
+  [[ -n $target_user && $target_user != root ]] || fail 'Could not determine the desktop account to install for.'
   account=$(getent passwd "$target_user") || fail "No such account: $target_user"
   IFS=: read -r target_user _ target_uid _ _ target_home _ <<<"$account"
   [[ $target_uid != 0 && $target_home == /* && -d $target_home ]] || fail 'The desktop account must have an existing home directory and a nonzero UID.'
@@ -772,7 +773,13 @@ main() {
   [[ ${1:-} == --dry-run ]] && dry_run=true
 
   if [[ ${DOTFILES_USER_SETUP:-} != 1 ]] && ((EUID != 0)) && ! "$dry_run"; then
-    exec doas -- "$repo/install.sh"
+    if command -v doas >/dev/null 2>&1; then
+      exec doas -- "$repo/install.sh"
+    elif command -v sudo >/dev/null 2>&1; then
+      exec sudo -- "$repo/install.sh"
+    else
+      fail 'Not running as root and neither doas nor sudo is installed.'
+    fi
   fi
 
   select_user
