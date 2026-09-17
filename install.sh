@@ -189,6 +189,8 @@ packages=(
   x11-misc/slop
   x11-apps/xrandr
   x11-apps/xset
+  x11-apps/xsetroot
+  x11-apps/setxkbmap
   xkeyboard-config
   virtual/pkgconfig
   media-libs/fontconfig
@@ -314,19 +316,7 @@ install_system_config() {
   done < <(find "$repo/overlay" -type f -print0 | sort -z)
 
   install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
-  if [[ -f /etc/ly/config.ini ]] && grep -Eq '^[[:space:]]*login_cmd[[:space:]]*=[[:space:]]*/usr/local/bin/start-session[[:space:]]*$' /etc/ly/config.ini; then
-    if "$dry_run"; then
-      printf 'remove obsolete Ly login_cmd override\n'
-    else
-      sed '\|^[[:space:]]*login_cmd[[:space:]]*=[[:space:]]*/usr/local/bin/start-session[[:space:]]*$|d' /etc/ly/config.ini >"$work/ly-config.ini"
-      install_system_file "$work/ly-config.ini" /etc/ly/config.ini
-    fi
-  fi
-  if [[ -f /usr/local/bin/start-session ]] \
-    && { [[ ! -f /etc/ly/config.ini ]] || ! grep -Fq /usr/local/bin/start-session /etc/ly/config.ini; } \
-    && [[ $(sha256sum /usr/local/bin/start-session) == '97397258445f28100461e198114894368578c32f18eeb7b08faf827b0b30a529 '* ]]; then
-    run unlink /usr/local/bin/start-session
-  fi
+  install_system_file "$repo/config/xkb/symbols/custom" /usr/share/xkb/symbols/custom
 }
 
 emerge_options=(
@@ -452,7 +442,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi oxwm; do
+  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim picom xdg-desktop-portal rofi oxwm; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -462,6 +452,7 @@ link_dotfiles() {
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
   link "$repo/config/bash/bashrc" "$target_home/.bashrc"
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
+  link "$repo/config/bash/xprofile" "$target_home/.xprofile"
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link "$repo/config/postgres/config" "$config_home/postgres/config"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"

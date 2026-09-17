@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-set -Eeuo pipefail
-
-date '+%a, %b %d - %-I:%M %P'

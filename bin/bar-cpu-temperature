@@ -15,4 +15,4 @@ if ((millidegrees == 0)); then
   millidegrees=$(<"$hwmon"/hwmon*/temp1_input)
 fi
 
-printf '%d°C\n' "$((millidegrees / 1000))"
+printf ' %d°C\n' "$((millidegrees / 1000))"

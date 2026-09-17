@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-set -Eeuo pipefail
-
-free --giga | awk '/^Mem:/ { printf '%sG/%sG', $3, $2; print "" }'

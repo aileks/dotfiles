@@ -15,5 +15,5 @@ name=${name:0:16}
 if [[ $type == wifi ]]; then
   printf '󰖩 %s\n' "$name"
 else
-  printf '󰈀 %s\n' "$name"
+  printf '󰈀 Ethernet\n'
 fi

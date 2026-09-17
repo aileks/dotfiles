@@ -25,7 +25,6 @@ oxwm.set_floating_position("center")
 oxwm.set_layout_symbol("tiling", "[T]")
 oxwm.set_layout_symbol("normie", "[F]")
 oxwm.set_layout_symbol("tabbed", "[=]")
-oxwm.set_layout_symbol("dwindle", "[\\]")
 
 oxwm.border.set_width(2)
 oxwm.border.set_focused_color(colors.orange)
@@ -36,53 +35,100 @@ oxwm.gaps.set_smart(false)
 oxwm.gaps.set_inner(8, 8)
 oxwm.gaps.set_outer(8, 8)
 
-oxwm.bar.set_font("Iosevka Nerd Font:style=Medium:size=11")
+oxwm.bar.set_font("Iosevka Nerd Font Propo:style=Medium:size=11")
 oxwm.bar.set_position("top")
-oxwm.bar.set_scheme_normal(colors.text, colors.background, colors.muted)
+
+local separator = { oxwm.bar.block.static({ text = "│", color = colors.muted }) }
+local blocks = {
+	oxwm.bar.block.shell({
+		command = "~/.local/bin/bar-dnd",
+		format = "{}",
+		interval = 5,
+		color = colors.orange,
+		click = "dnd-toggle",
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.shell({
+		command = "~/.local/bin/bar-volume",
+		format = "{}",
+		interval = 5,
+		color = colors.purple,
+		click = "audio sink mute",
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.shell({
+		command = "~/.local/bin/bar-cpu-temperature",
+		format = "{}",
+		interval = 5,
+		color = colors.green,
+		click = "wezterm start --always-new-process -- btop",
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.shell({
+		command = "~/.local/bin/bar-cpu",
+		format = "{}",
+		interval = 5,
+		color = colors.blue,
+		click = "wezterm start --always-new-process -- btop",
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.ram({
+		format = " {used} GB",
+		interval = 5,
+		color = colors.blue,
+		click = "wezterm start --always-new-process -- btop",
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.shell({
+		command = "~/.local/bin/bar-gpu",
+		format = "{}",
+		interval = 5,
+		color = colors.purple,
+		click = "wezterm start --always-new-process -- nvtop",
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.shell({
+		command = "~/.local/bin/bar-network",
+		format = "{}",
+		interval = 5,
+		color = colors.cyan,
+		click = "nm-connection-editor",
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.datetime({
+		format = " {}",
+		date_format = "%a, %b %d %H:%M",
+		interval = 1,
+		color = colors.bright,
+		underline = false,
+	}),
+	separator[1],
+	oxwm.bar.block.systray({}),
+}
+oxwm.bar.set_blocks(blocks)
+
+oxwm.bar.set_scheme_normal(colors.muted, colors.background, colors.muted)
 oxwm.bar.set_scheme_occupied(colors.bright, colors.background, colors.orange)
 oxwm.bar.set_scheme_selected(colors.orange, colors.background, colors.orange)
 oxwm.bar.set_scheme_urgent(colors.bright, colors.red, colors.red)
 
-local status_blocks = {
-	{ "bar-dnd", 5, colors.orange, "dnd-toggle" },
-	{ "bar-network", 5, colors.cyan, "nm-connection-editor" },
-	{ "bar-volume", 5, colors.purple, "audio sink mute" },
-	{ "bar-cpu-temperature", 5, colors.blue, "wezterm start --always-new-process -- btop" },
-	{ "bar-memory", 10, colors.green, "wezterm start --always-new-process -- btop" },
-	{ "bar-gpu", 5, colors.purple, "wezterm start --always-new-process -- nvtop" },
-	{ "bar-clock", 1, colors.bright, "" },
-}
-local blocks = { oxwm.bar.block.systray({}) }
-for index, block in ipairs(status_blocks) do
-	if index > 1 then
-		blocks[#blocks + 1] = oxwm.bar.block.static({ text = "│", color = colors.muted })
-	end
-	blocks[#blocks + 1] = oxwm.bar.block.shell({
-		command = block[1],
-		format = "{}",
-		interval = block[2],
-		color = block[3],
-		click = block[4],
-		underline = false,
-	})
-end
-oxwm.bar.set_blocks(blocks)
-
 for _, class in ipairs({
 	"imv",
 	"Qalculate-gtk",
-	"qalculate-gtk",
 	"Blueman",
-	"blueman-manager",
 	"Bitwarden",
 	"bitwarden",
-	"LocalSend",
 	"localsend",
-	"localSend",
 	"polkit-gnome",
 	"xdg-desktop-portal-gtk",
 	"nm-connection-editor",
-	"Nm-connection-editor",
 }) do
 	oxwm.rule.add({ class = class, floating = true })
 end
@@ -96,20 +142,20 @@ local launchers = {
 	{ mod, "S", "signal-desktop" },
 	{ mod, "E", "wezterm start --always-new-process -- yazi" },
 	{ mod, "A", "wezterm start --always-new-process -- wiremix" },
-	{ mod, "O", "region-ocr" },
-	{ mod, "V", "clipmenu" },
-	{ mod, "semicolon", "bemoji -n" },
+	{ mod, "O", "~/.local/bin/region-ocr" },
+	{ mod, "V", "~/.local/bin/clipmenu" },
+	{ mod, "semicolon", "~/.local/bin/bemoji -n" },
 	{ mod, "Equal", "qalculate-gtk" },
-	{ mod, "Escape", "lock-session" },
+	{ mod, "Escape", "~/.local/bin/lock-session" },
 	{ mod, "N", "dnd-toggle" },
 	{ ctrl_shift, "N", "dunstctl context" },
-	{ shift, "P", "power-menu" },
-	{ mod, "R", "screenrecord menu" },
-	{ {}, "Print", "screenshot region" },
-	{ { "Control" }, "Print", "screenshot window" },
-	{ { "Shift" }, "Print", "screenshot full" },
-	{ mod, "Print", "screenrecord region" },
-	{ shift, "Print", "screenrecord output" },
+	{ shift, "P", "~/.local/bin/power-menu" },
+	{ mod, "R", "~/.local/bin/screenrecord menu" },
+	{ {}, "Print", "~/.local/bin/screenshot region" },
+	{ { "Control" }, "Print", "~/.local/bin/screenshot window" },
+	{ { "Shift" }, "Print", "~/.local/bin/screenshot full" },
+	{ mod, "Print", "~/.local/bin/screenrecord region" },
+	{ shift, "Print", "~/.local/bin/screenrecord output" },
 	{ {}, "XF86AudioPlay", "playerctl play-pause" },
 	{ {}, "XF86AudioPause", "playerctl play-pause" },
 	{ {}, "XF86AudioNext", "playerctl next" },
@@ -137,10 +183,6 @@ oxwm.key.bind(mod, "H", oxwm.set_master_factor(-5))
 oxwm.key.bind(mod, "L", oxwm.set_master_factor(5))
 oxwm.key.bind(mod, "I", oxwm.inc_num_master(1))
 oxwm.key.bind(shift, "I", oxwm.inc_num_master(-1))
-oxwm.key.bind(mod, "Comma", oxwm.monitor.focus(-1))
-oxwm.key.bind(mod, "Period", oxwm.monitor.focus(1))
-oxwm.key.bind(shift, "Comma", oxwm.monitor.tag(-1))
-oxwm.key.bind(shift, "Period", oxwm.monitor.tag(1))
 oxwm.key.bind(ctrl, "Period", oxwm.layout.cycle())
 oxwm.key.bind(shift, "T", oxwm.layout.set("tiling"))
 oxwm.key.bind(shift, "F", oxwm.layout.set("floating"))
@@ -160,10 +202,13 @@ end
 
 oxwm.autostart("xset b off")
 oxwm.autostart("xset dpms 0 0 900")
+oxwm.autostart("setxkbmap custom")
+oxwm.autostart("xset r rate 250 50")
+oxwm.autostart("xsetroot -cursor_name left_ptr")
 oxwm.autostart("gentoo-pipewire-launcher")
 oxwm.autostart("gentoo-pipewire-launcher restart")
 oxwm.autostart("/usr/libexec/polkit-gnome-authentication-agent-1")
-oxwm.autostart("picom -b")
+oxwm.autostart("picom")
 oxwm.autostart("dunst")
 oxwm.autostart("blueman-applet")
 oxwm.autostart("playerctld daemon")

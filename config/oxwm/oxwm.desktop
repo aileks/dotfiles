@@ -1,4 +1,5 @@
 [Desktop Entry]
 Type=Application
 Name=oxwm
+DesktopNames=oxwm
 Exec=dbus-launch --exit-with-session oxwm
