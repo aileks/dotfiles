@@ -251,7 +251,7 @@ packages=(
   media-sound/cava
   sci-calculators/qalculate-gtk
   app-arch/file-roller
-  sys-apps/gnome-disk-utility
+  sys-fs/ncdu
   media-gfx/imv
   gnome-extra/polkit-gnome
   sys-fs/udiskie
