@@ -2,13 +2,13 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 config.enable_wayland = true
-config.font = wezterm.font { family = 'IosevkaTerm Nerd Font', weight = 'Regular' }
+config.font = wezterm.font { family = 'IosevkaTerm NF', weight = 'Regular' }
 config.font_rules = {
-  { intensity = 'Bold', italic = false, font = wezterm.font { family = 'IosevkaTerm Nerd Font', weight = 'Bold' } },
-  { intensity = 'Bold', italic = true, font = wezterm.font { family = 'IosevkaTerm Nerd Font', weight = 'Bold', italic = true } },
-  { intensity = 'Half', italic = false, font = wezterm.font { family = 'IosevkaTerm Nerd Font', weight = 'Regular' } },
-  { intensity = 'Half', italic = true, font = wezterm.font { family = 'IosevkaTerm Nerd Font', weight = 'Regular', italic = true } },
-  { intensity = 'Normal', italic = true, font = wezterm.font { family = 'IosevkaTerm Nerd Font', weight = 'Regular', italic = true } },
+  { intensity = 'Bold', italic = false, font = wezterm.font { family = 'IosevkaTerm NF', weight = 'Bold' } },
+  { intensity = 'Bold', italic = true, font = wezterm.font { family = 'IosevkaTerm NF', weight = 'Bold', italic = true } },
+  { intensity = 'Half', italic = false, font = wezterm.font { family = 'IosevkaTerm NF', weight = 'Medium' } },
+  { intensity = 'Half', italic = true, font = wezterm.font { family = 'IosevkaTerm NF', weight = 'Medium', italic = true } },
+  { intensity = 'Normal', italic = true, font = wezterm.font { family = 'IosevkaTerm NF', weight = 'Regular', italic = true } },
 }
 config.font_size = 14
 config.scrollback_lines = 5000
