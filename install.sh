@@ -6,9 +6,6 @@ repo=$(readlink -f -- "${BASH_SOURCE[0]}")
 repo=${repo%/*}
 
 dry_run=false
-update_tools=false
-in_chroot=false
-phase=system
 target_user=
 target_home=
 target_uid=
@@ -23,46 +20,19 @@ fail() {
   exit 1
 }
 
-parse_arguments() {
-  while (($#)); do
-    case $1 in
-      --dry-run) dry_run=true ;;
-      --update-tools) update_tools=true ;;
-      --chroot) in_chroot=true ;;
-      --user)
-        (($# >= 2)) && [[ -n $2 && $2 != -* ]] || fail '--user requires a username.'
-        target_user=$2
-        shift
-        ;;
-      --user-setup) phase=user ;;
-      --help)
-        echo 'Usage: ./install.sh [--chroot] [--user USER] [--dry-run] [--update-tools]'
-        exit 0
-        ;;
-      *) fail "Unknown argument: $1. Use --help for usage." ;;
-    esac
-
-    shift
-  done
-}
-
 select_user() {
   local account
 
-  if [[ -z $target_user ]]; then
-    if ((EUID == 0)); then
-      target_user=${SUDO_USER:-}
-    else
-      target_user=$(id -un)
-    fi
+  if ((EUID == 0)); then
+    target_user=${SUDO_USER:-}
+  else
+    target_user=$(id -un)
   fi
 
-  [[ -n $target_user && $target_user != root ]] || fail 'Root must specify an existing desktop account with --user USER.'
+  [[ -n $target_user && $target_user != root ]] || fail 'Run through sudo from the desktop account.'
   account=$(getent passwd "$target_user") || fail "No such account: $target_user"
   IFS=: read -r target_user _ target_uid _ _ target_home _ <<<"$account"
   [[ $target_uid != 0 && $target_home == /* && -d $target_home ]] || fail 'The desktop account must have an existing home directory and a nonzero UID.'
-  ((EUID == 0 || EUID == target_uid)) || fail 'Only root can configure another user.'
-  [[ $phase != user ]] || ((EUID == target_uid)) || fail 'User setup must run as the desktop account.'
 
   config_home=$target_home/.config
   data_home=$target_home/.local/share
@@ -116,24 +86,13 @@ preflight() {
   gcc -march=znver5 -x c -fsyntax-only - <<<'int main(void){return 0;}' >/dev/null 2>&1 \
     || fail 'The installed gcc rejects -march=znver5; upgrade gcc before rerunning.'
 
-  if "$in_chroot"; then
-    for path in /proc /sys /dev; do
-      mountpoint -q "$path" || fail "Mount $path inside the installation chroot first."
-    done
-  else
-    booted_root=$(stat -Lc '%d:%i' /proc/1/root 2>/dev/null || true)
-    if [[ -n $booted_root && $(stat -Lc '%d:%i' /) != "$booted_root" ]]; then
-      fail 'The target is not the booted root. Run with --chroot inside the installed Gentoo system.'
-    fi
+  booted_root=$(stat -Lc '%d:%i' /proc/1/root 2>/dev/null || true)
+  if [[ -n $booted_root && $(stat -Lc '%d:%i' /) != "$booted_root" ]]; then
+    fail 'The target is not the booted root.'
   fi
 
   [[ $repo == "$target_home/"* && -d $repo/.git ]] || fail 'Keep a Git checkout inside the desktop user home before running this installer.'
   [[ $(stat -c %u "$repo") == "$target_uid" ]] || fail "The checkout must belong to $target_user."
-
-  for source in install.sh config/oxwm/config.lua config/oxwm/autostart.sh \
-    config/oxwm/oxwm.desktop config/xdg/mimeapps.list config/cron/crontab; do
-    [[ -r $repo/$source ]] || fail "Missing repository source: $source"
-  done
 
   while IFS= read -r -d '' source; do
     relative=${source#"$repo/"}
@@ -145,7 +104,6 @@ preflight() {
     check_system_target "$path"
   done
 
-  # Check all link sources before any package or system changes.
   dry_run=true link_dotfiles >/dev/null
 
   if [[ -e $config_home/emacs || -L $config_home/emacs ]]; then
@@ -208,7 +166,6 @@ packages=(
   net-misc/rsync
   app-arch/zip
   app-shells/zoxide
-  sys-fs/ncdu
   sys-apps/nvme-cli
   sys-process/btop
   app-misc/fastfetch
@@ -525,13 +482,13 @@ install_user_tools() {
   local package name
 
   if "$dry_run"; then
-    printf 'install missing pinned user tools (update existing tools: %s)\n' "$update_tools"
+    printf 'install missing pinned user tools\n'
     return
   fi
 
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
 
-  if "$update_tools" || [[ ! -x $HOME/.local/bin/bemoji ]]; then
+  if [[ ! -x $HOME/.local/bin/bemoji ]]; then
     curl -fL https://raw.githubusercontent.com/marty-oehme/bemoji/791c7748cf0236f691b1874e79ebe434469c20a9/bemoji -o "$work/bemoji"
     install -b -m 755 "$work/bemoji" "$HOME/.local/bin/bemoji"
   fi
@@ -546,7 +503,7 @@ install_user_tools() {
     install -m 644 "$work/emojis.txt" "$data_home/bemoji/emojis.txt"
   fi
 
-  if "$update_tools" || [[ ! -f $config_home/mpv/scripts/modernz.lua || ! -f $config_home/mpv/fonts/modernz-icons.ttf ]]; then
+  if [[ ! -f $config_home/mpv/scripts/modernz.lua || ! -f $config_home/mpv/fonts/modernz-icons.ttf ]]; then
     mkdir -p "$config_home/mpv/scripts" "$config_home/mpv/fonts"
     for name in modernz.lua modernz-icons.ttf; do
       curl -fL "https://raw.githubusercontent.com/Samillion/ModernZ/579897e8c974c380caa5017dc7b27a69123c1333/$name" -o "$work/$name"
@@ -555,12 +512,12 @@ install_user_tools() {
     install -b -m 644 "$work/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
   fi
 
-  if "$update_tools" || [[ ! -x $HOME/.local/bin/sqlfluff ]]; then
+  if [[ ! -x $HOME/.local/bin/sqlfluff ]]; then
     uv tool install --reinstall sqlfluff==4.3.0
   fi
 
   for package in pnpm@12.4.1 prettier@3.9.6; do
-    if "$update_tools" || [[ ! -d $NPM_CONFIG_PREFIX/lib/node_modules/${package%@*} ]]; then
+    if [[ ! -d $NPM_CONFIG_PREFIX/lib/node_modules/${package%@*} ]]; then
       npm install -g "$package"
     fi
   done
@@ -817,21 +774,17 @@ setup_user() {
 }
 
 main() {
-  parse_arguments "$@"
-  select_user
-  local -a tool_options=()
-  if "$update_tools"; then
-    tool_options+=(--update-tools)
+  (($# <= 1)) || fail 'Usage: ./install.sh [--dry-run]'
+  [[ ${1:-} == --dry-run ]] && dry_run=true
+
+  if [[ ${DOTFILES_USER_SETUP:-} != 1 ]] && ((EUID != 0)) && ! "$dry_run"; then
+    exec sudo -- "$repo/install.sh"
   fi
 
-  if [[ $phase == system ]]; then
+  select_user
+
+  if [[ ${DOTFILES_USER_SETUP:-} != 1 ]]; then
     preflight
-    if ((EUID != 0)) && ! "$dry_run"; then
-      command -v sudo >/dev/null || fail "Run as root with --user $target_user to bootstrap sudo."
-      local -a arguments=(--user "$target_user")
-      "$in_chroot" && arguments+=(--chroot)
-      exec sudo -- "$repo/install.sh" "${arguments[@]}" "${tool_options[@]}"
-    fi
   fi
 
   stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
@@ -845,7 +798,7 @@ main() {
     trap 'printf "Installation failed at line %s. Fix the error above and rerun the same command.\n" "$LINENO" >&2' ERR
   fi
 
-  if [[ $phase == user ]]; then
+  if [[ ${DOTFILES_USER_SETUP:-} == 1 ]]; then
     setup_user
     return
   fi
@@ -870,7 +823,7 @@ main() {
   if "$dry_run"; then
     setup_user
   else
-    run as_user "$repo/install.sh" --user "$target_user" --user-setup "${tool_options[@]}"
+    run as_user env DOTFILES_USER_SETUP=1 "$repo/install.sh"
   fi
 
   enable_services
