@@ -41,6 +41,7 @@ cd ~/.dotfiles
 | `Shift + Print`       | screenshot full screen     |
 | `Mod + O`             | OCR scan + copy            |
 | `Mod + R`             | recording menu             |
+| `Mod + Ctrl + R`      | stop recording             |
 | `Mod + Print`         | record screen region       |
 | `Mod + Shift + Print` | record the screen          |
 

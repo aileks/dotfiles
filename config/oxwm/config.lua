@@ -143,11 +143,12 @@ local launchers = {
 	{ ctrl_shift, "N", "dunstctl context" },
 	{ shift, "P", "power-menu" },
 	{ mod, "R", "screenrecord menu" },
+	{ ctrl, "R", "screenrecord stop" },
+	{ mod, "Print", "screenrecord region" },
+	{ shift, "Print", "screenrecord output" },
 	{ {}, "Print", "screenshot region" },
 	{ { "Control" }, "Print", "screenshot window" },
 	{ { "Shift" }, "Print", "screenshot full" },
-	{ mod, "Print", "screenrecord region" },
-	{ shift, "Print", "screenrecord output" },
 	{ {}, "XF86AudioPlay", "playerctl play-pause" },
 	{ {}, "XF86AudioPause", "playerctl play-pause" },
 	{ {}, "XF86AudioNext", "playerctl next" },
@@ -192,14 +193,14 @@ for tag = 1, 7 do
 	oxwm.key.bind(ctrl_shift, key, oxwm.tag.toggletag(tag - 1))
 end
 
+oxwm.autostart("gentoo-pipewire-launcher")
+oxwm.autostart("gentoo-pipewire-launcher restart")
 oxwm.autostart("xrdb -merge ~/.Xresources")
 oxwm.autostart("xset b off")
 oxwm.autostart("xset dpms 0 0 900")
-oxwm.autostart("setxkbmap custom")
 oxwm.autostart("xset r rate 250 50")
+oxwm.autostart("setxkbmap custom")
 oxwm.autostart("xrdb -merge ~/.Xresources")
-oxwm.autostart("gentoo-pipewire-launcher")
-oxwm.autostart("gentoo-pipewire-launcher restart")
 oxwm.autostart("/usr/libexec/polkit-gnome-authentication-agent-1")
 oxwm.autostart("picom -b")
 oxwm.autostart("dunst")
@@ -208,9 +209,7 @@ oxwm.autostart("playerctld daemon")
 oxwm.autostart("udiskie --tray")
 oxwm.autostart("gnome-keyring-daemon --start --components=secrets,pkcs11")
 oxwm.autostart("xss-lock --transfer-sleep-lock -- lock-session")
-oxwm.autostart(
-	"xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'"
-)
+oxwm.autostart("xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'")
 oxwm.autostart("openrgb --noautoconnect -p NRGB")
 oxwm.autostart("localsend")
 oxwm.autostart("/opt/Bitwarden/bitwarden")
