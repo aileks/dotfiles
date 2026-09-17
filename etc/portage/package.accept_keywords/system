@@ -1,4 +1,5 @@
 x11-misc/ly ~amd64
+x11-misc/i3lock-color ~amd64
 x11-misc/pcmanfm ~amd64
 media-video/gpu-screen-recorder ~amd64
 mpv-plugin/mpv-mpris ~amd64

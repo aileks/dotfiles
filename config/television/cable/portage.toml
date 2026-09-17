@@ -17,10 +17,10 @@ ctrl-u = "actions:unmerge"
 
 [actions.install]
 description = "Emerge selected package"
-command = "sudo emerge --ask '{}'"
+command = "doas emerge --ask '{}'"
 mode = "execute"
 
 [actions.unmerge]
 description = "Unmerge selected package"
-command = "sudo emerge --ask --depclean '{}'"
+command = "doas emerge --ask --depclean '{}'"
 mode = "execute"

@@ -76,7 +76,7 @@ Tags use master-and-stack tiling. Individual windows can still float.
 | `Mod + Ctrl + .`                      | cycle layouts                         |
 | `Mod + Shift + T / F / M`             | set tiling / floating / monocle layout |
 
-### Tags and monitors
+### Tags
 
 | Keys                          | Action                          |
 | ----------------------------- | ------------------------------- |
@@ -84,14 +84,12 @@ Tags use master-and-stack tiling. Individual windows can still float.
 | `Mod + Ctrl + 1..7`           | toggle tag visibility           |
 | `Mod + Shift + 1..7`          | move window to tag              |
 | `Mod + Ctrl + Shift + 1..7`   | toggle window membership of tag |
-| `Mod + ,` / `Mod + .`         | focus left or right monitor     |
-| `Mod + Shift + ,` / `Mod + Shift + .` | send window to left or right monitor |
 
 ### Media and brightness
 
 | Keys                         | Action                                |
 | ---------------------------- | ------------------------------------- |
-| `Volume Up / Down`           | volume ±5 percentage points, capped at 100% |
+| `Volume Up / Down`           | volume ±5 percentage points          |
 | `Volume Mute`                | toggle output mute                    |
 | `Microphone Mute`            | toggle microphone mute                |
 | `Play / Pause / Next / Prev` | media player control (playerctl)      |

@@ -29,7 +29,7 @@ select_user() {
     target_user=$(id -un)
   fi
 
-  [[ -n $target_user && $target_user != root ]] || fail 'Run script as root or with sudo/doas.'
+  [[ -n $target_user && $target_user != root ]] || fail 'Run script as root or through doas.'
   account=$(getent passwd "$target_user") || fail "No such account: $target_user"
   IFS=: read -r target_user _ target_uid _ _ target_home _ <<<"$account"
   [[ $target_uid != 0 && $target_home == /* && -d $target_home ]] || fail 'The desktop account must have an existing home directory and a nonzero UID.'
@@ -372,6 +372,25 @@ configure_mdns() {
     END { if (!found) exit 1 }
   ' /etc/nsswitch.conf >"$work/nsswitch.conf" || fail 'Expected a hosts lookup containing files in /etc/nsswitch.conf.'
   install_system_file "$work/nsswitch.conf" /etc/nsswitch.conf
+}
+
+configure_inittab() {
+  local target=/etc/inittab
+
+  if "$dry_run"; then
+    printf 'comment the tty2 agetty entry in /etc/inittab so ly owns tty2\n'
+    return
+  fi
+
+  [[ -f $target ]] || fail "Expected an inittab at $target."
+  awk '
+    /^[^#]/ && /agetty/ && /(^|[[:space:]])tty2([^0-9]|$)/ { sub(/^/, "#") }
+    { print }
+  ' "$target" >"$work/inittab"
+  if ! cmp -s -- "$work/inittab" "$target"; then
+    install_system_file "$work/inittab" "$target"
+    run telinit q
+  fi
 }
 
 enable_services() {
@@ -791,6 +810,7 @@ main() {
   run oxwm --validate "$repo/config/oxwm/config.lua"
   configure_account
   configure_mdns
+  configure_inittab
 
   if "$dry_run"; then
     setup_user
