@@ -79,7 +79,7 @@ check_network_services() {
 }
 
 preflight() {
-  local source relative path booted_root
+  local source relative booted_root
 
   [[ -f /etc/gentoo-release && -d /etc/runlevels ]] || fail 'This installer requires Gentoo OpenRC.'
   portageq has_version / virtual/dist-kernel || fail 'Install and configure a Gentoo distribution kernel as part of the base installation.'
@@ -98,11 +98,6 @@ preflight() {
     relative=${source#"$repo/"}
     check_system_target "/$relative"
   done < <(find "$repo/etc" -type f -print0)
-
-  for path in /usr/local/share/qt6ct/colors/cinder-grove.conf \
-    /etc/nsswitch.conf /etc/inittab; do
-    check_system_target "$path"
-  done
 
   dry_run=true link_dotfiles >/dev/null
 
@@ -278,7 +273,6 @@ packages=(
   app-office/onlyoffice-bin
   app-admin/bitwarden-desktop-bin
   app-admin/bitwarden-cli-bin
-  net-misc/localsend-bin
 )
 
 install_system_file() {
@@ -303,7 +297,7 @@ install_system_file() {
 }
 
 install_system_config() {
-  local source relative
+  local source relative xkb_root
 
   while IFS= read -r -d '' source; do
     relative=${source#"$repo/"}
@@ -316,7 +310,8 @@ install_system_config() {
   done < <(find "$repo/overlay" -type f -print0 | sort -z)
 
   install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
-  install_system_file "$repo/config/xkb/symbols/custom" /usr/share/xkb/symbols/custom
+  xkb_root=$(readlink -f /usr/share/X11/xkb)
+  install_system_file "$repo/config/xkb/symbols/custom" "$xkb_root/symbols/custom"
 }
 
 emerge_options=(
@@ -382,7 +377,7 @@ configure_mdns() {
 }
 
 enable_services() {
-  local service runlevel
+  local service
   local services=(dbus elogind NetworkManager cronie bluetooth cupsd avahi-daemon docker ly)
 
   if ! "$dry_run"; then
@@ -395,19 +390,6 @@ enable_services() {
   fi
 
   check_network_services
-  for service in display-manager xdm agetty.tty2; do
-    for runlevel in boot default; do
-      if [[ -L /etc/runlevels/$runlevel/$service ]]; then
-        run rc-update del "$service" "$runlevel"
-      fi
-    done
-  done
-
-  if [[ -f /etc/inittab ]] && grep -qE '^[^#].*[[:space:]]tty2[[:space:]]' /etc/inittab; then
-    run install -d -m 700 -- "/var/backups/dotfiles/$stamp/etc"
-    run cp -a -- /etc/inittab "/var/backups/dotfiles/$stamp/etc/inittab"
-    run sed -i '/^[^#].*[[:space:]]tty2[[:space:]]/s/^/#/' /etc/inittab
-  fi
 
   for service in "${services[@]}"; do
     if [[ ! -L /etc/runlevels/default/$service && ! -L /etc/runlevels/boot/$service ]]; then
@@ -452,7 +434,7 @@ link_dotfiles() {
   link "$repo/config/mpv/script-opts" "$config_home/mpv/script-opts"
   link "$repo/config/bash/bashrc" "$target_home/.bashrc"
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
-  link "$repo/config/bash/xprofile" "$target_home/.xprofile"
+  link "$repo/config/x11/Xresources" "$target_home/.Xresources"
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link "$repo/config/postgres/config" "$config_home/postgres/config"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"

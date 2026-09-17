@@ -1,0 +1,23 @@
+*.foreground: #BBB3A9
+*.background: #131210
+*.cursorColor: #E17A3F
+
+*.color0:  #58534C
+*.color1:  #B34A45
+*.color2:  #879B5C
+*.color3:  #D9A441
+*.color4:  #6785A1
+*.color5:  #9A788F
+*.color6:  #58918C
+*.color7:  #BBB3A9
+*.color8:  #827B71
+*.color9:  #E17A3F
+*.color10: #879B5C
+*.color11: #E8A64D
+*.color12: #6785A1
+*.color13: #9A788F
+*.color14: #58918C
+*.color15: #DDD5CA
+
+Xcursor.theme: Adwaita
+Xcursor.size: 24
