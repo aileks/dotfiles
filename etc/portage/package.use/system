@@ -5,3 +5,4 @@ x11-drivers/nvidia-drivers dist-kernel
 media-video/pipewire bluetooth
 gnome-base/gvfs policykit udisks
 net-libs/nodejs npm
+media-gfx/imv heif bmp
