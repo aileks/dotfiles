@@ -27,9 +27,10 @@ URxvt.font: xft:IosevkaTerm Nerd Font:size=14
 URxvt.boldFont: xft:IosevkaTerm Nerd Font:bold:size=14
 URxvt.italicFont: xft:IosevkaTerm Nerd Font:italic:size=14
 URxvt.boldItalicFont: xft:IosevkaTerm Nerd Font:bold:italic:size=14
-URxvt.internalBorder: 0
+URxvt.internalBorder: 8
 URxvt.scrollBar: false
 URxvt.saveLines: 5000
+URxvt*geometry: 80x240+0+0
 URxvt.secondaryScroll: true
 URxvt.secondaryWheel: true
 URxvt.scrollTtyOutput: false
