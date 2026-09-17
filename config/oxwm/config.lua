@@ -96,7 +96,6 @@ oxwm.set_attach_method("top")
 oxwm.set_floating_position("center")
 oxwm.set_layout_symbol("tiling", "[T]")
 oxwm.set_layout_symbol("normie", "[F]")
-oxwm.set_layout_symbol("tabbed", "[=]")
 
 oxwm.border.set_width(2)
 oxwm.border.set_focused_color(colors.orange)
