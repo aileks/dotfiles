@@ -169,7 +169,6 @@ packages=(
   # desktop
   x11-wm/oxwm
   x11-base/xorg-server
-  x11-misc/picom
   x11-misc/ly
   x11-terms/wezterm
   x11-misc/rofi
@@ -421,10 +420,10 @@ link() {
 }
 
 link_dotfiles() {
-  local name desktop script
+  local config_dir desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim picom xdg-desktop-portal rofi oxwm; do
-    link "$repo/config/$name" "$config_home/$name"
+  for config_dir in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi oxwm; do
+    link "$repo/config/$config_dir" "$config_home/$config_dir"
   done
 
   link "$repo/config/qt6ct/colors" "$config_home/qt6ct/colors"

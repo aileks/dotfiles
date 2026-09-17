@@ -2,7 +2,6 @@
 
 local colors = {
 	background = "#131210",
-	text = "#BBB3A9",
 	bright = "#DDD5CA",
 	muted = "#58534C",
 	orange = "#E17A3F",
@@ -58,7 +57,7 @@ local blocks = {
 		command = "bar-gpu",
 		format = "{}",
 		interval = 5,
-		color = colors.purple,
+		color = colors.green,
 		click = "wezterm start --always-new-process -- nvtop",
 		underline = false,
 	}),
@@ -104,9 +103,8 @@ oxwm.border.set_focused_color(colors.orange)
 oxwm.border.set_unfocused_color(colors.muted)
 
 oxwm.gaps.set_enabled(true)
-oxwm.gaps.set_smart(false)
-oxwm.gaps.set_inner(8, 8)
-oxwm.gaps.set_outer(8, 8)
+oxwm.gaps.set_inner(12, 12)
+oxwm.gaps.set_outer(12, 12)
 
 oxwm.bar.set_font("Iosevka Nerd Font Propo:style=Medium:size=10")
 oxwm.bar.set_position("top")
@@ -202,14 +200,15 @@ oxwm.autostart("xset r rate 250 50")
 oxwm.autostart("setxkbmap custom")
 oxwm.autostart("xrdb -merge ~/.Xresources")
 oxwm.autostart("/usr/libexec/polkit-gnome-authentication-agent-1")
-oxwm.autostart("picom -b")
 oxwm.autostart("dunst")
 oxwm.autostart("blueman-applet")
 oxwm.autostart("playerctld daemon")
 oxwm.autostart("udiskie --tray")
 oxwm.autostart("gnome-keyring-daemon --start --components=secrets,pkcs11")
 oxwm.autostart("xss-lock --transfer-sleep-lock -- lock-session")
-oxwm.autostart("xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'")
+oxwm.autostart(
+	"xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'"
+)
 oxwm.autostart("openrgb --noautoconnect -p NRGB")
 oxwm.autostart("localsend")
 oxwm.autostart("/opt/Bitwarden/bitwarden")
