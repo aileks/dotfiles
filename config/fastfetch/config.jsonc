@@ -56,8 +56,13 @@
       "keyColor": "yellow",
     },
     {
-      "type": "shell",
+      "type": "terminal",
       "key": " ",
+      "keyColor": "yellow",
+    },
+    {
+      "type": "shell",
+      "key": " ",
       "keyColor": "yellow",
     },
     {
