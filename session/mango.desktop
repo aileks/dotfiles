@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=Mango
-Exec=dbus-run-session -- mango
-TryExec=mango
-DesktopNames=mango;wlroots
-Type=Application

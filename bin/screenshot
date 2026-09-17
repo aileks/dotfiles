@@ -13,39 +13,26 @@ case "$mode" in
 esac
 
 pictures_directory=$(xdg-user-dir PICTURES 2>/dev/null || true)
-directory="${pictures_directory:-${XDG_PICTURES_DIR:-$HOME/Pictures}}/Screenshots"
+directory="${pictures_directory:-$HOME/Pictures}/Screenshots"
 mkdir -p "$directory"
 file="$directory/$(date +%Y-%m-%d_%H-%M-%S-%N).png"
 
 case "$mode" in
-  region)
-    geometry=$(slurp </dev/null) || exit 0
-    [[ -n $geometry ]] || exit 0
-    args=(-g "$geometry")
-    ;;
-  window)
-    # Mango reports global logical geometry, including XWayland; grim handles scaling.
-    if ! geometry=$(timeout 3 mmsg get focusing-client | jq -er '
-      select(.id != null and .is_visible == true) |
-      select([.x, .y, .width, .height] | all(type == "number" and floor == .)) |
-      select(.width > 0 and .height > 0) |
-      "\(.x),\(.y) \(.width)x\(.height)"
-    '); then
-      notify-send -u critical 'Screenshot failed' 'No focused window geometry available.' || true
-      exit 1
-    fi
-    args=(-g "$geometry")
-    ;;
+  region) args=(-s) ;;
+  window) args=(-i "$(xdotool getactivewindow)") ;;
   full) args=() ;;
 esac
 
-if ! grim "${args[@]}" "$file"; then
+if ! maim "${args[@]}" "$file"; then
   rm -f -- "$file"
-  notify-send -u critical -a Screenshot 'Screenshot failed' 'Could not capture the selected area.' || true
+  if [[ $mode == region ]]; then
+    exit 0
+  fi
+  notify-send -u critical -a Screenshot 'Screenshot failed' 'Could not capture the screen.' || true
   exit 1
 fi
 
-if ! wl-copy --type image/png <"$file"; then
+if ! xclip -selection clipboard -t image/png <"$file"; then
   notify-send -u critical -a Screenshot 'Screenshot saved' 'Could not copy the screenshot to the clipboard.' || true
   exit 1
 fi

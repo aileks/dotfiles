@@ -1,7 +1,3 @@
 #!/usr/bin/env bash
 
-# Mango cannot expand XDG_RUNTIME_DIR in env directives.
-export CLIPHIST_DB_PATH="${XDG_RUNTIME_DIR:-/run/user/$UID}/cliphist/db"
-
-# shellcheck source=config/bash/bashrc
 [[ -r ~/.bashrc ]] && source ~/.bashrc

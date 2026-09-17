@@ -113,6 +113,8 @@ preflight() {
 
   [[ -f /etc/gentoo-release && -d /etc/runlevels ]] || fail 'This installer requires Gentoo OpenRC.'
   portageq has_version / virtual/dist-kernel || fail 'Install and configure a Gentoo distribution kernel as part of the base installation.'
+  gcc -march=znver5 -x c -fsyntax-only - <<<'int main(void){return 0;}' >/dev/null 2>&1 \
+    || fail 'The installed gcc rejects -march=znver5; upgrade gcc before rerunning.'
 
   if "$in_chroot"; then
     for path in /proc /sys /dev; do
@@ -128,7 +130,8 @@ preflight() {
   [[ $repo == "$target_home/"* && -d $repo/.git ]] || fail 'Keep a Git checkout inside the desktop user home before running this installer.'
   [[ $(stat -c %u "$repo") == "$target_uid" ]] || fail "The checkout must belong to $target_user."
 
-  for source in install.sh session/mango.desktop config/mango/config.conf config/xdg/mimeapps.list config/cron/crontab; do
+  for source in install.sh config/oxwm/config.lua config/oxwm/autostart.sh \
+    config/oxwm/oxwm.desktop config/xdg/mimeapps.list config/cron/crontab; do
     [[ -r $repo/$source ]] || fail "Missing repository source: $source"
   done
 
@@ -137,9 +140,8 @@ preflight() {
     check_system_target "/$relative"
   done < <(find "$repo/etc" -type f -print0)
 
-  for path in /usr/share/wayland-sessions/mango.desktop \
-    /usr/local/share/qt6ct/colors/cinder-grove.conf \
-    /etc/nsswitch.conf /etc/subuid /etc/subgid /etc/inittab; do
+  for path in /usr/local/share/qt6ct/colors/cinder-grove.conf \
+    /etc/nsswitch.conf /etc/inittab; do
     check_system_target "$path"
   done
 
@@ -151,9 +153,6 @@ preflight() {
   fi
 
   check_network_services
-
-  dry_run=true ensure_subordinate_ids /etc/subuid >/dev/null
-  dry_run=true ensure_subordinate_ids /etc/subgid >/dev/null
 }
 
 packages=(
@@ -161,6 +160,7 @@ packages=(
   sys-kernel/linux-firmware
   x11-drivers/nvidia-drivers
   net-misc/networkmanager
+  gnome-extra/nm-applet
   sys-apps/dbus
   sys-apps/pciutils
   sys-apps/usbutils
@@ -183,6 +183,10 @@ packages=(
   media-libs/gst-plugins-bad
   media-libs/gst-plugins-ugly
   media-plugins/gst-plugins-libav
+  media-libs/libpulse
+  app-containers/docker
+  app-containers/docker-cli
+  app-containers/docker-compose
 
   # command line
   app-arch/7zip
@@ -208,31 +212,28 @@ packages=(
   sys-apps/nvme-cli
   sys-process/btop
   app-misc/fastfetch
-  app-containers/podman
-  app-containers/podman-compose
-  app-containers/podman-tui
   net-misc/curl
 
   # desktop
-  gui-wm/mangowm
-  gui-apps/waybar
-  gui-apps/swayosd
-  x11-misc/xkeyboard-config
-  x11-base/xwayland
-  gui-apps/grim
-  gui-apps/slurp
-  gui-apps/wl-clipboard
-  app-misc/cliphist
-  gui-apps/swaylock
-  gui-apps/swayidle
-  gui-apps/wlopm
-  gui-apps/swaybg
-  gui-apps/wlr-randr
-  gui-libs/xdg-desktop-portal-wlr
-  virtual/pkgconfig
+  x11-wm/oxwm
+  x11-base/xorg-server
+  x11-misc/picom
   x11-misc/ly
   x11-terms/wezterm
   x11-misc/rofi
+  media-gfx/maim
+  x11-misc/xclip
+  x11-misc/xdotool
+  x11-misc/xautolock
+  x11-misc/xss-lock
+  x11-misc/i3lock-color
+  x11-misc/clipmenu
+  x11-misc/xwallpaper
+  x11-misc/slop
+  x11-apps/xrandr
+  x11-apps/xset
+  xkeyboard-config
+  virtual/pkgconfig
   media-libs/fontconfig
   app-misc/yazi
   app-text/zathura
@@ -268,6 +269,7 @@ packages=(
   dev-util/vulkan-tools
   sys-process/nvtop
   app-text/tesseract
+  app-text/tessdata_fast
   app-dicts/myspell-en
   sys-apps/keyutils
   app-crypt/pinentry
@@ -289,9 +291,10 @@ packages=(
   # applications
   app-misc/openrgb
   media-video/gpu-screen-recorder
-  net-vpn/ivpn
 
   # development
+  llvm-core/lld
+  llvm-core/clang
   sys-devel/gcc
   dev-debug/gdb
   dev-build/make
@@ -299,22 +302,26 @@ packages=(
   dev-build/cmake
   app-editors/emacs
   app-editors/neovim
+  dev-libs/libvterm
+  dev-java/openjdk-bin:21
+  dev-java/google-java-format
+  dev-lang/rust-bin
   dev-python/uv
   net-libs/nodejs
   dev-util/tree-sitter-cli
   dev-lang/zig
   dev-util/github-cli
   dev-util/ruff
-  llvm-core/clang
+  dev-util/ccache
 
   # third-party binaries
   www-client/zen-browser-bin
+  www-client/helium-bin
   net-im/signal-desktop-bin
   app-office/onlyoffice-bin
   app-admin/bitwarden-desktop-bin
   app-admin/bitwarden-cli-bin
   net-misc/localsend-bin
-  net-vpn/ivpn-ui-bin
   dev-util/shellcheck-bin
 )
 
@@ -347,6 +354,11 @@ install_system_config() {
     install_system_file "$source" "/$relative"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
 
+  while IFS= read -r -d '' source; do
+    relative=${source#"$repo/overlay/"}
+    install_system_file "$source" "/var/db/repos/aileks/$relative"
+  done < <(find "$repo/overlay" -type f -print0 | sort -z)
+
   install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
   if [[ -f /etc/ly/config.ini ]] && grep -Eq '^[[:space:]]*login_cmd[[:space:]]*=[[:space:]]*/usr/local/bin/start-session[[:space:]]*$' /etc/ly/config.ini; then
     if "$dry_run"; then
@@ -376,48 +388,17 @@ install_packages() {
     fi
   done < <(awk '/^\[/ { name=substr($0, 2, length($0)-2) } /^location = / { print name, $3 }' "$repo/etc/portage/repos.conf/desktop.conf")
 
-  run emerge "${emerge_options[@]}" -p --getbinpkg=y --usepkg=y "${packages[@]}"
-  run emerge "${emerge_options[@]}" --getbinpkg=y --usepkg=y "${packages[@]}"
+  run emerge "${emerge_options[@]}" "${packages[@]}"
 
   run eix-update
 }
 
-ensure_subordinate_ids() {
-  local target=$1 start
-
-  if [[ -f $target ]] && awk -F: -v user="$target_user" -v uid="$target_uid" \
-    '($1 == user || $1 == uid) && $2 ~ /^[0-9]+$/ && $2 > 0 && $3 ~ /^[0-9]+$/ && $3 >= 65536 { found=1 } END { exit !found }' "$target"; then
-    return
-  fi
-
-  if [[ -f $target ]] && awk -F: -v user="$target_user" -v uid="$target_uid" \
-    '$1 == user || $1 == uid { found=1 } END { exit !found }' "$target"; then
-    fail "Existing mappings for $target_user in $target need at least 65536 IDs; resolve them before rerunning."
-  fi
-
-  if "$dry_run"; then
-    printf 'allocate 65536 unused IDs for %s in %s\n' "$target_user" "$target"
-    return
-  fi
-
-  # Allocate above all existing ranges and real account/group IDs.
-  start=$(awk -F: 'BEGIN { next_id=100000 }
-    FILENAME == ARGV[1] { if ($2 + $3 > next_id) next_id=$2 + $3; next }
-    $3 >= next_id && $3 < 4294967294 { next_id=$3 + 1 }
-    END { printf "%.0f\n", next_id }' "${target}" /etc/passwd /etc/group)
-  ((start + 65536 < 4294967294)) || fail "No subordinate IDs available in $target."
-
-  cat "$target" >"$work/${target##*/}"
-  printf '%s:%s:65536\n' "$target_user" "$start" >>"$work/${target##*/}"
-  install_system_file "$work/${target##*/}" "$target"
-}
-
 configure_account() {
-  local shell mapping_file account
+  local shell account
 
   shell=$(command -v bash || true)
   if "$dry_run"; then
-    printf 'set %s login shell to Bash and add i2c membership if missing\n' "$target_user"
+    printf 'set %s login shell to Bash and add i2c and docker membership if missing\n' "$target_user"
   else
     [[ -n $shell ]] || fail 'Bash was not installed.'
     shell=$(readlink -f "$shell")
@@ -431,15 +412,10 @@ configure_account() {
       run usermod -aG i2c "$target_user"
     fi
 
-    for mapping_file in /etc/subuid /etc/subgid; do
-      if [[ ! -e $mapping_file ]]; then
-        run install -m 644 /dev/null "$mapping_file"
-      fi
-    done
+    if [[ " $(id -nG "$target_user") " != *' docker '* ]]; then
+      run usermod -aG docker "$target_user"
+    fi
   fi
-
-  ensure_subordinate_ids /etc/subuid
-  ensure_subordinate_ids /etc/subgid
 }
 
 configure_mdns() {
@@ -463,7 +439,7 @@ configure_mdns() {
 
 enable_services() {
   local service runlevel
-  local services=(dbus elogind NetworkManager cronie bluetooth cupsd avahi-daemon ivpn ly)
+  local services=(dbus elogind NetworkManager cronie bluetooth cupsd avahi-daemon docker ly)
 
   if ! "$dry_run"; then
     for service in "${services[@]}"; do
@@ -522,7 +498,7 @@ link() {
 link_dotfiles() {
   local name desktop script
 
-  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi swayidle swaylock swayosd mango waybar; do
+  for name in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi oxwm; do
     link "$repo/config/$name" "$config_home/$name"
   done
 
@@ -534,7 +510,6 @@ link_dotfiles() {
   link "$repo/config/bash/bash_profile" "$target_home/.bash_profile"
   link "$repo/config/rsync-home.excludes" "$config_home/rsync-home.excludes"
   link "$repo/config/postgres/config" "$config_home/postgres/config"
-  link "$repo/config/xkb/symbols/custom" "$config_home/xkb/symbols/custom"
   link "$repo/config/wallpaper/fantasy-woods.jpg" "$data_home/backgrounds/fantasy-woods.jpg"
   link "$repo/config/OpenRGB/NRGB.orp" "$config_home/OpenRGB/NRGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
@@ -587,7 +562,7 @@ install_user_tools() {
     uv tool install --reinstall sqlfluff==4.3.0
   fi
 
-  for package in pnpm@12.4.1 prettier@3.9.6 sql-language-server@1.7.1; do
+  for package in pnpm@12.4.1 prettier@3.9.6; do
     if "$update_tools" || [[ ! -d $NPM_CONFIG_PREFIX/lib/node_modules/${package%@*} ]]; then
       npm install -g "$package"
     fi
@@ -878,8 +853,10 @@ main() {
     return
   fi
 
+  # lld bootstrap hack: lld cannot link its own first build, so a bare stage3
+  # chroot needs -fuse-ld=lld commented out in make.conf until this merge lands.
   run emerge -n --autounmask=n --getbinpkg=n --usepkg=n \
-    dev-vcs/git app-admin/sudo app-eselect/eselect-repository
+    llvm-core/lld dev-vcs/git app-admin/sudo app-eselect/eselect-repository
 
   run as_user git -C "$repo" submodule update --init --recursive
 
@@ -890,8 +867,8 @@ main() {
 
   install_system_config
   install_packages
-  install_system_file "$repo/session/mango.desktop" /usr/share/wayland-sessions/mango.desktop
-  run as_user mango -c "$repo/config/mango/config.conf" -p
+  install_system_file "$repo/config/oxwm/oxwm.desktop" /usr/share/xsessions/oxwm.desktop
+  run oxwm --validate "$repo/config/oxwm/config.lua"
   configure_account
   configure_mdns
 
@@ -907,6 +884,7 @@ main() {
     echo 'Dry run complete; no changes made.'
   else
     echo 'Installation complete. Reboot to activate the services, groups, and desktop session.'
+    echo 'Existing binaries keep the old x86-64-v3 flags; rebuild at leisure with: emerge -e @world'
   fi
 }
 

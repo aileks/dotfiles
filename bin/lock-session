@@ -8,6 +8,9 @@ umask 077
 exec 9>"$runtime_directory/lock-session.lock"
 flock -w 5 9 || exit 1
 
+locker=$(command -v i3lock-color || command -v i3lock) || exit 1
+locker_name=${locker##*/}
+
 ready_file="$runtime_directory/lock-session.ready"
 if [[ -f $ready_file ]]; then
   read -r pid start_time <"$ready_file" || true
@@ -19,8 +22,12 @@ if [[ -f $ready_file ]]; then
 fi
 rm -f -- "$ready_file"
 
-# swaylock forks and returns success only after the compositor confirms the lock.
-swaylock --daemonize 9>&- || exit 1
-pid=$(pgrep -n -u "$UID" -x swaylock) || exit 1
+"$locker" -c 131210 \
+  --insidevercolor=131210ff \
+  --insidewrongcolor=b34a45ff \
+  --ringvercolor=e17a3fff \
+  --ringwrongcolor=b34a45ff \
+  --veriftext='' --wrongtext='' --noinputtext='' 9>&- || exit 1
+pid=$(pgrep -n -u "$UID" -x "$locker_name") || exit 1
 start_time=$(awk '{ print $22 }' "/proc/$pid/stat") || exit 1
 printf '%s %s\n' "$pid" "$start_time" >"$ready_file"

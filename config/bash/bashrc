@@ -20,9 +20,9 @@ export VISUAL="$EDITOR"
 export SUDO_EDITOR="$VISUAL"
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export MANPAGER='nvim +Man!'
-export DOCKER_HOST="unix://${XDG_RUNTIME_DIR:-/run/user/$UID}/podman/podman.sock"
 export PGPASSFILE="$HOME/.local/state/postgres/postgres-18/pgpass"
 export PNPM_HOME="$HOME/.local/share/pnpm"
+export GOPATH="$HOME/.local/share/go" GOBIN="$HOME/.local/bin"
 
 _path_prepend "$PNPM_HOME"
 
@@ -38,7 +38,6 @@ alias c='clear'
 alias fzf='fzf --style full'
 alias ff='fastfetch'
 alias vim='nvim'
-alias docker='podman'
 alias ..="echo 'cd ..'; cd .."
 alias hl='rg --passthru'
 alias ga='git add'

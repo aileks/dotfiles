@@ -4,7 +4,7 @@ set -euo pipefail
 
 choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | rofi -dmenu -p Power) || exit 0
 case "$choice" in
-  'log out') mmsg dispatch quit ;;
+  'log out') pkill -x oxwm ;;
   'suspend')
     lock-session || {
       notify-send -u critical 'Cannot suspend: screen locking failed' || true

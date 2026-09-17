@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+hwmon=/sys/devices/pci0000:00/0000:00:18.3/hwmon
+[[ -d $hwmon ]] || exit 0
+
+millidegrees=0
+for label in "$hwmon"/hwmon*/temp*_label; do
+  [[ $(<"$label") == Tccd* ]] || continue
+  value=$(<"${label%_label}_input")
+  ((value > millidegrees)) && millidegrees=$value
+done
+if ((millidegrees == 0)); then
+  millidegrees=$(<"$hwmon"/hwmon*/temp1_input)
+fi
+
+printf '%d°C\n' "$((millidegrees / 1000))"

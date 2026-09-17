@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+nvidia-smi --query-gpu=utilization.gpu,temperature.gpu --format=csv,noheader,nounits \
+  | awk -F', ' '{ printf '󰢮 %s%% %s°C', $1, $2; print "" }'

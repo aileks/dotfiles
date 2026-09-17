@@ -1,6 +1,6 @@
 # dotfiles
 
-My Gentoo configs for [MangoWM](https://mangowm.github.io/).
+My Gentoo configs for [OXWM](https://github.com/tonybanters/oxwm) on X11.
 
 ## Install
 
@@ -24,6 +24,7 @@ cd ~/.dotfiles
 | `Mod + X`            | Emacsclient            |
 | `Mod + W`            | browser                |
 | `Mod + E`            | file manager           |
+| `Mod + T`            | WezTerm workspaces     |
 | `Mod + S`            | Signal                 |
 | `Mod + A`            | wiremix                |
 | `Mod + V`            | clipboard history      |
@@ -38,10 +39,10 @@ cd ~/.dotfiles
 | `Print`               | screenshot region          |
 | `Ctrl + Print`        | screenshot focused window  |
 | `Shift + Print`       | screenshot full screen     |
-| `Mod + Shift + O`     | OCR scan + copy            |
+| `Mod + O`             | OCR scan + copy            |
 | `Mod + R`             | recording menu             |
 | `Mod + Print`         | record screen region       |
-| `Mod + Shift + Print` | record the focused monitor |
+| `Mod + Shift + Print` | record the screen          |
 
 ### Session
 
@@ -50,8 +51,8 @@ cd ~/.dotfiles
 | `Mod + Esc`              | lock session                  |
 | `Mod + N`                | toggle do not disturb (dunst) |
 | `Mod + Ctrl + Shift + N` | notification actions and URLs |
-| `Mod + Shift + R`        | reload Mango configuration     |
-| `Mod + Shift + Q`        | quit Mango                     |
+| `Mod + Shift + R`        | reload OXWM configuration     |
+| `Mod + Shift + Q`        | quit OXWM                     |
 
 ### Windows
 
@@ -66,12 +67,13 @@ Tags use master-and-stack tiling. Individual windows can still float.
 | `Mod + Shift + J` / `Mod + Shift + K` | move window within the stack          |
 | `Mod + H` / `Mod + L`                 | shrink or grow the master area        |
 | `Mod + I` / `Mod + Shift + I`         | add or remove a master slot           |
-| `Mod + Ctrl + Return`                 | swap focused window with master       |
-| `Mod + B`                             | toggle Waybar                         |
+| `Mod + B`                             | toggle the bar                        |
 | `Mod + Left drag`                     | move window                           |
 | `Mod + Middle click`                  | toggle floating                       |
 | `Mod + Right drag`                    | resize window                         |
 | `Mod + Alt + 0`                       | toggle gaps                           |
+| `Mod + Ctrl + .`                      | cycle layouts                         |
+| `Mod + Shift + T / F / M`             | set tiling / floating / monocle layout |
 
 ### Tags and monitors
 
@@ -94,24 +96,9 @@ Tags use master-and-stack tiling. Individual windows can still float.
 | `Play / Pause / Next / Prev` | media player control (playerctl)      |
 | `Brightness Up / Down`       | external monitor brightness (ddcutil) |
 
-### Status bar
-
-| Control | Action |
-| ------- | ------ |
-| Tag left-click / right-click | view tag / toggle tag visibility |
-| Media left-click / middle-click / right-click | play or pause / previous / next |
-| CPU, temperature, or memory click | open btop |
-| Network click | open nmtui |
-| Volume left-click | open wiremix |
-| Volume right-click / middle-click | toggle output mute / microphone mute |
-| Volume scroll | adjust volume by 5 percentage points, capped at 100% |
-| Clock left-click | switch between 24-hour and 12-hour formats |
-
 ### WezTerm
 
 `Leader` is `Ctrl + Space`
-
-Workspace selection is inside WezTerm. `Mod + T` is no longer bound.
 
 | Keys                    | Action                                    |
 | ----------------------- | ----------------------------------------- |
