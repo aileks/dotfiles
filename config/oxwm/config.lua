@@ -41,7 +41,7 @@ local blocks = {
 		format = "{}",
 		interval = 5,
 		color = colors.blue,
-		click = "wezterm start --always-new-process -- btop",
+		click = "urxvtc -e btop",
 		underline = false,
 	}),
 	separator[1],
@@ -49,7 +49,7 @@ local blocks = {
 		format = " {used} GB",
 		interval = 5,
 		color = colors.blue,
-		click = "wezterm start --always-new-process -- btop",
+		click = "urxvtc -e btop",
 		underline = false,
 	}),
 	separator[1],
@@ -58,7 +58,7 @@ local blocks = {
 		format = "{}",
 		interval = 5,
 		color = colors.green,
-		click = "wezterm start --always-new-process -- nvtop",
+		click = "urxvtc -e nvtop",
 		underline = false,
 	}),
 	separator[1],
@@ -88,7 +88,7 @@ oxwm.bar.set_scheme_occupied(colors.bright, colors.background, colors.orange)
 oxwm.bar.set_scheme_selected(colors.orange, colors.background, colors.orange)
 oxwm.bar.set_scheme_urgent(colors.bright, colors.red, colors.red)
 
-oxwm.set_terminal("wezterm")
+oxwm.set_terminal("urxvtc")
 oxwm.set_modkey("Mod4")
 oxwm.set_tags({ "1", "2", "3", "4", "5", "6", "7" })
 oxwm.set_layout("tiling")
@@ -123,14 +123,17 @@ for _, class in ipairs({
 end
 
 local launchers = {
-	{ mod, "Return", "wezterm connect unix" },
-	{ mod, "T", "wezterm-workspaces" },
+	{ mod, "Return", "urxvtc" },
 	{ mod, "Space", "rofi -show drun" },
 	{ mod, "X", "emacsclient -c -a ''" },
 	{ mod, "W", "zen-browser" },
-	{ mod, "S", "signal-desktop --ignore-gpu-blocklist --enable-features=AcceleratedVideoDecodeLinuxGL --use-gl=desktop" },
-	{ mod, "E", "wezterm start --always-new-process -- yazi" },
-	{ mod, "A", "wezterm start --always-new-process -- wiremix" },
+	{
+		mod,
+		"S",
+		"signal-desktop --ignore-gpu-blocklist --enable-features=AcceleratedVideoDecodeLinuxGL --use-gl=desktop",
+	},
+	{ mod, "E", "urxvtc -e yazi" },
+	{ mod, "A", "urxvtc -e wiremix" },
 	{ mod, "O", "region-ocr" },
 	{ mod, "V", "clipmenu" },
 	{ mod, "semicolon", "bemoji -n" },
@@ -203,13 +206,13 @@ oxwm.autostart("playerctld daemon")
 oxwm.autostart("udiskie --tray")
 oxwm.autostart("gnome-keyring-daemon --start --components=secrets,pkcs11")
 oxwm.autostart("xss-lock --transfer-sleep-lock -- lock-session")
-oxwm.autostart(
-	"xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'"
-)
 oxwm.autostart("openrgb --noautoconnect -p NRGB")
 oxwm.autostart("localsend")
 oxwm.autostart("/opt/Bitwarden/bitwarden")
 oxwm.autostart("CM_SELECTIONS=clipboard clipmenud")
-oxwm.autostart("pgrep -x emacs >/dev/null || emacs --daemon")
-oxwm.autostart("pgrep -x wezterm-mux-ser >/dev/null || wezterm-mux-server --config-file ~/.config/wezterm/wezterm.lua")
+oxwm.autostart("emacs --daemon")
+oxwm.autostart("urxvtd -q -o -f")
 oxwm.autostart('xwallpaper --zoom "$HOME/.local/share/backgrounds/fantasy-woods.jpg"')
+oxwm.autostart(
+	"xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'"
+)

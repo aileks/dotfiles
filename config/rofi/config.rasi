@@ -6,8 +6,8 @@ configuration {
     show-icons: false;
     drun-display-format: "{name}";
     display-drun: "Apps";
-    terminal: "wezterm";
-    run-shell-command: "{terminal} start --always-new-process -- {cmd}";
+    terminal: "urxvtc";
+    run-shell-command: "{terminal} -e {cmd}";
 }
 
 @theme "/dev/null"

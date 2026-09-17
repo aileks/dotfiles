@@ -7,7 +7,6 @@ media-sound/wiremix ~amd64
 app-misc/yazi ~amd64
 app-shells/zoxide ~amd64
 app-misc/television ~amd64
-x11-terms/wezterm ~amd64
 media-fonts/nerdfonts ~amd64
 www-client/zen-browser-bin ~amd64
 net-misc/localsend-bin ~amd64

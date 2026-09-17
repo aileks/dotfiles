@@ -136,10 +136,6 @@ if command -v fzf >/dev/null 2>&1 && shell_init=$(command fzf --bash); then
 fi
 unset shell_init
 
-if [[ -r ${XDG_CONFIG_HOME:-$HOME/.config}/wezterm/shell-integration.sh ]]; then
-  source "${XDG_CONFIG_HOME:-$HOME/.config}/wezterm/shell-integration.sh"
-fi
-
 # Prompt
 git_prompt_segment() {
   local output line

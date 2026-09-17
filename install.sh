@@ -171,7 +171,7 @@ packages=(
   x11-wm/oxwm
   x11-base/xorg-server
   x11-misc/ly
-  x11-terms/wezterm
+  x11-terms/rxvt-unicode
   x11-misc/rofi
   media-gfx/maim
   x11-misc/xclip
@@ -442,7 +442,7 @@ link() {
 link_dotfiles() {
   local config_dir desktop script
 
-  for config_dir in bat btop cava dunst fastfetch fontconfig doom zathura wezterm yazi nvim xdg-desktop-portal rofi oxwm; do
+  for config_dir in bat btop cava dunst fastfetch fontconfig doom zathura yazi nvim xdg-desktop-portal rofi oxwm; do
     link "$repo/config/$config_dir" "$config_home/$config_dir"
   done
 
