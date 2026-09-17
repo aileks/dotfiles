@@ -263,7 +263,6 @@ packages=(
   dev-util/tree-sitter-cli
   dev-lang/zig-bin
   dev-util/github-cli
-  dev-util/ruff
   dev-util/ccache
 
   # third-party binaries
@@ -486,7 +485,11 @@ install_user_tools() {
   fi
 
   if [[ ! -x $HOME/.local/bin/sqlfluff ]]; then
-    uv tool install --reinstall sqlfluff==4.3.0
+    uv tool install --reinstall sqlfluff
+  fi
+
+  if [[ ! -x $HOME/.local/bin/ruff ]]; then
+    uv tool install --reinstall ruff
   fi
 
   for package in pnpm@12.4.1 prettier@3.9.6; do
