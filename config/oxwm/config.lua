@@ -129,7 +129,7 @@ local launchers = {
 	{ mod, "Space", "rofi -show drun" },
 	{ mod, "X", "emacsclient -c -a ''" },
 	{ mod, "W", "zen-browser" },
-	{ mod, "S", "signal-desktop" },
+	{ mod, "S", "signal-desktop --ignore-gpu-blocklist --enable-features=AcceleratedVideoDecodeLinuxGL --use-gl=desktop" },
 	{ mod, "E", "wezterm start --always-new-process -- yazi" },
 	{ mod, "A", "wezterm start --always-new-process -- wiremix" },
 	{ mod, "O", "region-ocr" },
