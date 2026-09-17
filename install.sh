@@ -878,8 +878,7 @@ main() {
   if "$dry_run"; then
     echo 'Dry run complete; no changes made.'
   else
-    echo 'Installation complete. Reboot to activate the services, groups, and desktop session.'
-    echo 'Existing binaries keep the old x86-64-v3 flags; rebuild at leisure with: emerge -e @world'
+    echo 'Installation complete.'
   fi
 }
 

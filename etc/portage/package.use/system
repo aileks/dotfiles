@@ -6,3 +6,6 @@ media-video/pipewire bluetooth
 gnome-base/gvfs policykit udisks
 net-libs/nodejs npm
 x11-misc/picom -doc
+dev-libs/libdbusmenu gtk3
+net-libs/gnutls pkcs11 tools
+sys-kernel/installkernel dracut

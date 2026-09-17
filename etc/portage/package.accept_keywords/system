@@ -15,3 +15,6 @@ app-admin/bitwarden-cli-bin ~amd64
 x11-drivers/nvidia-drivers ~amd64
 media-libs/nvidia-vaapi-driver ~amd64
 dev-java/google-java-format ~amd64
+app-editors/neovim ~amd64
+dev-libs/tree-sitter-markdown-inline ~amd64
+x11-libs/libfm ~amd64
