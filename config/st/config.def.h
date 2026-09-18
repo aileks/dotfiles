@@ -5,7 +5,7 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "IosevkaTerm Nerd Font Mono:pixelsize=20:antialias=true:autohint=true";
+static char *font = "IosevkaTerm Nerd Font:pixelsize=20:antialias=true:autohint=true";
 
 static int borderpx = 8;
 
