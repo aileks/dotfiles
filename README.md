@@ -2,6 +2,8 @@
 
 ![Desktop Showcase](./assets/showcase.png)
 
+The wallpaper is built from an SVG.
+
 ## Install
 
 ```sh
