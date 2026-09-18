@@ -19,7 +19,7 @@ if [[ -f $ready_file ]]; then
 fi
 rm -f -- "$ready_file"
 
-i3lock -c 15110f \
+i3lock -c 15110fff \
   --ring-color=d98c63ff \
   --insidever-color=15110fff \
   --insidewrong-color=a45751ff \

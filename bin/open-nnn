@@ -2,4 +2,4 @@
 
 . "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/env"
 
-exec nnn -e
+exec nnn

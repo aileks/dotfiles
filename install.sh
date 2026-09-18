@@ -272,7 +272,6 @@ packages=(
   net-im/signal-desktop-bin
   app-office/onlyoffice-bin
   app-admin/bitwarden-desktop-bin
-  app-admin/bitwarden-cli-bin
 )
 
 install_system_file() {
