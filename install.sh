@@ -527,7 +527,7 @@ install_user_tools() {
     uv tool install --reinstall ruff
   fi
 
-  for package in pnpm@12.4.1 prettier@3.9.6; do
+  for package in pnpm@12 prettier; do
     if [[ ! -d $NPM_CONFIG_PREFIX/lib/node_modules/${package%@*} ]]; then
       npm install -g "$package"
     fi
