@@ -1,5 +1,4 @@
 ---@module 'oxwm'
-
 local colors = {
 	background = "#15110F",
 	bright = "#E9D1C5",
@@ -121,12 +120,8 @@ local launchers = {
 	{ mod, "Space", "rofi -show drun" },
 	{ mod, "X", "emacsclient -c -a ''" },
 	{ mod, "W", "zen-browser" },
-	{
-		mod,
-		"S",
-		"signal-desktop --ignore-gpu-blocklist --enable-features=AcceleratedVideoDecodeLinuxGL --use-gl=desktop",
-	},
-	{ mod, "E", "st -e yazi" },
+	{ mod, "S", "signal-desktop --ignore-gpu-blocklist --enable-features=AcceleratedVideoDecodeLinuxGL --use-gl=desktop" },
+	{ mod, "E", "st -e nnn -e" },
 	{ mod, "A", "st -e wiremix" },
 	{ mod, "O", "region-ocr" },
 	{ mod, "V", "clipmenu" },
@@ -206,6 +201,4 @@ oxwm.autostart("/opt/Bitwarden/bitwarden")
 oxwm.autostart("CM_SELECTIONS=clipboard clipmenud")
 oxwm.autostart("emacs --daemon")
 oxwm.autostart('xwallpaper --zoom "$HOME/.dotfiles/wallpaper/cinder.png"')
-oxwm.autostart(
-	"xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'"
-)
+oxwm.autostart("xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'")

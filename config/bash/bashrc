@@ -24,6 +24,7 @@ alias ff='fastfetch'
 alias vim='nvim'
 alias ..="echo 'cd ..'; cd .."
 alias hl='rg --passthru'
+alias n='nnn -e'
 alias ga='git add'
 alias gaa='git add --all'
 alias gb='git branch'
@@ -47,6 +48,9 @@ shopt -s checkwinsize
 shopt -s extglob
 shopt -s autocd 2>/dev/null || true
 shopt -s dirspell 2>/dev/null || true
+shopt -s histappend
+shopt -s cmdhist
+shopt -s lithist
 
 # History
 HISTFILE="$HOME/.bash_history"
@@ -54,35 +58,14 @@ HISTSIZE=50000
 HISTFILESIZE=50000
 HISTCONTROL=ignoreboth:erasedups
 
-shopt -s histappend
-shopt -s cmdhist
-shopt -s lithist
-
 # Completion
 bind 'set completion-ignore-case on'
 bind 'set completion-map-case on'
 bind 'set show-all-if-ambiguous on'
 
-# Yazi
-y() {
-  local cwd_file cwd result
+source "$HOME/.config/nnn/env"
 
-  cwd_file=$(mktemp -t yazi-cwd.XXXXXX) || return
-
-  command yazi "$@" --cwd-file="$cwd_file"
-  result=$?
-
-  cwd=$(<"$cwd_file")
-  command rm -f -- "$cwd_file"
-
-  if [[ -n $cwd && $cwd != "$PWD" ]]; then
-    builtin cd -- "$cwd" || return
-  fi
-
-  return "$result"
-}
-
-# FZF
+# fzf settings
 export FZF_CTRL_T_OPTS="
   --walker-skip .git,.venv,node_modules,target
   --preview 'bat -n --color=always {}'

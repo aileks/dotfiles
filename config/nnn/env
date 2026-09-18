@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+export NNN_OPTS="adeExHu"
+export NNN_COLORS='#d85e8389adbc8a90;31313131'
+export NNN_FCOLORS='90b5add8008abcef83895e83'
+export NNN_BMS="e:/etc/portage;l:/var/log;d:$HOME/Downloads;c:${XDG_CONFIG_HOME:-$HOME/.config}"
+export NNN_PLUG='g:-!git log;i:-!git diff;x:!chmod +x "$nnn"'
+export NNN_TRASH=1

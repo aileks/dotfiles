@@ -189,7 +189,7 @@ packages=(
   xkeyboard-config
   virtual/pkgconfig
   media-libs/fontconfig
-  app-misc/yazi
+  app-misc/nnn
   app-text/zathura
   app-text/zathura-pdf-mupdf
   app-text/zathura-cb
@@ -453,7 +453,7 @@ link() {
 link_dotfiles() {
   local config_dir desktop script
 
-  for config_dir in bat btop cava dunst fastfetch fontconfig doom zathura yazi nvim rofi oxwm; do
+  for config_dir in bat btop cava dunst fastfetch fontconfig doom zathura nnn nvim rofi oxwm; do
     link "$repo/config/$config_dir" "$config_home/$config_dir"
   done
 

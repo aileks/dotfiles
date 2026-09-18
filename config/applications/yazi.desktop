@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=Yazi
-Exec=st -e yazi %u
-Type=Application
-Terminal=false
-MimeType=inode/directory;

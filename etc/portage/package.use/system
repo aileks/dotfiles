@@ -12,3 +12,4 @@ app-admin/doas pam persist
 x11-libs/gtk+ wayland
 media-libs/mesa wayland
 xfce-base/tumbler jpeg pdf ffmpeg epub
+app-misc/nnn gitstatus nerdfonts
