@@ -513,6 +513,12 @@ install_user_tools() {
     install -b -m 644 "$work/modernz-icons.ttf" "$config_home/mpv/fonts/modernz-icons.ttf"
   fi
 
+  if [[ ! -x $HOME/.local/bin/resvg ]]; then
+    curl -fL https://github.com/linebender/resvg/releases/download/v0.48.1/resvg-linux-x86_64.tar.gz -o "$work/resvg.tar.gz"
+    tar xzf "$work/resvg.tar.gz" -C "$work"
+    install -b -m 755 "$work/resvg" "$HOME/.local/bin/resvg"
+  fi
+
   if [[ ! -x $HOME/.local/bin/sqlfluff ]]; then
     uv tool install --reinstall sqlfluff
   fi
