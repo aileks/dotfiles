@@ -15,8 +15,8 @@
 [filetype]
 "rules" = [
   { "fg" = "#eccfc1", "url" = "*/" },
-  { "fg" = "#f09361", "is" = "exec" },
-  { "fg" = "#a45751", "is" = "orphan" },
+  { "fg" = "#f09361", "is" = "exec", "url" = "*" },
+  { "fg" = "#a45751", "is" = "orphan", "url" = "*" },
   { "fg" = "#ffa474", "mime" = "**/image/*" },
   { "fg" = "#df8452", "mime" = "**/{audio,video}/*" },
   { "fg" = "#a45751", "mime" = "**/application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}" },

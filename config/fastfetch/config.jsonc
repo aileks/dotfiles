@@ -1,89 +1,45 @@
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
-      "type": "small",
-      "padding": {
-          "bottom": 2
-      }
+    "type": "small"
   },
   "modules": [
-    "break",
-    {
-      "type": "host",
-      "key": " ",
-      "keyColor": "green",
-    },
-    {
-      "type": "cpu",
-      "key": " ",
-      "showPeCoreCount": true,
-      "keyColor": "green",
-    },
-    {
-      "type": "gpu",
-      "key": "󰢮 ",
-      "showPeCoreCount": true,
-      "keyColor": "green",
-    },
-    {
-      "type": "memory",
-      "key": " ",
-      "keyColor": "green",
-    },
-    {
-      "type": "disk",
-      "key": "󰋊 ",
-      "keyColor": "green",
-    },
-    {
-      "type": "custom",
-      "format": "\u001b[90m┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈",
-    },
     {
       "type": "os",
       "key": " ",
-      "keyColor": "yellow",
-    },
-    {
-      "type": "kernel",
-      "key": " ",
-      "keyColor": "yellow",
-    },
-    {
-      "type": "packages",
-      "key": " ",
-      "keyColor": "yellow",
-    },
-    {
-      "type": "terminal",
-      "key": " ",
-      "keyColor": "yellow",
-    },
-    {
-      "type": "shell",
-      "key": " ",
-      "keyColor": "yellow",
     },
     {
       "type": "wm",
       "key": " ",
-      "keyColor": "yellow",
-    },
-    {
-      "type": "custom",
-      "format": "\u001b[90m┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈",
-    },
-    {
-      "type": "command",
-      "key": "󰃭 ",
-      "keyColor": "red",
-      "text": "birth=$(stat -c %W / 2>/dev/null); if [ \"${birth:-0}\" -gt 0 ] 2>/dev/null; then days=$(( ($(date +%s) - $(date -d \"$(date -d \"@$birth\" +%F)\" +%s)) / 86400 )); if [ \"$days\" -eq 1 ]; then echo \"1 day\"; else echo \"$days days\"; fi; else echo unknown; fi",
     },
     {
       "type": "uptime",
       "key": " ",
-      "keyColor": "red",
     },
-    "break",
+    {
+      "type": "packages",
+      "key": " ",
+    },
+    {
+      "type": "terminal",
+      "key": " ",
+    },
+    {
+      "type": "cpu",
+      "key": " ",
+    },
+    {
+      "type": "gpu",
+      "key": "󰢮 ",
+    },
+    {
+      "type": "memory",
+      "key": " ",
+    },
+    {
+      "type": "disk",
+      "key": "󰋊 ",
+      "folders": ["/"],
+    },
   ],
 }
