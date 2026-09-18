@@ -202,31 +202,31 @@ make_prompt() {
   local status=$1
   local reset=$'\e[0m'
   local bold=$'\e[1m'
-  local orange=$'\e[33m'
-  local blue=$'\e[32m'
-  local magenta=$'\e[33m'
-  local muted=$'\e[34m'
-  local red=$'\e[35m'
-  local cyan=$'\e[36m'
-  local green=$'\e[37m'
+  local primary=$'\e[38;2;240;147;97m'
+  local secondary=$'\e[38;2;223;132;82m'
+  local tertiary=$'\e[38;2;206;116;66m'
+  local quaternary=$'\e[38;2;189;101;50m'
+  local info=$'\e[38;2;172;86;33m'
+  local muted=$'\e[38;2;167;142;130m'
+  local red=$'\e[38;2;164;87;81m'
   local git_segment=''
   local status_segment=''
   local venv_segment=''
   local jobs_segment=''
 
   if _prompt_git_text=$(git_prompt_segment); then
-    git_segment=" \[${magenta}\]"'${_prompt_git_text}'"\[${reset}\]"
+    git_segment=" \[${quaternary}\]"'${_prompt_git_text}'"\[${reset}\]"
   fi
 
   if ((status != 0)); then
-    status_segment=" \[${red}\] ${status}\[${reset}\]"
+    status_segment=" \[${red}\] ${status}\[${reset}\]"
   fi
 
   if [[ -n ${VIRTUAL_ENV:-} ]]; then
     _prompt_venv_text=$(venv_prompt_name)
     [[ -n $_prompt_venv_text ]] || _prompt_venv_text=${VIRTUAL_ENV##*/}
 
-    venv_segment=" \[${green}\] "'${_prompt_venv_text}'"\[${reset}\]"
+    venv_segment=" \[${secondary}\] "'${_prompt_venv_text}'"\[${reset}\]"
   fi
 
   local job_count
@@ -236,13 +236,13 @@ make_prompt() {
     jobs_segment=" \[${muted}\]󰒋 ${job_count}\[${reset}\]"
   fi
 
-  PS1="\[${orange}${bold}\]\W\[${reset}\]"
+  PS1="\[${primary}${bold}\]\W\[${reset}\]"
   PS1+="${git_segment}"
-  PS1+=" \[${muted}\]• \[${blue}\]\h\[${reset}\]"
+  PS1+=" \[${muted}\]• \[${info}\]\h\[${reset}\]"
   PS1+="${venv_segment}"
   PS1+="${jobs_segment}"
   PS1+="${status_segment}"
-  PS1+="\n\[${cyan}${bold}\]❯\[${reset}\] "
+  PS1+="\n\[${tertiary}${bold}\]❯\[${reset}\] "
 }
 
 _prompt_command() {
