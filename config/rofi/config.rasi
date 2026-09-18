@@ -13,11 +13,11 @@ configuration {
 @theme "/dev/null"
 
 * {
-    background: #16110F;
-    foreground: #C9AEA0;
-    bright: #ECCFC1;
-    muted: #624F46;
-    blue: #AC5621;
+    background: #15110F;
+    foreground: #C5AFA4;
+    bright: #E9D1C5;
+    muted: #5F5049;
+    blue: #944D24;
     background-color: @background;
     text-color: @foreground;
 }
