@@ -26,11 +26,13 @@ vim.pack.add({
   "https://github.com/aileks/cinder-grove.nvim"
 })
 
+vim.opt.runtimepath:prepend(vim.fn.expand("~/Projects/cinder-monochrome/nvim"))
+
 require("cinder-grove").setup({
   transparent = true,
 })
 
-vim.cmd.colorscheme('cinder-grove')
+vim.cmd.colorscheme('cinder-muted')
 
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()

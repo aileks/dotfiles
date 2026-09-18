@@ -1,98 +1,98 @@
 [app]
-"overall" = { "fg" = "#BBB3A9" }
+"overall" = { "fg" = "#c9aea0" }
 
 [cmp]
-"active" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
-"border" = { "fg" = "#E17A3F" }
-"inactive" = { "fg" = "#BBB3A9" }
+"active" = { "bg" = "#46372f", "fg" = "#eccfc1" }
+"border" = { "fg" = "#f09361" }
+"inactive" = { "fg" = "#c9aea0" }
 
 [confirm]
-"border" = { "fg" = "#E17A3F" }
-"btn_no" = { "fg" = "#9A938A" }
-"btn_yes" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
-"title" = { "fg" = "#E17A3F" }
+"border" = { "fg" = "#f09361" }
+"btn_no" = { "fg" = "#a78e82" }
+"btn_yes" = { "bg" = "#46372f", "fg" = "#eccfc1" }
+"title" = { "fg" = "#f09361" }
 
 [filetype]
-"rules" = [{ "fg" = "#D9A441", "mime" = "**/image/*" }, { "fg" = "#9A788F", "mime" = "**/{audio,video}/*" }, { "fg" = "#B34A45", "mime" = "**/application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}" }, { "fg" = "#58918C", "mime" = "**/application/{pdf,doc,rtf}" }, { "fg" = "#9A938A", "mime" = "vfs/{absent,stale}" }, { "fg" = "#B34A45", "is" = "orphan", "url" = "*" }, { "fg" = "#879B5C", "is" = "exec", "url" = "*" }, { "fg" = "#6785A1", "url" = "*/" }]
+"rules" = [{ "fg" = "#ffa474", "mime" = "**/image/*" }, { "fg" = "#bd6532", "mime" = "**/{audio,video}/*" }, { "fg" = "#a45751", "mime" = "**/application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}" }, { "fg" = "#ce7442", "mime" = "**/application/{pdf,doc,rtf}" }, { "fg" = "#a78e82", "mime" = "vfs/{absent,stale}" }, { "fg" = "#a45751", "is" = "orphan", "url" = "*" }, { "fg" = "#df8452", "is" = "exec", "url" = "*" }, { "fg" = "#ac5621", "url" = "*/" }]
 
 [help]
-"action" = { "fg" = "#BBB3A9" }
-"border" = { "fg" = "#E17A3F" }
-"chord" = { "fg" = "#58918C" }
-"hovered" = { "bg" = "#3E3A34", "bold" = true, "fg" = "#DDD5CA" }
+"action" = { "fg" = "#c9aea0" }
+"border" = { "fg" = "#f09361" }
+"chord" = { "fg" = "#ce7442" }
+"hovered" = { "bg" = "#46372f", "bold" = true, "fg" = "#eccfc1" }
 
 [indicator]
-"current" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
-"parent" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
+"current" = { "bg" = "#281e19", "fg" = "#eccfc1" }
+"parent" = { "bg" = "#281e19", "fg" = "#eccfc1" }
 "preview" = { "underline" = true }
 
 [input]
-"border" = { "fg" = "#E17A3F" }
-"selected" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
-"title" = { "fg" = "#E17A3F" }
-"value" = { "fg" = "#BBB3A9" }
+"border" = { "fg" = "#f09361" }
+"selected" = { "bg" = "#46372f", "fg" = "#eccfc1" }
+"title" = { "fg" = "#f09361" }
+"value" = { "fg" = "#c9aea0" }
 
 [mgr]
-"border_style" = { "fg" = "#58534C" }
-"count_copied" = { "bg" = "#879B5C", "fg" = "#131210" }
-"count_cut" = { "bg" = "#B34A45", "fg" = "#131210" }
-"count_selected" = { "bg" = "#D9A441", "fg" = "#131210" }
-"cwd" = { "fg" = "#6785A1" }
-"find_keyword" = { "bold" = true, "fg" = "#D9A441" }
-"find_position" = { "bold" = true, "fg" = "#9A788F" }
-"marker_copied" = { "bg" = "#879B5C", "fg" = "#879B5C" }
-"marker_cut" = { "bg" = "#B34A45", "fg" = "#B34A45" }
-"marker_marked" = { "bg" = "#58918C", "fg" = "#58918C" }
-"marker_selected" = { "bg" = "#D9A441", "fg" = "#D9A441" }
-"syntect_theme" = "~/.config/yazi/cinder-grove.tmTheme"
+"border_style" = { "fg" = "#624f46" }
+"count_copied" = { "bg" = "#df8452", "fg" = "#16110f" }
+"count_cut" = { "bg" = "#a45751", "fg" = "#16110f" }
+"count_selected" = { "bg" = "#ffa474", "fg" = "#16110f" }
+"cwd" = { "fg" = "#ac5621" }
+"find_keyword" = { "bold" = true, "fg" = "#ffa474" }
+"find_position" = { "bold" = true, "fg" = "#bd6532" }
+"marker_copied" = { "bg" = "#df8452", "fg" = "#df8452" }
+"marker_cut" = { "bg" = "#a45751", "fg" = "#a45751" }
+"marker_marked" = { "bg" = "#ce7442", "fg" = "#ce7442" }
+"marker_selected" = { "bg" = "#ffa474", "fg" = "#ffa474" }
+"syntect_theme" = "~/.config/yazi/cinder-muted.tmTheme"
 
 [mode]
-"normal_alt" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
-"normal_main" = { "bg" = "#E17A3F", "bold" = true, "fg" = "#131210" }
-"select_alt" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
-"select_main" = { "bg" = "#9A788F", "bold" = true, "fg" = "#131210" }
-"unset_alt" = { "bg" = "#23201C", "fg" = "#DDD5CA" }
-"unset_main" = { "bg" = "#B34A45", "bold" = true, "fg" = "#131210" }
+"normal_alt" = { "bg" = "#281e19", "fg" = "#eccfc1" }
+"normal_main" = { "bg" = "#f09361", "bold" = true, "fg" = "#16110f" }
+"select_alt" = { "bg" = "#281e19", "fg" = "#eccfc1" }
+"select_main" = { "bg" = "#bd6532", "bold" = true, "fg" = "#16110f" }
+"unset_alt" = { "bg" = "#281e19", "fg" = "#eccfc1" }
+"unset_main" = { "bg" = "#a45751", "bold" = true, "fg" = "#16110f" }
 
 [notify]
-"title_error" = { "fg" = "#B34A45" }
-"title_info" = { "fg" = "#6785A1" }
-"title_warn" = { "fg" = "#D9A441" }
+"title_error" = { "fg" = "#a45751" }
+"title_info" = { "fg" = "#ac5621" }
+"title_warn" = { "fg" = "#ffa474" }
 
 [pick]
-"active" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
-"border" = { "fg" = "#E17A3F" }
-"inactive" = { "fg" = "#BBB3A9" }
+"active" = { "bg" = "#46372f", "fg" = "#eccfc1" }
+"border" = { "fg" = "#f09361" }
+"inactive" = { "fg" = "#c9aea0" }
 
 [spot]
-"border" = { "fg" = "#E17A3F" }
-"tbl_cell" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
-"tbl_col" = { "fg" = "#6785A1" }
-"title" = { "fg" = "#E17A3F" }
+"border" = { "fg" = "#f09361" }
+"tbl_cell" = { "bg" = "#46372f", "fg" = "#eccfc1" }
+"tbl_col" = { "fg" = "#ac5621" }
+"title" = { "fg" = "#f09361" }
 
 [status]
-"overall" = { "bg" = "#1B1916", "fg" = "#BBB3A9" }
-"perm_exec" = { "fg" = "#879B5C" }
-"perm_read" = { "fg" = "#D9A441" }
-"perm_sep" = { "fg" = "#58534C" }
-"perm_type" = { "fg" = "#6785A1" }
-"perm_write" = { "fg" = "#B34A45" }
-"progress_error" = { "bg" = "#B34A45", "fg" = "#D9A441" }
-"progress_label" = { "bold" = true, "fg" = "#DDD5CA" }
-"progress_normal" = { "bg" = "#23201C", "fg" = "#879B5C" }
+"overall" = { "bg" = "#1f1714", "fg" = "#c9aea0" }
+"perm_exec" = { "fg" = "#df8452" }
+"perm_read" = { "fg" = "#ffa474" }
+"perm_sep" = { "fg" = "#624f46" }
+"perm_type" = { "fg" = "#ac5621" }
+"perm_write" = { "fg" = "#a45751" }
+"progress_error" = { "bg" = "#a45751", "fg" = "#ffa474" }
+"progress_label" = { "bold" = true, "fg" = "#eccfc1" }
+"progress_normal" = { "bg" = "#281e19", "fg" = "#df8452" }
 
 [tabs]
-"active" = { "bg" = "#E17A3F", "bold" = true, "fg" = "#131210" }
-"inactive" = { "bg" = "#1B1916", "fg" = "#9A938A" }
+"active" = { "bg" = "#f09361", "bold" = true, "fg" = "#16110f" }
+"inactive" = { "bg" = "#1f1714", "fg" = "#a78e82" }
 
 [tasks]
-"border" = { "fg" = "#E17A3F" }
-"hovered" = { "bg" = "#3E3A34", "fg" = "#DDD5CA" }
-"title" = { "fg" = "#E17A3F" }
+"border" = { "fg" = "#f09361" }
+"hovered" = { "bg" = "#46372f", "fg" = "#eccfc1" }
+"title" = { "fg" = "#f09361" }
 
 [which]
-"border" = { "fg" = "#E17A3F" }
-"cand" = { "fg" = "#58918C" }
-"desc" = { "fg" = "#BBB3A9" }
-"rest" = { "fg" = "#58534C" }
-"separator_style" = { "fg" = "#58534C" }
+"border" = { "fg" = "#f09361" }
+"cand" = { "fg" = "#ce7442" }
+"desc" = { "fg" = "#c9aea0" }
+"rest" = { "fg" = "#624f46" }
+"separator_style" = { "fg" = "#624f46" }

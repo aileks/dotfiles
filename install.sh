@@ -309,6 +309,7 @@ install_system_config() {
   done < <(find "$repo/overlay" -type f -print0 | sort -z)
 
   install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
+  install_system_file "$repo/config/qt6ct/colors/cinder-muted.conf" /usr/local/share/qt6ct/colors/cinder-muted.conf
   xkb_root=$(readlink -f /usr/share/X11/xkb)
   install_system_file "$repo/config/xkb/symbols/custom" "$xkb_root/symbols/custom"
 }
@@ -453,7 +454,7 @@ link() {
 link_dotfiles() {
   local config_dir desktop script
 
-  for config_dir in bat btop cava dunst fastfetch fontconfig doom zathura yazi nvim xdg-desktop-portal rofi oxwm; do
+  for config_dir in bat btop cava dunst fastfetch fontconfig doom zathura yazi nvim rofi oxwm; do
     link "$repo/config/$config_dir" "$config_home/$config_dir"
   done
 
@@ -557,11 +558,11 @@ install_appearance() {
   local name answer
 
   if "$dry_run"; then
-    printf 'prompt for Cinder Grove GTK theme and recolored Papirus icons\n'
+    printf 'prompt for Cinder Muted GTK theme and recolored Papirus icons\n'
     return
   fi
 
-  printf 'Install Cinder Grove GTK theme and recolored Papirus icons? [y/N] '
+  printf 'Install Cinder Muted GTK theme and recolored Papirus icons? [y/N] '
   if ! IFS= read -r answer; then
     answer=
   fi
@@ -592,8 +593,7 @@ install_appearance() {
     cp -a -- "$source" "$target"
   }
 
-  git clone --depth 1 https://github.com/aileks/cinder-grove-gtk.git "$work/gtk"
-  printf 'y\n\n' | dbus-run-session -- "$work/gtk/install.sh"
+  run "$HOME/Projects/cinder-monochrome/gtk/install.sh"
 
   git clone --depth 1 -b cinder-grove-folders \
     https://github.com/aileks/papirus-folders.git "$work/folders"
@@ -611,8 +611,6 @@ install_appearance() {
   done
 
   replace "$work/papirus-folders-cg" "$HOME/.local/bin/papirus-folders-cg"
-
-  run dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Cinder-Grove-Dark
 }
 
 setup_mime() {

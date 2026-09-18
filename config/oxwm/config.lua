@@ -1,15 +1,15 @@
 ---@module 'oxwm'
 
 local colors = {
-	background = "#131210",
-	bright = "#DDD5CA",
-	muted = "#58534C",
-	orange = "#E17A3F",
-	red = "#B34A45",
-	green = "#879B5C",
-	blue = "#6785A1",
-	purple = "#9A788F",
-	cyan = "#58918C",
+	background = "#16110F",
+	bright = "#ECCFC1",
+	muted = "#624F46",
+	orange = "#F09361",
+	red = "#A45751",
+	green = "#DF8452",
+	blue = "#AC5621",
+	purple = "#BD6532",
+	cyan = "#CE7442",
 }
 
 local mod = { "Mod4" }

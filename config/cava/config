@@ -24,14 +24,14 @@ synchronized_sync = 1
 show_idle_bar_heads = 0
 
 [color]
-background = '#131210'
-foreground = '#E17A3F'
+background = '#16110f'
+foreground = '#f09361'
 gradient = 1
-gradient_color_1 = '#6785A1'
-gradient_color_2 = '#879B5C'
-gradient_color_3 = '#D9A441'
-gradient_color_4 = '#E17A3F'
-gradient_color_5 = '#DDD5CA'
+gradient_color_1 = '#ac5621'
+gradient_color_2 = '#df8452'
+gradient_color_3 = '#ffa474'
+gradient_color_4 = '#f09361'
+gradient_color_5 = '#eccfc1'
 
 [smoothing]
 noise_reduction = 77

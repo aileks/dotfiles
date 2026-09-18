@@ -161,4 +161,3 @@ x-scheme-handler/about=zen-browser-bin.desktop;
 x-scheme-handler/chrome=zen-browser-bin.desktop;
 x-scheme-handler/http=zen-browser-bin.desktop;
 x-scheme-handler/https=zen-browser-bin.desktop;
-x-scheme-handler/unknown=zen-browser-bin.desktop;

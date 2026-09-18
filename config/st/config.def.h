@@ -127,34 +127,34 @@ char *xdndescchar = " !\"#$&'()*;<>?[\\]^`{|}~";
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
-	"#131210",
-	"#B34A45",
-	"#879B5C",
-	"#D9A441",
-	"#6785A1",
-	"#9A788F",
-	"#58918C",
-	"#ACA49B",
+	"#16110F",
+	"#A45751",
+	"#DF8452",
+	"#FFA474",
+	"#AC5621",
+	"#BD6532",
+	"#CE7442",
+	"#B99F93",
 
 	/* 8 bright colors */
-	"#58534C",
-	"#B34A45",
-	"#879B5C",
-	"#D9A441",
-	"#6785A1",
-	"#9A788F",
-	"#58918C",
-	"#DDD5CA",
+	"#624F46",
+	"#A45751",
+	"#DF8452",
+	"#FFA474",
+	"#AC5621",
+	"#BD6532",
+	"#CE7442",
+	"#ECCFC1",
 
 	[255] = 0,
 
 	/* more colors can be added after 255 to use with DefaultXX */
-	"#DDD5CA", /* 256 -> cursor */
-	"#131210", /* 257 -> rev cursor*/
-	"#131210", /* 258 -> bg */
-	"#BBB3A9", /* 259 -> fg */
-	"#3E3A34", /* 260 -> selection bg */
-	"#E17A3F", /* 261 -> search highlight bg */
+	"#ECCFC1", /* 256 -> cursor */
+	"#16110F", /* 257 -> rev cursor*/
+	"#16110F", /* 258 -> bg */
+	"#C9AEA0", /* 259 -> fg */
+	"#46372F", /* 260 -> selection bg */
+	"#F09361", /* 261 -> search highlight bg */
 };
 
 /*

@@ -19,12 +19,12 @@ if [[ -f $ready_file ]]; then
 fi
 rm -f -- "$ready_file"
 
-i3lock -c 131210 \
-  --ring-color=879b5cff \
-  --insidever-color=131210ff \
-  --insidewrong-color=b34a45ff \
-  --ringver-color=e17a3fff \
-  --ringwrong-color=b34a45ff \
+i3lock -c 16110f \
+  --ring-color=df8452ff \
+  --insidever-color=16110fff \
+  --insidewrong-color=a45751ff \
+  --ringver-color=f09361ff \
+  --ringwrong-color=a45751ff \
   --verif-text='' --wrong-text='' --noinput-text='' 9>&- || exit 1
 pid=$(pgrep -n -u "$UID" -x i3lock) || exit 1
 start_time=$(awk '{ print $22 }' "/proc/$pid/stat") || exit 1
