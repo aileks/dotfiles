@@ -205,7 +205,7 @@ oxwm.autostart("localsend")
 oxwm.autostart("/opt/Bitwarden/bitwarden")
 oxwm.autostart("CM_SELECTIONS=clipboard clipmenud")
 oxwm.autostart("emacs --daemon")
-oxwm.autostart('xwallpaper --zoom "$HOME/.local/share/backgrounds/fantasy-woods.jpg"')
+oxwm.autostart('xwallpaper --zoom "$HOME/.dotfiles/wallpaper/cinder.png"')
 oxwm.autostart(
 	"xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'"
 )

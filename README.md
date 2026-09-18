@@ -1,6 +1,6 @@
 # dotfiles
 
-My Gentoo configs for [OXWM](https://github.com/tonybanters/oxwm) on X11.
+![Desktop Showcase](./assets/showcase.png)
 
 ## Install
 
@@ -17,19 +17,19 @@ cd ~/.dotfiles
 
 ### Apps and tools
 
-| Keys              | Action                     |
-| ----------------- | -------------------------- |
-| `Mod + Space`     | app launcher (rofi)        |
-| `Mod + Return`    | terminal                   |
-| `Mod + X`         | Emacsclient                |
-| `Mod + W`         | browser                    |
-| `Mod + E`         | file manager               |
-| `Mod + S`         | Signal                     |
-| `Mod + A`         | wiremix                    |
-| `Mod + V`         | clipboard history          |
-| `Mod + ;`         | emoji picker               |
-| `Mod + =`         | Qalculate GTK              |
-| `Mod + Shift + P` | power menu                 |
+| Keys              | Action              |
+| ----------------- | ------------------- |
+| `Mod + Space`     | app launcher (rofi) |
+| `Mod + Return`    | terminal            |
+| `Mod + X`         | Emacsclient         |
+| `Mod + W`         | browser             |
+| `Mod + E`         | file manager        |
+| `Mod + S`         | Signal              |
+| `Mod + A`         | wiremix             |
+| `Mod + V`         | clipboard history   |
+| `Mod + ;`         | emoji picker        |
+| `Mod + =`         | Qalculate GTK       |
+| `Mod + Shift + P` | power menu          |
 
 ### Capture
 
