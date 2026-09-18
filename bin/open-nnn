@@ -2,6 +2,4 @@
 
 . "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/env"
 
-nnn -e
-
-exec "${SHELL:-/bin/bash}"
+exec nnn -e

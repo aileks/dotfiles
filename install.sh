@@ -469,7 +469,7 @@ link_dotfiles() {
   link "$repo/config/OpenRGB/NRGB.orp" "$config_home/OpenRGB/NRGB.orp"
   link "$repo/config/television/cable/portage.toml" "$config_home/television/cable/portage.toml"
 
-  for desktop in "$repo/config/applications/"*.desktop; do
+  for desktop in "$repo/applications/"*.desktop; do
     link "$desktop" "$data_home/applications/${desktop##*/}"
   done
 

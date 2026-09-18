@@ -121,7 +121,7 @@ local launchers = {
 	{ mod, "X", "emacsclient -c -a ''" },
 	{ mod, "W", "zen-browser" },
 	{ mod, "S", "signal-desktop --ignore-gpu-blocklist --enable-features=AcceleratedVideoDecodeLinuxGL --use-gl=desktop" },
-	{ mod, "E", "st -e nnn -e" },
+	{ mod, "E", "st -e open-nnn" },
 	{ mod, "A", "st -e wiremix" },
 	{ mod, "O", "region-ocr" },
 	{ mod, "V", "clipmenu" },

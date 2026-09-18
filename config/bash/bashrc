@@ -11,6 +11,7 @@ export VISUAL="$EDITOR"
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 export MANPAGER='nvim +Man!'
 export PGPASSFILE="$HOME/.local/state/postgres/postgres-18/pgpass"
+. "$HOME/.config/nnn/env"
 
 # Aliases
 alias sudo="doas"
@@ -62,8 +63,6 @@ HISTCONTROL=ignoreboth:erasedups
 bind 'set completion-ignore-case on'
 bind 'set completion-map-case on'
 bind 'set show-all-if-ambiguous on'
-
-source "$HOME/.config/nnn/env"
 
 # fzf settings
 export FZF_CTRL_T_OPTS="
