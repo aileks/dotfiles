@@ -597,7 +597,8 @@ install_appearance() {
     cp -a -- "$source" "$target"
   }
 
-  run "$HOME/Projects/cinder-monochrome/gtk/install.sh"
+  git clone --depth 1 https://github.com/aileks/cinder-muted "$work/cinder-muted"
+  run "$work/cinder-muted/gtk/install.sh"
 
   git clone --depth 1 -b cinder-grove-folders \
     https://github.com/aileks/papirus-folders.git "$work/folders"

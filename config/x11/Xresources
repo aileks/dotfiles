@@ -1,6 +1,5 @@
 Xcursor.theme: Adwaita
 Xcursor.size: 24
-! Auto-generated file. Do not edit!
 *.foreground: #C5AFA4
 *.background: #15110F
 *.cursorColor: #E9D1C5
@@ -8,15 +7,15 @@ Xcursor.size: 24
 *.color1:  #A45751
 *.color2:  #D98C63
 *.color3:  #FFBD9B
-*.color4:  #944D24
-*.color5:  #AB6139
-*.color6:  #C2764E
+*.color4:  #C2764E
+*.color5:  #CA7D55
+*.color6:  #D2845C
 *.color7:  #B5A196
 *.color8:  #5F5049
 *.color9:  #F1A278
-*.color10:  #D98C63
-*.color11:  #FFBD9B
-*.color12:  #944D24
-*.color13:  #AB6139
-*.color14:  #C2764E
+*.color10:  #ED9F75
+*.color11:  #FFD4BE
+*.color12:  #D68960
+*.color13:  #DE9067
+*.color14:  #E6976E
 *.color15:  #E9D1C5

@@ -1,3 +1,4 @@
+[app]
 "overall" = { "fg" = "#c5afa4" }
 
 [cmp]
