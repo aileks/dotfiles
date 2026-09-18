@@ -21,7 +21,7 @@ local blocks = {
 	oxwm.bar.block.shell({
 		command = "bar-dnd",
 		format = "{}",
-		interval = 5,
+		interval = 1,
 		color = colors.orange,
 		underline = false,
 	}),
@@ -29,7 +29,7 @@ local blocks = {
 	oxwm.bar.block.shell({
 		command = "bar-volume",
 		format = "{}",
-		interval = 5,
+		interval = 1,
 		color = colors.purple,
 		underline = false,
 	}),
