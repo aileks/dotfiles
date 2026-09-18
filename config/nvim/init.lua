@@ -23,11 +23,8 @@ opt.wildmenu = true
 opt.statusline = " %f %m%r%= %l:%c "
 
 vim.pack.add({
-  "https://github.com/aileks/cinder-grove.nvim"
-})
-
-require("cinder-grove").setup({
-  transparent = true,
+  "https://github.com/aileks/cinder-grove.nvim",
+  "https://github.com/aileks/cinder-muted.nvim"
 })
 
 vim.cmd.colorscheme('cinder-muted')

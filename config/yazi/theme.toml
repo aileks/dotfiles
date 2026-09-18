@@ -13,12 +13,21 @@
 "title" = { "fg" = "#f09361" }
 
 [filetype]
-"rules" = [{ "fg" = "#ffa474", "mime" = "**/image/*" }, { "fg" = "#bd6532", "mime" = "**/{audio,video}/*" }, { "fg" = "#a45751", "mime" = "**/application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}" }, { "fg" = "#ce7442", "mime" = "**/application/{pdf,doc,rtf}" }, { "fg" = "#a78e82", "mime" = "vfs/{absent,stale}" }, { "fg" = "#a45751", "is" = "orphan", "url" = "*" }, { "fg" = "#df8452", "is" = "exec", "url" = "*" }, { "fg" = "#ac5621", "url" = "*/" }]
+"rules" = [
+  { "fg" = "#eccfc1", "url" = "*/" },
+  { "fg" = "#f09361", "is" = "exec" },
+  { "fg" = "#a45751", "is" = "orphan" },
+  { "fg" = "#ffa474", "mime" = "**/image/*" },
+  { "fg" = "#df8452", "mime" = "**/{audio,video}/*" },
+  { "fg" = "#a45751", "mime" = "**/application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}" },
+  { "fg" = "#ce7442", "mime" = "**/application/{pdf,doc,rtf}" },
+  { "fg" = "#a78e82", "mime" = "vfs/{absent,stale}" },
+]
 
 [help]
 "action" = { "fg" = "#c9aea0" }
 "border" = { "fg" = "#f09361" }
-"chord" = { "fg" = "#ce7442" }
+"chord" = { "fg" = "#df8452" }
 "hovered" = { "bg" = "#46372f", "bold" = true, "fg" = "#eccfc1" }
 
 [indicator]
@@ -37,9 +46,9 @@
 "count_copied" = { "bg" = "#df8452", "fg" = "#16110f" }
 "count_cut" = { "bg" = "#a45751", "fg" = "#16110f" }
 "count_selected" = { "bg" = "#ffa474", "fg" = "#16110f" }
-"cwd" = { "fg" = "#ac5621" }
+"cwd" = { "fg" = "#df8452" }
 "find_keyword" = { "bold" = true, "fg" = "#ffa474" }
-"find_position" = { "bold" = true, "fg" = "#bd6532" }
+"find_position" = { "bold" = true, "fg" = "#f09361" }
 "marker_copied" = { "bg" = "#df8452", "fg" = "#df8452" }
 "marker_cut" = { "bg" = "#a45751", "fg" = "#a45751" }
 "marker_marked" = { "bg" = "#ce7442", "fg" = "#ce7442" }
@@ -50,13 +59,13 @@
 "normal_alt" = { "bg" = "#281e19", "fg" = "#eccfc1" }
 "normal_main" = { "bg" = "#f09361", "bold" = true, "fg" = "#16110f" }
 "select_alt" = { "bg" = "#281e19", "fg" = "#eccfc1" }
-"select_main" = { "bg" = "#bd6532", "bold" = true, "fg" = "#16110f" }
+"select_main" = { "bg" = "#df8452", "bold" = true, "fg" = "#16110f" }
 "unset_alt" = { "bg" = "#281e19", "fg" = "#eccfc1" }
 "unset_main" = { "bg" = "#a45751", "bold" = true, "fg" = "#16110f" }
 
 [notify]
 "title_error" = { "fg" = "#a45751" }
-"title_info" = { "fg" = "#ac5621" }
+"title_info" = { "fg" = "#df8452" }
 "title_warn" = { "fg" = "#ffa474" }
 
 [pick]
@@ -67,7 +76,7 @@
 [spot]
 "border" = { "fg" = "#f09361" }
 "tbl_cell" = { "bg" = "#46372f", "fg" = "#eccfc1" }
-"tbl_col" = { "fg" = "#ac5621" }
+"tbl_col" = { "fg" = "#df8452" }
 "title" = { "fg" = "#f09361" }
 
 [status]
@@ -75,7 +84,7 @@
 "perm_exec" = { "fg" = "#df8452" }
 "perm_read" = { "fg" = "#ffa474" }
 "perm_sep" = { "fg" = "#624f46" }
-"perm_type" = { "fg" = "#ac5621" }
+"perm_type" = { "fg" = "#df8452" }
 "perm_write" = { "fg" = "#a45751" }
 "progress_error" = { "bg" = "#a45751", "fg" = "#ffa474" }
 "progress_label" = { "bold" = true, "fg" = "#eccfc1" }
