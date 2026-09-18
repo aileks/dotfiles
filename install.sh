@@ -209,6 +209,7 @@ packages=(
   media-gfx/imv
   gnome-extra/polkit-gnome
   sys-fs/udiskie
+  xfce-base/tumbler
   x11-misc/xdg-utils
   x11-misc/xdg-user-dirs
   sys-apps/xdg-desktop-portal-gtk
