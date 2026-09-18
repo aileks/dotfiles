@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Neovim
-Exec=urxvtc -e nvim -- %F
+Exec=st -e nvim -- %F
 Type=Application
 Terminal=false
 MimeType=text/plain;

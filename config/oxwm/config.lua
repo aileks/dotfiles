@@ -41,7 +41,7 @@ local blocks = {
 		format = "{}",
 		interval = 5,
 		color = colors.blue,
-		click = "urxvtc -e btop",
+		click = "st -e btop",
 		underline = false,
 	}),
 	separator[1],
@@ -49,7 +49,7 @@ local blocks = {
 		format = " {used} GB",
 		interval = 5,
 		color = colors.blue,
-		click = "urxvtc -e btop",
+		click = "st -e btop",
 		underline = false,
 	}),
 	separator[1],
@@ -58,7 +58,7 @@ local blocks = {
 		format = "{}",
 		interval = 5,
 		color = colors.green,
-		click = "urxvtc -e nvtop",
+		click = "st -e nvtop",
 		underline = false,
 	}),
 	separator[1],
@@ -88,7 +88,7 @@ oxwm.bar.set_scheme_occupied(colors.bright, colors.background, colors.orange)
 oxwm.bar.set_scheme_selected(colors.orange, colors.background, colors.orange)
 oxwm.bar.set_scheme_urgent(colors.bright, colors.red, colors.red)
 
-oxwm.set_terminal("urxvtc")
+oxwm.set_terminal("st")
 oxwm.set_modkey("Mod4")
 oxwm.set_tags({ "1", "2", "3", "4", "5", "6", "7" })
 oxwm.set_layout("tiling")
@@ -123,7 +123,7 @@ for _, class in ipairs({
 end
 
 local launchers = {
-	{ mod, "Return", "urxvtc" },
+	{ mod, "Return", "st" },
 	{ mod, "Space", "rofi -show drun" },
 	{ mod, "X", "emacsclient -c -a ''" },
 	{ mod, "W", "zen-browser" },
@@ -132,8 +132,8 @@ local launchers = {
 		"S",
 		"signal-desktop --ignore-gpu-blocklist --enable-features=AcceleratedVideoDecodeLinuxGL --use-gl=desktop",
 	},
-	{ mod, "E", "urxvtc -e yazi" },
-	{ mod, "A", "urxvtc -e wiremix" },
+	{ mod, "E", "st -e yazi" },
+	{ mod, "A", "st -e wiremix" },
 	{ mod, "O", "region-ocr" },
 	{ mod, "V", "clipmenu" },
 	{ mod, "semicolon", "bemoji -n" },
@@ -211,7 +211,6 @@ oxwm.autostart("localsend")
 oxwm.autostart("/opt/Bitwarden/bitwarden")
 oxwm.autostart("CM_SELECTIONS=clipboard clipmenud")
 oxwm.autostart("emacs --daemon")
-oxwm.autostart("urxvtd -q -o -f")
 oxwm.autostart('xwallpaper --zoom "$HOME/.local/share/backgrounds/fantasy-woods.jpg"')
 oxwm.autostart(
 	"xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock \"Locking in 30 seconds\"'"

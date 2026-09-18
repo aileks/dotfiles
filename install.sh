@@ -172,6 +172,7 @@ packages=(
   x11-base/xorg-server
   x11-misc/ly
   x11-misc/rofi
+  media-libs/imlib2
   media-gfx/maim
   x11-misc/xclip
   x11-misc/xdotool
@@ -315,6 +316,17 @@ install_system_config() {
 emerge_options=(
   -vnU --autounmask=n
 )
+
+install_st() {
+  if [[ -x /usr/local/bin/st ]]; then
+    printf 'st already installed\n'
+    return
+  fi
+
+  run as_user make -C "$repo/config/st" clean
+  run as_user make -C "$repo/config/st"
+  run make -C "$repo/config/st" PREFIX=/usr/local install
+}
 
 install_packages() {
   local repository location
@@ -812,6 +824,7 @@ main() {
 
   install_system_config
   install_packages
+  install_st
   install_system_file "$repo/config/oxwm/oxwm.desktop" /usr/share/xsessions/oxwm.desktop
   run oxwm --validate "$repo/config/oxwm/config.lua"
   configure_account

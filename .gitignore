@@ -2,3 +2,7 @@ nvim-pack-lock.json
 config/cava/shaders/
 config/cava/themes/
 __pycache__/
+config/st/*.o
+config/st/st
+config/st/patches.h
+config/st/config.h

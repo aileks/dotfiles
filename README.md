@@ -56,8 +56,6 @@ cd ~/.dotfiles
 
 ### Windows
 
-Tags use master-and-stack tiling. Individual windows can still float.
-
 | Keys                                  | Action                                 |
 | ------------------------------------- | -------------------------------------- |
 | `Mod + Q`                             | close window                           |

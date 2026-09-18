@@ -6,7 +6,7 @@ configuration {
     show-icons: false;
     drun-display-format: "{name}";
     display-drun: "Apps";
-    terminal: "urxvtc";
+    terminal: "st";
     run-shell-command: "{terminal} -e {cmd}";
 }
 
