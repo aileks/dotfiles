@@ -1,18 +1,16 @@
 [metadata]
 name = "portage"
 description = "Search Portage packages"
-requirements = ["qsearch"]
+requirements = ["eix"]
 
 [source]
-command = "qsearch --all . --nocolor | sed 's/: /\\t/'"
-display = "{split:\t:0}  {split:\t:1}"
-output = "{split:\t:0}"
+command = "eix --pure-packages --only-names '*'"
 
 [preview]
-command = "qsearch --all --nocolor '^{}$'"
+command = "eix --verbose '{}'"
 
 [keybindings]
-ctrl-i = "actions:install"
+enter = "actions:install"
 ctrl-u = "actions:unmerge"
 
 [actions.install]
@@ -22,5 +20,5 @@ mode = "execute"
 
 [actions.unmerge]
 description = "Unmerge selected package"
-command = "doas emerge --ask --depclean '{}'"
+command = "doas emerge --ask --unmerge '{}'"
 mode = "execute"
