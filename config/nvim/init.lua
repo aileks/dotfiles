@@ -22,10 +22,7 @@ opt.completeopt = { "menu", "menuone", "noselect" }
 opt.wildmenu = true
 opt.statusline = " %f %m%r%= %l:%c "
 
-vim.pack.add({
-  "https://github.com/aileks/cinder-grove.nvim",
-  "https://github.com/aileks/cinder-muted.nvim"
-})
+vim.pack.add({ "https://github.com/aileks/cinder-muted.nvim" })
 
 vim.cmd.colorscheme('cinder-muted')
 
