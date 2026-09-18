@@ -308,8 +308,6 @@ install_system_config() {
     install_system_file "$source" "/var/db/repos/aileks/$relative"
   done < <(find "$repo/overlay" -type f -print0 | sort -z)
 
-  install_system_file "$repo/config/qt6ct/colors/cinder-grove.conf" /usr/local/share/qt6ct/colors/cinder-grove.conf
-  install_system_file "$repo/config/qt6ct/colors/cinder-muted.conf" /usr/local/share/qt6ct/colors/cinder-muted.conf
   xkb_root=$(readlink -f /usr/share/X11/xkb)
   install_system_file "$repo/config/xkb/symbols/custom" "$xkb_root/symbols/custom"
 }
@@ -604,7 +602,7 @@ install_appearance() {
     chmod -R u+w "$work/icons/$name"
   done
   USER_HOME="$work" XDG_CONFIG_HOME="$work/config" XDG_DATA_HOME="$work" XDG_DATA_DIRS="$work" \
-    "$work/papirus-folders-cg" --theme Papirus-Dark --color grove
+    "$work/papirus-folders-cg" --theme Papirus-Dark --color orange
 
   for name in Papirus Papirus-Dark Papirus-Light; do
     replace "$work/icons/$name" "$data_home/icons/$name"

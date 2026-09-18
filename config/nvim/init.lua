@@ -26,8 +26,6 @@ vim.pack.add({
   "https://github.com/aileks/cinder-grove.nvim"
 })
 
-vim.opt.runtimepath:prepend(vim.fn.expand("~/Projects/cinder-monochrome/nvim"))
-
 require("cinder-grove").setup({
   transparent = true,
 })
