@@ -25,9 +25,10 @@ i3lock -c 15110f \
   --insidewrong-color=a45751ff \
   --ringver-color=f1a278ff \
   --ringwrong-color=a45751ff \
-  --keyhl-color=f1a278ff \
+  --keyhl-color=e9d1c5ff \
   --bshl-color=a45751ff \
   --verif-text='' --wrong-text='' --noinput-text='' 9>&- || exit 1
+
 pid=$(pgrep -n -u "$UID" -x i3lock) || exit 1
 start_time=$(awk '{ print $22 }' "/proc/$pid/stat") || exit 1
 printf '%s %s\n' "$pid" "$start_time" >"$ready_file"
