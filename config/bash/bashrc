@@ -206,8 +206,9 @@ make_prompt() {
   local primary=$'\e[38;2;241;162;120m'
   local secondary=$'\e[38;2;217;140;99m'
   local tertiary=$'\e[38;2;171;97;57m'
-  local host=$'\e[38;2;194;118;78m'
+  local muted=$'\e[38;2;95;80;73m'
   local info=$'\e[38;2;148;77;36m'
+  local host=$'\e[38;2;194;118;78m'
   local git_segment=''
   local status_segment=''
   local venv_segment=''
@@ -238,7 +239,7 @@ make_prompt() {
   PS1+="${git_segment}\[${reset}\]"
   PS1+="${venv_segment}"
   PS1+="${jobs_segment}"
-  PS1+=" \[${host}\]\h\[${reset}\]"
+  PS1+=" \[${muted}\]• \[${host}\]\h\[${reset}\]"
   PS1+="${status_segment}"
   PS1+="\n\[${secondary}${bold}\]❯\[${reset}\] "
 }
