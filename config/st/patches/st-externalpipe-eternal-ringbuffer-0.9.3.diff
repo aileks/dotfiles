@@ -1,0 +1,40 @@
+diff -up a/st.c b/st.c
+--- a/st.c	2026-02-12 14:56:55.248311919 -0300
++++ b/st.c	2026-02-12 14:36:36.827197795 -0300
+@@ -2513,21 +2513,21 @@ externalpipe(const Arg *arg)
+         /* ignore sigpipe for now, in case child exists early */
+         oldsigpipe = signal(SIGPIPE, SIG_IGN);
+         newline = 0;
+-	for (n = 0; n < term.row; n++) {
+-		bp = term.line[n];
+-		lastpos = MIN(tlinelen(n) + 1, term.col) - 1;
+-                if (lastpos < 0)
+-                        break;
+-                end = &bp[lastpos + 1];
+-                for (; bp < end; ++bp)
+-                        if (xwrite(to[1], buf, utf8encode(bp->u, buf)) < 0)
+-                                break;
+-		if ((newline = term.line[n][lastpos].mode & ATTR_WRAP))
+-                        continue;
+-                if (xwrite(to[1], "\n", 1) < 0)
+-                        break;
+-                newline = 0;
+-        }
++	int histlen = term.screen[0].cur < term.screen[0].size
++		? term.screen[0].cur
++		: term.screen[0].size;
++	int total = histlen + term.row;
++	for (int n = -histlen; n < term.row; n++) {
++		Line line = TLINE(n);
++		int len = tlinelen(n);
++		for (int i = 0; i < len; i++) {
++			char buf[UTF_SIZ];
++			if (xwrite(to[1], buf, utf8encode(line[i].u, buf)) < 0)
++				break;
++		}
++		if (len > 0 && !(line[len - 1].mode & ATTR_WRAP))
++			xwrite(to[1], "\n", 1);
++	}
+         if (newline)
+                 (void)xwrite(to[1], "\n", 1);
+         close(to[1]);
