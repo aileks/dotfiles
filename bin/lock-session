@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+runtime_directory=${XDG_RUNTIME_DIR:?}
+[[ -d $runtime_directory && -O $runtime_directory ]] || exit 1
+umask 077
+exec 9>"$runtime_directory/lock-session.lock"
+flock -w 5 9 || exit 1
+
+if pgrep -u "$UID" -x slock >/dev/null; then
+  exit 0
+fi
+
+exec slock 9>&-

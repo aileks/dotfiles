@@ -1,0 +1,26 @@
+Xcursor.theme: Adwaita
+Xcursor.size: 24
+*.foreground: #C5AFA4
+*.background: #15110F
+*.cursorColor: #E9D1C5
+*.color0:  #15110F
+*.color1:  #A45751
+*.color2:  #D98C63
+*.color3:  #FFBD9B
+*.color4:  #C2764E
+*.color5:  #CA7D55
+*.color6:  #D2845C
+*.color7:  #B5A196
+*.color8:  #5F5049
+*.color9:  #F1A278
+*.color10:  #ED9F75
+*.color11:  #FFD4BE
+*.color12:  #D68960
+*.color13:  #DE9067
+*.color14:  #E6976E
+*.color15:  #E9D1C5
+
+slock.locked: #15110F
+slock.input: #D98C63
+slock.failed: #A45751
+slock.capslock: #F1A278

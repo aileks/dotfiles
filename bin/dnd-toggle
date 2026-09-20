@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+dunstctl set-paused toggle
+dunstify -a dunst "Do not disturb: $(dunstctl is-paused)" || true

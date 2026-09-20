@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Neovim
+Exec=st -e nvim -- %F
+Type=Application
+Terminal=false
+MimeType=text/plain;

@@ -1,0 +1,50 @@
+[global]
+dmenu = dmenu -i -c -p Notifications
+follow = none
+width = 380
+height = (0, 120)
+origin = top-right
+offset = (3, 28)
+frame_width = 2
+frame_color = "#5f5049"
+separator_color = frame
+font = Iosevka Nerd Font 12
+icon_position = left
+icon_theme = Papirus-Dark
+max_icon_size = 32
+gap_size = 6
+padding = 10
+horizontal_padding = 12
+text_icon_padding = 10
+corner_radius = 0
+format = "<b>%s</b>\n%b"
+timeout = 5
+
+[urgency_low]
+background = "#15110f"
+foreground = "#c5afa4"
+frame_color = "#d98c63"
+highlight = "#d98c63"
+timeout = 4
+
+[urgency_normal]
+background = "#15110f"
+foreground = "#c5afa4"
+frame_color = "#f1a278"
+highlight = "#f1a278"
+timeout = 5
+
+[urgency_critical]
+background = "#15110f"
+foreground = "#e9d1c5"
+frame_color = "#a45751"
+highlight = "#a45751"
+timeout = 0
+
+[volume]
+appname = volume
+format = "<b>%s</b> %b"
+
+[brightness]
+appname = brightness
+format = "<b>%s</b> %b"

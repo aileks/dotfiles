@@ -1,0 +1,4 @@
+/custom.el
+/debug-adapters/
+/transient/
+*.elc

@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+
+[[ $- == *i* ]] || return
+
+# Environment
+export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$PATH"
+export NPM_CONFIG_PREFIX="$HOME/.local"
+export GREP_COLORS='mt=1;36'
+export EDITOR='nvim'
+export VISUAL="$EDITOR"
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+export MANPAGER='nvim +Man!'
+export PGPASSFILE="$HOME/.local/state/postgres/postgres-18/pgpass"
+. "$HOME/.config/nnn/env"
+
+# Aliases
+alias sudo="doas"
+alias ls='LC_COLLATE=C ls --color=auto --group-directories-first'
+alias la='LC_COLLATE=C ls -lah --color=auto --group-directories-first'
+alias lt='tree -C -a -L 2 --dirsfirst --group-directories-first'
+alias rm='trash'
+alias c='clear'
+alias fzf='fzf --style full'
+alias ff='fastfetch'
+alias vim='nvim'
+alias ..="echo 'cd ..'; cd .."
+alias hl='rg --passthru'
+alias n='nnn -e'
+alias ga='git add'
+alias gaa='git add --all'
+alias gb='git branch'
+alias gcl='git clone'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gc='git commit --verbose'
+alias gcm='git commit -m'
+alias gm='git merge'
+alias gd='git diff'
+alias gf='git fetch'
+alias gl='git pull'
+alias gp='git push'
+alias gst='git status'
+alias gss='git status --short'
+alias gsw='git switch'
+
+# Shell Options
+shopt -s cdspell
+shopt -s checkwinsize
+shopt -s extglob
+shopt -s autocd 2>/dev/null || true
+shopt -s dirspell 2>/dev/null || true
+shopt -s histappend
+shopt -s cmdhist
+shopt -s lithist
+
+# History
+HISTFILE="$HOME/.bash_history"
+HISTSIZE=50000
+HISTFILESIZE=50000
+HISTCONTROL=ignoreboth:erasedups
+
+# Completion
+bind 'set completion-ignore-case on'
+bind 'set completion-map-case on'
+bind 'set show-all-if-ambiguous on'
+
+# fzf settings
+export FZF_CTRL_T_OPTS="
+  --walker-skip .git,.venv,node_modules,target
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+
+export FZF_ALT_C_OPTS="
+  --walker-skip .git,.venv,node_modules,target
+  --preview 'eza --tree --color=always --icons {}'"
+
+export FZF_DEFAULT_OPTS="
+  --color=fg:#B5A196
+  --color=fg+:#E9D1C5
+  --color=bg:#15110F
+  --color=bg+:#34312d
+  --color=hl:#C87546
+  --color=hl+:#E8A64D
+  --color=info:#B5A196
+  --color=marker:#C87546
+  --color=prompt:#C87546
+  --color=spinner:#DC8853
+  --color=pointer:#FFBD9B
+  --color=header:#A45751
+  --color=border:#B5A196
+  --color=query:#E9D1C5
+  --color=gutter:#15110F
+  --highlight-line
+  --info=inline-right
+  --layout=reverse
+  --pointer='█'
+  --scrollbar='▌'
+  --multi
+  --border=top
+"
+
+export _ZO_FZF_OPTS="
+  $FZF_DEFAULT_OPTS
+  --height=50%
+  --preview 'eza --color=always --icons --group-directories-first {2..}'
+  --preview-window=down,border-top
+  --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
+  --bind 'ctrl-/:change-preview-window(right|hidden|)'
+"
+
+# Shell Integrations
+if command -v zoxide >/dev/null 2>&1 && shell_init=$(zoxide init bash); then
+  eval "$shell_init"
+fi
+
+if command -v fzf >/dev/null 2>&1 && shell_init=$(command fzf --bash); then
+  eval "$shell_init"
+fi
+unset shell_init
+
+# Prompt
+git_prompt_segment() {
+  local output line
+  local branch=''
+  local ahead=0
+  local behind=0
+  local dirty=0
+
+  output=$(git status --porcelain=v2 --branch 2>/dev/null) || return
+
+  while IFS= read -r line; do
+    case $line in
+      '# branch.head '*)
+        branch=${line#'# branch.head '}
+        ;;
+
+      '# branch.ab '*)
+        local ab=${line#'# branch.ab '}
+        local a b
+        read -r a b <<<"$ab"
+        ahead=${a#+}
+        behind=${b#-}
+        ;;
+
+      *)
+        if [[ -n $line && $line != \#* && $line != \!* ]]; then
+          dirty=1
+        fi
+        ;;
+    esac
+  done <<<"$output"
+
+  if [[ $branch == '(detached)' ]]; then
+    branch=$(git rev-parse --short HEAD 2>/dev/null) || return
+  fi
+
+  printf ' %s' "$branch"
+
+  ((ahead > 0)) && printf ' ⇡%d' "$ahead"
+  ((behind > 0)) && printf ' ⇣%d' "$behind"
+  ((dirty)) && printf ' *'
+  return 0
+}
+
+venv_prompt_name() {
+  local key value
+
+  [[ -r $VIRTUAL_ENV/pyvenv.cfg ]] || return 1
+
+  while IFS='=' read -r key value; do
+    key=${key//[[:space:]]/}
+
+    if [[ $key == prompt ]]; then
+      value=${value#"${value%%[![:space:]]*}"}
+      value=${value%"${value##*[![:space:]]}"}
+
+      printf '%s' "$value"
+      return
+    fi
+  done <"$VIRTUAL_ENV/pyvenv.cfg"
+}
+
+make_prompt() {
+  local status=$1
+  local reset=$'\e[0m'
+  local bold=$'\e[1m'
+  local error=$'\e[38;2;164;87;81m'
+  local primary=$'\e[38;2;241;162;120m'
+  local secondary=$'\e[38;2;217;140;99m'
+  local tertiary=$'\e[38;2;171;97;57m'
+  local muted=$'\e[38;2;95;80;73m'
+  local info=$'\e[38;2;148;77;36m'
+  local host=$'\e[38;2;194;118;78m'
+  local git_segment=''
+  local status_segment=''
+  local venv_segment=''
+  local jobs_segment=''
+
+  if _prompt_git_text=$(git_prompt_segment); then
+    git_segment=" \[${tertiary}\]"'${_prompt_git_text}'"\[${reset}\]"
+  fi
+
+  if ((status != 0)); then
+    status_segment=" \[${error}\] ${status}\[${reset}\]"
+  fi
+
+  if [[ -n ${VIRTUAL_ENV:-} ]]; then
+    _prompt_venv_text=$(venv_prompt_name)
+    [[ -n $_prompt_venv_text ]] || _prompt_venv_text=${VIRTUAL_ENV##*/}
+    venv_segment=" \[${secondary}\] "'${_prompt_venv_text}'"\[${reset}\]"
+  fi
+
+  local job_count
+  job_count=$(jobs -p | wc -l)
+
+  if ((job_count > 0)); then
+    jobs_segment=" \[${info}\]󱑞 ${job_count}\[${reset}\]"
+  fi
+
+  PS1="\[${primary}${bold}\]\W\[${reset}\]"
+  PS1+="${git_segment}\[${reset}\]"
+  PS1+="${venv_segment}"
+  PS1+="${jobs_segment}"
+  PS1+=" \[${muted}\]• \[${host}\]\h\[${reset}\]"
+  PS1+="${status_segment}"
+  PS1+="\n\[${secondary}${bold}\]❯\[${reset}\] "
+}
+
+_prompt_command() {
+  local status=$?
+
+  history -a
+  history -n
+  make_prompt "$status"
+
+  return "$status"
+}
+
+if [[ " ${PROMPT_COMMAND[*]-} " != *' _prompt_command '* ]]; then
+  PROMPT_COMMAND=(_prompt_command "${PROMPT_COMMAND[@]}")
+fi
