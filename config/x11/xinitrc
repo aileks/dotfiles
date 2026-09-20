@@ -15,5 +15,6 @@ export CM_MAX_CLIPS=20
 export LIBVA_DRIVER_NAME=nvidia
 export NVD_BACKEND=direct
 export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export MOZ_DISABLE_RDD_SANDBOX=1
 
 exec dbus-run-session -- dwm
