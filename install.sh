@@ -133,7 +133,7 @@ packages=(
   xwallpaper xautolock fontconfig fontconfig-devel nnn zathura zathura-pdf-mupdf zathura-cb zathura-djvu uv mpv mpv-mpris gvfs
   pcmanfm lxappearance dunst libnotify playerctl wiremix cava qalculate-gtk file-roller ncdu2 imv udiskie tumbler xdg-utils
   xdg-user-dirs polkit-gnome xdg-desktop-portal-gtk ffmpeg6 ffmpegthumbnailer alsa-utils ddcutil libva-utils mesa-demos nvtop
-  cronie tesseract-ocr tesseract-ocr-eng hunspell-en keyutils pinentry dconf Vulkan-Tools gnome-keyring gsettings-desktop-schemas
+  cronie tesseract-ocr tesseract-ocr-eng hunspell hunspell-en keyutils pinentry dconf Vulkan-Tools gnome-keyring gsettings-desktop-schemas
   qt6ct papirus-icon-theme adwaita-icon-theme adwaita-fonts noto-fonts-ttf openrgb noto-fonts-cjk noto-fonts-emoji Signal-Desktop
   freetype-devel imlib2-devel openjdk21 pkg-config libX11-devel libXcursor-devel libXext-devel libXft-devel cmake libXinerama-devel
   libXrandr-devel libXrender-devel libxcb-devel libxcrypt-devel xcb-util-devel clang gcc gdb make bubblewrap ImageMagick neovim
