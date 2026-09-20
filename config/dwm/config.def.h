@@ -228,7 +228,6 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_e,          spawn,                  SHCMD("st -e open-nnn") },
 	{ MODKEY,                       XK_a,          spawn,                  SHCMD("st -e wiremix") },
 	{ MODKEY,                       XK_o,          spawn,                  SHCMD("region-ocr") },
-	{ MODKEY,                       XK_v,          spawn,                  SHCMD("clipmenu -i -c -p Clip -S") },
 	{ MODKEY,                       XK_semicolon,  spawn,                  SHCMD("bemoji -n") },
 	{ MODKEY,                       XK_equal,      spawn,                  SHCMD("qalculate-gtk") },
 	{ MODKEY,                       XK_Escape,     spawn,                  SHCMD("lock-session") },
