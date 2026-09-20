@@ -1106,6 +1106,10 @@ drawbarwin(Bar *bar)
 			total_drawn += br->drawfunc(bar, &darg);
 	}
 
+	/* bottom hairline, drawn after the bar modules so they don't paint over it */
+	XSetForeground(drw->dpy, drw->gc, scheme[SchemeNorm][ColBorder].pixel);
+	XFillRectangle(drw->dpy, drw->drawable, drw->gc, 0, bar->bh - 1, bar->bw, 1);
+
 	if (total_drawn == 0 && bar->showbar) {
 		bar->showbar = 0;
 		updatebarpos(bar->mon);
