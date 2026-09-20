@@ -2,6 +2,8 @@
 
 Void Linux post-install script for my setup.
 
+![Desktop Showcase](./assets/showcase.png)
+
 _The wallpaper is built from an SVG._
 
 ## Install
