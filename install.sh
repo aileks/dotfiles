@@ -108,7 +108,7 @@ preflight() {
   while IFS= read -r -d '' source; do
     relative=${source#"$repo/"}
     check_system_target "/$relative"
-  done < <(find "$repo/etc" -type f -not -path "$repo/etc/portage/*" -print0)
+  done < <(find "$repo/etc" -type f -print0)
 
   dry_run=true link_dotfiles >/dev/null
 
@@ -179,7 +179,7 @@ install_system_config() {
   while IFS= read -r -d '' source; do
     relative=${source#"$repo/"}
     install_system_file "$source" "/$relative"
-  done < <(find "$repo/etc" -type f -not -path "$repo/etc/portage/*" -print0 | sort -z)
+  done < <(find "$repo/etc" -type f -print0 | sort -z)
 }
 
 install_xkb() {

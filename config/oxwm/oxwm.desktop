@@ -1,5 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=oxwm
-DesktopNames=oxwm
-Exec=dbus-launch --exit-with-session env PATH=$HOME/.local/bin:$PATH XDG_CURRENT_DESKTOP=oxwm XDG_SESSION_DESKTOP=oxwm XDG_SESSION_TYPE=x11 XCURSOR_THEME=Adwaita XCURSOR_SIZE=24 LIBVA_DRIVER_NAME=nvidia NVD_BACKEND=direct __GLX_VENDOR_LIBRARY_NAME=nvidia BEMOJI_PICKER_CMD='dmenu -i -c -p Emoji' BEMOJI_CLIP_CMD=xclip CM_LAUNCHER=dmenu CM_DIR=${XDG_RUNTIME_DIR:-/run/user/$UID}/clipmenu CM_MAX_CLIPS=20 oxwm

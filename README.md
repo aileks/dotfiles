@@ -1,6 +1,6 @@
 # dotfiles
 
-Void Linux post-installl script for my setup.
+Void Linux post-install script for my setup.
 
 _The wallpaper is built from an SVG._
 
