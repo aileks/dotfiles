@@ -790,7 +790,7 @@ setup(void)
 			i = 0;
 
 		if (center) {
-			mw = MIN(MAX(max_textw() + promptw, min_width), info[i].width);
+			mw = MIN(MIN(MAX(max_textw() + promptw, min_width), max_width), info[i].width);
 			x = info[i].x_org + ((info[i].width  - mw) / 2);
 			y = info[i].y_org + ((info[i].height - mh) / 2);
 		} else {
@@ -806,7 +806,7 @@ setup(void)
 			die("could not get embedding window attributes: 0x%lx",
 			    parentwin);
 		if (center) {
-			mw = MIN(MAX(max_textw() + promptw, min_width), wa.width);
+			mw = MIN(MIN(MAX(max_textw() + promptw, min_width), max_width), wa.width);
 			x = (wa.width  - mw) / 2;
 			y = (wa.height - mh) / 2;
 		} else {
