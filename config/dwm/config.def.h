@@ -162,6 +162,7 @@ static const Rule rules[] = {
 	RULE(.class = "polkit-gnome", .isfloating = 1)
 	RULE(.class = "xdg-desktop-portal-gtk", .isfloating = 1)
 	RULE(.class = "Nm-connection-editor", .isfloating = 1)
+	RULE(.class = "zen", .instance = "Places", .isfloating = 1)
 };
 
 /* Bar rules allow you to configure what is shown where on the bar, as well as
