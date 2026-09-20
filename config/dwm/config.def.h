@@ -186,7 +186,7 @@ static const BarRule barrules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static const float mfact     = 0.5; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -227,7 +227,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_e,          spawn,                  SHCMD("st -e open-nnn") },
 	{ MODKEY,                       XK_a,          spawn,                  SHCMD("st -e wiremix") },
 	{ MODKEY,                       XK_o,          spawn,                  SHCMD("region-ocr") },
-	{ MODKEY,                       XK_v,          spawn,                  SHCMD("clipmenu") },
+	{ MODKEY,                       XK_v,          spawn,                  SHCMD("clipmenu -i -c -p Clip -S") },
 	{ MODKEY,                       XK_semicolon,  spawn,                  SHCMD("bemoji -n") },
 	{ MODKEY,                       XK_equal,      spawn,                  SHCMD("qalculate-gtk") },
 	{ MODKEY,                       XK_Escape,     spawn,                  SHCMD("lock-session") },

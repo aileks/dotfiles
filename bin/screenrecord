@@ -51,17 +51,17 @@ stop_recording() {
 
 if [[ ${1:-} == menu ]]; then
   if read_state && recording_is_live; then
-    choice=$(printf '%s\n' 'Stop Recording' | dmenu -c -p Record) || exit 0
+    choice=$(printf '%s\n' 'Stop Recording' | dmenu -i -c -l 1 -p Record -S) || exit 0
     [[ $choice == 'Stop Recording' ]] || exit 0
     set -- stop
   else
-    choice=$(printf '%s\n' 'Record Region' 'Record Screen' | dmenu -c -p Record) || exit 0
+    choice=$(printf '%s\n' 'Record Region' 'Record Screen' | dmenu -i -c -l 2 -p Record -S) || exit 0
     case "$choice" in
       'Record Region') mode=region ;;
       'Record Screen') mode=output ;;
       *) exit 0 ;;
     esac
-    audio=$(printf '%s\n' 'No Audio' 'Microphone' 'Desktop + Microphone' | dmenu -c -p Audio) || exit 0
+    audio=$(printf '%s\n' 'No Audio' 'Microphone' 'Desktop + Microphone' | dmenu -i -c -l 3 -p Audio -S) || exit 0
     case "$audio" in
       'No Audio') audio=none ;;
       'Microphone') audio=mic ;;

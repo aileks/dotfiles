@@ -1,5 +1,5 @@
 [global]
-dmenu = dmenu -i -c -p Notifications
+dmenu = dmenu -i -c -l 3 -p Notifications -S
 follow = none
 width = 380
 height = (0, 120)

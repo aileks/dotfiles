@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | dmenu -c -p Power) || exit 0
+choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | dmenu -i -c -l 4 -p Power -S) || exit 0
 case "$choice" in
   'log out') pkill -x dwm ;;
   'suspend') loginctl suspend ;;
