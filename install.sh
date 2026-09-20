@@ -135,7 +135,7 @@ packages=(
   tumbler xdg-utils xdg-user-dirs gvfs polkit-gnome xdg-desktop-portal-gtk ffmpeg6 ffmpegthumbnailer alsa-utils ddcutil
   libva-utils mesa-demos Vulkan-Tools nvtop cronie tesseract-ocr tesseract-ocr-eng hunspell-en keyutils pinentry dconf
   gnome-keyring gsettings-desktop-schemas qt6ct papirus-icon-theme adwaita-icon-theme adwaita-fonts noto-fonts-ttf openrgb
-  noto-fonts-cjk noto-fonts-emoji gpu-screen-recorder Signal-Desktop freetype-devel imlib2-devel openjdk21 pkg-config 
+  noto-fonts-cjk noto-fonts-emoji gpu-screen-recorder Signal-Desktop freetype-devel imlib2-devel openjdk21 pkg-config
   libX11-devel libXcursor-devel libXext-devel libXft-devel libXinerama-devel libXrandr-devel libXrender-devel libxcb-devel
   libxcrypt-devel xcb-util-devel clang gcc gdb make bubblewrap cmake neovim libvterm tree-sitter-cli libgccjit-devel
   jansson-devel tree-sitter-devel gtk+3-devel cairo-devel harfbuzz-devel giflib-devel libjpeg-turbo-devel libpng-devel
