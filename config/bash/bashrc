@@ -16,8 +16,8 @@ export PGPASSFILE="$HOME/.local/state/postgres/postgres-18/pgpass"
 # Aliases
 alias sudo="doas"
 alias sudoedit="doasedit"
-alias ls='LC_COLLATE=C ls --color=auto --group-directories-first'
-alias la='LC_COLLATE=C ls -lah --color=auto --group-directories-first'
+alias ls='ls --color=auto --group-directories-first'
+alias la='ls -lah --color=auto --group-directories-first'
 alias lt='tree -C -a -L 2 --dirsfirst --group-directories-first'
 alias rm='trash'
 alias c='clear'
@@ -97,12 +97,12 @@ fi
 # fzf settings
 export FZF_CTRL_T_OPTS="
   --walker-skip .git,.venv,node_modules,target
-  --preview 'bat -n --color=always {}'
+  --preview 'bat -n --color=auto {}'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'"
 
 export FZF_ALT_C_OPTS="
   --walker-skip .git,.venv,node_modules,target
-  --preview 'eza --tree --color=always --icons {}'"
+  --preview 'tree -C {}'"
 
 export FZF_DEFAULT_OPTS="
   --color=fg:#B5A196
@@ -132,7 +132,7 @@ export FZF_DEFAULT_OPTS="
 export _ZO_FZF_OPTS="
   $FZF_DEFAULT_OPTS
   --height=50%
-  --preview 'eza --color=always --icons --group-directories-first {2..}'
+  --preview 'ls -lah --color=auto --group-directories-first {2..}'
   --preview-window=down,border-top
   --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
   --bind 'ctrl-/:change-preview-window(right|hidden|)'
@@ -142,7 +142,6 @@ export _ZO_FZF_OPTS="
 if command -v zoxide >/dev/null 2>&1 && shell_init=$(zoxide init bash); then
   eval "$shell_init"
 fi
-
 if command -v fzf >/dev/null 2>&1 && shell_init=$(command fzf --bash); then
   eval "$shell_init"
 fi
