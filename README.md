@@ -1,6 +1,6 @@
 # dotfiles
 
-Void Linux post-install script for my setup.
+Void Linux post-install script and dotfiles for my setup.
 
 ![Desktop Showcase](./assets/showcase.png)
 
