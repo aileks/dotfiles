@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 
-[[ -f /etc/bash/bashrc.d/bash_completion.sh ]] && source /etc/bash/bashrc.d/bash_completion.sh
 [[ -r ~/.bashrc ]] && source ~/.bashrc

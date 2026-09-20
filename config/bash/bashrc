@@ -61,6 +61,7 @@ shopt -s dirspell 2>/dev/null || true
 shopt -s histappend
 shopt -s cmdhist
 shopt -s lithist
+shopt -s progcomp_alias
 
 # History
 HISTFILE="$HOME/.bash_history"
@@ -72,6 +73,26 @@ HISTCONTROL=ignoreboth:erasedups
 bind 'set completion-ignore-case on'
 bind 'set completion-map-case on'
 bind 'set show-all-if-ambiguous on'
+
+if [[ -r /usr/share/bash-completion/bash_completion ]]; then
+  . /usr/share/bash-completion/bash_completion
+fi
+
+if [[ -r /usr/share/bash-completion/completions/git ]]; then
+  . /usr/share/bash-completion/completions/git
+fi
+
+if type __git_complete &>/dev/null; then
+  __git_complete gco _git_checkout
+  __git_complete gst _git_status
+  __git_complete gc  _git_commit
+  __git_complete gp  _git_push
+  __git_complete gl  _git_pull
+  __git_complete gd  _git_diff
+  __git_complete gb  _git_branch
+  __git_complete gcb _git_checkout
+  __git_complete gsw _git_switch
+fi
 
 # fzf settings
 export FZF_CTRL_T_OPTS="
