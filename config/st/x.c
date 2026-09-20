@@ -652,7 +652,6 @@ setsel(char *str, Time t)
 	if (XGetSelectionOwner(xw.dpy, XA_PRIMARY) != xw.win)
 		selclear();
 
-	clipcopy(NULL);
 }
 
 void
@@ -1205,6 +1204,8 @@ xinit(int cols, int rows)
 	xw.netwmname = XInternAtom(xw.dpy, "_NET_WM_NAME", False);
 	xw.netwmiconname = XInternAtom(xw.dpy, "_NET_WM_ICON_NAME", False);
 	XSetWMProtocols(xw.dpy, xw.win, &xw.wmdeletewin, 1);
+
+	setnetwmicon();
 
 	xw.netwmpid = XInternAtom(xw.dpy, "_NET_WM_PID", False);
 	XChangeProperty(xw.dpy, xw.win, xw.netwmpid, XA_CARDINAL, 32,

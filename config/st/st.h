@@ -170,6 +170,7 @@ typedef struct {
 	     XtextPlain, XdndAware;
 	int64_t XdndSourceWin, XdndSourceVersion;
 	int32_t XdndSourceFormat;
+	Atom netwmicon;
 	struct {
 		XIM xim;
 		XIC xic;

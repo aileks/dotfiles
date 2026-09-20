@@ -194,6 +194,7 @@ kbds_copytoclipboard(void)
 	}
 	xsetsel(getsel());
 
+	xclipcopy();
 }
 
 void

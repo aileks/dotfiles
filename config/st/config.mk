@@ -31,7 +31,7 @@ XCURSOR = `$(PKG_CONFIG) --libs xcursor`
 #SIXEL_LIBS = `$(PKG_CONFIG) --libs imlib2`
 
 # Uncomment for the netwmicon patch / NETWMICON_PATCH
-#NETWMICON_LIBS = `$(PKG_CONFIG) --libs gdlib`
+NETWMICON_LIBS = `$(PKG_CONFIG) --libs gdlib`
 
 # includes and libs, uncomment harfbuzz for the ligatures patch
 INCS = -I$(X11INC) \
