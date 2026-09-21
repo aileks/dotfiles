@@ -19,7 +19,7 @@ esac
 
 user_name="$(id -un)"
 backup_label="${BACKUP_LABEL:-External}"
-backup_mount_base="${BACKUP_MOUNT_BASE:-/run/media/$user_name}"
+backup_mount_base="${BACKUP_MOUNT_BASE:-/media/$user_name}"
 source_directory="$HOME/"
 external_mount="$backup_mount_base/$backup_label"
 backup_root="$external_mount/Backups/$(uname -n)"
