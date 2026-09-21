@@ -162,7 +162,7 @@ static const Rule rules[] = {
 	RULE(.class = "polkit-gnome", .isfloating = 1)
 	RULE(.class = "xdg-desktop-portal-gtk", .isfloating = 1)
 	RULE(.class = "Nm-connection-editor", .isfloating = 1)
-	RULE(.class = "zen", .instance = "Places", .isfloating = 1)
+	RULE(.class = "firefox", .instance = "Places", .isfloating = 1)
 };
 
 /* Bar rules allow you to configure what is shown where on the bar, as well as
@@ -223,7 +223,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_Return,     spawn,                  {.v = termcmd } },
 	{ MODKEY,                       XK_space,      spawn,                  SHCMD("j4-dmenu-desktop --dmenu='dmenu -i -c -l 8 -p Apps -S' --display-binary --term st --usage-log=$HOME/.cache/j4-history") },
 	{ MODKEY,                       XK_x,          spawn,                  SHCMD("emacsclient -c -a ''") },
-	{ MODKEY,                       XK_w,          spawn,                  SHCMD("zen-browser") },
+	{ MODKEY,                       XK_w,          spawn,                  SHCMD("firefox") },
 	{ MODKEY,                       XK_s,          spawn,                  SHCMD("signal-desktop") },
 	{ MODKEY,                       XK_e,          spawn,                  SHCMD("st -e open-nnn") },
 	{ MODKEY,                       XK_a,          spawn,                  SHCMD("st -e wiremix") },

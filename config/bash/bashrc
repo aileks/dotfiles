@@ -246,7 +246,7 @@ make_prompt() {
     jobs_segment=" \[${info}\]󱑞 ${job_count}\[${reset}\]"
   fi
 
-  PS1="\[${primary}${bold}\]\W\[${reset}\]"
+  PS1="\[${primary}${bold}\]\w\[${reset}\]"
   PS1+="${git_segment}\[${reset}\]"
   PS1+="${venv_segment}"
   PS1+="${jobs_segment}"
