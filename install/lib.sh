@@ -109,6 +109,19 @@ install_system_file() {
   run install -D -o root -g root -m "$mode" -- "$source" "$target"
 }
 
+install_missing() {
+  local package
+  local -a missing=()
+
+  for package in "$@"; do
+    xbps-query "$package" >/dev/null 2>&1 || missing+=("$package")
+  done
+
+  if ((${#missing[@]} > 0)); then
+    run xbps-install -Sy "${missing[@]}"
+  fi
+}
+
 init_user_env() {
   export PATH="$target_home/.local/bin:$PATH"
   export NPM_CONFIG_PREFIX="$target_home/.local"

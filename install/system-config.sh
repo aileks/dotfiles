@@ -1,11 +1,15 @@
 source "${BASH_SOURCE[0]%/*}/lib.sh"
 
 install_system_config() {
-  local source relative
+  local source relative mode
 
   while IFS= read -r -d '' source; do
     relative=${source#"$repo/"}
-    install_system_file "$source" "/$relative"
+    mode=644
+    case $relative in
+      etc/doas.conf) mode=400 ;;
+    esac
+    install_system_file "$source" "/$relative" "$mode"
   done < <(find "$repo/etc" -type f -print0 | sort -z)
 }
 
@@ -94,6 +98,32 @@ enable_services() {
   fi
 }
 
+configure_doas() {
+  if [[ -e /etc/xbps.d/99-ignore-sudo.conf ]]; then
+    return
+  fi
+
+  if "$dry_run"; then
+    printf 'ignore sudo in xbps and remove it, leaving doas as the elevation tool\n'
+    return
+  fi
+
+  install_missing opendoas
+
+  if xbps-query sudo >/dev/null 2>&1; then
+    run xbps-remove -y sudo
+  fi
+
+  printf '%s\n' 'ignorepkg=sudo' >"$work/ignore-sudo.conf"
+  install_system_file "$work/ignore-sudo.conf" /etc/xbps.d/99-ignore-sudo.conf
+
+  doas -C /etc/doas.conf || fail 'doas rejected /etc/doas.conf.'
+  if command -v sudo >/dev/null 2>&1; then
+    fail 'sudo is still installed.'
+  fi
+  printf 'doas is the only elevation tool\n'
+}
+
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
   common_setup "$@"
   install_system_config
@@ -102,4 +132,5 @@ if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
   configure_mdns
   configure_pipewire
   enable_services
+  configure_doas
 fi

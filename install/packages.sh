@@ -18,19 +18,6 @@ packages=(
   ncurses-devel gpu-screen-recorder doasedit
 )
 
-install_missing() {
-  local package
-  local -a missing=()
-
-  for package in "$@"; do
-    xbps-query "$package" >/dev/null 2>&1 || missing+=("$package")
-  done
-
-  if ((${#missing[@]} > 0)); then
-    run xbps-install -Sy "${missing[@]}"
-  fi
-}
-
 install_packages() {
   run xbps-install -Suy xbps
   install_missing void-repo-nonfree

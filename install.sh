@@ -106,6 +106,8 @@ main() {
     run as_user env DOTFILES_USER_SETUP=1 "$repo/install.sh"
   fi
 
+  configure_doas
+
   if "$dry_run"; then
     echo 'Dry run complete; no changes made.'
   else
