@@ -63,6 +63,9 @@ shopt -s cmdhist
 shopt -s lithist
 shopt -s progcomp_alias
 
+# Why is this on by default?
+stty -ixon
+
 # History
 HISTFILE="$HOME/.bash_history"
 HISTSIZE=50000
