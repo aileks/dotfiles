@@ -3,7 +3,6 @@ source "${BASH_SOURCE[0]%/*}/lib.sh"
 custom_packages=(
   zig
   zls
-  zen-browser
   localsend
   onlyoffice-desktopeditors
   bitwarden-desktop
