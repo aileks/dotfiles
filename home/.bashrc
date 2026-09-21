@@ -18,7 +18,7 @@ alias sudo="doas"
 alias sudoedit="doasedit"
 alias ls='ls --color=auto --group-directories-first'
 alias la='ls -lah --color=auto --group-directories-first'
-alias lt='tree -C -a -L 2 --dirsfirst --group-directories-first'
+alias lt='tree -C -a -L 2 --dirsfirst'
 alias rm='trash'
 alias c='clear'
 alias fzf='fzf --style full'
