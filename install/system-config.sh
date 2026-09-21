@@ -14,46 +14,35 @@ install_system_config() {
 }
 
 install_xkb() {
-  local xkb_root=/usr/share/X11/xkb
-  [[ ! -L $xkb_root ]] || xkb_root=$(readlink -f "$xkb_root")
-  install_system_file "$repo/config/xkb/symbols/custom" "$xkb_root/symbols/custom"
+  install_system_file "$repo/config/xkb/symbols/custom" /usr/share/X11/xkb/symbols/custom
 }
 
 configure_account() {
   local shell account
 
   shell=$(command -v bash || true)
-  if "$dry_run"; then
-    printf 'set %s login shell to Bash and add i2c and docker membership if missing\n' "$target_user"
-  else
-    [[ -n $shell ]] || fail 'Bash was not installed.'
-    shell=$(readlink -f "$shell")
-    grep -Fxq "$shell" /etc/shells || fail "Bash is not listed in /etc/shells: $shell"
-    account=$(getent passwd "$target_user") || fail "No such account: $target_user"
-    if [[ ${account##*:} != "$shell" ]]; then
-      run usermod -s "$shell" "$target_user"
-    fi
+  [[ -n $shell ]] || fail 'Bash was not installed.'
+  shell=$(readlink -f "$shell")
+  grep -Fxq "$shell" /etc/shells || fail "Bash is not listed in /etc/shells: $shell"
+  account=$(getent passwd "$target_user") || fail "No such account: $target_user"
+  if [[ ${account##*:} != "$shell" ]]; then
+    run usermod -s "$shell" "$target_user"
+  fi
 
-    if ! getent group i2c >/dev/null; then
-      run groupadd --system i2c
-    fi
+  if ! getent group i2c >/dev/null; then
+    run groupadd --system i2c
+  fi
 
-    if [[ " $(id -nG "$target_user") " != *' i2c '* ]]; then
-      run usermod -aG i2c "$target_user"
-    fi
+  if [[ " $(id -nG "$target_user") " != *' i2c '* ]]; then
+    run usermod -aG i2c "$target_user"
+  fi
 
-    if [[ " $(id -nG "$target_user") " != *' docker '* ]]; then
-      run usermod -aG docker "$target_user"
-    fi
+  if [[ " $(id -nG "$target_user") " != *' docker '* ]]; then
+    run usermod -aG docker "$target_user"
   fi
 }
 
 configure_mdns() {
-  if "$dry_run"; then
-    printf 'enable mDNS lookup in /etc/nsswitch.conf, preserving other lookup rules\n'
-    return
-  fi
-
   awk '
     /^hosts:[[:space:]]/ {
       found=1
@@ -69,11 +58,6 @@ configure_mdns() {
 
 configure_pipewire() {
   local source target
-
-  if "$dry_run"; then
-    printf 'enable the wireplumber and pipewire-pulse session configs system wide\n'
-    return
-  fi
 
   run install -d -m 755 /etc/pipewire/pipewire.conf.d
   for source in /usr/share/examples/wireplumber/10-wireplumber.conf /usr/share/examples/pipewire/20-pipewire-pulse.conf; do
@@ -100,11 +84,6 @@ enable_services() {
 
 configure_doas() {
   if [[ -e /etc/xbps.d/99-ignore-sudo.conf ]]; then
-    return
-  fi
-
-  if "$dry_run"; then
-    printf 'ignore sudo in xbps and remove it, leaving doas as the elevation tool\n'
     return
   fi
 

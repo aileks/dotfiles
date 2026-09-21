@@ -21,7 +21,6 @@ alias la='ls -lah --color=auto --group-directories-first'
 alias lt='tree -C -a -L 2 --dirsfirst'
 alias rm='trash'
 alias c='clear'
-alias fzf='fzf --style full'
 alias ff='fastfetch'
 alias vim='nvim'
 alias ..="echo 'cd ..'; cd .."
@@ -46,6 +45,12 @@ alias gsw='git switch'
 alias xup='doas xbps-install -Su'
 alias xr='doas xbps-remove -R'
 alias xqo='xbps-query -o'
+
+hf() {
+  local selection
+  selection=$(history | fzf --tac | sed 's/^[[:space:]]*[0-9]*[[:space:]]*//') || return
+  printf '%s' "$selection" | xclip -selection clipboard
+}
 
 # Shell Options
 shopt -s cdspell
@@ -90,15 +95,6 @@ if type __git_complete &>/dev/null; then
 fi
 
 # fzf settings
-export FZF_CTRL_T_OPTS="
-  --walker-skip .git,.venv,node_modules,target
-  --preview 'bat -n --color=auto {}'
-  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
-
-export FZF_ALT_C_OPTS="
-  --walker-skip .git,.venv,node_modules,target
-  --preview 'tree -C {}'"
-
 export FZF_DEFAULT_OPTS="
   --color=fg:#B5A196
   --color=fg+:#E9D1C5
@@ -124,20 +120,8 @@ export FZF_DEFAULT_OPTS="
   --border=top
 "
 
-export _ZO_FZF_OPTS="
-  $FZF_DEFAULT_OPTS
-  --height=50%
-  --preview 'ls -lah --color=auto --group-directories-first {2..}'
-  --preview-window=down,border-top
-  --bind 'ctrl-b:preview-up,ctrl-f:preview-down'
-  --bind 'ctrl-/:change-preview-window(right|hidden|)'
-"
-
 # Shell Integrations
 if command -v zoxide >/dev/null 2>&1 && shell_init=$(zoxide init bash); then
-  eval "$shell_init"
-fi
-if command -v fzf >/dev/null 2>&1 && shell_init=$(command fzf --bash); then
   eval "$shell_init"
 fi
 unset shell_init

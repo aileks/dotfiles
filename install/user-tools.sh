@@ -4,11 +4,6 @@ install_user_tools() {
   local work=$work/user-tools
   local package name
 
-  if "$dry_run"; then
-    printf 'install missing pinned user tools\n'
-    return
-  fi
-
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
 
   if [[ ! -x $HOME/.local/bin/bemoji ]]; then
@@ -46,12 +41,6 @@ install_user_tools() {
     curl -fL https://github.com/google/google-java-format/releases/download/v1.36.1/google-java-format-1.36.1-all-deps.jar \
       -o "$work/google-java-format.jar"
     install -b -m 644 "$work/google-java-format.jar" "$data_home/java/google-java-format.jar"
-  fi
-
-  if [[ ! -x $HOME/.local/bin/google-java-format ]]; then
-    printf '#!/bin/sh\nexec java -jar "%s/java/google-java-format.jar" "$@"\n' "$data_home" \
-      >"$work/google-java-format"
-    install -b -m 755 "$work/google-java-format" "$HOME/.local/bin/google-java-format"
   fi
 
   if [[ ! -x $HOME/.local/bin/sqlfluff ]]; then

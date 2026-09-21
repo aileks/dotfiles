@@ -2,7 +2,6 @@ repo=$(readlink -f -- "${BASH_SOURCE[0]%/*}")
 repo=${repo%/*}
 install_dir=$repo/install
 
-dry_run=false
 target_user=
 target_home=
 target_uid=
@@ -10,7 +9,6 @@ config_home=
 data_home=
 stamp=
 work=
-cleanup_directory=
 gpu_vendor=
 void_packages=
 
@@ -42,7 +40,7 @@ run() {
   printf '+'
   printf ' %q' "$@"
   printf '\n'
-  "$dry_run" || "$@"
+  "$@"
 }
 
 as_user() {
@@ -126,26 +124,19 @@ init_user_env() {
   export PATH="$target_home/.local/bin:$PATH"
   export NPM_CONFIG_PREFIX="$target_home/.local"
 
-  if ! "$dry_run"; then
-    install -d -m 700 "$work/runtime"
-    export XDG_RUNTIME_DIR="$work/runtime"
-  fi
+  install -d -m 700 "$work/runtime"
+  export XDG_RUNTIME_DIR="$work/runtime"
 }
 
 common_setup() {
-  (($# <= 1)) || fail "Usage: ${0##*/} [--dry-run]"
-  [[ ${1:-} == --dry-run ]] && dry_run=true
+  (($# == 0)) || fail "Usage: ${0##*/}"
 
   select_user
   void_packages=$target_home/void-packages
   stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
   umask 077
 
-  work=/tmp/dotfiles-dry-run
-  if ! "$dry_run"; then
-    work=$(mktemp -d -t dotfiles.XXXXXXXX)
-    cleanup_directory=$work
-    trap 'rm -rf -- "$cleanup_directory"' EXIT
-    trap 'printf "Installation failed at line %s. Fix the error above and rerun the same command.\n" "$LINENO" >&2' ERR
-  fi
+  work=$(mktemp -d -t dotfiles.XXXXXXXX)
+  trap 'rm -rf -- "$work"' EXIT
+  trap 'printf "Installation failed at line %s. Fix the error above and rerun the same command.\n" "$LINENO" >&2' ERR
 }

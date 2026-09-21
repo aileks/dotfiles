@@ -3,11 +3,6 @@ source "${BASH_SOURCE[0]%/*}/lib.sh"
 install_doom() {
   local emacs_dir=${XDG_CONFIG_HOME:-$HOME/.config}/emacs
 
-  if "$dry_run"; then
-    printf 'clone Doom Emacs and install or sync packages\n'
-    return
-  fi
-
   if [[ ! -d $emacs_dir ]]; then
     git clone --depth 1 https://github.com/doomemacs/doomemacs.git "$work/doom-emacs"
     mv -T -- "$work/doom-emacs" "$emacs_dir"
@@ -26,11 +21,6 @@ install_doom() {
 install_appearance() {
   local work=$work/appearance
   local name answer
-
-  if "$dry_run"; then
-    printf 'prompt for Cinder Muted GTK theme and recolored Papirus icons\n'
-    return
-  fi
 
   printf 'Install Cinder Muted GTK theme and recolored Papirus icons? [y/N] '
   if ! IFS= read -r answer; then
@@ -101,146 +91,53 @@ apply_gsettings() {
 }
 
 setup_mime() {
-  local directory mime names name browser='' target existing backup found
-  local -a desktop_ids
+  local target=$config_home/mimeapps.list
 
-  if "$dry_run"; then
-    printf 'merge defaults from config/xdg/mimeapps.list and preserve unmanaged associations\n'
+  if [[ -f $target ]] && cmp -s -- "$repo/config/xdg/mimeapps.list" "$target"; then
     return
   fi
 
-  while IFS='=' read -r mime names; do
-    [[ $mime != '[Default Applications]' && -n $mime ]] || continue
-    IFS=';' read -ra desktop_ids <<<"$names"
-    for name in "${desktop_ids[@]}"; do
-      found=false
-      for directory in "$data_home/applications" /usr/local/share/applications /usr/share/applications; do
-        [[ ! -f $directory/$name ]] || found=true
-      done
-      "$found" || fail "Missing desktop entry: $name"
-    done
-    [[ $mime != x-scheme-handler/https ]] || browser=${desktop_ids[0]}
-  done <"$repo/config/xdg/mimeapps.list"
-  [[ -n $browser ]] || fail 'MIME policy must select an HTTPS browser.'
-
-  target=$config_home/mimeapps.list
-  existing=/dev/null
-  [[ -f $target ]] && existing=$target
-
-  awk '
-    function remaining( key) {
-      for (key in defaults)
-        if (!written[key]++) print key "=" defaults[key]
-    }
-    FILENAME == ARGV[1] {
-      if ($0 ~ /^[#;\[]/ || !index($0, "=")) next
-      key = substr($0, 1, index($0, "=") - 1)
-      defaults[key] = substr($0, index($0, "=") + 1)
-      next
-    }
-    /^\[/ {
-      if (section) remaining()
-      section = ($0 ~ /^\[Default Applications\][[:space:]]*$/)
-      if (section) found = 1
-    }
-    section && /^[^#;=]+=/ {
-      key = substr($0, 1, index($0, "=") - 1)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
-      if (key in defaults) {
-        if (!written[key]++) print key "=" defaults[key]
-        next
-      }
-    }
-    { print }
-    END {
-      if (!found) print "\n[Default Applications]"
-      remaining()
-    }
-  ' "$repo/config/xdg/mimeapps.list" "$existing" >"$work/mimeapps.list.merged"
-  chmod 600 "$work/mimeapps.list.merged"
-
-  if [[ -f $target ]] && cmp -s "$work/mimeapps.list.merged" "$target"; then
-    rm -- "$work/mimeapps.list.merged"
-  else
-    if [[ -e $target || -L $target ]]; then
-      backup=$target.backup.$stamp
-      [[ ! -e $backup && ! -L $backup ]] || {
-        echo 'MIME backup already exists' >&2
-        return 1
-      }
-      mv -T -- "$target" "$backup"
-    fi
-    mv -- "$work/mimeapps.list.merged" "$target"
+  if [[ -e $target || -L $target ]]; then
+    mv -T -- "$target" "$target.backup.$stamp"
   fi
-
-  xdg-settings set default-web-browser "$browser"
-
-  for mime in x-scheme-handler/http x-scheme-handler/https text/html application/xhtml+xml; do
-    if [[ $(xdg-mime query default "$mime") != "$browser" ]]; then
-      echo "MIME default verification failed for $mime" >&2
-      return 1
-    fi
-  done
+  install -m 600 -- "$repo/config/xdg/mimeapps.list" "$target"
 }
 
 rebuild_caches() {
   run fc-cache
-  if "$dry_run"; then
-    printf 'rebuild bat cache if its themes or bat version changed\n'
-    return
-  fi
-
-  local theme_hash cache_directory
-  cache_directory=$(bat --cache-dir)
-  theme_hash=$({
-    find -L "$config_home/bat" -type f -print0 | sort -z | xargs -0 sha256sum
-    bat --version
-  } | sha256sum)
-  if [[ ! -f $cache_directory/dotfiles-themes || ! -f $cache_directory/themes.bin ]] \
-    || [[ $(<"$cache_directory/dotfiles-themes") != "$theme_hash" ]]; then
-    run bat cache --build
-    printf '%s\n' "$theme_hash" >"$cache_directory/dotfiles-themes"
-  fi
+  run bat cache --build
 }
 
 install_crontab() {
-  if "$dry_run"; then
-    printf 'merge config/cron/crontab into the user crontab (preserve unrelated jobs)\n'
-    return
-  fi
+  local state_directory=${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles
+  local current
 
-  if ! LC_ALL=C crontab -l >"$work/crontab" 2>"$work/crontab-error"; then
-    grep -q '^no crontab for ' "$work/crontab-error" || {
-      cat "$work/crontab-error" >&2
-      return 1
-    }
-  fi
+  current=$(crontab -l 2>/dev/null) || true
+  [[ $current != "$(<"$repo/config/cron/crontab")" ]] || return
 
-  awk '/^# BEGIN dotfiles$/ { managed=1; next }
-       /^# END dotfiles$/ { managed=0; next }
-       !managed { print }
-       END { if (managed) exit 1 }' "$work/crontab" >"$work/crontab-new"
-  {
-    echo '# BEGIN dotfiles'
-    cat "$repo/config/cron/crontab"
-    echo '# END dotfiles'
-  } >>"$work/crontab-new"
-
-  if ! cmp -s "$work/crontab" "$work/crontab-new"; then
-    mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
-    cp "$work/crontab" "${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/crontab-$stamp"
-    crontab "$work/crontab-new"
+  if [[ -n $current ]]; then
+    mkdir -p "$state_directory"
+    printf '%s\n' "$current" >"$state_directory/crontab-$stamp"
   fi
+  crontab "$repo/config/cron/crontab"
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  common_setup "$@"
+setup_user_phase() {
   init_user_env
+
+  install_stow
+  install_user_tools
   install_doom
   install_appearance
   apply_gsettings
+
   run xdg-user-dirs-update
   setup_mime
   rebuild_caches
   install_crontab
+}
+
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+  common_setup "$@"
+  setup_user_phase
 fi

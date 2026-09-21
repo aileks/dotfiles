@@ -11,13 +11,9 @@ note() { printf 'pgdev: %s\n' "$*" >&2; }
 
 ((EUID != 0)) || fail 'Run as the desktop user, never root or sudo docker.'
 
-repo=$(dirname -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")")
+repo=$(dirname -- "$(dirname -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")")")
 config_dir=${XDG_CONFIG_HOME:-$HOME/.config}/postgres
-if [[ -f $config_dir/config ]]; then
-  source "$config_dir/config"
-else
-  source "$repo/config/postgres/config"
-fi
+source "$config_dir/config"
 [[ ! -f $config_dir/config.local ]] || source "$config_dir/config.local"
 
 [[ $PGDEV_IMAGE =~ ^docker.io/library/postgres:([0-9]+)-alpine(@sha256:[a-f0-9]{64})?$ ]] || fail 'Use a major-pinned official postgres alpine image.'

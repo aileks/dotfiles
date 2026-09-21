@@ -3,7 +3,6 @@
 set -Eeuo pipefail
 
 export PATH="$HOME/.local/bin:$PATH"
-export QT_QPA_PLATFORM=wayland
 export QT_QPA_PLATFORMTHEME=qt5ct
 export XDG_CURRENT_DESKTOP=dwm
 export XDG_SESSION_TYPE=x11
