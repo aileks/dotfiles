@@ -4,12 +4,10 @@ set -Eeuo pipefail
 
 dwmblocks &
 pipewire &
-
 /usr/libexec/polkit-gnome-authentication-agent-1 &
 dunst &
 blueman-applet &
 playerctld daemon &
-udiskie --tray &
 gnome-keyring-daemon --start --components=secrets,pkcs11 &
 xss-lock --transfer-sleep-lock -- lock-session &
 openrgb --noautoconnect -p NRGB &
