@@ -43,13 +43,8 @@ alias gp='git push'
 alias gst='git status'
 alias gss='git status --short'
 alias gsw='git switch'
-alias xin='doas xbps-install -S'
 alias xup='doas xbps-install -Su'
 alias xr='doas xbps-remove -R'
-alias xo='doas xbps-remove -O'
-alias xqr='xbps-query -Rs'
-alias xl='xbps-query -l'
-alias xf='xbps-query -f'
 alias xqo='xbps-query -o'
 
 # Shell Options
