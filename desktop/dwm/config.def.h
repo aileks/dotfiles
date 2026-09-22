@@ -214,6 +214,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static const char *termcmd[]  = { "st", NULL };
+static const char *dictatecmd[] = { "voxtype-hold", NULL };
 
 /* This defines the name of the executable that handles the bar (used for signalling purposes) */
 #define STATUSBAR "dwmblocks"
@@ -227,7 +228,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_s,          spawn,                  SHCMD("signal-desktop") },
 	{ MODKEY,                       XK_e,          spawn,                  SHCMD("st -e open-nnn") },
 	{ MODKEY,                       XK_a,          spawn,                  SHCMD("st -e wiremix") },
-	{ MODKEY,                       XK_d,          spawn,                  SHCMD("voxtype record toggle") },
+	{ 0,                            XK_F9,         spawnheld,              {.v = dictatecmd } },
 	{ MODKEY|ShiftMask,             XK_d,          spawn,                  SHCMD("voxtype record cancel") },
 	{ MODKEY,                       XK_o,          spawn,                  SHCMD("region-ocr") },
 	{ MODKEY,                       XK_semicolon,  spawn,                  SHCMD("bemoji -n") },

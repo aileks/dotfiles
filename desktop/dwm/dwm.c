@@ -21,6 +21,7 @@
  * To understand everything else, start reading main().
  */
 #include <errno.h>
+#include <fcntl.h>
 #include <locale.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -29,11 +30,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/wait.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/XKBlib.h>
 #include <X11/Xproto.h>
 #include <X11/Xutil.h>
 #ifdef XINERAMA
@@ -304,6 +307,7 @@ static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
 static void incnmaster(const Arg *arg);
 static void keypress(XEvent *e);
+static void keyrelease(XEvent *e);
 static void killclient(const Arg *arg);
 static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
@@ -333,6 +337,7 @@ static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
 static int skip_bar_rule(Bar *bar, const BarRule *br);
 static void spawn(const Arg *arg);
+static void spawnheld(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void togglebar(const Arg *arg);
@@ -379,6 +384,8 @@ static int lrpad;            /* sum of left and right padding for text */
 static int ignoreconfigurerequests = 0;
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
+static int heldkeyfd = -1;
+static unsigned int heldkeycode;
 static void (*handler[LASTEvent]) (XEvent *) = {
 	[ButtonPress] = buttonpress,
 	[ClientMessage] = clientmessage,
@@ -389,6 +396,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[Expose] = expose,
 	[FocusIn] = focusin,
 	[KeyPress] = keypress,
+	[KeyRelease] = keyrelease,
 	[MappingNotify] = mappingnotify,
 	[MapRequest] = maprequest,
 	[MotionNotify] = motionnotify,
@@ -643,6 +651,9 @@ cleanup(void)
 	Monitor *m;
 	Layout foo = { "", NULL };
 	size_t i;
+
+	if (heldkeyfd != -1)
+		close(heldkeyfd);
 
 	selmon->lt[selmon->sellt] = &foo;
 	for (m = mons; m; m = m->next)
@@ -1421,13 +1432,38 @@ keypress(XEvent *e)
 	XKeyEvent *ev;
 
 	ev = &e->xkey;
+	if (heldkeyfd != -1 && ev->keycode == heldkeycode)
+		return;
 	keysym = XGetKeyboardMapping(dpy, (KeyCode)ev->keycode, 1, &keysyms_return);
 	for (i = 0; i < LENGTH(keys); i++)
 		if (*keysym == keys[i].keysym
 				&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
-				&& keys[i].func)
+				&& keys[i].func) {
+			if (keys[i].func == spawnheld)
+				heldkeycode = ev->keycode;
 			keys[i].func(&(keys[i].arg));
+		}
 	XFree(keysym);
+}
+
+void
+keyrelease(XEvent *e)
+{
+	XEvent next;
+	XKeyEvent *ev = &e->xkey;
+
+	if (heldkeyfd == -1 || ev->keycode != heldkeycode)
+		return;
+	/* Older X servers send a release/press pair for auto-repeat. */
+	if (XEventsQueued(dpy, QueuedAfterReading)) {
+		XPeekEvent(dpy, &next);
+		if (next.type == KeyPress && next.xkey.keycode == ev->keycode
+				&& next.xkey.time == ev->time)
+			return;
+	}
+	send(heldkeyfd, "release\n", 8, MSG_NOSIGNAL);
+	close(heldkeyfd);
+	heldkeyfd = -1;
 }
 
 void
@@ -2080,6 +2116,7 @@ setup(void)
 	sw = DisplayWidth(dpy, screen);
 	sh = DisplayHeight(dpy, screen);
 	root = RootWindow(dpy, screen);
+	XkbSetDetectableAutoRepeat(dpy, True, NULL);
 	drw = drw_create(dpy, screen, root, sw, sh);
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
@@ -2209,6 +2246,50 @@ spawn(const Arg *arg)
 		execvp(((char **)arg->v)[0], (char **)arg->v);
 		die("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
 	}
+}
+
+void
+spawnheld(const Arg *arg)
+{
+	int sockets[2];
+	pid_t pid;
+	struct sigaction sa;
+
+	if (heldkeyfd != -1)
+		return;
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets) == -1) {
+		perror("dwm: socketpair");
+		return;
+	}
+	if (fcntl(sockets[0], F_SETFD, FD_CLOEXEC) == -1) {
+		close(sockets[0]);
+		close(sockets[1]);
+		return;
+	}
+	pid = fork();
+	if (pid == 0) {
+		close(sockets[0]);
+		if (dup2(sockets[1], STDIN_FILENO) == -1)
+			_exit(1);
+		if (sockets[1] != STDIN_FILENO)
+			close(sockets[1]);
+		close(ConnectionNumber(dpy));
+		setsid();
+		sigemptyset(&sa.sa_mask);
+		sa.sa_flags = 0;
+		sa.sa_handler = SIG_DFL;
+		sigaction(SIGCHLD, &sa, NULL);
+		execvp(((char **)arg->v)[0], (char **)arg->v);
+		die("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
+	}
+	close(sockets[1]);
+	if (pid == -1) {
+		close(sockets[0]);
+		perror("dwm: fork");
+		return;
+	}
+	/* Release sends a line; EOF alone means dwm exited and should cancel. */
+	heldkeyfd = sockets[0];
 }
 
 void

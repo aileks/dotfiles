@@ -13,7 +13,7 @@ packages=(
   libXrandr-devel libXrender-devel libxcb-devel libxcrypt-devel xcb-util-devel clang gcc gdb make bubblewrap ImageMagick neovim
   libvterm tree-sitter-cli libgccjit-devel jansson-devel tree-sitter-devel gtk+3-devel cairo-devel harfbuzz-devel giflib-devel
   libjpeg-turbo-devel libpng-devel librsvg-devel libwebp-devel libxml2-devel gnutls-devel texinfo autoconf automake libXpm-devel
-  ncurses-devel gpu-screen-recorder doasedit firefox dotool
+  ncurses-devel gpu-screen-recorder doasedit firefox dotool python3-gobject python3-cairo
 )
 
 install_packages() {
