@@ -4,6 +4,7 @@ custom_packages=(
   localsend
   onlyoffice-desktopeditors
   bitwarden-desktop
+  voxtype
 )
 
 install_custom_packages() {

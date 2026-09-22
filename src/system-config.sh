@@ -40,6 +40,14 @@ configure_account() {
   if [[ " $(id -nG "$target_user") " != *' docker '* ]]; then
     run usermod -aG docker "$target_user"
   fi
+
+  if ! getent group uinput >/dev/null; then
+    run groupadd --system uinput
+  fi
+
+  if [[ " $(id -nG "$target_user") " != *' uinput '* ]]; then
+    run usermod -aG uinput "$target_user"
+  fi
 }
 
 configure_mdns() {

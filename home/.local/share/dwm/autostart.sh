@@ -6,6 +6,7 @@ dwmblocks &
 pipewire &
 /usr/libexec/polkit-gnome-authentication-agent-1 &
 dunst &
+voxtype-session &
 blueman-applet &
 playerctld daemon &
 gnome-keyring-daemon --start --components=secrets,pkcs11 &
