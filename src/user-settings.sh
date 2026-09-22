@@ -1,5 +1,3 @@
-source "${BASH_SOURCE[0]%/*}/lib.sh"
-
 install_doom() {
   local emacs_dir=${XDG_CONFIG_HOME:-$HOME/.config}/emacs
 
@@ -93,19 +91,14 @@ apply_gsettings() {
 setup_mime() {
   local target=$config_home/mimeapps.list
 
-  if [[ -f $target ]] && cmp -s -- "$repo/config/xdg/mimeapps.list" "$target"; then
+  if [[ -f $target ]] && cmp -s -- "$repo/desktop/xdg/mimeapps.list" "$target"; then
     return
   fi
 
   if [[ -e $target || -L $target ]]; then
     mv -T -- "$target" "$target.backup.$stamp"
   fi
-  install -m 600 -- "$repo/config/xdg/mimeapps.list" "$target"
-}
-
-rebuild_caches() {
-  run fc-cache
-  run bat cache --build
+  install -m 600 -- "$repo/desktop/xdg/mimeapps.list" "$target"
 }
 
 install_crontab() {
@@ -113,17 +106,20 @@ install_crontab() {
   local current
 
   current=$(crontab -l 2>/dev/null) || true
-  [[ $current != "$(<"$repo/config/cron/crontab")" ]] || return
+  [[ $current != "$(<"$repo/desktop/cron/crontab")" ]] || return 0
 
   if [[ -n $current ]]; then
     mkdir -p "$state_directory"
     printf '%s\n' "$current" >"$state_directory/crontab-$stamp"
   fi
-  crontab "$repo/config/cron/crontab"
+  crontab "$repo/desktop/cron/crontab"
 }
 
 setup_user_phase() {
-  init_user_env
+  export PATH="$target_home/.local/bin:$PATH"
+  export NPM_CONFIG_PREFIX="$target_home/.local"
+  export XDG_RUNTIME_DIR="$work/runtime"
+  install -d -m 700 "$XDG_RUNTIME_DIR"
 
   install_stow
   install_user_tools
@@ -133,11 +129,7 @@ setup_user_phase() {
 
   run xdg-user-dirs-update
   setup_mime
-  rebuild_caches
+  run fc-cache
+  run bat cache --build
   install_crontab
 }
-
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  common_setup "$@"
-  setup_user_phase
-fi

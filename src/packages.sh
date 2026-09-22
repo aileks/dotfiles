@@ -1,5 +1,3 @@
-source "${BASH_SOURCE[0]%/*}/lib.sh"
-
 packages=(
   linux-firmware NetworkManager network-manager-applet dbus-elogind elogind polkit-elogind pciutils usbutils openssh opendoas
   avahi nss-mdns cups bluez blueman gst-plugins-base1 gst-plugins-good1 gst-plugins-bad1 gst-plugins-ugly1 xtools gst-libav
@@ -19,23 +17,11 @@ packages=(
 )
 
 install_packages() {
-  run xbps-install -Suy xbps
   install_missing void-repo-nonfree
 
-  case $gpu_vendor in
-    nvidia)
-      packages+=(nvidia nvidia-vaapi-driver)
-      ;;
-    amd | '')
-      :
-      ;;
-  esac
+  if [[ $gpu_vendor == nvidia ]]; then
+    packages+=(nvidia nvidia-vaapi-driver)
+  fi
 
   install_missing "${packages[@]}"
 }
-
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  common_setup "$@"
-  detect_gpu
-  install_packages
-fi

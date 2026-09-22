@@ -1,5 +1,3 @@
-source "${BASH_SOURCE[0]%/*}/lib.sh"
-
 install_user_tools() {
   local work=$work/user-tools
   local package name
@@ -57,9 +55,3 @@ install_user_tools() {
     fi
   done
 }
-
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  common_setup "$@"
-  init_user_env
-  install_user_tools
-fi

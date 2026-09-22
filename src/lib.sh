@@ -1,17 +1,3 @@
-repo=$(readlink -f -- "${BASH_SOURCE[0]%/*}")
-repo=${repo%/*}
-install_dir=$repo/install
-
-target_user=
-target_home=
-target_uid=
-config_home=
-data_home=
-stamp=
-work=
-gpu_vendor=
-void_packages=
-
 fail() {
   printf '%s\n' "$*" >&2
   exit 1
@@ -118,25 +104,4 @@ install_missing() {
   if ((${#missing[@]} > 0)); then
     run xbps-install -Sy "${missing[@]}"
   fi
-}
-
-init_user_env() {
-  export PATH="$target_home/.local/bin:$PATH"
-  export NPM_CONFIG_PREFIX="$target_home/.local"
-
-  install -d -m 700 "$work/runtime"
-  export XDG_RUNTIME_DIR="$work/runtime"
-}
-
-common_setup() {
-  (($# == 0)) || fail "Usage: ${0##*/}"
-
-  select_user
-  void_packages=$target_home/void-packages
-  stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
-  umask 077
-
-  work=$(mktemp -d -t dotfiles.XXXXXXXX)
-  trap 'rm -rf -- "$work"' EXIT
-  trap 'printf "Installation failed at line %s. Fix the error above and rerun the same command.\n" "$LINENO" >&2' ERR
 }

@@ -1,13 +1,10 @@
-source "${BASH_SOURCE[0]%/*}/lib.sh"
-
-emacs_version=30.2
-
 install_emacs() {
   if [[ -x /usr/local/bin/emacs ]] && ldd /usr/local/bin/emacs 2>/dev/null | grep -q libgccjit; then
     printf 'emacs already built with native compilation\n'
     return
   fi
 
+  local emacs_version=30.2
   local source_dir=$target_home/src/emacs-$emacs_version
   if [[ ! -d $source_dir ]]; then
     run as_user git clone --depth 1 -b "emacs-$emacs_version" https://github.com/emacs-mirror/emacs.git "$source_dir"
@@ -18,8 +15,3 @@ install_emacs() {
   run as_user make -C "$source_dir" -j"$(nproc)"
   run make -C "$source_dir" install
 }
-
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  common_setup "$@"
-  install_emacs
-fi

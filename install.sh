@@ -2,15 +2,18 @@
 
 set -Eeuo pipefail
 
-source "$(dirname -- "${BASH_SOURCE[0]}")/install/lib.sh"
-source "$install_dir/packages.sh"
-source "$install_dir/custom-packages.sh"
-source "$install_dir/system-config.sh"
-source "$install_dir/suckless.sh"
-source "$install_dir/emacs.sh"
-source "$install_dir/stow.sh"
-source "$install_dir/user-tools.sh"
-source "$install_dir/user-settings.sh"
+repo=$(readlink -f -- "${BASH_SOURCE[0]}")
+repo=${repo%/*}
+
+source "$repo/src/lib.sh"
+source "$repo/src/packages.sh"
+source "$repo/src/custom-packages.sh"
+source "$repo/src/system-config.sh"
+source "$repo/src/suckless.sh"
+source "$repo/src/emacs.sh"
+source "$repo/src/stow.sh"
+source "$repo/src/user-tools.sh"
+source "$repo/src/user-settings.sh"
 
 preflight() {
   local booted_root
@@ -46,7 +49,11 @@ main() {
     exec doas -- "$repo/install.sh"
   fi
 
-  common_setup "$@"
+  select_user
+  stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+  work=$(mktemp -d -t dotfiles.XXXXXXXX)
+  trap 'rm -rf -- "$work"' EXIT
+  trap 'printf "Installation failed at line %s. Fix the error above and rerun the same command.\n" "$LINENO" >&2' ERR
 
   if [[ ${DOTFILES_USER_SETUP:-} == 1 ]]; then
     setup_user_phase
@@ -58,14 +65,12 @@ main() {
   run as_user git -C "$repo" submodule update --init --recursive
 
   [[ -r $repo/home/.config/doom/init.el ]] || fail 'The Doom configuration submodule is incomplete.'
-  chmod 711 "$work"
 
   install_system_config
   install_packages
   install_xkb
   install_suckless
   install_emacs
-  build_custom_packages
   install_custom_packages
   configure_account
   configure_mdns
@@ -79,6 +84,4 @@ main() {
   echo 'Installation complete.'
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  main "$@"
-fi
+main "$@"

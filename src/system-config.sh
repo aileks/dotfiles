@@ -1,5 +1,3 @@
-source "${BASH_SOURCE[0]%/*}/lib.sh"
-
 install_system_config() {
   local source relative mode
 
@@ -14,7 +12,9 @@ install_system_config() {
 }
 
 install_xkb() {
-  install_system_file "$repo/config/xkb/symbols/custom" /usr/share/X11/xkb/symbols/custom
+  local xkb_dir
+  xkb_dir=$(readlink -e /usr/share/X11/xkb)
+  install_system_file "$repo/desktop/xkb/symbols/custom" "$xkb_dir/symbols/custom"
 }
 
 configure_account() {
@@ -102,14 +102,3 @@ configure_doas() {
   fi
   printf 'doas is the only elevation tool\n'
 }
-
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  common_setup "$@"
-  install_system_config
-  install_xkb
-  configure_account
-  configure_mdns
-  configure_pipewire
-  enable_services
-  configure_doas
-fi
