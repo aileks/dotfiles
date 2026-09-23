@@ -21,10 +21,6 @@
       "key": " ",
     },
     {
-      "type": "uptime",
-      "key": " ",
-    },
-    {
       "type": "packages",
       "key": " ",
     },
@@ -48,6 +44,10 @@
       "type": "disk",
       "key": "󰋊 ",
       "folders": ["/"],
+    },
+    {
+      "type": "uptime",
+      "key": " ",
     },
   ],
 }
