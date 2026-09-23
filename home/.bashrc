@@ -21,7 +21,7 @@ alias la='ls -lah --color=auto --group-directories-first'
 alias lt='tree -C -a -L 2 --dirsfirst'
 alias rm='trash'
 alias c='clear'
-alias ff='fastfetch'
+alias ff='fastfetch && echo'
 alias vim='nvim'
 alias ..="echo 'cd ..'; cd .."
 alias hl='rg --passthru'
@@ -44,6 +44,7 @@ alias gss='git status --short'
 alias gsw='git switch'
 alias xup='doas xbps-install -Su'
 alias xr='doas xbps-remove -R'
+alias xro='doas xbps-remove -O'
 alias xqo='xbps-query -o'
 
 hf() {
