@@ -4,6 +4,8 @@ install_user_tools() {
 
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
 
+  run "$repo/home/.local/bin/qutebrowser-update-scripts"
+
   run voxtype setup --download --model large-v3-turbo --no-post-install
 
   if [[ ! -x $HOME/.local/bin/bemoji ]]; then

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -u
+
+if (($# != 1)); then
+  printf 'Usage: qutebrowser-download URL\n' >&2
+  exit 1
+fi
+
+directory=$(xdg-user-dir DOWNLOAD) || exit 1
+yt-dlp --no-playlist --paths "$directory" -- "$1"
+status=$?
+
+printf '\nDownload finished with exit status %s. Press Enter to close.\n' "$status"
+read -r _ || true
+exit "$status"

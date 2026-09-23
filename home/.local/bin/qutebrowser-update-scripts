@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+directory=${XDG_DATA_HOME:-$HOME/.local/share}/qutebrowser/greasemonkey
+work=$(mktemp -d -t qutebrowser-scripts.XXXXXXXX)
+trap 'rm -rf -- "$work"' EXIT
+
+scripts=(youtube_adblock.js youtube_sponsorblock.js)
+
+for name in "${scripts[@]}"; do
+  if ! curl --fail --location --show-error --silent --retry 2 \
+    --connect-timeout 15 --max-time 120 \
+    "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/master/$name" \
+    --output "$work/$name"; then
+    printf 'Could not download %s; installed scripts were not changed.\n' "$name" >&2
+    exit 1
+  fi
+  if [[ ! -s $work/$name ]] || ! grep -qF '// ==UserScript==' "$work/$name"; then
+    printf 'Invalid userscript: %s; installed scripts were not changed.\n' "$name" >&2
+    exit 1
+  fi
+done
+
+mkdir -p -- "$directory"
+for name in "${scripts[@]}"; do
+  install -b -S .previous -m 644 -- "$work/$name" "$directory/$name"
+done
+
+printf 'YouTube scripts updated. In qutebrowser, press ,g then reload open YouTube pages.\n'

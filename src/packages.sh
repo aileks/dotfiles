@@ -14,6 +14,7 @@ packages=(
   libvterm tree-sitter-cli libgccjit-devel jansson-devel tree-sitter-devel gtk+3-devel cairo-devel harfbuzz-devel giflib-devel
   libjpeg-turbo-devel libpng-devel librsvg-devel libwebp-devel libxml2-devel gnutls-devel texinfo autoconf automake libXpm-devel
   ncurses-devel gpu-screen-recorder doasedit firefox dotool python3-gobject python3-cairo
+  qutebrowser python3-adblock python3-readability-lxml yt-dlp nodejs
 )
 
 install_packages() {
