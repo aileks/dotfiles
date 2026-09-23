@@ -1,0 +1,20 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=qutebrowser
+GenericName=Web Browser
+Comment=Keyboard-driven web browser with NVIDIA acceleration
+Icon=qutebrowser
+Terminal=false
+Categories=Network;WebBrowser;
+StartupNotify=true
+
+Exec=env QTWEBENGINE_CHROMIUM_FLAGS=--use-gl=angle\ --enable-features=Vulkan\ --use-vulkan=native qutebrowser --desktop-file-name=qutebrowser %u
+
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/pdf;x-scheme-handler/http;x-scheme-handler/https;
+Actions=Private;
+
+[Desktop Action Private]
+Name=New Private Window
+Exec=env QTWEBENGINE_CHROMIUM_FLAGS=--use-gl=angle\ --enable-features=Vulkan\ --use-vulkan=native qutebrowser --desktop-file-name=qutebrowser --target private-window
+```
