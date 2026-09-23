@@ -1,21 +1,27 @@
-# ruff: noqa: F821
-
 config.load_autoconfig()
 
-c.content.blocking.method = "adblock"
+c.content.blocking.method = "both"
 c.content.blocking.adblock.lists = [
     "https://easylist.to/easylist/easylist.txt",
     "https://easylist.to/easylist/easyprivacy.txt",
+    "https://secure.fanboy.co.nz/fanboy-annoyance.txt",
+    "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&showintro=1&mimetype=plaintext",
+    "https://easylist-downloads.adblockplus.org/antiadblockfilters.txt",
+    "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/tif.mini.txt",
+    "https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Dandelion%20Sprout%27s%20Anti-Malware%20List.txt",
+    "https://raw.githubusercontent.com/DandelionSprout/adfilt/master/BrowseWebsitesWithoutLoggingIn.txt",
+    "https://raw.githubusercontent.com/yokoffing/filterlists/main/antipaywall_filters_without_element_hiding.txt",
+,
 ]
 c.colors.webpage.preferred_color_scheme = "dark"
 c.colors.webpage.darkmode.enabled = True
-c.editor.command = ["emacsclient", "-c", "-a", "", "+{line}:{column0}", "{file}"]
+c.editor.command = ["emacsclient", "-c", "-a=", "+{line}:{column0}", "{file}"]
 
 c.url.searchengines = {
-    "DEFAULT": "https://duckduckgo.com/?q={}",
+    "DEFAULT": "https://omnisearch.tail0d2ded.ts.net/search?q={}",
     "g": "https://www.google.com/search?q={}",
     "yt": "https://www.youtube.com/results?search_query={}",
-    "w": "https://en.wikipedia.org/w/index.php?search={}",
+    "wp": "https://en.wikipedia.org/w/index.php?search={}",
     "gh": "https://github.com/search?q={}",
 }
 c.url.yank_ignored_parameters = [
@@ -32,24 +38,24 @@ c.url.yank_ignored_parameters = [
     "msclkid",
 ]
 
+config.bind(",d", "config-cycle -p -u *://{url:host}/* colors.webpage.darkmode.enabled ;; reload")
+config.bind(",b", "config-cycle -p -u *://{url:host}/* content.blocking.enabled ;; reload")
 config.bind(",m", "spawn mpv -- {url}")
 config.bind(",M", "hint links spawn mpv -- {hint-url}")
 config.bind(",v", "spawn st -e qutebrowser-download {url}")
 config.bind(",V", "hint links spawn st -e qutebrowser-download {hint-url}")
 config.bind(",r", "spawn --userscript /usr/share/qutebrowser/userscripts/readability")
-config.bind(
-    ",d",
-    "config-cycle -p -u *://{url:host}/* colors.webpage.darkmode.enabled ;; reload",
-)
-config.bind(
-    ",b", "config-cycle -p -u *://{url:host}/* content.blocking.enabled ;; reload"
-)
 config.bind(",u", "adblock-update")
 config.bind(",g", "greasemonkey-reload")
 config.bind(",f", "spawn firefox {url}")
 
-c.fonts.default_family = ["Iosevka Nerd Font", "monospace"]
-c.fonts.default_size = "11pt"
+c.fonts.default_family = ["Iosevka Nerd Font Propo", "monospace"]
+c.fonts.default_size = "12pt"
+c.fonts.web.family.standard = "Adwaita Sans"
+c.fonts.web.family.serif = "Adwaita Sans"
+c.fonts.web.family.sans_serif = "Adwaita Sans"
+c.fonts.web.family.cursive = "Adwaita Sans"
+c.fonts.web.family.fantasy = "Adwaita Sans"
 
 background = "#15110f"
 foreground = "#c5afa4"
@@ -57,6 +63,8 @@ bright = "#e9d1c5"
 muted = "#5f5049"
 accent = "#f1a278"
 red = "#a45751"
+
+c.colors.tooltip.fg = background
 
 c.colors.completion.fg = foreground
 c.colors.completion.odd.bg = background
