@@ -11,7 +11,7 @@ if ! maim -s "$directory/image.png" 2>/dev/null; then
   exit 0
 fi
 
-if ! tesseract "$directory/image.png" stdout -l eng >"$directory/text" 2>/dev/null; then
+if ! tesseract-ocr "$directory/image.png" stdout -l eng >"$directory/text" 2>/dev/null; then
   notify-send -u critical 'Text recognition failed' || true
   exit 1
 fi
