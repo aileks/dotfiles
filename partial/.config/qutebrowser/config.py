@@ -39,8 +39,13 @@ c.url.yank_ignored_parameters = [
     "msclkid",
 ]
 
-config.bind(",d", "config-cycle -p -u *://{url:host}/* colors.webpage.darkmode.enabled ;; reload")
-config.bind(",b", "config-cycle -p -u *://{url:host}/* content.blocking.enabled ;; reload")
+config.bind(
+    ",d",
+    "config-cycle -p -u *://{url:host}/* colors.webpage.darkmode.enabled ;; reload",
+)
+config.bind(
+    ",b", "config-cycle -p -u *://{url:host}/* content.blocking.enabled ;; reload"
+)
 config.bind(",m", "spawn mpv -- {url}")
 config.bind(",M", "hint links spawn mpv -- {hint-url}")
 config.bind(",v", "spawn st -e qutebrowser-download {url}")
@@ -57,32 +62,39 @@ c.fonts.web.family.serif = "Adwaita Sans"
 c.fonts.web.family.sans_serif = "Adwaita Sans"
 c.fonts.web.family.cursive = "Adwaita Sans"
 c.fonts.web.family.fantasy = "Adwaita Sans"
-c.statusbar.show = 'in-mode'
+c.statusbar.show = "in-mode"
 
-background = "#15110f"
-foreground = "#c5afa4"
-surface = "#1e1815"
-overlay = "#271e1a"
-bright = "#e9d1c5"
-muted = "#5f5049"
-accent = "#f1a278"
-secondary = "#c2764e"
-red = "#a45751"
+background = "#080503"
+foreground = "#DED6D0"
+surface = "#221B17"
+overlay = "#342C26"
+bright = "#F1EAE5"
+muted = "#A2968E"
+accent = "#B39887"
+secondary = "#C6BBB5"
+selection = "#725F52"
+border = "#80756E"
+error = "#E07972"
+warning = "#C69E58"
+success = "#78AA79"
+info = "#6DA1CD"
 
-c.colors.tooltip.fg = background
+c.colors.tooltip.fg = foreground
+c.colors.tooltip.bg = overlay
+c.colors.webpage.bg = background
 
 c.colors.completion.fg = foreground
 c.colors.completion.odd.bg = background
 c.colors.completion.even.bg = surface
 c.colors.completion.category.bg = background
 c.colors.completion.category.fg = accent
-c.colors.completion.category.border.top = muted
-c.colors.completion.category.border.bottom = muted
-c.colors.completion.item.selected.bg = muted
+c.colors.completion.category.border.top = border
+c.colors.completion.category.border.bottom = border
+c.colors.completion.item.selected.bg = selection
 c.colors.completion.item.selected.fg = bright
-c.colors.completion.item.selected.border.top = muted
-c.colors.completion.item.selected.border.bottom = muted
-c.colors.completion.item.selected.match.fg = accent
+c.colors.completion.item.selected.border.top = selection
+c.colors.completion.item.selected.border.bottom = selection
+c.colors.completion.item.selected.match.fg = bright
 c.colors.completion.match.fg = accent
 c.colors.completion.scrollbar.bg = background
 c.colors.completion.scrollbar.fg = muted
@@ -92,63 +104,79 @@ c.colors.tabs.odd.bg = background
 c.colors.tabs.even.bg = background
 c.colors.tabs.odd.fg = foreground
 c.colors.tabs.even.fg = foreground
-c.colors.tabs.selected.odd.bg = secondary
-c.colors.tabs.selected.even.bg = secondary
-c.colors.tabs.selected.odd.fg = overlay
-c.colors.tabs.selected.even.fg = overlay
+c.colors.tabs.selected.odd.bg = selection
+c.colors.tabs.selected.even.bg = selection
+c.colors.tabs.selected.odd.fg = bright
+c.colors.tabs.selected.even.fg = bright
 c.colors.tabs.pinned.odd.bg = surface
 c.colors.tabs.pinned.even.bg = surface
 c.colors.tabs.pinned.odd.fg = bright
 c.colors.tabs.pinned.even.fg = bright
-c.colors.tabs.pinned.selected.odd.bg = muted
-c.colors.tabs.pinned.selected.even.bg = muted
-c.colors.tabs.pinned.selected.odd.fg = accent
-c.colors.tabs.pinned.selected.even.fg = accent
+c.colors.tabs.pinned.selected.odd.bg = selection
+c.colors.tabs.pinned.selected.even.bg = selection
+c.colors.tabs.pinned.selected.odd.fg = bright
+c.colors.tabs.pinned.selected.even.fg = bright
 c.colors.tabs.indicator.start = muted
 c.colors.tabs.indicator.stop = accent
-c.colors.tabs.indicator.error = red
+c.colors.tabs.indicator.error = error
+c.colors.tabs.indicator.system = "none"
 
 c.colors.statusbar.normal.bg = background
 c.colors.statusbar.normal.fg = foreground
 c.colors.statusbar.command.bg = background
 c.colors.statusbar.command.fg = bright
-c.colors.statusbar.insert.bg = secondary
-c.colors.statusbar.insert.fg = background
-c.colors.statusbar.passthrough.bg = muted
+c.colors.statusbar.insert.bg = selection
+c.colors.statusbar.insert.fg = bright
+c.colors.statusbar.passthrough.bg = selection
 c.colors.statusbar.passthrough.fg = bright
 c.colors.statusbar.private.bg = surface
 c.colors.statusbar.private.fg = accent
 c.colors.statusbar.command.private.bg = surface
 c.colors.statusbar.command.private.fg = accent
-c.colors.statusbar.caret.bg = muted
+c.colors.statusbar.caret.bg = selection
 c.colors.statusbar.caret.fg = bright
-c.colors.statusbar.caret.selection.bg = accent
-c.colors.statusbar.caret.selection.fg = background
+c.colors.statusbar.caret.selection.bg = selection
+c.colors.statusbar.caret.selection.fg = bright
 c.colors.statusbar.progress.bg = accent
-c.colors.statusbar.url.fg = overlay
+c.colors.statusbar.url.fg = foreground
 c.colors.statusbar.url.hover.fg = accent
-c.colors.statusbar.url.success.http.fg = red
-c.colors.statusbar.url.success.https.fg = overlay
-c.colors.statusbar.url.warn.fg = accent
-c.colors.statusbar.url.error.fg = red
+c.colors.statusbar.url.success.http.fg = warning
+c.colors.statusbar.url.success.https.fg = foreground
+c.colors.statusbar.url.warn.fg = warning
+c.colors.statusbar.url.error.fg = error
 
-c.colors.hints.bg = accent
-c.colors.hints.fg = background
-c.colors.hints.match.fg = red
-c.hints.border = f"1px solid {muted}"
+c.colors.hints.bg = selection
+c.colors.hints.fg = bright
+c.colors.hints.match.fg = bright
+c.hints.border = f"1px solid {border}"
 c.colors.keyhint.bg = background
 c.colors.keyhint.fg = foreground
 c.colors.keyhint.suffix.fg = accent
 c.colors.prompts.bg = background
 c.colors.prompts.fg = bright
-c.colors.prompts.selected.bg = muted
-c.colors.prompts.border = f"1px solid {muted}"
+c.colors.prompts.selected.bg = selection
+c.colors.prompts.border = f"1px solid {border}"
 c.colors.messages.info.bg = background
 c.colors.messages.info.fg = foreground
-c.colors.messages.info.border = muted
-c.colors.messages.warning.bg = accent
-c.colors.messages.warning.fg = background
-c.colors.messages.warning.border = accent
-c.colors.messages.error.bg = red
-c.colors.messages.error.fg = bright
-c.colors.messages.error.border = red
+c.colors.messages.info.border = info
+c.colors.messages.warning.bg = surface
+c.colors.messages.warning.fg = warning
+c.colors.messages.warning.border = warning
+c.colors.messages.error.bg = surface
+c.colors.messages.error.fg = error
+c.colors.messages.error.border = error
+c.colors.downloads.bar.bg = background
+c.colors.downloads.start.bg = surface
+c.colors.downloads.start.fg = foreground
+c.colors.downloads.stop.bg = surface
+c.colors.downloads.stop.fg = success
+c.colors.downloads.error.bg = surface
+c.colors.downloads.error.fg = error
+c.colors.downloads.system.bg = "none"
+c.colors.downloads.system.fg = "none"
+c.colors.contextmenu.menu.bg = overlay
+c.colors.contextmenu.menu.fg = foreground
+c.colors.contextmenu.selected.bg = selection
+c.colors.contextmenu.selected.fg = bright
+c.colors.contextmenu.disabled.bg = overlay
+c.colors.contextmenu.disabled.fg = muted

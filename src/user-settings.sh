@@ -16,62 +16,6 @@ install_doom() {
   "$emacs_dir/bin/doom" sync
 }
 
-install_appearance() {
-  local work=$work/appearance
-  local name answer
-
-  printf 'Install Cinder Muted GTK theme and recolored Papirus icons? [y/N] '
-  if ! IFS= read -r answer; then
-    answer=
-  fi
-
-  case $answer in
-    y | Y | yes | YES) ;;
-    *)
-      printf 'skipping appearance setup\n'
-      return 0
-      ;;
-  esac
-
-  [[ -d /usr/share/icons/Papirus-Dark ]] || {
-    echo 'Install Papirus first.' >&2
-    return 1
-  }
-  mkdir -p "$work"
-
-  replace() {
-    local source=$1 target=$2
-    if [[ ! -L $target && -e $target ]] && diff -qr -- "$source" "$target" >/dev/null; then
-      return
-    fi
-    mkdir -p -- "$(dirname "$target")"
-    if [[ -e $target || -L $target ]]; then
-      mv -T -- "$target" "$target.backup.$stamp"
-    fi
-    cp -a -- "$source" "$target"
-  }
-
-  git clone --depth 1 https://github.com/aileks/cinder-muted "$work/cinder-muted"
-  run "$work/cinder-muted/gtk/install.sh"
-
-  git clone --depth 1 -b cinder-grove-folders \
-    https://github.com/aileks/papirus-folders.git "$work/folders"
-  mkdir -p "$work/icons" "$HOME/.local/bin"
-  install -m 755 "$work/folders/papirus-folders-cg" "$work/papirus-folders-cg"
-  for name in Papirus Papirus-Dark Papirus-Light; do
-    cp -a -- "/usr/share/icons/$name" "$work/icons/$name"
-    chmod -R u+w "$work/icons/$name"
-  done
-  USER_HOME="$work" XDG_CONFIG_HOME="$work/config" XDG_DATA_HOME="$work" XDG_DATA_DIRS="$work" \
-    "$work/papirus-folders-cg" --theme Papirus-Dark --color orange
-
-  for name in Papirus Papirus-Dark Papirus-Light; do
-    replace "$work/icons/$name" "$data_home/icons/$name"
-  done
-
-  replace "$work/papirus-folders-cg" "$HOME/.local/bin/papirus-folders-cg"
-}
-
 apply_gsettings() {
   run dbus-run-session -- bash -e -c "
     gsettings set org.gnome.desktop.interface color-scheme prefer-dark
@@ -124,7 +68,6 @@ setup_user_phase() {
   install_stow
   install_user_tools
   install_doom
-  install_appearance
   apply_gsettings
 
   run xdg-user-dirs-update

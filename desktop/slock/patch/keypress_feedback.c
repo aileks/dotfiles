@@ -1,4 +1,21 @@
 static void
+draw_lock_state(Display *dpy, struct lock *lock, unsigned int state)
+{
+	XGCValues values;
+	GC gc;
+	unsigned int i, bars = state == FAILED ? 3 : state == CAPS ? 2 : 1;
+
+	XClearWindow(dpy, lock->win);
+	if (state == INIT)
+		return;
+	values.foreground = lock->colors[state];
+	gc = XCreateGC(dpy, lock->win, GCForeground, &values);
+	for (i = 0; i < bars; i++)
+		XFillRectangle(dpy, lock->win, gc, 16 + i * 20, 32, 12, 4);
+	XFreeGC(dpy, gc);
+}
+
+static void
 draw_key_feedback(Display *dpy, struct lock **locks, int screen)
 {
 	XGCValues gr_values;
@@ -21,8 +38,7 @@ draw_key_feedback(Display *dpy, struct lock **locks, int screen)
 	unsigned int block_width = width / blocks_count;
 	unsigned int position = rand() % blocks_count;
 
-	XClearWindow(dpy, win);
-	XFillRectangle(dpy, win, gc, blocks_x + position*block_width, blocks_y, width, height);
+	XFillRectangle(dpy, win, gc, blocks_x + position*block_width, blocks_y, block_width, height);
 
 	XFreeGC(dpy, gc);
 }

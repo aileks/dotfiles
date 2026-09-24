@@ -17,12 +17,12 @@ static
 const
 char *colors[][2] = {
 	/*               fg         bg       */
-	[SchemeNorm] = { "#c5afa4", "#15110f" },
-	[SchemeSel]  = { "#e9d1c5", "#944d24" },
-	[SchemeOut]  = { "#5f5049", "#15110f" },
-	[SchemeBorder] = { "#5f5049", "#5f5049" },
-	[SchemeSelHighlight]  = { "#e9d1c5", "#944d24" },
-	[SchemeNormHighlight] = { "#e9d1c5", "#15110f" },
+	[SchemeNorm] = { "#DED6D0", "#221B17" },
+	[SchemeSel]  = { "#F1EAE5", "#725F52" },
+	[SchemeOut]  = { "#A2968E", "#221B17" },
+	[SchemeBorder] = { "#80756E", "#80756E" },
+	[SchemeSelHighlight]  = { "#F1EAE5", "#725F52" },
+	[SchemeNormHighlight] = { "#B39887", "#221B17" },
 };
 /* -l option; if nonzero, dmenu uses vertical list with given number of lines */
 static unsigned int lines      = 0;
@@ -35,4 +35,3 @@ static const char worddelimiters[] = " ";
 
 /* Size of the window border */
 static unsigned int border_width = 2;
-

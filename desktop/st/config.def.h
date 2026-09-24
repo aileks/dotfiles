@@ -123,35 +123,32 @@ char *xdndescchar = " !\"#$&'()*;<>?[\\]^`{|}~";
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
-	/* 8 normal colors */
-	"#15110F",
-	"#A45751",
-	"#D98C63",
-	"#FFBD9B",
-	"#C2764E",
-	"#CA7D55",
-	"#D2845C",
-	"#B5A196",
-
-	/* 8 bright colors */
-	"#5F5049",
-	"#F1A278",
-	"#ED9F75",
-	"#FFD4BE",
-	"#D68960",
-	"#DE9067",
-	"#E6976E",
-	"#E9D1C5",
+	"#887E78",
+	"#E07972",
+	"#9E8F85",
+	"#B4A094",
+	"#C9B2A3",
+	"#DBC6B8",
+	"#EBDACF",
+	"#F3E9E2",
+	"#A1968F",
+	"#FF8A83",
+	"#B3A195",
+	"#C8B3A4",
+	"#DEC5B5",
+	"#F0D9CA",
+	"#FAE7DB",
+	"#FCF3EE",
 
 	[255] = 0,
 
-	/* more colors can be added after 255 to use with DefaultXX */
-	"#E9D1C5", /* 256 -> cursor */
-	"#15110F", /* 257 -> rev cursor*/
-	"#15110F", /* 258 -> bg */
-	"#B5A196", /* 259 -> fg */
-	"#443831", /* 260 -> selection bg */
-	"#F1A278", /* 261 -> search highlight bg */
+	"#F1EAE5", /* 256 -> cursor */
+	"#080503", /* 257 -> reverse cursor */
+	"#080503", /* 258 -> background */
+	"#DED6D0", /* 259 -> foreground */
+	"#725F52", /* 260 -> selection background */
+	"#725F52", /* 261 -> search background */
+	"#F1EAE5", /* 262 -> selected text */
 };
 
 /*
@@ -162,13 +159,13 @@ unsigned int defaultbg = 258;
 unsigned int defaultfg = 259;
 unsigned int defaultcs = 256;
 unsigned int defaultrcs = 257;
-unsigned int selectionfg = 259;
+unsigned int selectionfg = 262;
 unsigned int selectionbg = 260;
 /* If 0 use selectionfg as foreground in order to have a uniform foreground-color */
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
 static int ignoreselfg = 0;
 /* Foreground and background color of search results */
-unsigned int highlightfg = 258;
+unsigned int highlightfg = 262;
 unsigned int highlightbg = 261;
 
 /*

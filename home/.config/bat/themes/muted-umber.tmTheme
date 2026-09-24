@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>name</key><string>muted-umber</string>
+  <key>author</key><string>Kieran Pedrick</string>
+  <key>colorSpaceName</key><string>sRGB</string>
+  <key>semanticClass</key><string>theme.dark.muted-umber</string>
+  <key>settings</key>
+  <array>
+    <dict>
+      <key>settings</key>
+      <dict>
+        <key>background</key><string>#080503</string>
+        <key>foreground</key><string>#DED6D0</string>
+        <key>caret</key><string>#F1EAE5</string>
+        <key>selection</key><string>#725F52</string>
+        <key>selectionForeground</key><string>#F1EAE5</string>
+        <key>selectionBorder</key><string>#B39887</string>
+        <key>findHighlight</key><string>#725F52</string>
+        <key>findHighlightForeground</key><string>#F1EAE5</string>
+        <key>lineHighlight</key><string>#140E0A</string>
+        <key>gutter</key><string>#080503</string>
+        <key>gutterForeground</key><string>#A2968E</string>
+        <key>invisibles</key><string>#A2968E</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>text, source, variable</string>
+      <key>settings</key><dict><key>foreground</key><string>#DED6D0</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>punctuation, keyword.operator</string>
+      <key>settings</key><dict><key>foreground</key><string>#B4A8A1</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>comment, punctuation.definition.comment</string>
+      <key>settings</key><dict><key>foreground</key><string>#A2968E</string><key>fontStyle</key><string>italic</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>keyword.control, keyword.other, keyword.declaration, storage, entity.name.tag</string>
+      <key>settings</key><dict><key>foreground</key><string>#B39887</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>entity.name.type, entity.name.class, entity.name.namespace, entity.name.module, entity.name.trait, support.type, support.class</string>
+      <key>settings</key><dict><key>foreground</key><string>#C1AD9F</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>entity.name.function, support.function, meta.function-call</string>
+      <key>settings</key><dict><key>foreground</key><string>#D1C0B6</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>string, constant, entity.other.attribute-name, support.constant</string>
+      <key>settings</key><dict><key>foreground</key><string>#C6BBB5</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>string variable, meta.interpolation variable, meta.function-call.arguments variable</string>
+      <key>settings</key><dict><key>foreground</key><string>#DED6D0</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.heading, entity.name.section</string>
+      <key>settings</key><dict><key>foreground</key><string>#B39887</string><key>fontStyle</key><string>bold</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.bold</string>
+      <key>settings</key><dict><key>fontStyle</key><string>bold</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.italic, markup.quote</string>
+      <key>settings</key><dict><key>foreground</key><string>#C6BBB5</string><key>fontStyle</key><string>italic</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.underline.link, string.other.link, markup.link</string>
+      <key>settings</key><dict><key>foreground</key><string>#B39887</string><key>fontStyle</key><string>underline</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.raw, markup.inline.raw</string>
+      <key>settings</key><dict><key>foreground</key><string>#C6BBB5</string><key>background</key><string>#140E0A</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>invalid, markup.deleted</string>
+      <key>settings</key><dict><key>foreground</key><string>#E07972</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.inserted</string>
+      <key>settings</key><dict><key>foreground</key><string>#78AA79</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.changed</string>
+      <key>settings</key><dict><key>foreground</key><string>#C69E58</string></dict>
+    </dict>
+  </array>
+</dict>
+</plist>

@@ -259,18 +259,14 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 					explicit_bzero(&passwd, sizeof(passwd));
 					len = 0;
 				}
-				if (blocks_enabled)
-					for (screen = 0; screen < nscreens; screen++)
-						draw_key_feedback(dpy, locks, screen);
 				break;
 			}
 			color = len ? (caps ? CAPS : INPUT) : (failure || failonclear ? FAILED : INIT);
-			if (running && oldc != color) {
+			if (running) {
 				for (screen = 0; screen < nscreens; screen++) {
-					XSetWindowBackground(dpy,
-					                     locks[screen]->win,
-					                     locks[screen]->colors[color]);
-					XClearWindow(dpy, locks[screen]->win);
+					draw_lock_state(dpy, locks[screen], color);
+					if (blocks_enabled && len && num && !iscntrl((unsigned char)buf[0]))
+						draw_key_feedback(dpy, locks, screen);
 				}
 				oldc = color;
 			}
@@ -285,7 +281,7 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 					else
 						XResizeWindow(dpy, locks[screen]->win,
 						              rre->width, rre->height);
-					XClearWindow(dpy, locks[screen]->win);
+					draw_lock_state(dpy, locks[screen], oldc);
 					break;
 				}
 			}

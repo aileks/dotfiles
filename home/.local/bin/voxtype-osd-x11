@@ -132,9 +132,13 @@ class VoxtypeOverlay(Gtk.Window):
         width = widget.get_allocated_width()
         height = widget.get_allocated_height()
         recording = self.state == "recording"
-        accent = (0.945, 0.635, 0.471) if recording else (0.914, 0.820, 0.773)
+        accent = (
+            (179 / 255, 152 / 255, 135 / 255)
+            if recording
+            else (198 / 255, 187 / 255, 181 / 255)
+        )
 
-        context.set_source_rgb(0.082, 0.067, 0.059)
+        context.set_source_rgb(8 / 255, 5 / 255, 3 / 255)
         context.paint()
         context.set_source_rgb(*accent)
         context.set_line_width(2)
@@ -149,21 +153,21 @@ class VoxtypeOverlay(Gtk.Window):
         context.move_to(34, 31)
         context.show_text("Recording" if recording else "Transcribing")
 
-        context.set_source_rgb(0.22, 0.17, 0.14)
+        context.set_source_rgb(52 / 255, 44 / 255, 38 / 255)
         context.rectangle(18, 46, width - 36, 10)
         context.fill()
         context.set_source_rgb(*accent)
         if recording:
             level = max(0.0, min(1.0, (self.peak_dbfs + 60) / 60))
             if self.peak_dbfs >= -3:
-                context.set_source_rgb(0.82, 0.30, 0.24)
+                context.set_source_rgb(198 / 255, 158 / 255, 88 / 255)
             context.rectangle(18, 46, (width - 36) * level, 10)
         else:
             progress = (math.sin(time.monotonic() * 3) + 1) / 2
             context.rectangle(18 + (width - 84) * progress, 46, 48, 10)
         context.fill()
 
-        context.set_source_rgb(0.77, 0.69, 0.64)
+        context.set_source_rgb(198 / 255, 187 / 255, 181 / 255)
         context.select_font_face(
             "Iosevka", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL
         )

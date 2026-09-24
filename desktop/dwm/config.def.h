@@ -37,45 +37,45 @@ static const char *fonts[]               = { "Iosevka Nerd Font Propo:style=Medi
 
 static char c000000[]                    = "#000000"; // placeholder value
 
-static char normfgcolor[]                = "#E9D1C5";
-static char normbgcolor[]                = "#15110F";
-static char normbordercolor[]            = "#5F5049";
-static char normfloatcolor[]             = "#5F5049";
+static char normfgcolor[]                = "#DED6D0";
+static char normbgcolor[]                = "#080503";
+static char normbordercolor[]            = "#80756E";
+static char normfloatcolor[]             = "#80756E";
 
-static char selfgcolor[]                 = "#F1A278";
-static char selbgcolor[]                 = "#15110F";
-static char selbordercolor[]             = "#F1A278";
-static char selfloatcolor[]              = "#F1A278";
+static char selfgcolor[]                 = "#F1EAE5";
+static char selbgcolor[]                 = "#725F52";
+static char selbordercolor[]             = "#B39887";
+static char selfloatcolor[]              = "#B39887";
 
-static char titlenormfgcolor[]           = "#5F5049";
-static char titlenormbgcolor[]           = "#15110F";
-static char titlenormbordercolor[]       = "#5F5049";
-static char titlenormfloatcolor[]        = "#5F5049";
+static char titlenormfgcolor[]           = "#A2968E";
+static char titlenormbgcolor[]           = "#080503";
+static char titlenormbordercolor[]       = "#80756E";
+static char titlenormfloatcolor[]        = "#80756E";
 
-static char titleselfgcolor[]            = "#E9D1C5";
-static char titleselbgcolor[]            = "#15110F";
-static char titleselbordercolor[]        = "#F1A278";
-static char titleselfloatcolor[]         = "#F1A278";
+static char titleselfgcolor[]            = "#DED6D0";
+static char titleselbgcolor[]            = "#080503";
+static char titleselbordercolor[]        = "#B39887";
+static char titleselfloatcolor[]         = "#B39887";
 
-static char tagsnormfgcolor[]            = "#E9D1C5";
-static char tagsnormbgcolor[]            = "#15110F";
-static char tagsnormbordercolor[]        = "#5F5049";
-static char tagsnormfloatcolor[]         = "#5F5049";
+static char tagsnormfgcolor[]            = "#C6BBB5";
+static char tagsnormbgcolor[]            = "#080503";
+static char tagsnormbordercolor[]        = "#80756E";
+static char tagsnormfloatcolor[]         = "#80756E";
 
-static char tagsselfgcolor[]             = "#F1A278";
-static char tagsselbgcolor[]             = "#15110F";
-static char tagsselbordercolor[]         = "#F1A278";
-static char tagsselfloatcolor[]          = "#F1A278";
+static char tagsselfgcolor[]             = "#F1EAE5";
+static char tagsselbgcolor[]             = "#725F52";
+static char tagsselbordercolor[]         = "#B39887";
+static char tagsselfloatcolor[]          = "#B39887";
 
-static char hidnormfgcolor[]             = "#5F5049";
-static char hidselfgcolor[]              = "#F1A278";
-static char hidnormbgcolor[]             = "#15110F";
-static char hidselbgcolor[]              = "#15110F";
+static char hidnormfgcolor[]             = "#A2968E";
+static char hidselfgcolor[]              = "#F1EAE5";
+static char hidnormbgcolor[]             = "#080503";
+static char hidselbgcolor[]              = "#725F52";
 
-static char urgfgcolor[]                 = "#E9D1C5";
-static char urgbgcolor[]                 = "#A45751";
-static char urgbordercolor[]             = "#A45751";
-static char urgfloatcolor[]              = "#A45751";
+static char urgfgcolor[]                 = "#E07972";
+static char urgbgcolor[]                 = "#080503";
+static char urgbordercolor[]             = "#E07972";
+static char urgfloatcolor[]              = "#E07972";
 
 static char *colors[][ColCount] = {
 	/*                       fg                bg                border                float */
@@ -302,4 +302,3 @@ static const Button buttons[] = {
 	{ ClkTagBar,            MODKEY,              Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,              Button3,        toggletag,      {0} },
 };
-

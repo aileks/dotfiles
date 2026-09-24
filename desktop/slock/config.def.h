@@ -3,11 +3,11 @@ static const char *user  = "nobody";
 static const char *group = "nogroup";
 
 static const char *colorname[NUMCOLS] = {
-	[INIT] =   "#15110F",   /* after initialization */
-	[INPUT] =  "#D98C63",   /* during input */
-	[FAILED] = "#A45751",   /* wrong password */
-	[CAPS] =   "#F1A278",   /* CapsLock on */
-	[BLOCKS] = "#E9D1C5",   /* key feedback block */
+	[INIT] =   "#080503",   /* screen background */
+	[INPUT] =  "#B39887",   /* input indicator */
+	[FAILED] = "#E07972",   /* wrong password indicator */
+	[CAPS] =   "#C69E58",   /* CapsLock indicator */
+	[BLOCKS] = "#F1EAE5",   /* key feedback block */
 };
 
 /*

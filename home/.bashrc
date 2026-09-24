@@ -6,6 +6,7 @@
 export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$PATH"
 export NPM_CONFIG_PREFIX="$HOME/.local"
 export GREP_COLORS='mt=1;36'
+export LS_COLORS='rs=0:fi=37:di=34:ln=36:ex=32:pi=33:so=33:bd=33:cd=33:or=31:mi=31:su=32:sg=32:tw=34:ow=34:st=34:*.tar=35:*.gz=35:*.bz2=35:*.xz=35:*.zst=35:*.zip=35:*.7z=35:*.rar=35:*.conf=33:*.ini=33:*.toml=33'
 export EDITOR='nvim'
 export VISUAL="$EDITOR"
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
@@ -149,21 +150,21 @@ fi
 
 # fzf settings
 export FZF_DEFAULT_OPTS="
-  --color=fg:#B5A196
-  --color=fg+:#E9D1C5
-  --color=bg:#15110F
-  --color=bg+:#34312d
-  --color=hl:#C87546
-  --color=hl+:#E8A64D
-  --color=info:#B5A196
-  --color=marker:#C87546
-  --color=prompt:#C87546
-  --color=spinner:#DC8853
-  --color=pointer:#FFBD9B
-  --color=header:#A45751
-  --color=border:#B5A196
-  --color=query:#E9D1C5
-  --color=gutter:#15110F
+  --color=fg:#DED6D0
+  --color=fg+:#F1EAE5
+  --color=bg:#080503
+  --color=bg+:#725F52
+  --color=hl:#B39887
+  --color=hl+:#F1EAE5
+  --color=info:#A2968E
+  --color=marker:#B39887
+  --color=prompt:#B39887
+  --color=spinner:#A69082
+  --color=pointer:#F1EAE5
+  --color=header:#C6BBB5
+  --color=border:#80756E
+  --color=query:#F1EAE5
+  --color=gutter:#080503
   --highlight-line
   --info=inline-right
   --layout=reverse
@@ -239,13 +240,13 @@ make_prompt() {
   local status=$1
   local reset=$'\e[0m'
   local bold=$'\e[1m'
-  local error=$'\e[38;2;164;87;81m'
-  local primary=$'\e[38;2;241;162;120m'
-  local secondary=$'\e[38;2;217;140;99m'
-  local tertiary=$'\e[38;2;171;97;57m'
-  local muted=$'\e[38;2;95;80;73m'
-  local info=$'\e[38;2;148;77;36m'
-  local host=$'\e[38;2;194;118;78m'
+  local error=$'\e[38;2;224;121;114m'
+  local primary=$'\e[38;2;179;152;135m'
+  local secondary=$'\e[38;2;166;144;130m'
+  local tertiary=$'\e[38;2;193;173;159m'
+  local muted=$'\e[38;2;162;150;142m'
+  local info=$'\e[38;2;198;187;181m'
+  local host=$'\e[38;2;209;192;182m'
   local git_segment=''
   local status_segment=''
   local venv_segment=''
