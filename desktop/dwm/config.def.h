@@ -38,7 +38,7 @@ static const char *fonts[]               = { "Iosevka Nerd Font Propo:style=Medi
 static char c000000[]                    = "#000000"; // placeholder value
 
 static char normfgcolor[]                = "#DED6D0";
-static char normbgcolor[]                = "#080503";
+static char normbgcolor[]                = "#140E0A";
 static char normbordercolor[]            = "#80756E";
 static char normfloatcolor[]             = "#80756E";
 
@@ -48,17 +48,17 @@ static char selbordercolor[]             = "#B39887";
 static char selfloatcolor[]              = "#B39887";
 
 static char titlenormfgcolor[]           = "#A2968E";
-static char titlenormbgcolor[]           = "#080503";
+static char titlenormbgcolor[]           = "#140E0A";
 static char titlenormbordercolor[]       = "#80756E";
 static char titlenormfloatcolor[]        = "#80756E";
 
 static char titleselfgcolor[]            = "#DED6D0";
-static char titleselbgcolor[]            = "#080503";
+static char titleselbgcolor[]            = "#140E0A";
 static char titleselbordercolor[]        = "#B39887";
 static char titleselfloatcolor[]         = "#B39887";
 
 static char tagsnormfgcolor[]            = "#C6BBB5";
-static char tagsnormbgcolor[]            = "#080503";
+static char tagsnormbgcolor[]            = "#140E0A";
 static char tagsnormbordercolor[]        = "#80756E";
 static char tagsnormfloatcolor[]         = "#80756E";
 
@@ -69,11 +69,11 @@ static char tagsselfloatcolor[]          = "#B39887";
 
 static char hidnormfgcolor[]             = "#A2968E";
 static char hidselfgcolor[]              = "#F1EAE5";
-static char hidnormbgcolor[]             = "#080503";
+static char hidnormbgcolor[]             = "#140E0A";
 static char hidselbgcolor[]              = "#725F52";
 
 static char urgfgcolor[]                 = "#E07972";
-static char urgbgcolor[]                 = "#080503";
+static char urgbgcolor[]                 = "#140E0A";
 static char urgbordercolor[]             = "#E07972";
 static char urgfloatcolor[]              = "#E07972";
 
