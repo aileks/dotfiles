@@ -15,6 +15,8 @@ c.content.blocking.adblock.lists = [
     "https://raw.githubusercontent.com/yokoffing/filterlists/main/antipaywall_filters_without_element_hiding.txt",
 ]
 c.colors.webpage.preferred_color_scheme = "dark"
+c.colors.webpage.darkmode.algorithm = "lightness-hsl"
+c.colors.webpage.darkmode.policy.images = "never"
 c.colors.webpage.darkmode.enabled = True
 c.editor.command = ["emacsclient", "-c", "-a=", "+{line}:{column0}", "{file}"]
 
@@ -39,13 +41,8 @@ c.url.yank_ignored_parameters = [
     "msclkid",
 ]
 
-config.bind(
-    ",d",
-    "config-cycle -p -u *://{url:host}/* colors.webpage.darkmode.enabled ;; reload",
-)
-config.bind(
-    ",b", "config-cycle -p -u *://{url:host}/* content.blocking.enabled ;; reload"
-)
+config.bind(",d", "config-cycle -p -u *://{url:host}/* colors.webpage.darkmode.enabled ;; reload")
+config.bind(",b", "config-cycle -p -u *://{url:host}/* content.blocking.enabled ;; reload")
 config.bind(",m", "spawn mpv -- {url}")
 config.bind(",M", "hint links spawn mpv -- {hint-url}")
 config.bind(",v", "spawn st -e qutebrowser-download {url}")
@@ -54,6 +51,7 @@ config.bind(",r", "spawn --userscript /usr/share/qutebrowser/userscripts/readabi
 config.bind(",u", "adblock-update")
 config.bind(",g", "greasemonkey-reload")
 config.bind(",f", "spawn firefox {url}")
+config.bind(',t', 'config-cycle tabs.show always never')
 
 c.fonts.default_family = ["Iosevka Nerd Font Propo", "monospace"]
 c.fonts.default_size = "12pt"
