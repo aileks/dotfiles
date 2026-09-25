@@ -1,5 +1,5 @@
 packages=(
-  linux-firmware NetworkManager network-manager-applet dbus-elogind elogind polkit-elogind pciutils usbutils openssh opendoas
+  linux-firmware NetworkManager network-manager-applet dnsmasq dbus-elogind elogind polkit-elogind pciutils usbutils openssh opendoas
   avahi nss-mdns cups bluez blueman gst-plugins-base1 gst-plugins-good1 gst-plugins-bad1 gst-plugins-ugly1 xtools gst-libav
   docker docker-compose 7zip tree bat eza psmisc fd fzf git jq shfmt ripgrep sqlite stow trash-cli unzip gsettings-desktop-schemas
   wget xdotool rsync zip zoxide nvme-cli btop fastfetch curl github-cli xorg-server xinit xauth xorg-apps xf86-input-libinput

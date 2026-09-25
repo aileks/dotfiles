@@ -15,7 +15,6 @@ c.content.blocking.adblock.lists = [
     "https://raw.githubusercontent.com/yokoffing/filterlists/main/antipaywall_filters_without_element_hiding.txt",
 ]
 c.colors.webpage.preferred_color_scheme = "dark"
-c.colors.webpage.darkmode.algorithm = "lightness-hsl"
 c.colors.webpage.darkmode.policy.images = "never"
 c.colors.webpage.darkmode.enabled = True
 c.editor.command = ["emacsclient", "-c", "-a=", "+{line}:{column0}", "{file}"]
