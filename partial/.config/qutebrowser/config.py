@@ -51,6 +51,7 @@ config.bind(",u", "adblock-update")
 config.bind(",g", "greasemonkey-reload")
 config.bind(",f", "spawn firefox {url}")
 config.bind(',t', 'config-cycle tabs.show always never')
+config.bind(',s', 'config-cycle statusbar.show always never')
 
 c.fonts.default_family = ["Iosevka Nerd Font Propo", "monospace"]
 c.fonts.default_size = "12pt"
@@ -59,7 +60,6 @@ c.fonts.web.family.serif = "Adwaita Sans"
 c.fonts.web.family.sans_serif = "Adwaita Sans"
 c.fonts.web.family.cursive = "Adwaita Sans"
 c.fonts.web.family.fantasy = "Adwaita Sans"
-c.statusbar.show = "in-mode"
 
 background = "#080503"
 foreground = "#DED6D0"
