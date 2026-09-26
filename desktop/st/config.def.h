@@ -228,10 +228,6 @@ static MouseShortcut mshortcuts[] = {
 #define MODKEY Mod1Mask
 #define TERMMOD (ControlMask|ShiftMask)
 
-static char *scrollsearchcmd[] = { "/bin/sh", "-c",
-	"fzf --layout=reverse --info=inline",
-	"externalpipein", NULL };
-
 static Shortcut shortcuts[] = {
 	/* mask                 keysym          function         argument   screen */
 	{ XK_ANY_MOD,           XK_Break,       sendbreak,       {.i =  0} },
@@ -249,8 +245,7 @@ static Shortcut shortcuts[] = {
 	{ ShiftMask,            XK_Insert,      clippaste,       {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,         {.i =  0} },
 	{ TERMMOD,              XK_Return,      newterm,         {.i =  0} },
-	{ TERMMOD,              XK_U,           externalpipein,  { .v = scrollsearchcmd } },
-	{ TERMMOD,              XK_Escape,      keyboard_select, { 0 } },
+	{ ControlMask,          XK_space,       keyboard_select, { 0 } },
 	{ TERMMOD,              XK_F,           searchforward,   { 0 } },
 	{ TERMMOD,              XK_B,           searchbackward,  { 0 } },
 };
