@@ -4,8 +4,6 @@ install_user_tools() {
 
   mkdir -p "$work" "$HOME/.local/bin" "$data_home"
 
-  run "$repo/home/.local/bin/qutebrowser-update-scripts"
-
   run voxtype setup --download --model large-v3-turbo --no-post-install
 
   if [[ ! -x $HOME/.local/bin/bemoji ]]; then
@@ -36,13 +34,6 @@ install_user_tools() {
     curl -fL https://github.com/linebender/resvg/releases/download/v0.48.1/resvg-linux-x86_64.tar.gz -o "$work/resvg.tar.gz"
     tar xzf "$work/resvg.tar.gz" -C "$work"
     install -b -m 755 "$work/resvg" "$HOME/.local/bin/resvg"
-  fi
-
-  if [[ ! -r $data_home/java/google-java-format.jar ]]; then
-    mkdir -p "$data_home/java"
-    curl -fL https://github.com/google/google-java-format/releases/download/v1.36.1/google-java-format-1.36.1-all-deps.jar \
-      -o "$work/google-java-format.jar"
-    install -b -m 644 "$work/google-java-format.jar" "$data_home/java/google-java-format.jar"
   fi
 
   if [[ ! -x $HOME/.local/bin/sqlfluff ]]; then

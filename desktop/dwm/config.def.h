@@ -216,7 +216,6 @@ static const Layout layouts[] = {
 /* commands */
 static const char *termcmd[]  = { "st", NULL };
 static const char *dictatecmd[] = { "voxtype-hold", NULL };
-static const char *browsercmd[] = {"env", "QTWEBENGINE_CHROMIUM_FLAGS=--use-gl=angle --enable-features=Vulkan --use-vulkan=native", "qutebrowser", NULL};
 
 /* This defines the name of the executable that handles the bar (used for signalling purposes) */
 #define STATUSBAR "dwmblocks"
@@ -226,7 +225,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_Return,     spawn,                  {.v = termcmd } },
 	{ MODKEY,                       XK_space,      spawn,                  SHCMD("j4-dmenu-desktop --dmenu='dmenu -i -c -l 8 -p Apps -S' --display-binary --term st --usage-log=$HOME/.cache/j4-history") },
 	{ MODKEY,                       XK_x,          spawn,                  SHCMD("emacsclient -c -a ''") },
-	{ MODKEY,                       XK_w,          spawn,                  {.v = browsercmd } },
+	{ MODKEY,                       XK_w,          spawn,                  SHCMD("firefox") },
 	{ MODKEY,                       XK_s,          spawn,                  SHCMD("signal-desktop") },
 	{ MODKEY,                       XK_e,          spawn,                  SHCMD("st -e open-nnn") },
 	{ MODKEY,                       XK_a,          spawn,                  SHCMD("st -e wiremix") },

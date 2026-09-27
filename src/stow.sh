@@ -6,7 +6,6 @@ install_stow() {
   run mkdir -p -- "$target_home/.local/bin" "$data_home/applications" "$data_home/dwm"
   for target in \
     "$target_home"/.config/gtk-{3,4}.0/settings.ini \
-    "$target_home/.local/share/applications/qutebrowser.desktop"; do
     if [[ -f $target && ! -L $target ]]; then
       run mv -T -- "$target" "$target.backup.$stamp"
     fi
