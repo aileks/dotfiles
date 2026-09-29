@@ -19,7 +19,7 @@ alias sudo="doas"
 alias sudoedit="doasedit"
 alias ls='ls --color=auto --group-directories-first'
 alias la='ls -lah --color=auto --group-directories-first'
-alias lt='tree -C -a -L 2 --dirsfirst'
+alias lt="tree -C -a -L 2 --dirsfirst -I '.*'"
 alias rm='trash'
 alias c='clear'
 alias ff='fastfetch && echo'

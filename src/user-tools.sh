@@ -2,13 +2,13 @@ install_user_tools() {
   local work=$work/user-tools
   local package name
 
-  mkdir -p "$work" "$HOME/.local/bin" "$data_home"
+  mkdir -p "$work" "$HOME/.local/bin" "$HOME/.local/libexec" "$data_home"
 
   run voxtype setup --download --model large-v3-turbo --no-post-install
 
-  if [[ ! -x $HOME/.local/bin/bemoji ]]; then
+  if [[ ! -x $HOME/.local/libexec/bemoji ]]; then
     curl -fL https://raw.githubusercontent.com/marty-oehme/bemoji/791c7748cf0236f691b1874e79ebe434469c20a9/bemoji -o "$work/bemoji"
-    install -b -m 755 "$work/bemoji" "$HOME/.local/bin/bemoji"
+    install -b -m 755 "$work/bemoji" "$HOME/.local/libexec/bemoji"
   fi
 
   mkdir -p "$data_home/bemoji"
