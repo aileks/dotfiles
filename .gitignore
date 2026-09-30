@@ -5,7 +5,3 @@ home/.config/cava/themes/
 home/.config/nnn/sessions/
 home/.config/nnn/mounts/
 home/.config/nnn/plugins/
-desktop/st/*.o
-desktop/st/st
-desktop/st/patches.h
-desktop/st/config.h

@@ -1,0 +1,50 @@
+[window]
+padding = { x = 8, y = 8 }
+decorations = "None"
+
+[font]
+normal = { family = "IosevkaTerm Nerd Font", style = "Regular" }
+size = 15
+
+[colors.primary]
+background = "#080503"
+foreground = "#DED6D0"
+
+[colors.cursor]
+text = "#080503"
+cursor = "#F1EAE5"
+
+[colors.selection]
+text = "#F1EAE5"
+background = "#725F52"
+
+[colors.search.matches]
+foreground = "#F1EAE5"
+background = "#725F52"
+
+[colors.search.focused_match]
+foreground = "#080503"
+background = "#B39887"
+
+[colors.normal]
+black = "#887E78"
+red = "#E07972"
+green = "#9E8F85"
+yellow = "#B4A094"
+blue = "#C9B2A3"
+magenta = "#DBC6B8"
+cyan = "#EBDACF"
+white = "#F3E9E2"
+
+[colors.bright]
+black = "#A1968F"
+red = "#FF8A83"
+green = "#B3A195"
+yellow = "#C8B3A4"
+blue = "#DEC5B5"
+magenta = "#F0D9CA"
+cyan = "#FAE7DB"
+white = "#FCF3EE"
+
+[cursor]
+style = { shape = "Block", blinking = "On" }

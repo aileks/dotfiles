@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | dmenu -i -c -l 4 -p Power -S) || exit 0
+choice=$(printf '%s\n' 'log out' 'suspend' 'reboot' 'shut down' | rofi -dmenu -i -lines 4 -p Power) || exit 0
 case "$choice" in
-  'log out') pkill -x dwm ;;
+  'log out') qtile cmd-obj -o cmd -f shutdown ;;
   'suspend') loginctl suspend ;;
   'reboot') loginctl reboot ;;
   'shut down') loginctl poweroff ;;

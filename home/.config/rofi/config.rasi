@@ -1,0 +1,13 @@
+configuration {
+    modi: "drun,run,window";
+    font: "Iosevka Nerd Font 12";
+    terminal: "alacritty";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    display-drun: "Apps";
+    display-run: "Command";
+    display-window: "Windows";
+    drun-display-format: "{name}";
+}
+
+@theme "muted-umber"

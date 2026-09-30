@@ -8,7 +8,7 @@ install_stow() {
     run mv -b -- "$target_home/.local/bin/bemoji" "$target_home/.local/libexec/bemoji"
   fi
 
-  run mkdir -p -- "$target_home/.local/bin" "$data_home/applications" "$data_home/dwm"
+  run mkdir -p -- "$target_home/.local/bin" "$data_home/applications"
   for target in \
     "$target_home"/.config/gtk-{3,4}.0/settings.ini; do
     if [[ -f $target && ! -L $target ]]; then

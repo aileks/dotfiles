@@ -9,7 +9,6 @@ source "$repo/src/lib.sh"
 source "$repo/src/packages.sh"
 source "$repo/src/custom-packages.sh"
 source "$repo/src/system-config.sh"
-source "$repo/src/suckless.sh"
 source "$repo/src/emacs.sh"
 source "$repo/src/stow.sh"
 source "$repo/src/user-tools.sh"
@@ -69,7 +68,6 @@ main() {
   install_system_config
   install_packages
   install_xkb
-  install_suckless
   install_emacs
   install_custom_packages
   configure_account

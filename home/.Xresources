@@ -19,8 +19,3 @@ Xcursor.size: 24
 *.color13:  #F0D9CA
 *.color14:  #FAE7DB
 *.color15:  #FCF3EE
-
-slock.locked: #080503
-slock.input: #B39887
-slock.failed: #E07972
-slock.capslock: #C69E58

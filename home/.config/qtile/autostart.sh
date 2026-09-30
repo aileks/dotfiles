@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+xrdb -merge ~/.Xresources
+xset b off
+xset dpms 0 0 900
+xset r rate 250 50
+setxkbmap custom
+xwallpaper --zoom "$HOME/.dotfiles/wallpaper/muted-umber.png"
+
+pipewire &
+/usr/libexec/polkit-gnome-authentication-agent-1 &
+dunst &
+voxtype-session &
+blueman-applet &
+playerctld daemon &
+gnome-keyring-daemon --start --components=secrets,pkcs11 &
+xss-lock --transfer-sleep-lock -- lock-session &
+openrgb --noautoconnect -p NRGB &
+localsend &
+/opt/Bitwarden/bitwarden &
+emacs --daemon &
+xautolock -time 10 -locker lock-session -notify 30 -notifier 'notify-send -t 2000 -a xautolock "Locking in 30 seconds"' &

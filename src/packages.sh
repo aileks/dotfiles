@@ -3,8 +3,9 @@ packages=(
   avahi nss-mdns cups bluez blueman gst-plugins-base1 gst-plugins-good1 gst-plugins-bad1 gst-plugins-ugly1 xtools gst-libav
   docker docker-compose 7zip tree bat eza psmisc fd fzf git jq shfmt ripgrep sqlite stow trash-cli unzip gsettings-desktop-schemas
   wget xdotool rsync zip zoxide nvme-cli btop fastfetch curl github-cli xorg-server xinit xauth xorg-apps xf86-input-libinput
-  slop xkeyboard-config alsa-pipewire pipewire libspa-bluetooth wireplumber-elogind pulseaudio-utils j4-dmenu-desktop maim xclip
-  xss-lock clipmenu xwallpaper xautolock fontconfig fontconfig-devel nnn zathura zathura-pdf-mupdf zathura-cb zathura-djvu uv
+  slop xkeyboard-config alsa-pipewire pipewire libspa-bluetooth wireplumber-elogind pulseaudio-utils maim xclip
+  qtile alacritty alacritty-terminfo rofi xsecurelock xss-lock xwallpaper xautolock fontconfig fontconfig-devel nnn
+  zathura zathura-pdf-mupdf zathura-cb zathura-djvu uv
   mpv mpv-mpris gvfs pcmanfm lxappearance dunst libnotify playerctl wiremix cava qalculate-gtk file-roller ncdu2 imv udiskie
   tumbler xdg-utils xdg-user-dirs polkit-gnome xdg-desktop-portal-gtk ffmpeg6 ffmpegthumbnailer alsa-utils ddcutil libva-utils
   nvtop cronie tesseract-ocr tesseract-ocr-eng hunspell hunspell-en keyutils pinentry dconf Vulkan-Tools gnome-keyring qt6ct
