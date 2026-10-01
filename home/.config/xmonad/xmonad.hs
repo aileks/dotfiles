@@ -8,6 +8,7 @@ import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
 import XMonad.Hooks.UrgencyHook (withUrgencyHook, NoUrgencyHook (NoUrgencyHook))
+import XMonad.Hooks.InsertPosition
 import XMonad.Layout.BinarySpacePartition (emptyBSP, ResizeDirectional (ExpandTowardsBy))
 import XMonad.Layout.MultiToggle (mkToggle, single, Toggle (Toggle))
 import XMonad.Layout.MultiToggle.Instances (StdTransformers (NBFULL))
@@ -31,6 +32,7 @@ main = xmonad
   . ewmhFullscreen
   . ewmh
   . docks
+  . setupInsertPosition Below Newer
   $ def
     { terminal = "alacritty"
     , modMask = mod4Mask
@@ -53,8 +55,8 @@ main = xmonad
     }
 
 desktopLayouts = mkToggle (single NBFULL) $ avoidStruts
-  $ named "Tall" (gaps $ ResizableTall 1 (3 / 100) (1 / 2) [])
-  ||| named "Bsp" (gaps emptyBSP)
+  $ named "Bsp" (gaps emptyBSP)
+  ||| named "Tall" (gaps $ ResizableTall 1 (3 / 100) (1 / 2) [])
   ||| named "Max" (gaps Full)
   where
     named name = renamed [Replace name]
@@ -68,9 +70,10 @@ desktopRules = composeAll
   , isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_TOOLBAR" --> doFloat
   , isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_SPLASH" --> doFloat
   , className =? "firefox" <&&> resource =? "Places" --> doFloat
+  , resource =? "nsxiv" --> doFloat
   , isFullscreen --> doFullFloat
   ] <+> composeAll [className =? application --> doFloat | application <-
-    [ "imv", "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "Org.localsend.localsend_app"
+    [ "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "Org.localsend.localsend_app"
     , "polkit-gnome", "xdg-desktop-portal-gtk", "Nm-connection-editor"
     ]]
 
@@ -162,7 +165,6 @@ desktopKeys =
   , ("M-e", spawn "alacritty -e open-nnn")
   , ("M-a", spawn "alacritty -e wiremix")
   , ("<F9>", startDictation)
-  , ("M-S-d", cancelDictation >> spawn "voxtype record cancel")
   , ("M-o", spawn "region-ocr")
   , ("M-;", spawn "bemoji -n")
   , ("M-=", spawn "qalculate-gtk")

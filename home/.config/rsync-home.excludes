@@ -42,7 +42,7 @@
 **/.venv/
 **/venv/
 **/node_modules/
-# Rootless containers and the local pgdev database are disposable.
+# Container caches are disposable.
 /.local/share/containers/
 /.docker/buildx/cache/
 /.compose-cache/

@@ -7,11 +7,10 @@ export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$PATH"
 export NPM_CONFIG_PREFIX="$HOME/.local"
 export GREP_COLORS='mt=1;36'
 export LS_COLORS='rs=0:fi=37:di=34:ln=36:ex=32:pi=33:so=33:bd=33:cd=33:or=31:mi=31:su=32:sg=32:tw=34:ow=34:st=34:*.tar=35:*.gz=35:*.bz2=35:*.xz=35:*.zst=35:*.zip=35:*.7z=35:*.rar=35:*.conf=33:*.ini=33:*.toml=33'
-export EDITOR='nvim'
+export EDITOR='emacsclient -t --alternate-editor='
 export VISUAL="$EDITOR"
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
-export MANPAGER='nvim +Man!'
-export PGPASSFILE="$HOME/.local/state/postgres/postgres-18/pgpass"
+unset MANPAGER
 . "$HOME/.config/nnn/env"
 
 # Aliases
@@ -23,7 +22,7 @@ alias lt="tree -C -a -L 2 --dirsfirst -I '.*'"
 alias rm='trash'
 alias c='clear'
 alias ff='fastfetch && echo'
-alias vim='nvim'
+alias vim='emacsclient -t --alternate-editor='
 alias ..="echo 'cd ..'; cd .."
 alias hl='rg --passthru'
 alias n='nnn -e'

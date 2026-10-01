@@ -48,8 +48,14 @@ write_status() {
 }
 
 notify() {
-  [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]] || return 0
-  notify-send -a 'Home Backup' "Home Backup: $*" >/dev/null 2>&1 || true
+  local session_bus_address=${DBUS_SESSION_BUS_ADDRESS:-}
+  if [[ -z $session_bus_address ]]; then
+    [[ -r $state_directory/session-bus-address ]] || return 0
+    IFS= read -r session_bus_address <"$state_directory/session-bus-address" || return 0
+  fi
+  [[ -n $session_bus_address ]] || return 0
+  DBUS_SESSION_BUS_ADDRESS="$session_bus_address" \
+    notify-send -a 'Home Backup' "Home Backup: $*" >/dev/null 2>&1 || true
 }
 
 failed() {

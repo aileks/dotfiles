@@ -37,10 +37,6 @@ configure_account() {
     run usermod -aG i2c "$target_user"
   fi
 
-  if [[ " $(id -nG "$target_user") " != *' docker '* ]]; then
-    run usermod -aG docker "$target_user"
-  fi
-
   if ! getent group uinput >/dev/null; then
     run groupadd --system uinput
   fi
@@ -87,7 +83,7 @@ configure_pipewire() {
 
 enable_services() {
   local service
-  local services=(dbus elogind NetworkManager cronie bluetoothd cupsd avahi-daemon docker)
+  local services=(dbus elogind NetworkManager cronie bluetoothd cupsd avahi-daemon)
 
   for service in "${services[@]}"; do
     run ln -sfn "/etc/sv/$service" "/var/service/$service"

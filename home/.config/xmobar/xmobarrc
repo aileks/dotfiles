@@ -19,9 +19,8 @@ Config
       , Run Com "bar-gpu" [] "gpu" 50
       , Run Com "bar-network" [] "network" 50
       , Run Com "bar-clock" [] "clock" 10
-      , Run Com "bar-tray-padding" [] "traypadding" 10
       ]
   , sepChar = "%"
   , alignSep = "}{"
-  , template = " %UnsafeXMonadLog% }{<fc=#A17869>%dnd%</fc> <fc=#8E8071>│</fc> <fc=#C8C0B8>%volume%</fc> <fc=#8E8071>│</fc> <fc=#AA9F95>%cpu%</fc> <fc=#8E8071>│</fc> <fc=#AA9F95>%memory%</fc> <fc=#8E8071>│</fc> <fc=#AC887B>%gpu%</fc> <fc=#8E8071>│</fc> <fc=#C5ABA2>%network%</fc> <fc=#8E8071>│</fc> %clock%%traypadding%"
+  , template = " %UnsafeXMonadLog% }{<fc=#A17869>%dnd%</fc> <fc=#8E8071>│</fc> <fc=#C8C0B8>%volume%</fc> <fc=#8E8071>│</fc> <fc=#AA9F95>%cpu%</fc> <fc=#8E8071>│</fc> <fc=#AA9F95>%memory%</fc> <fc=#8E8071>│</fc> <fc=#AC887B>%gpu%</fc> <fc=#8E8071>│</fc> <fc=#C5ABA2>%network%</fc> <fc=#8E8071>│</fc> %clock%<hspace=96/>"
   }
