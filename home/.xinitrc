@@ -13,4 +13,6 @@ export NVD_BACKEND=direct
 export __GLX_VENDOR_LIBRARY_NAME=nvidia
 export MOZ_DISABLE_RDD_SANDBOX=1
 
+xrdb -merge "$HOME/.Xresources"
+
 exec dbus-run-session -- xmonad

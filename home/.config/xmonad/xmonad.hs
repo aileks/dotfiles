@@ -1,7 +1,5 @@
-import qualified Data.Map.Strict as Map
 import System.Exit (exitSuccess)
 import XMonad
-import qualified XMonad.StackSet as W
 import XMonad.Actions.Navigation2D
 import XMonad.Hooks.EwmhDesktops (ewmh, ewmhFullscreen)
 import XMonad.Hooks.ManageDocks
@@ -17,8 +15,11 @@ import XMonad.Layout.Renamed (renamed, Rename (Replace))
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
 import XMonad.Util.EZConfig (mkKeymap)
-import qualified XMonad.Util.ExtensibleState as XS
 import XMonad.Util.SpawnOnce (spawnOnce)
+import XMonad.Util.ClickableWorkspaces (clickablePP)
+import qualified Data.Map.Strict as Map
+import qualified XMonad.Util.ExtensibleState as XS
+import qualified XMonad.StackSet as W
 import HeldDictation (initializeDictation, startDictation, releaseDictation, cancelDictation)
 
 main :: IO ()
@@ -41,8 +42,8 @@ main = xmonad
     , manageHook = desktopRules <+> manageHook def
     , handleEventHook = releaseDictation
     , startupHook = initializeDictation
+        >> spawn "xsetroot -xcf /usr/share/icons/Adwaita/cursors/left_ptr 24"
         >> spawnOnce "bash \"$HOME/.config/xmonad/autostart.sh\""
-        >> setWMName "LG3D"
     , keys = \config -> mkKeymap config desktopKeys
     , mouseBindings = const $ Map.fromList
         [ ((mod4Mask, button1), \window -> focus window >> mouseMoveWindow window)
@@ -69,14 +70,14 @@ desktopRules = composeAll
   , className =? "firefox" <&&> resource =? "Places" --> doFloat
   , isFullscreen --> doFullFloat
   ] <+> composeAll [className =? application --> doFloat | application <-
-    [ "imv", "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "localsend"
+    [ "imv", "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "LocalSend"
     , "polkit-gnome", "xdg-desktop-portal-gtk", "Nm-connection-editor"
     ]]
 
 desktopBar :: StatusBarConfig
-desktopBar = statusBarProp "xmobar \"$HOME/.config/xmobar/xmobarrc\"" (pure desktopPP)
+desktopBar = statusBarProp "xmobar \"$HOME/.config/xmobar/xmobarrc\"" (clickablePP desktopPP)
   <> statusBarGeneric
-    "trayer --edge top --align right --monitor 0 --widthtype pixel --width 180 --height 28 --padding 5 --SetDockType true --SetPartialStrut true --transparent true --alpha 0 --tint 0x171412"
+    "trayer --edge top --align right --monitor 0 --widthtype request --height 28 --padding 5 --SetDockType true --SetPartialStrut true --transparent true --alpha 0 --tint 0x171412"
     (pure ())
 
 desktopPP :: PP
