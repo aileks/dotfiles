@@ -70,14 +70,14 @@ desktopRules = composeAll
   , className =? "firefox" <&&> resource =? "Places" --> doFloat
   , isFullscreen --> doFullFloat
   ] <+> composeAll [className =? application --> doFloat | application <-
-    [ "imv", "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "org.localsend.localsend_app"
+    [ "imv", "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "Org.localsend.localsend_app"
     , "polkit-gnome", "xdg-desktop-portal-gtk", "Nm-connection-editor"
     ]]
 
 desktopBar :: StatusBarConfig
 desktopBar = statusBarProp "xmobar \"$HOME/.config/xmobar/xmobarrc\"" (clickablePP desktopPP)
   <> statusBarGeneric
-    "trayer --edge top --align right --monitor 0 --widthtype request --height 23 --padding 4 --SetDockType true --SetPartialStrut true --iconspacing 2 --transparent true --alpha 0 --tint 0x171412"
+    "trayer --edge top --align right --widthtype request --heighttype pixel --height 18 --padding 2 --iconspacing 2 --transparent true --alpha 0 --SetDockType true --SetPartialStrut false --distance 5 --distancefrom top --tint 0x171412"
     (pure ())
 
 desktopPP :: PP
@@ -188,7 +188,6 @@ desktopKeys =
   , ("M-S-b", sendMessage $ JumpToLayout "Bsp")
   , ("M-S-t", sendMessage $ JumpToLayout "Tall")
   , ("M-S-m", sendMessage $ JumpToLayout "Max")
-  , ("M-C-.", sendMessage NextLayout)
   , ("M-<Tab>", sendMessage NextLayout)
   ]
   ++ concat
