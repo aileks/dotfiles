@@ -16,6 +16,6 @@ checksum="c569d038057464aa60290296794bcbd79b928ee0efd038e33062a4c015558ed8
 skip_extraction="voxtype-${version}-linux-x86_64-vulkan LICENSE"
 
 do_install() {
-	vbin "${XBPS_SRCDISTDIR}/${pkgname}-${version}/voxtype-${version}-linux-x86_64-vulkan" voxtype
-	vlicense "${XBPS_SRCDISTDIR}/${pkgname}-${version}/LICENSE"
+  vbin "${XBPS_SRCDISTDIR}/${pkgname}-${version}/voxtype-${version}-linux-x86_64-vulkan" voxtype
+  vlicense "${XBPS_SRCDISTDIR}/${pkgname}-${version}/LICENSE"
 }

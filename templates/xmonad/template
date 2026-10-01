@@ -30,51 +30,51 @@ _cabal_args="--index-state=${cabal_index_state} --disable-tests --disable-benchm
  --disable-executable-profiling --disable-executable-dynamic"
 
 post_extract() {
-	vsrcextract -C contrib "xmonad-contrib-${_contrib_version}.tar.gz"
+  vsrcextract -C contrib "xmonad-contrib-${_contrib_version}.tar.gz"
 }
 
 do_configure() {
-	local compiler_package
-	compiler_package=$(xbps-query -p pkgver ghc)
-	if [ "$compiler_package" != "ghc-${_ghc_version}_${_ghc_revision}" ]; then
-		msg_error "Update XMonad's GHC pin and bump revision before building with ${compiler_package}\n"
-	fi
+  local compiler_package
+  compiler_package=$(xbps-query -p pkgver ghc)
+  if [ "$compiler_package" != "ghc-${_ghc_version}_${_ghc_revision}" ]; then
+    msg_error "Update XMonad's GHC pin and bump revision before building with ${compiler_package}\n"
+  fi
 
-	cat >cabal.project <<-EOF
+  cat >cabal.project <<-EOF
 		packages: . ./contrib
 		index-state: ${cabal_index_state}
 		package xmonad-contrib
 		  flags: -use_xft
 	EOF
-	cabal update
-	cabal --store-dir="${wrksrc}/store" configure ${_cabal_args}
+  cabal update
+  cabal --store-dir="${wrksrc}/store" configure ${_cabal_args}
 }
 
 do_build() {
-	# install --lib puts local libraries in the store, rather than dist-newstyle.
-	cabal --store-dir="${wrksrc}/store" v2-install --lib lib:xmonad lib:xmonad-contrib \
-		--package-env="${wrksrc}/environment" ${_cabal_args} ${makejobs}
-	cabal --store-dir="${wrksrc}/store" build exe:xmonad ${_cabal_args} ${makejobs}
+  # install --lib puts local libraries in the store, rather than dist-newstyle.
+  cabal --store-dir="${wrksrc}/store" v2-install --lib lib:xmonad lib:xmonad-contrib \
+    --package-env="${wrksrc}/environment" ${_cabal_args} ${makejobs}
+  cabal --store-dir="${wrksrc}/store" build exe:xmonad ${_cabal_args} ${makejobs}
 }
 
 do_install() {
-	local package_database=${DESTDIR}/usr/lib/xmonad/ghc-${_ghc_version}/package.db
-	local registration
+  local package_database=${DESTDIR}/usr/lib/xmonad/ghc-${_ghc_version}/package.db
+  local registration
 
-	vbin "$(cabal --store-dir="${wrksrc}/store" list-bin exe:xmonad)"
-	vman man/xmonad.1
-	vlicense LICENSE
-	vlicense contrib/LICENSE xmonad-contrib-LICENSE
-	vmkdir usr/lib/xmonad
-	cp -a "${wrksrc}/store/ghc-${_ghc_version}" "${DESTDIR}/usr/lib/xmonad/"
+  vbin "$(cabal --store-dir="${wrksrc}/store" list-bin exe:xmonad)"
+  vman man/xmonad.1
+  vlicense LICENSE
+  vlicense contrib/LICENSE xmonad-contrib-LICENSE
+  vmkdir usr/lib/xmonad
+  cp -a "${wrksrc}/store/ghc-${_ghc_version}" "${DESTDIR}/usr/lib/xmonad/"
 
-	# Configs link Haskell libraries statically. Cabal's store also contains shared
-	# copies that depend on GHC's private, unregistered shared libraries.
-	find "${DESTDIR}/usr/lib/xmonad" \( -name '*.so' -o -name '*.dyn_hi' \) -delete
+  # Configs link Haskell libraries statically. Cabal's store also contains shared
+  # copies that depend on GHC's private, unregistered shared libraries.
+  find "${DESTDIR}/usr/lib/xmonad" \( -name '*.so' -o -name '*.dyn_hi' \) -delete
 
-	# GHC registrations must refer to installed paths, not the build directory.
-	for registration in "${package_database}"/*.conf; do
-		sed -i "s|${wrksrc}/store/|/usr/lib/xmonad/|g" "$registration"
-	done
-	ghc-pkg --package-db="$package_database" recache
+  # GHC registrations must refer to installed paths, not the build directory.
+  for registration in "${package_database}"/*.conf; do
+    sed -i "s|${wrksrc}/store/|/usr/lib/xmonad/|g" "$registration"
+  done
+  ghc-pkg --package-db="$package_database" recache
 }

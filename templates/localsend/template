@@ -14,14 +14,14 @@ distfiles="https://github.com/localsend/localsend/releases/download/v${version}/
 checksum=cc42a4f3eacdcb25ec31f0016b1272acb003145ab30484db8965450e20c72cd2
 
 do_extract() {
-	:
+  :
 }
 
 do_install() {
-	ar p "${XBPS_SRCDISTDIR}/${pkgname}-${version}/LocalSend-${version}-linux-x86-64.deb" data.tar.zst \
-		| tar --zstd -xf - -C "${DESTDIR}"
-	vsed -i -e 's/^Exec=localsend_app/Exec=localsend/' \
-		"${DESTDIR}/usr/share/applications/localsend_app.desktop"
-	vmkdir usr/bin
-	ln -s /opt/localsend_app/localsend_app "${DESTDIR}/usr/bin/localsend"
+  ar p "${XBPS_SRCDISTDIR}/${pkgname}-${version}/LocalSend-${version}-linux-x86-64.deb" data.tar.zst \
+    | tar --zstd -xf - -C "${DESTDIR}"
+  vsed -i -e 's/^Exec=localsend_app/Exec=localsend/' \
+    "${DESTDIR}/usr/share/applications/localsend_app.desktop"
+  vmkdir usr/bin
+  ln -s /opt/localsend_app/localsend_app "${DESTDIR}/usr/bin/localsend"
 }
