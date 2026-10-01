@@ -10,4 +10,4 @@ configuration {
     drun-display-format: "{name}";
 }
 
-@theme "muted-umber"
+@theme "muted-russet"

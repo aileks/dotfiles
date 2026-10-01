@@ -4,7 +4,8 @@ packages=(
   docker docker-compose 7zip tree bat eza psmisc fd fzf git jq shfmt ripgrep sqlite stow trash-cli unzip gsettings-desktop-schemas
   wget xdotool rsync zip zoxide nvme-cli btop fastfetch curl github-cli xorg-server xinit xauth xorg-apps xf86-input-libinput
   slop xkeyboard-config alsa-pipewire pipewire libspa-bluetooth wireplumber-elogind pulseaudio-utils maim xclip
-  qtile alacritty alacritty-terminfo rofi xsecurelock xss-lock xwallpaper xautolock fontconfig fontconfig-devel nnn
+  ghc xmobar trayer-srg
+  alacritty alacritty-terminfo rofi xsecurelock xss-lock xwallpaper xautolock fontconfig fontconfig-devel nnn
   zathura zathura-pdf-mupdf zathura-cb zathura-djvu uv
   mpv mpv-mpris gvfs pcmanfm lxappearance dunst libnotify playerctl wiremix cava qalculate-gtk file-roller ncdu2 imv udiskie
   tumbler xdg-utils xdg-user-dirs polkit-gnome xdg-desktop-portal-gtk ffmpeg6 ffmpegthumbnailer alsa-utils ddcutil libva-utils

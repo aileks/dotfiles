@@ -24,14 +24,17 @@ synchronized_sync = 1
 show_idle_bar_heads = 0
 
 [color]
-background = '#080503'
-foreground = '#B39887'
+background = '#0A0908'
+foreground = '#A17869'
 gradient = 1
-gradient_color_1 = '#A69082'
-gradient_color_2 = '#B39887'
-gradient_color_3 = '#C1AD9F'
-gradient_color_4 = '#D1C0B6'
-gradient_color_5 = '#DED6D0'
+gradient_color_1 = '#71544A'
+gradient_color_2 = '#A17869'
+gradient_color_3 = '#AC887B'
+gradient_color_4 = '#B8988D'
+gradient_color_5 = '#C5ABA2'
+gradient_color_6 = '#D2BEB7'
+gradient_color_7 = '#DFD1CC'
+gradient_color_8 = '#ECE5DE'
 
 [smoothing]
 noise_reduction = 77

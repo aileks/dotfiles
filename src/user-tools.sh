@@ -4,6 +4,16 @@ install_user_tools() {
 
   mkdir -p "$work" "$HOME/.local/bin" "$HOME/.local/libexec" "$data_home"
 
+  for name in Iosevka IosevkaTerm; do
+    if [[ -z $(fc-list ":family=$name Nerd Font" file) ]]; then
+      curl -fL "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/$name.tar.xz" \
+        -o "$work/$name.tar.xz"
+      mkdir -p "$data_home/fonts/$name"
+      tar xJf "$work/$name.tar.xz" -C "$data_home/fonts/$name"
+    fi
+  done
+  run fc-cache
+
   run voxtype setup --download --model large-v3-turbo --no-post-install
 
   if [[ ! -x $HOME/.local/libexec/bemoji ]]; then

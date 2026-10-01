@@ -1,0 +1,26 @@
+Config
+  { font = "Iosevka Nerd Font Propo Medium 10"
+  , bgColor = "#171412"
+  , fgColor = "#C8C0B8"
+  , alpha = 255
+  , position = TopHM 28 0 180 0 0
+  , border = NoBorder
+  , lowerOnStart = True
+  , allDesktops = True
+  , overrideRedirect = False
+  , hideOnStart = False
+  , persistent = True
+  , commands =
+      [ Run XMonadLog
+      , Run Com "bar-dnd" [] "dnd" 10
+      , Run Com "bar-volume" [] "volume" 10
+      , Run Com "bar-cpu-temperature" [] "cpu" 50
+      , Run Com "bar-memory" [] "memory" 50
+      , Run Com "bar-gpu" [] "gpu" 50
+      , Run Com "bar-network" [] "network" 50
+      , Run Com "bar-clock" [] "clock" 10
+      ]
+  , sepChar = "%"
+  , alignSep = "}{"
+  , template = " %XMonadLog% }{<fc=#A17869>%dnd%</fc> <fc=#8E8071>│</fc> <fc=#C8C0B8>%volume%</fc> <fc=#8E8071>│</fc> <fc=#AA9F95>%cpu%</fc> <fc=#8E8071>│</fc> <fc=#AA9F95>%memory%</fc> <fc=#8E8071>│</fc> <fc=#AC887B>%gpu%</fc> <fc=#8E8071>│</fc> <fc=#C5ABA2>%network%</fc> <fc=#8E8071>│</fc> %clock% "
+  }

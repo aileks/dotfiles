@@ -22,7 +22,7 @@ opt.completeopt = { "menu", "menuone", "noselect" }
 opt.wildmenu = true
 opt.statusline = " %f %m%r%= %l:%c "
 
-vim.cmd.colorscheme("muted-umber")
+vim.cmd.colorscheme("muted-russet")
 
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()

@@ -1,10 +1,9 @@
 custom_packages=(
-  zig
-  zls
   localsend
   onlyoffice-desktopeditors
   bitwarden-desktop
   voxtype
+  xmonad
 )
 
 install_custom_packages() {
@@ -24,7 +23,7 @@ install_custom_packages() {
 
     for template in "$repo"/templates/*/; do
       template=${template%/}
-      run as_user rsync -a --delete "$template/" "$void_packages/srcpkgs/${template##*/}/"
+      run as_user rsync -a "$template/" "$void_packages/srcpkgs/${template##*/}/"
     done
 
     run as_user "$void_packages/xbps-src" binary-bootstrap

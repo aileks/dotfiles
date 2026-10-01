@@ -10,7 +10,8 @@ install_stow() {
 
   run mkdir -p -- "$target_home/.local/bin" "$data_home/applications"
   for target in \
-    "$target_home"/.config/gtk-{3,4}.0/settings.ini; do
+    "$target_home"/.config/gtk-{3,4}.0/{settings.ini,gtk.css} \
+    "$target_home"/.config/qt6ct/colors/muted-russet.conf; do
     if [[ -f $target && ! -L $target ]]; then
       run mv -T -- "$target" "$target.backup.$stamp"
     fi

@@ -7,7 +7,7 @@ xset b off
 xset dpms 0 0 900
 xset r rate 250 50
 setxkbmap custom
-xwallpaper --zoom "$HOME/.dotfiles/wallpaper/muted-umber.png"
+xwallpaper --zoom "$HOME/.dotfiles/wallpaper/muted-russet.png"
 
 pipewire &
 /usr/libexec/polkit-gnome-authentication-agent-1 &

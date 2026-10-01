@@ -19,11 +19,16 @@ install_doom() {
 apply_gsettings() {
   run dbus-run-session -- bash -e -c "
     gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+    gsettings set org.gnome.desktop.interface gtk-theme Muted-Russet-Dark
     gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
     gsettings set org.gnome.desktop.interface cursor-theme Adwaita
     gsettings set org.gnome.desktop.interface cursor-size 24
     gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 11'
     gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font 11'
+    gsettings set org.gnome.desktop.interface font-antialiasing rgba
+    gsettings set org.gnome.desktop.interface font-hinting slight
+    gsettings set org.gnome.desktop.interface font-rgba-order rgb
+    gsettings set org.gnome.desktop.interface font-rendering manual
     gsettings set org.gnome.desktop.interface clock-format 24h
     gsettings set org.gnome.desktop.wm.preferences button-layout ''
     gsettings set org.gnome.desktop.wm.preferences audible-bell false
@@ -67,12 +72,12 @@ setup_user_phase() {
 
   install_stow
   install_user_tools
+  run xmonad --recompile
   install_doom
   apply_gsettings
 
   run xdg-user-dirs-update
   setup_mime
-  run fc-cache
   run bat cache --build
   install_crontab
 }

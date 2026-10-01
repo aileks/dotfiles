@@ -92,29 +92,4 @@ enable_services() {
   for service in "${services[@]}"; do
     run ln -sfn "/etc/sv/$service" "/var/service/$service"
   done
-
-  if [[ -L /var/service/dhcpcd ]]; then
-    run rm /var/service/dhcpcd
-  fi
-}
-
-configure_doas() {
-  if [[ -e /etc/xbps.d/99-ignore-sudo.conf ]]; then
-    return
-  fi
-
-  install_missing opendoas
-
-  if xbps-query sudo >/dev/null 2>&1; then
-    run xbps-remove -y sudo
-  fi
-
-  printf '%s\n' 'ignorepkg=sudo' >"$work/ignore-sudo.conf"
-  install_system_file "$work/ignore-sudo.conf" /etc/xbps.d/99-ignore-sudo.conf
-
-  doas -C /etc/doas.conf || fail 'doas rejected /etc/doas.conf.'
-  if command -v sudo >/dev/null 2>&1; then
-    fail 'sudo is still installed.'
-  fi
-  printf 'doas is the only elevation tool\n'
 }

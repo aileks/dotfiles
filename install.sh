@@ -51,7 +51,6 @@ main() {
   select_user
   stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
   work=$(mktemp -d -t dotfiles.XXXXXXXX)
-  trap 'rm -rf -- "$work"' EXIT
   trap 'printf "Installation failed at line %s. Fix the error above and rerun the same command.\n" "$LINENO" >&2' ERR
 
   if [[ ${DOTFILES_USER_SETUP:-} == 1 ]]; then
@@ -77,7 +76,7 @@ main() {
 
   run as_user env DOTFILES_USER_SETUP=1 "$repo/install.sh"
 
-  configure_doas
+  doas -C /etc/doas.conf || fail 'doas rejected /etc/doas.conf.'
 
   echo 'Installation complete.'
 }

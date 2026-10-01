@@ -150,21 +150,21 @@ fi
 
 # fzf settings
 export FZF_DEFAULT_OPTS="
-  --color=fg:#DED6D0
-  --color=fg+:#F1EAE5
-  --color=bg:#080503
-  --color=bg+:#725F52
-  --color=hl:#B39887
-  --color=hl+:#F1EAE5
-  --color=info:#A2968E
-  --color=marker:#B39887
-  --color=prompt:#B39887
-  --color=spinner:#A69082
-  --color=pointer:#F1EAE5
-  --color=header:#C6BBB5
-  --color=border:#80756E
-  --color=query:#F1EAE5
-  --color=gutter:#080503
+  --color=fg:#C8C0B8
+  --color=fg+:#ECE5DE
+  --color=bg:#0A0908
+  --color=bg+:#2D2924
+  --color=hl:#B8988D
+  --color=hl+:#ECE5DE
+  --color=info:#AA9F95
+  --color=marker:#A17869
+  --color=prompt:#A17869
+  --color=spinner:#AC887B
+  --color=pointer:#ECE5DE
+  --color=header:#C8C0B8
+  --color=border:#8E8071
+  --color=query:#ECE5DE
+  --color=gutter:#0A0908
   --highlight-line
   --info=inline-right
   --layout=reverse
@@ -240,13 +240,13 @@ make_prompt() {
   local status=$1
   local reset=$'\e[0m'
   local bold=$'\e[1m'
-  local error=$'\e[38;2;224;121;114m'
-  local primary=$'\e[38;2;179;152;135m'
-  local secondary=$'\e[38;2;166;144;130m'
-  local tertiary=$'\e[38;2;193;173;159m'
-  local muted=$'\e[38;2;162;150;142m'
-  local info=$'\e[38;2;198;187;181m'
-  local host=$'\e[38;2;209;192;182m'
+  local error=$'\e[38;2;172;136;123m'
+  local primary=$'\e[38;2;161;120;105m'
+  local secondary=$'\e[38;2;172;136;123m'
+  local tertiary=$'\e[38;2;197;171;162m'
+  local muted=$'\e[38;2;170;159;149m'
+  local info=$'\e[38;2;200;192;184m'
+  local host=$'\e[38;2;223;209;204m'
   local git_segment=''
   local status_segment=''
   local venv_segment=''
