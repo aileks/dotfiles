@@ -70,14 +70,14 @@ desktopRules = composeAll
   , className =? "firefox" <&&> resource =? "Places" --> doFloat
   , isFullscreen --> doFullFloat
   ] <+> composeAll [className =? application --> doFloat | application <-
-    [ "imv", "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "LocalSend"
+    [ "imv", "Qalculate-gtk", "Blueman", "Bitwarden", "bitwarden", "org.localsend.localsend_app"
     , "polkit-gnome", "xdg-desktop-portal-gtk", "Nm-connection-editor"
     ]]
 
 desktopBar :: StatusBarConfig
 desktopBar = statusBarProp "xmobar \"$HOME/.config/xmobar/xmobarrc\"" (clickablePP desktopPP)
   <> statusBarGeneric
-    "trayer --edge top --align right --monitor 0 --widthtype request --height 28 --padding 5 --SetDockType true --SetPartialStrut true --transparent true --alpha 0 --tint 0x171412"
+    "trayer --edge top --align right --monitor 0 --widthtype request --height 23 --padding 4 --SetDockType true --SetPartialStrut true --iconspacing 2 --transparent true --alpha 0 --tint 0x171412"
     (pure ())
 
 desktopPP :: PP

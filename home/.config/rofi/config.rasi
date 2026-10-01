@@ -1,11 +1,10 @@
 configuration {
-    modi: "drun,run,window";
-    font: "Iosevka Nerd Font 12";
+    modi: "drun,run";
+    font: "Iosevka Nerd Font Propo 16";
     terminal: "alacritty";
     show-icons: false;
-    display-drun: "Apps";
-    display-run: "Command";
-    display-window: "Windows";
+    display-drun: "";
+    display-run: "";
     drun-display-format: "{name}";
 }
 
